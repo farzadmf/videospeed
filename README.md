@@ -1,3 +1,9 @@
+# Changes in this fork
+
+- The extension will remember the playspeed per Website (not completely tested, but hopefully that's what's going to happen)
+
+---
+
 # The science of accelerated playback
 
 **TL;DR: faster playback translates to better engagement and retention.**

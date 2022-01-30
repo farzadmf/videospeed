@@ -6,6 +6,7 @@ var tc = {
     lastSpeed: 1.0, // default 1x
     enabled: true, // default enabled
     speeds: {}, // empty object to hold speed for each source
+    speedBySite: true,
 
     displayKeyCode: 86, // default: V
     rememberSpeed: false, // default: false
@@ -22,7 +23,7 @@ var tc = {
       teams.microsoft.com
     `.replace(regStrip, ""),
     defaultLogLevel: 4,
-    logLevel: 3
+    logLevel: 5
   },
 
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
@@ -129,6 +130,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
   tc.settings.startHidden = Boolean(storage.startHidden);
   tc.settings.controllerOpacity = Number(storage.controllerOpacity);
   tc.settings.blacklist = String(storage.blacklist);
+  tc.settings.speeds = storage.speeds;
 
   // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
   if (
@@ -155,9 +157,8 @@ function getKeyBindings(action, what = "value") {
 }
 
 function setKeyBindings(action, value) {
-  tc.settings.keyBindings.find((item) => item.action === action)[
-    "value"
-  ] = value;
+  tc.settings.keyBindings.find((item) => item.action === action)["value"] =
+    value;
 }
 
 function defineVideoController() {
@@ -182,7 +183,18 @@ function defineVideoController() {
 
     this.video = target;
     this.parent = target.parentElement || parent;
-    storedSpeed = tc.settings.speeds[target.currentSrc];
+    storedSpeed = tc.settings.speeds[getBaseURL(target.currentSrc)] || 1.0;
+
+    console.warn("SPEEDS", tc.settings.speeds);
+    console.warn(
+      "CURRENT_SRC",
+      target.currentSrc,
+      "BASE_URL",
+      getBaseURL(target.currentSrc),
+      "SETTINGS",
+      tc.settings.speeds[target.currentSrc]
+    );
+
     if (!tc.settings.rememberSpeed) {
       if (!storedSpeed) {
         log(
@@ -193,8 +205,13 @@ function defineVideoController() {
       }
       setKeyBindings("reset", getKeyBindings("fast")); // resetSpeed = fastSpeed
     } else {
-      log("Recalling stored speed due to rememberSpeed being enabled", 5);
-      storedSpeed = tc.settings.lastSpeed;
+      log(
+        "Recalling stored speed " +
+          storedSpeed +
+          " due to rememberSpeed being enabled",
+        5
+      );
+      //storedSpeed = tc.settings.lastSpeed;
     }
 
     log("Explicitly setting playbackRate to: " + storedSpeed, 5);
@@ -203,7 +220,16 @@ function defineVideoController() {
     this.div = this.initializeControls();
 
     var mediaEventAction = function (event) {
-      storedSpeed = tc.settings.speeds[event.target.currentSrc];
+      storedSpeed =
+        tc.settings.speeds[getBaseURL(event.target.currentSrc)] || 1.0;
+
+      console.warn(
+        "FIRST GOT",
+        storedSpeed,
+        "for",
+        getBaseURL(event.target.currentSrc)
+      );
+
       if (!tc.settings.rememberSpeed) {
         if (!storedSpeed) {
           log("Overwriting stored speed to 1.0 (rememberSpeed not enabled)", 4);
@@ -213,11 +239,11 @@ function defineVideoController() {
         log("Setting reset keybinding to fast", 5);
         setKeyBindings("reset", getKeyBindings("fast")); // resetSpeed = fastSpeed
       } else {
-        log(
-          "Storing lastSpeed into tc.settings.speeds (rememberSpeed enabled)",
-          5
-        );
-        storedSpeed = tc.settings.lastSpeed;
+        // log(
+        //   "Storing lastSpeed into tc.settings.speeds (rememberSpeed enabled)",
+        //   5
+        // );
+        //storedSpeed = tc.settings.lastSpeed;
       }
       // TODO: Check if explicitly setting the playback rate to 1.0 is
       // necessary when rememberSpeed is disabled (this may accidentally
@@ -361,13 +387,17 @@ function defineVideoController() {
         // this is a monstrosity but new FB design does not have *any*
         // semantic handles for us to traverse the tree, and deep nesting
         // that we need to bubble up from to get controller to stack correctly
-        let p = this.parent.parentElement.parentElement.parentElement
-          .parentElement.parentElement.parentElement.parentElement;
+        let p =
+          this.parent.parentElement.parentElement.parentElement.parentElement
+            .parentElement.parentElement.parentElement;
         p.insertBefore(fragment, p.firstChild);
         break;
       case location.hostname == "tv.apple.com":
         // insert before parent to bypass overlay
-        this.parent.parentNode.insertBefore(fragment, this.parent.parentNode.firstChild);
+        this.parent.parentNode.insertBefore(
+          fragment,
+          this.parent.parentNode.firstChild
+        );
         break;
       default:
         // Note: when triggered via a MutationRecord, it's possible that the
@@ -385,39 +415,83 @@ function escapeStringRegExp(str) {
 }
 
 function isBlacklisted() {
-  blacklisted = false;
+  var blacklisted = false;
   tc.settings.blacklist.split("\n").forEach((match) => {
-    match = match.replace(regStrip, "");
-    if (match.length == 0) {
-      return;
-    }
-
-    if (match.startsWith("/")) {
-      try {
-        var parts = match.split("/");
-
-        if (regEndsWithFlags.test(match)) {
-          var flags = parts.pop();
-          var regex = parts.slice(1).join("/");
-        } else {
-          var flags = "";
-          var regex = match;
-        }
-
-        var regexp = new RegExp(regex, flags);
-      } catch (err) {
-        return;
-      }
-    } else {
-      var regexp = new RegExp(escapeStringRegExp(match));
-    }
-
-    if (regexp.test(location.href)) {
+    if (isLocationMatch(match)) {
       blacklisted = true;
       return;
     }
+    // match = match.replace(regStrip, "");
+    // if (match.length == 0) {
+    //   return;
+    // }
+
+    // if (match.startsWith("/")) {
+    //   try {
+    //     var parts = match.split("/");
+
+    //     if (regEndsWithFlags.test(match)) {
+    //       var flags = parts.pop();
+    //       var regex = parts.slice(1).join("/");
+    //     } else {
+    //       var flags = "";
+    //       var regex = match;
+    //     }
+
+    //     var regexp = new RegExp(regex, flags);
+    //   } catch (err) {
+    //     return;
+    //   }
+    // } else {
+    //   var regexp = new RegExp(escapeStringRegExp(match));
+    // }
+
+    // if (regexp.test(location.href)) {
+    //   blacklisted = true;
+    //   return;
+    // }
   });
   return blacklisted;
+}
+
+function getBaseURL(fullURL) {
+  urlReg = new RegExp(new RegExp(/(https?:\/\/.*?\/).*/));
+  match = fullURL.match(urlReg);
+
+  if (!!match) {
+    return match[match.length - 1];
+  }
+
+  return null;
+}
+
+function isLocationMatch(match) {
+  match = match.replace(regStrip, "");
+  if (match.length == 0) {
+    return false;
+  }
+
+  if (match.startsWith("/")) {
+    try {
+      var parts = match.split("/");
+
+      if (regEndsWithFlags.test(match)) {
+        var flags = parts.pop();
+        var regex = parts.slice(1).join("/");
+      } else {
+        var flags = "";
+        var regex = match;
+      }
+
+      var regexp = new RegExp(regex, flags);
+    } catch (err) {
+      return false;
+    }
+  } else {
+    var regexp = new RegExp(escapeStringRegExp(match));
+  }
+
+  return regexp.test(location.href);
 }
 
 var coolDown = false;
@@ -443,8 +517,7 @@ function setupListener() {
   function updateSpeedFromEvent(video) {
     // It's possible to get a rate change on a VIDEO/AUDIO that doesn't have
     // a video controller attached to it.  If we do, ignore it.
-    if (!video.vsc)
-      return;
+    if (!video.vsc) return;
     var speedIndicator = video.vsc.speedIndicator;
     var src = video.currentSrc;
     var speed = Number(video.playbackRate.toFixed(2));
@@ -453,13 +526,20 @@ function setupListener() {
 
     log("Updating controller with new speed", 5);
     speedIndicator.textContent = speed.toFixed(2);
-    tc.settings.speeds[src] = speed;
+    tc.settings.speeds[getBaseURL(src)] = speed;
+
     log("Storing lastSpeed in settings for the rememberSpeed feature", 5);
     tc.settings.lastSpeed = speed;
     log("Syncing chrome settings for lastSpeed", 5);
-    chrome.storage.sync.set({ lastSpeed: speed }, function () {
-      log("Speed setting saved: " + speed, 5);
-    });
+    chrome.storage.sync.set(
+      {
+        lastSpeed: speed,
+        speeds: tc.settings.speeds
+      },
+      function () {
+        log("Speed (and SPEEDS) setting saved: " + speed, 5);
+      }
+    );
     // show the controller for 1000ms if it's hidden.
     runAction("blink", null, null);
   }
@@ -478,14 +558,24 @@ function setupListener() {
        * video speed instead of all video speed change events.
        */
       if (tc.settings.forceLastSavedSpeed) {
+        log("Force last-saved speed is ON", 5);
         if (event.detail && event.detail.origin === "videoSpeed") {
+          log(
+            `Setting playbackRate to event.detail's speed (${event.detail.speed})`,
+            5
+          );
           video.playbackRate = event.detail.speed;
           updateSpeedFromEvent(video);
         } else {
+          log(
+            `Setting playbackRate to tc.settings.lastSpeed (${tc.settings.lastSpeed})`,
+            5
+          );
           video.playbackRate = tc.settings.lastSpeed;
         }
         event.stopImmediatePropagation();
       } else {
+        log("Force last-saved speed is OFF; calling 'updateSpeedFromEvent'", 5);
         updateSpeedFromEvent(video);
       }
     },
@@ -670,19 +760,19 @@ function initializeNow(document) {
             case "attributes":
               if (
                 (mutation.target.attributes["aria-hidden"] &&
-                mutation.target.attributes["aria-hidden"].value == "false")
-                || mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER'
+                  mutation.target.attributes["aria-hidden"].value == "false") ||
+                mutation.target.nodeName === "APPLE-TV-PLUS-PLAYER"
               ) {
                 var flattenedNodes = getShadow(document.body);
-                var nodes = flattenedNodes.filter(
-                  (x) => x.tagName == "VIDEO"
-                );
+                var nodes = flattenedNodes.filter((x) => x.tagName == "VIDEO");
                 for (let node of nodes) {
                   // only add vsc the first time for the apple-tv case (the attribute change is triggered every time you click the vsc)
-                  if (node.vsc && mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER')
+                  if (
+                    node.vsc &&
+                    mutation.target.nodeName === "APPLE-TV-PLUS-PLAYER"
+                  )
                     continue;
-                  if (node.vsc)
-                    node.vsc.remove();
+                  if (node.vsc) node.vsc.remove();
                   checkForVideo(node, node.parentNode || mutation.target, true);
                 }
               }

@@ -134,6 +134,19 @@
     </section>
 
     <section>
+      <h3>Site specific speeds</h3>
+      <div class="row">
+        <input
+          id="website1Pattern"
+          type="text"
+          value="youtube.com"
+          class="websiteName"
+        />
+        <input id="website1Speed" type="text" value="2.5" />
+      </div>
+    </section>
+
+    <section>
       <h3>Other</h3>
       <div class="row">
         <label for="enabled">Enable</label>
@@ -148,8 +161,13 @@
         <input id="rememberSpeed" type="checkbox" />
       </div>
       <div class="row">
-        <label for="forceLastSavedSpeed">Force last saved speed<br />
-        <em>Useful for video players that override the speeds set by VideoSpeed</em></label>
+        <label for="forceLastSavedSpeed"
+          >Force last saved speed<br />
+          <em
+            >Useful for video players that override the speeds set by
+            VideoSpeed</em
+          ></label
+        >
         <input id="forceLastSavedSpeed" type="checkbox" />
       </div>
       <div class="row">
@@ -180,6 +198,16 @@
     <button id="experimental">Show Experimental Features</button>
 
     <div id="status"></div>
+
+    <hr />
+
+    <p></p>
+    <div>
+      <button id="forgetAll">Forget all speeds</button>
+      <button id="toggleDisplaySpeeds">Toggle display current speeds</button>
+      <span id="forgetStatus" class="hidden">Forgot all!</span>
+      <div id="speeds" class="hidden"></div>
+    </div>
 
     <div id="faq">
       <hr />

@@ -72,13 +72,17 @@ button {
   user-select: none;
 }
 
-input[type="text"] {
+input[type="text"]:not(.websiteName) {
   width: 75px;
   text-align: center;
 }
 
 .row {
   margin: 5px 0px;
+}
+
+.websiteName {
+  width: 170px;
 }
 
 label {
@@ -109,4 +113,8 @@ select {
 .customKey {
   color: transparent;
   text-shadow: 0 0 0 #000000;
+}
+
+.hidden {
+  display: none;
 }

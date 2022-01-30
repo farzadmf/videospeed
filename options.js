@@ -184,13 +184,12 @@ function validate() {
 
   blacklist.value.split("\n").forEach((match) => {
     match = match.replace(regStrip, "");
-    
+
     if (match.startsWith("/")) {
       try {
         var parts = match.split("/");
 
-        if (parts.length < 3)
-          throw "invalid regex";
+        if (parts.length < 3) throw "invalid regex";
 
         var flags = parts.pop();
         var regex = parts.slice(1).join("/");
@@ -198,7 +197,9 @@ function validate() {
         var regexp = new RegExp(regex, flags);
       } catch (err) {
         status.textContent =
-          "Error: Invalid blacklist regex: \"" + match + "\". Unable to save. Try wrapping it in foward slashes.";
+          'Error: Invalid blacklist regex: "' +
+          match +
+          '". Unable to save. Try wrapping it in foward slashes.';
         valid = false;
         return;
       }
@@ -218,7 +219,9 @@ function save_options() {
   ); // Remove added shortcuts
 
   var rememberSpeed = document.getElementById("rememberSpeed").checked;
-  var forceLastSavedSpeed = document.getElementById("forceLastSavedSpeed").checked;
+  var forceLastSavedSpeed = document.getElementById(
+    "forceLastSavedSpeed"
+  ).checked;
   var audioBoolean = document.getElementById("audioBoolean").checked;
   var enabled = document.getElementById("enabled").checked;
   var startHidden = document.getElementById("startHidden").checked;
@@ -264,7 +267,8 @@ function save_options() {
 function restore_options() {
   chrome.storage.sync.get(tcDefaults, function (storage) {
     document.getElementById("rememberSpeed").checked = storage.rememberSpeed;
-    document.getElementById("forceLastSavedSpeed").checked = storage.forceLastSavedSpeed;
+    document.getElementById("forceLastSavedSpeed").checked =
+      storage.forceLastSavedSpeed;
     document.getElementById("audioBoolean").checked = storage.audioBoolean;
     document.getElementById("enabled").checked = storage.enabled;
     document.getElementById("startHidden").checked = storage.startHidden;
@@ -345,6 +349,30 @@ function show_experimental() {
     .forEach((item) => (item.style.display = "inline-block"));
 }
 
+function forgetAll() {
+  chrome.storage.sync.remove(["speeds"]);
+  forgetStatus = document.querySelector("#forgetStatus");
+  forgetStatus.classList.toggle("hidden");
+  setTimeout(() => forgetStatus.classList.toggle("hidden"), 1500);
+}
+
+function toggleDisplaySpeeds() {
+  const speedsDiv = document.querySelector("#speeds");
+
+  chrome.storage.sync.get("speeds", (storage) => {
+    if (!storage.speeds) {
+      return;
+    }
+
+    const out = Object.entries(storage.speeds).reduce((prev, [key, value]) => {
+      return `${prev}<li>${key} -> ${value}</li>`;
+    }, "");
+    speedsDiv.innerHTML = `<ul>${out}</ul>`;
+  });
+
+  speedsDiv.classList.toggle("hidden");
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   restore_options();
 
@@ -356,6 +384,10 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("experimental")
     .addEventListener("click", show_experimental);
+  document.getElementById("forgetAll").addEventListener("click", forgetAll);
+  document
+    .getElementById("toggleDisplaySpeeds")
+    .addEventListener("click", toggleDisplaySpeeds);
 
   function eventCaller(event, className, funcName) {
     if (!event.target.classList.contains(className)) {
