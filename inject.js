@@ -23,7 +23,7 @@ var tc = {
       teams.microsoft.com
     `.replace(regStrip, ""),
     defaultLogLevel: 4,
-    logLevel: 5
+    logLevel: 3
   },
 
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
@@ -305,7 +305,7 @@ function defineVideoController() {
     // are relative to offsetParent, so we adjust for that here. offsetParent
     // can be null if the video has `display: none` or is not yet in the DOM.
     const offsetRect = this.video.offsetParent?.getBoundingClientRect();
-    const top = Math.max(rect.top - (offsetRect?.top || 0), 0) + "px";
+    const top = Math.max(rect.top - (offsetRect?.top || 0), 30) + "px";
     const left = Math.max(rect.left - (offsetRect?.left || 0), 0) + "px";
 
     log("Speed variable set to: " + speed, 5);
