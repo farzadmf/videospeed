@@ -60,6 +60,9 @@ function log(message, level) {
 }
 
 chrome.storage.sync.get(tc.settings, function (storage) {
+  console.warn("++++ CHROME STORAGE SYNC ++++");
+  console.warn(storage);
+  console.warn("---- CHROME STORAGE SYNC ----");
   tc.settings.keyBindings = storage.keyBindings; // Array
   if (storage.keyBindings.length == 0) {
     // if first initialization of 0.5.3
@@ -185,16 +188,6 @@ function defineVideoController() {
     this.parent = target.parentElement || parent;
     storedSpeed = tc.settings.speeds[getBaseURL(target.currentSrc)] || 1.0;
 
-    console.warn("SPEEDS", tc.settings.speeds);
-    console.warn(
-      "CURRENT_SRC",
-      target.currentSrc,
-      "BASE_URL",
-      getBaseURL(target.currentSrc),
-      "SETTINGS",
-      tc.settings.speeds[target.currentSrc]
-    );
-
     if (!tc.settings.rememberSpeed) {
       if (!storedSpeed) {
         log(
@@ -222,13 +215,6 @@ function defineVideoController() {
     var mediaEventAction = function (event) {
       storedSpeed =
         tc.settings.speeds[getBaseURL(event.target.currentSrc)] || 1.0;
-
-      console.warn(
-        "FIRST GOT",
-        storedSpeed,
-        "for",
-        getBaseURL(event.target.currentSrc)
-      );
 
       if (!tc.settings.rememberSpeed) {
         if (!storedSpeed) {
