@@ -4,7 +4,16 @@ body {
   padding-top: 53px;
   font-family: sans-serif;
   font-size: 12px;
-  color: rgb(48, 57, 66);
+  /* color: rgb(48, 57, 66); */
+  color: #eee;
+  background-color: #333;
+}
+
+input,
+textarea,
+select {
+  background-color: #333f4d;
+  color: #edeab8;
 }
 
 h1,
@@ -22,7 +31,7 @@ h1 {
 h3 {
   font-size: 1.2em;
   margin-bottom: 0.8em;
-  color: black;
+  /* color: black; */
 }
 p {
   margin: 0.65em 0;
@@ -106,12 +115,12 @@ select {
 }
 
 .customForce {
-  display: none;
+  /* display: none; */
   width: 250px;
 }
 
 .customKey {
-  color: transparent;
+  /* color: transparent; */
   text-shadow: 0 0 0 #000000;
 }
 

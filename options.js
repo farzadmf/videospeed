@@ -10,70 +10,88 @@ var tcDefaults = {
   enabled: true, // default enabled
   controllerOpacity: 0.3, // default: 0.3
   keyBindings: [
-    { action: "display", key: 86, value: 0, force: false, predefined: true }, // V
-    { action: "slower", key: 83, value: 0.1, force: false, predefined: true }, // S
-    { action: "faster", key: 68, value: 0.1, force: false, predefined: true }, // D
-    { action: "rewind", key: 90, value: 10, force: false, predefined: true }, // Z
-    { action: "advance", key: 88, value: 10, force: false, predefined: true }, // X
-    { action: "reset", key: 82, value: 1, force: false, predefined: true }, // R
-    { action: "fast", key: 71, value: 1.8, force: false, predefined: true } // G
+    { action: 'display', key: 86, value: 0, force: false, predefined: true }, // V
+    { action: 'slower', key: 83, value: 0.1, force: false, predefined: true }, // S
+    { action: 'faster', key: 68, value: 0.1, force: false, predefined: true }, // D
+    { action: 'rewind', key: 90, value: 10, force: false, predefined: true }, // Z
+    { action: 'advance', key: 88, value: 10, force: false, predefined: true }, // X
+    { action: 'reset', key: 82, value: 1, force: false, predefined: true }, // R
+    { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
+    { action: 'fixspeed', key: 49, value: 1, force: false, predefined: true }, // 1
+    { action: 'fixspeed', key: 50, value: 2, force: false, predefined: true }, // 2
+    { action: 'fixspeed', key: 51, value: 3, force: false, predefined: true }, // 3
+    { action: 'fixspeed', key: 52, value: 4, force: false, predefined: true }, // 4
+    { action: 'fixspeed', key: 53, value: 5, force: false, predefined: true }, // 5
   ],
   blacklist: `www.instagram.com
     twitter.com
     imgur.com
     teams.microsoft.com
-  `.replace(regStrip, "")
+  `.replace(regStrip, ''),
 };
 
 var keyBindings = [];
 
+// Useful sites:
+// - http://gcctech.org/csc/javascript/javascript_keycodes.htm
+// - https://www.toptal.com/developers/keycode (interactive)
 var keyCodeAliases = {
-  0: "null",
-  null: "null",
-  undefined: "null",
-  32: "Space",
-  37: "Left",
-  38: "Up",
-  39: "Right",
-  40: "Down",
-  96: "Num 0",
-  97: "Num 1",
-  98: "Num 2",
-  99: "Num 3",
-  100: "Num 4",
-  101: "Num 5",
-  102: "Num 6",
-  103: "Num 7",
-  104: "Num 8",
-  105: "Num 9",
-  106: "Num *",
-  107: "Num +",
-  109: "Num -",
-  110: "Num .",
-  111: "Num /",
-  112: "F1",
-  113: "F2",
-  114: "F3",
-  115: "F4",
-  116: "F5",
-  117: "F6",
-  118: "F7",
-  119: "F8",
-  120: "F9",
-  121: "F10",
-  122: "F11",
-  123: "F12",
-  186: ";",
-  188: "<",
-  189: "-",
-  187: "+",
-  190: ">",
-  191: "/",
-  192: "~",
-  219: "[",
-  220: "\\",
-  221: "]",
-  222: "'"
+  0: 'null',
+  null: 'null',
+  undefined: 'null',
+  32: 'Space',
+  37: 'Left',
+  38: 'Up',
+  39: 'Right',
+  40: 'Down',
+  48: '0',
+  49: '1',
+  50: '2',
+  51: '3',
+  52: '4',
+  53: '5',
+  54: '6',
+  55: '7',
+  56: '8',
+  57: '9',
+  96: 'Num 0',
+  97: 'Num 1',
+  98: 'Num 2',
+  99: 'Num 3',
+  100: 'Num 4',
+  101: 'Num 5',
+  102: 'Num 6',
+  103: 'Num 7',
+  104: 'Num 8',
+  105: 'Num 9',
+  106: 'Num *',
+  107: 'Num +',
+  109: 'Num -',
+  110: 'Num .',
+  111: 'Num /',
+  112: 'F1',
+  113: 'F2',
+  114: 'F3',
+  115: 'F4',
+  116: 'F5',
+  117: 'F6',
+  118: 'F7',
+  119: 'F8',
+  120: 'F9',
+  121: 'F10',
+  122: 'F11',
+  123: 'F12',
+  186: ';',
+  188: '<',
+  189: '-',
+  187: '+',
+  190: '.',
+  191: '/',
+  192: '~',
+  219: '[',
+  220: '\\',
+  221: ']',
+  222: "'",
 };
 
 function recordKeyPress(e) {
@@ -82,18 +100,18 @@ function recordKeyPress(e) {
     (e.keyCode >= 65 && e.keyCode <= 90) || // Letters A-Z
     keyCodeAliases[e.keyCode] // Other character keys
   ) {
-    e.target.value =
-      keyCodeAliases[e.keyCode] || String.fromCharCode(e.keyCode);
+    console.warn('recordKeyPress', 'keyCode', e.keyCode);
+    e.target.value = keyCodeAliases[e.keyCode] || String.fromCharCode(e.keyCode);
     e.target.keyCode = e.keyCode;
 
     e.preventDefault();
     e.stopPropagation();
   } else if (e.keyCode === 8) {
     // Clear input when backspace pressed
-    e.target.value = "";
+    e.target.value = '';
   } else if (e.keyCode === 27) {
     // When esc clicked, clear input
-    e.target.value = "null";
+    e.target.value = 'null';
     e.target.keyCode = null;
   }
 }
@@ -107,17 +125,15 @@ function inputFilterNumbersOnly(e) {
 }
 
 function inputFocus(e) {
-  e.target.value = "";
+  e.target.value = '';
 }
 
 function inputBlur(e) {
-  e.target.value =
-    keyCodeAliases[e.target.keyCode] || String.fromCharCode(e.target.keyCode);
+  e.target.value = keyCodeAliases[e.target.keyCode] || String.fromCharCode(e.target.keyCode);
 }
 
 function updateShortcutInputText(inputId, keyCode) {
-  document.getElementById(inputId).value =
-    keyCodeAliases[keyCode] || String.fromCharCode(keyCode);
+  document.getElementById(inputId).value = keyCodeAliases[keyCode] || String.fromCharCode(keyCode);
   document.getElementById(inputId).keyCode = keyCode;
 }
 
@@ -127,7 +143,19 @@ function updateCustomShortcutInputText(inputItem, keyCode) {
 }
 
 // List of custom actions for which customValue should be disabled
-var customActionsNoValues = ["pause", "muted", "mark", "jump", "display"];
+var customActionsNoValues = [
+  'pause',
+  'muted',
+  'mark',
+  'jump',
+  'display',
+  'fixspeed-1',
+  'fixspeed-2',
+  'fixspeed-3',
+  'fixspeed-4',
+  'fixspeed-5',
+  'fixspeed-6',
+];
 
 function add_shortcut() {
   var html = `<select class="customDo">
@@ -141,6 +169,12 @@ function add_shortcut() {
     <option value="pause">Pause</option>
     <option value="mark">Set marker</option>
     <option value="jump">Jump to marker</option>
+    <option value="fixspeed-1">1x Speed</option>
+    <option value="fixspeed-2">2x Speed</option>
+    <option value="fixspeed-3">3x Speed</option>
+    <option value="fixspeed-4">4x Speed</option>
+    <option value="fixspeed-5">5x Speed</option>
+    <option value="fixspeed-6">6x Speed</option>
     <option value="display">Show/hide controller</option>
     </select>
     <input class="customKey" type="text" placeholder="press a key"/>
@@ -150,49 +184,57 @@ function add_shortcut() {
     <option value="true">Disable website key bindings</option>
     </select>
     <button class="removeParent">X</button>`;
-  var div = document.createElement("div");
-  div.setAttribute("class", "row customs");
+  var div = document.createElement('div');
+  div.setAttribute('class', 'row customs');
   div.innerHTML = html;
-  var customs_element = document.getElementById("customs");
+  var customs_element = document.getElementById('customs');
   customs_element.insertBefore(
     div,
-    customs_element.children[customs_element.childElementCount - 1]
+    customs_element.children[customs_element.childElementCount - 1],
   );
 }
 
 function createKeyBindings(item) {
-  const action = item.querySelector(".customDo").value;
-  const key = item.querySelector(".customKey").keyCode;
-  const value = Number(item.querySelector(".customValue").value);
-  const force = item.querySelector(".customForce").value;
+  const action = item.querySelector('.customDo').value;
+  const key = item.querySelector('.customKey').keyCode;
+  const value = Number(item.querySelector('.customValue').value);
+  const force = item.querySelector('.customForce').value;
   const predefined = !!item.id; //item.id ? true : false;
+
+  console.warn(item, {
+    action: action,
+    key: key,
+    value: value,
+    force: force,
+    predefined: predefined,
+  });
 
   keyBindings.push({
     action: action,
     key: key,
     value: value,
     force: force,
-    predefined: predefined
+    predefined: predefined,
   });
 }
 
 // Validates settings before saving
 function validate() {
   var valid = true;
-  var status = document.getElementById("status");
-  var blacklist = document.getElementById("blacklist");
+  var status = document.getElementById('status');
+  var blacklist = document.getElementById('blacklist');
 
-  blacklist.value.split("\n").forEach((match) => {
-    match = match.replace(regStrip, "");
+  blacklist.value.split('\n').forEach((match) => {
+    match = match.replace(regStrip, '');
 
-    if (match.startsWith("/")) {
+    if (match.startsWith('/')) {
       try {
-        var parts = match.split("/");
+        var parts = match.split('/');
 
-        if (parts.length < 3) throw "invalid regex";
+        if (parts.length < 3) throw 'invalid regex';
 
         var flags = parts.pop();
-        var regex = parts.slice(1).join("/");
+        var regex = parts.slice(1).join('/');
 
         var regexp = new RegExp(regex, flags);
       } catch (err) {
@@ -214,32 +256,28 @@ function save_options() {
     return;
   }
   keyBindings = [];
-  Array.from(document.querySelectorAll(".customs")).forEach((item) =>
-    createKeyBindings(item)
-  ); // Remove added shortcuts
+  Array.from(document.querySelectorAll('.customs')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
 
-  var rememberSpeed = document.getElementById("rememberSpeed").checked;
-  var forceLastSavedSpeed = document.getElementById(
-    "forceLastSavedSpeed"
-  ).checked;
-  var audioBoolean = document.getElementById("audioBoolean").checked;
-  var enabled = document.getElementById("enabled").checked;
-  var startHidden = document.getElementById("startHidden").checked;
-  var controllerOpacity = document.getElementById("controllerOpacity").value;
-  var blacklist = document.getElementById("blacklist").value;
+  var rememberSpeed = document.getElementById('rememberSpeed').checked;
+  var forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
+  var audioBoolean = document.getElementById('audioBoolean').checked;
+  var enabled = document.getElementById('enabled').checked;
+  var startHidden = document.getElementById('startHidden').checked;
+  var controllerOpacity = document.getElementById('controllerOpacity').value;
+  var blacklist = document.getElementById('blacklist').value;
 
   chrome.storage.sync.remove([
-    "resetSpeed",
-    "speedStep",
-    "fastSpeed",
-    "rewindTime",
-    "advanceTime",
-    "resetKeyCode",
-    "slowerKeyCode",
-    "fasterKeyCode",
-    "rewindKeyCode",
-    "advanceKeyCode",
-    "fastKeyCode"
+    'resetSpeed',
+    'speedStep',
+    'fastSpeed',
+    'rewindTime',
+    'advanceTime',
+    'resetKeyCode',
+    'slowerKeyCode',
+    'fasterKeyCode',
+    'rewindKeyCode',
+    'advanceKeyCode',
+    'fastKeyCode',
   ]);
   chrome.storage.sync.set(
     {
@@ -250,79 +288,72 @@ function save_options() {
       startHidden: startHidden,
       controllerOpacity: controllerOpacity,
       keyBindings: keyBindings,
-      blacklist: blacklist.replace(regStrip, "")
+      blacklist: blacklist.replace(regStrip, ''),
     },
     function () {
       // Update status to let user know options were saved.
-      var status = document.getElementById("status");
-      status.textContent = "Options saved";
+      var status = document.getElementById('status');
+      status.textContent = 'Options saved';
       setTimeout(function () {
-        status.textContent = "";
+        status.textContent = '';
       }, 1000);
-    }
+    },
   );
 }
 
 // Restores options from chrome.storage
 function restore_options() {
   chrome.storage.sync.get(tcDefaults, function (storage) {
-    document.getElementById("rememberSpeed").checked = storage.rememberSpeed;
-    document.getElementById("forceLastSavedSpeed").checked =
-      storage.forceLastSavedSpeed;
-    document.getElementById("audioBoolean").checked = storage.audioBoolean;
-    document.getElementById("enabled").checked = storage.enabled;
-    document.getElementById("startHidden").checked = storage.startHidden;
-    document.getElementById("controllerOpacity").value =
-      storage.controllerOpacity;
-    document.getElementById("blacklist").value = storage.blacklist;
+    document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
+    document.getElementById('forceLastSavedSpeed').checked = storage.forceLastSavedSpeed;
+    document.getElementById('audioBoolean').checked = storage.audioBoolean;
+    document.getElementById('enabled').checked = storage.enabled;
+    document.getElementById('startHidden').checked = storage.startHidden;
+    document.getElementById('controllerOpacity').value = storage.controllerOpacity;
+    document.getElementById('blacklist').value = storage.blacklist;
 
     // ensure that there is a "display" binding for upgrades from versions that had it as a separate binding
-    if (storage.keyBindings.filter((x) => x.action == "display").length == 0) {
+    if (storage.keyBindings.filter((x) => x.action == 'display').length == 0) {
       storage.keyBindings.push({
-        action: "display",
+        action: 'display',
         value: 0,
         force: false,
-        predefined: true
+        predefined: true,
       });
     }
 
     for (let i in storage.keyBindings) {
       var item = storage.keyBindings[i];
+      console.warn('restore_options', item);
       if (item.predefined) {
         //do predefined ones because their value needed for overlay
         // document.querySelector("#" + item["action"] + " .customDo").value = item["action"];
-        if (item["action"] == "display" && typeof item["key"] === "undefined") {
-          item["key"] = storage.displayKeyCode || tcDefaults.displayKeyCode; // V
+        if (item['action'] == 'display' && typeof item['key'] === 'undefined') {
+          item['key'] = storage.displayKeyCode || tcDefaults.displayKeyCode; // V
         }
 
-        if (customActionsNoValues.includes(item["action"]))
-          document.querySelector(
-            "#" + item["action"] + " .customValue"
-          ).disabled = true;
+        if (customActionsNoValues.includes(item['action']))
+          document.querySelector(`#${item['action']} .customValue`).style.display = 'none';
 
         updateCustomShortcutInputText(
-          document.querySelector("#" + item["action"] + " .customKey"),
-          item["key"]
+          document.querySelector('#' + item['action'] + ' .customKey'),
+          item['key'],
         );
-        document.querySelector("#" + item["action"] + " .customValue").value =
-          item["value"];
-        document.querySelector("#" + item["action"] + " .customForce").value =
-          item["force"];
+        document.querySelector('#' + item['action'] + ' .customValue').value = item['value'];
+        document.querySelector('#' + item['action'] + ' .customForce').value = item['force'];
       } else {
         // new ones
         add_shortcut();
-        const dom = document.querySelector(".customs:last-of-type");
-        dom.querySelector(".customDo").value = item["action"];
+        const dom = document.querySelector('.customs:last-of-type');
+        console.warn('adding shortcut', item['action']);
+        dom.querySelector('.customDo').value = item['action'];
 
-        if (customActionsNoValues.includes(item["action"]))
-          dom.querySelector(".customValue").disabled = true;
+        if (customActionsNoValues.includes(item['action']))
+          dom.querySelector('.customValue').style.display = 'none';
 
-        updateCustomShortcutInputText(
-          dom.querySelector(".customKey"),
-          item["key"]
-        );
-        dom.querySelector(".customValue").value = item["value"];
-        dom.querySelector(".customForce").value = item["force"];
+        updateCustomShortcutInputText(dom.querySelector('.customKey'), item['key']);
+        dom.querySelector('.customValue').value = item['value'];
+        dom.querySelector('.customForce').value = item['force'];
       }
     }
   });
@@ -331,63 +362,55 @@ function restore_options() {
 function restore_defaults() {
   chrome.storage.sync.set(tcDefaults, function () {
     restore_options();
-    document
-      .querySelectorAll(".removeParent")
-      .forEach((button) => button.click()); // Remove added shortcuts
+    document.querySelectorAll('.removeParent').forEach((button) => button.click()); // Remove added shortcuts
     // Update status to let user know options were saved.
-    var status = document.getElementById("status");
-    status.textContent = "Default options restored";
+    var status = document.getElementById('status');
+    status.textContent = 'Default options restored';
     setTimeout(function () {
-      status.textContent = "";
+      status.textContent = '';
     }, 1000);
   });
 }
 
 function show_experimental() {
   document
-    .querySelectorAll(".customForce")
-    .forEach((item) => (item.style.display = "inline-block"));
+    .querySelectorAll('.customForce')
+    .forEach((item) => (item.style.display = 'inline-block'));
 }
 
 function forgetAll() {
-  chrome.storage.sync.remove(["speeds"]);
-  forgetStatus = document.querySelector("#forgetStatus");
-  forgetStatus.classList.toggle("hidden");
-  setTimeout(() => forgetStatus.classList.toggle("hidden"), 1500);
+  chrome.storage.sync.remove(['speeds']);
+  forgetStatus = document.querySelector('#forgetStatus');
+  forgetStatus.classList.toggle('hidden');
+  setTimeout(() => forgetStatus.classList.toggle('hidden'), 1500);
 }
 
 function toggleDisplaySpeeds() {
-  const speedsDiv = document.querySelector("#speeds");
+  const speedsDiv = document.querySelector('#speeds');
 
-  chrome.storage.sync.get("speeds", (storage) => {
+  chrome.storage.sync.get('speeds', (storage) => {
     if (!storage.speeds) {
       return;
     }
 
     const out = Object.entries(storage.speeds).reduce((prev, [key, value]) => {
       return `${prev}<li>${key} -> ${value}</li>`;
-    }, "");
+    }, '');
     speedsDiv.innerHTML = `<ul>${out}</ul>`;
   });
 
-  speedsDiv.classList.toggle("hidden");
+  speedsDiv.classList.toggle('hidden');
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   restore_options();
 
-  document.getElementById("save").addEventListener("click", save_options);
-  document.getElementById("add").addEventListener("click", add_shortcut);
-  document
-    .getElementById("restore")
-    .addEventListener("click", restore_defaults);
-  document
-    .getElementById("experimental")
-    .addEventListener("click", show_experimental);
-  document.getElementById("forgetAll").addEventListener("click", forgetAll);
-  document
-    .getElementById("toggleDisplaySpeeds")
-    .addEventListener("click", toggleDisplaySpeeds);
+  document.getElementById('save').addEventListener('click', save_options);
+  document.getElementById('add').addEventListener('click', add_shortcut);
+  document.getElementById('restore').addEventListener('click', restore_defaults);
+  document.getElementById('experimental').addEventListener('click', show_experimental);
+  document.getElementById('forgetAll').addEventListener('click', forgetAll);
+  document.getElementById('toggleDisplaySpeeds').addEventListener('click', toggleDisplaySpeeds);
 
   function eventCaller(event, className, funcName) {
     if (!event.target.classList.contains(className)) {
@@ -396,27 +419,27 @@ document.addEventListener("DOMContentLoaded", function () {
     funcName(event);
   }
 
-  document.addEventListener("keypress", (event) => {
-    eventCaller(event, "customValue", inputFilterNumbersOnly);
+  document.addEventListener('keypress', (event) => {
+    eventCaller(event, 'customValue', inputFilterNumbersOnly);
   });
-  document.addEventListener("focus", (event) => {
-    eventCaller(event, "customKey", inputFocus);
+  document.addEventListener('focus', (event) => {
+    eventCaller(event, 'customKey', inputFocus);
   });
-  document.addEventListener("blur", (event) => {
-    eventCaller(event, "customKey", inputBlur);
+  document.addEventListener('blur', (event) => {
+    eventCaller(event, 'customKey', inputBlur);
   });
-  document.addEventListener("keydown", (event) => {
-    eventCaller(event, "customKey", recordKeyPress);
+  document.addEventListener('keydown', (event) => {
+    eventCaller(event, 'customKey', recordKeyPress);
   });
-  document.addEventListener("click", (event) => {
-    eventCaller(event, "removeParent", function () {
+  document.addEventListener('click', (event) => {
+    eventCaller(event, 'removeParent', function () {
       event.target.parentNode.remove();
     });
   });
-  document.addEventListener("change", (event) => {
-    eventCaller(event, "customDo", function () {
+  document.addEventListener('change', (event) => {
+    eventCaller(event, 'customDo', function () {
       if (customActionsNoValues.includes(event.target.value)) {
-        event.target.nextElementSibling.nextElementSibling.disabled = true;
+        event.target.nextElementSibling.nextElementSibling.style.display = 'none';
         event.target.nextElementSibling.nextElementSibling.value = 0;
       } else {
         event.target.nextElementSibling.nextElementSibling.disabled = false;
