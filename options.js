@@ -11,17 +11,19 @@ var tcDefaults = {
   controllerOpacity: 0.3, // default: 0.3
   keyBindings: [
     { action: 'display', key: 86, value: 0, force: false, predefined: true }, // V
-    { action: 'slower', key: 83, value: 0.1, force: false, predefined: true }, // S
-    { action: 'faster', key: 68, value: 0.1, force: false, predefined: true }, // D
+    { action: 'slower', key: 222, value: 0.1, force: false, predefined: true }, // ;
+    { action: 'faster', key: 186, value: 0.1, force: false, predefined: true }, // '
     { action: 'rewind', key: 90, value: 10, force: false, predefined: true }, // Z
     { action: 'advance', key: 88, value: 10, force: false, predefined: true }, // X
     { action: 'reset', key: 82, value: 1, force: false, predefined: true }, // R
     { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
-    { action: 'fixspeed', key: 49, value: 1, force: false, predefined: true }, // 1
-    { action: 'fixspeed', key: 50, value: 2, force: false, predefined: true }, // 2
-    { action: 'fixspeed', key: 51, value: 3, force: false, predefined: true }, // 3
-    { action: 'fixspeed', key: 52, value: 4, force: false, predefined: true }, // 4
-    { action: 'fixspeed', key: 53, value: 5, force: false, predefined: true }, // 5
+    { action: 'pause', key: 49, value: 0, force: false, predefined: false }, // 1
+    { action: 'fixspeed-1', key: 49, value: 1, force: true, predefined: false }, // 1
+    { action: 'fixspeed-2', key: 50, value: 2, force: true, predefined: false }, // 2
+    { action: 'fixspeed-3', key: 51, value: 3, force: true, predefined: false }, // 3
+    { action: 'fixspeed-4', key: 52, value: 4, force: true, predefined: false }, // 4
+    { action: 'fixspeed-5', key: 53, value: 5, force: true, predefined: false }, // 5
+    { action: 'fixspeed-6', key: 54, value: 6, force: true, predefined: false }, // 5
   ],
   blacklist: `www.instagram.com
     twitter.com
