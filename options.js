@@ -213,19 +213,19 @@ function createKeyBindings(item) {
   const predefined = !!item.id; //item.id ? true : false;
 
   console.log('farzad', item, {
-    action: action,
-    key: key,
-    value: value,
-    force: force,
-    predefined: predefined,
+    action,
+    key,
+    value,
+    force,
+    predefined,
   });
 
   keyBindings.push({
-    action: action,
-    key: key,
-    value: value,
-    force: force,
-    predefined: predefined,
+    action,
+    key,
+    value,
+    force,
+    predefined,
   });
 }
 
