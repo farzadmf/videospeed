@@ -102,7 +102,16 @@ function recordKeyPress(e) {
     (e.keyCode >= 65 && e.keyCode <= 90) || // Letters A-Z
     keyCodeAliases[e.keyCode] // Other character keys
   ) {
-    console.warn('recordKeyPress', 'keyCode', e.keyCode);
+    console.log(
+      'farzad',
+      'recordKeyPress',
+      'keyCode',
+      e.keyCode,
+      'ctrlKey',
+      e.ctrlKey,
+      'shiftKey',
+      e.shiftKey,
+    );
     e.target.value = keyCodeAliases[e.keyCode] || String.fromCharCode(e.keyCode);
     e.target.keyCode = e.keyCode;
 
@@ -203,7 +212,7 @@ function createKeyBindings(item) {
   const force = item.querySelector('.customForce').value;
   const predefined = !!item.id; //item.id ? true : false;
 
-  console.warn(item, {
+  console.log('farzad', item, {
     action: action,
     key: key,
     value: value,
@@ -326,7 +335,7 @@ function restore_options() {
 
     for (let i in storage.keyBindings) {
       var item = storage.keyBindings[i];
-      console.warn('restore_options', item);
+      console.log('farzad', 'restore_options', item);
       if (item.predefined) {
         //do predefined ones because their value needed for overlay
         // document.querySelector("#" + item["action"] + " .customDo").value = item["action"];
@@ -347,7 +356,7 @@ function restore_options() {
         // new ones
         add_shortcut();
         const dom = document.querySelector('.customs:last-of-type');
-        console.warn('adding shortcut', item['action']);
+        console.log('farzad', 'adding shortcut', item['action']);
         dom.querySelector('.customDo').value = item['action'];
 
         if (customActionsNoValues.includes(item['action']))
