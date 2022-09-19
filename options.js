@@ -396,6 +396,9 @@ function restore_options() {
         }
 
         updateCustomShortcutInputText(dom.querySelector('.customKey'), item['key']);
+        dom.querySelector('input[name="shift"]').checked = item['shift'];
+        dom.querySelector('input[name="ctrl"]').checked = item['ctrl'];
+
         dom.querySelector('.customValue').value = item['value'];
         dom.querySelector('.customForce').value = item['force'];
       }
