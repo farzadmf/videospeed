@@ -48,7 +48,7 @@ header {
 header,
 section {
   min-width: 600px;
-  max-width: 738px;
+  max-width: 800px;
 }
 section {
   padding-left: 18px;
@@ -72,8 +72,7 @@ button {
   border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 2px;
   outline: none;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08),
-    inset 0 1px 2px rgba(255, 255, 255, 0.75);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75);
   color: #444;
   text-shadow: 0 1px 0 rgb(240, 240, 240);
   font: inherit;
@@ -81,7 +80,7 @@ button {
   user-select: none;
 }
 
-input[type="text"]:not(.websiteName) {
+input[type='text']:not(.websiteName) {
   width: 75px;
   text-align: center;
 }
@@ -94,7 +93,7 @@ input[type="text"]:not(.websiteName) {
   width: 170px;
 }
 
-label {
+label:not(.modifier) {
   display: inline-block;
   width: 170px;
   vertical-align: top;

@@ -113,7 +113,15 @@ function recordKeyPress(e) {
       e.shiftKey,
     );
     e.target.value = keyCodeAliases[e.keyCode] || String.fromCharCode(e.keyCode);
+
     e.target.keyCode = e.keyCode;
+    e.target.shift = e.shiftKey;
+    e.target.ctrl = e.ctrlKey;
+
+    const shift = e.target.nextElementSibling;
+    const ctrl = shift.nextElementSibling.nextElementSibling;
+    shift.checked = e.shiftKey;
+    ctrl.checked = e.ctrlKey;
 
     e.preventDefault();
     e.stopPropagation();
@@ -161,38 +169,51 @@ var customActionsNoValues = [
   'jump',
   'display',
   'fixspeed-1',
+  'fixspeed-1.5',
   'fixspeed-2',
+  'fixspeed-2.5',
   'fixspeed-3',
+  'fixspeed-3.5',
   'fixspeed-4',
+  'fixspeed-4.5',
   'fixspeed-5',
+  'fixspeed-5.5',
   'fixspeed-6',
 ];
 
 function add_shortcut() {
-  var html = `<select class="customDo">
-    <option value="slower">Decrease speed</option>
-    <option value="faster">Increase speed</option>
-    <option value="rewind">Rewind</option>
-    <option value="advance">Advance</option>
-    <option value="reset">Reset speed</option>
-    <option value="fast">Preferred speed</option>
-    <option value="muted">Mute</option>
-    <option value="pause">Pause</option>
-    <option value="mark">Set marker</option>
-    <option value="jump">Jump to marker</option>
-    <option value="fixspeed-1">1x Speed</option>
-    <option value="fixspeed-2">2x Speed</option>
-    <option value="fixspeed-3">3x Speed</option>
-    <option value="fixspeed-4">4x Speed</option>
-    <option value="fixspeed-5">5x Speed</option>
-    <option value="fixspeed-6">6x Speed</option>
-    <option value="display">Show/hide controller</option>
+  var html = `
+    <select class="customDo">
+      <option value="slower">Decrease speed</option>
+      <option value="faster">Increase speed</option>
+      <option value="rewind">Rewind</option>
+      <option value="advance">Advance</option>
+      <option value="reset">Reset speed</option>
+      <option value="fast">Preferred speed</option>
+      <option value="muted">Mute</option>
+      <option value="pause">Pause</option>
+      <option value="mark">Set marker</option>
+      <option value="jump">Jump to marker</option>
+      <option value="fixspeed-1">1x Speed</option>
+      <option value="fixspeed-1.5">1.5x Speed</option>
+      <option value="fixspeed-2">2x Speed</option>
+      <option value="fixspeed-2.5">2.5x Speed</option>
+      <option value="fixspeed-3">3x Speed</option>
+      <option value="fixspeed-3.5">3.5x Speed</option>
+      <option value="fixspeed-4">4x Speed</option>
+      <option value="fixspeed-4.5">4.5x Speed</option>
+      <option value="fixspeed-5">5x Speed</option>
+      <option value="fixspeed-5.5">5.5x Speed</option>
+      <option value="fixspeed-6">6x Speed</option>
+      <option value="display">Show/hide controller</option>
     </select>
     <input class="customKey" type="text" placeholder="press a key"/>
+    <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
+    <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
     <input class="customValue" type="text" placeholder="value (0.10)"/>
     <select class="customForce">
-    <option value="false">Do not disable website key bindings</option>
-    <option value="true">Disable website key bindings</option>
+      <option value="false">Do not disable website key bindings</option>
+      <option value="true">Disable website key bindings</option>
     </select>
     <button class="removeParent">X</button>`;
   var div = document.createElement('div');
@@ -208,6 +229,13 @@ function add_shortcut() {
 function createKeyBindings(item) {
   const action = item.querySelector('.customDo').value;
   const key = item.querySelector('.customKey').keyCode;
+  const shift = !!item.querySelector('.customKey').shift;
+  const ctrl = !!item.querySelector('.customKey').ctrl;
+
+  // Not all have these (for now?), so they will fail for some
+  // const shift = item.querySelector('input[name="shift"]').checked;
+  // const ctrl = item.querySelector('input[name="ctrl"]').checked;
+
   const value = Number(item.querySelector('.customValue').value);
   const force = item.querySelector('.customForce').value;
   const predefined = !!item.id; //item.id ? true : false;
@@ -215,6 +243,8 @@ function createKeyBindings(item) {
   console.log('farzad', item, {
     action,
     key,
+    shift,
+    ctrl,
     value,
     force,
     predefined,
@@ -223,6 +253,8 @@ function createKeyBindings(item) {
   keyBindings.push({
     action,
     key,
+    shift,
+    ctrl,
     value,
     force,
     predefined,
@@ -359,8 +391,9 @@ function restore_options() {
         console.log('farzad', 'adding shortcut', item['action']);
         dom.querySelector('.customDo').value = item['action'];
 
-        if (customActionsNoValues.includes(item['action']))
+        if (customActionsNoValues.includes(item['action'])) {
           dom.querySelector('.customValue').style.display = 'none';
+        }
 
         updateCustomShortcutInputText(dom.querySelector('.customKey'), item['key']);
         dom.querySelector('.customValue').value = item['value'];
@@ -449,11 +482,14 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.addEventListener('change', (event) => {
     eventCaller(event, 'customDo', function () {
+      const parent = event.target.parentNode;
+      const customValue = parent.querySelector('.customValue');
+
       if (customActionsNoValues.includes(event.target.value)) {
-        event.target.nextElementSibling.nextElementSibling.style.display = 'none';
-        event.target.nextElementSibling.nextElementSibling.value = 0;
+        customValue.style.display = 'none';
+        customValue.value = 0;
       } else {
-        event.target.nextElementSibling.nextElementSibling.disabled = false;
+        customValue.style.display = 'inline-block';
       }
     });
   });
