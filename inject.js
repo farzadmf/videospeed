@@ -737,6 +737,7 @@ function initializeNow(document) {
           event.getModifierState('OS')
         ) {
           log('Keydown event ignored due to active modifier: ' + keyCode, 5);
+          console.warn('ignored first');
           return;
         }
 
@@ -746,11 +747,13 @@ function initializeNow(document) {
           event.target.nodeName === 'TEXTAREA' ||
           event.target.isContentEditable
         ) {
+          console.warn('ignored second');
           return false;
         }
 
         // Ignore keydown event if typing in a page without vsc
         if (!tc.mediaElements.length) {
+          console.warn('ignored  third');
           return false;
         }
 

@@ -229,12 +229,9 @@ function add_shortcut() {
 function createKeyBindings(item) {
   const action = item.querySelector('.customDo').value;
   const key = item.querySelector('.customKey').keyCode;
-  const shift = !!item.querySelector('.customKey').shift;
-  const ctrl = !!item.querySelector('.customKey').ctrl;
 
-  // Not all have these (for now?), so they will fail for some
-  // const shift = item.querySelector('input[name="shift"]').checked;
-  // const ctrl = item.querySelector('input[name="ctrl"]').checked;
+  const shift = item.querySelector('input[name="shift"]').checked;
+  const ctrl = item.querySelector('input[name="ctrl"]').checked;
 
   const value = Number(item.querySelector('.customValue').value);
   const force = item.querySelector('.customForce').value;
@@ -382,6 +379,9 @@ function restore_options() {
           document.querySelector('#' + item['action'] + ' .customKey'),
           item['key'],
         );
+        document.querySelector(`#${item['action']} input[name="shift"]`).checked = !!item['shift'];
+        document.querySelector(`#${item['action']} input[name="ctrl"]`).checked = item['ctrl'];
+
         document.querySelector('#' + item['action'] + ' .customValue').value = item['value'];
         document.querySelector('#' + item['action'] + ' .customForce').value = item['force'];
       } else {
