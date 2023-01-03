@@ -43,7 +43,8 @@ header {
   left: 15px;
   right: 0;
   border-bottom: 1px solid #eee;
-  background: linear-gradient(white, white 40%, rgba(255, 255, 255, 0.92));
+  /* background: linear-gradient(white, white 40%, rgba(255, 255, 255, 0.92)); */
+  background: linear-gradient(#583535eb, #583535eb 40%, #583535eb);
 }
 header,
 section {
