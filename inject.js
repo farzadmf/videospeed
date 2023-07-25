@@ -1,6 +1,7 @@
 var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 var regEndsWithFlags = /\/(?!.*(.).*\1)[gimsuy]*$/;
 
+// -> tc object {{{
 var tc = {
   settings: {
     lastSpeed: 1.0, // default 1x
@@ -29,7 +30,9 @@ var tc = {
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
   mediaElements: [],
 };
+// }}}
 
+// -> log function {{{
 /* Log levels (depends on caller specifying the correct level)
   1 - none
   2 - error
@@ -58,9 +61,14 @@ function log(message, level) {
     }
   }
 }
+// }}}
 
+// -> init from local storage {{{
 chrome.storage.sync.get(tc.settings, function (storage) {
   tc.settings.keyBindings = storage.keyBindings; // Array
+
+  // --> update keybindings from storage and sync back {{{
+  //
   if (storage.keyBindings.length == 0) {
     // if first initialization of 0.5.3
     // UPDATE
@@ -227,6 +235,9 @@ chrome.storage.sync.get(tc.settings, function (storage) {
       blacklist: tc.settings.blacklist.replace(regStrip, ''),
     });
   }
+  // }}}
+
+  // --> update other settings from storage {{{
   tc.settings.lastSpeed = Number(storage.lastSpeed);
   tc.settings.displayKeyCode = Number(storage.displayKeyCode);
   tc.settings.rememberSpeed = Boolean(storage.rememberSpeed);
@@ -237,6 +248,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
   tc.settings.controllerOpacity = Number(storage.controllerOpacity);
   tc.settings.blacklist = String(storage.blacklist);
   tc.settings.speeds = storage.speeds;
+  // }}}
 
   // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
   if (tc.settings.keyBindings.filter((x) => x.action == 'display').length == 0) {
@@ -251,7 +263,9 @@ chrome.storage.sync.get(tc.settings, function (storage) {
 
   initializeWhenReady(document);
 });
+// }}}
 
+// -> get/set keybinding functions {{{
 function getKeyBindings(action, what = 'value') {
   try {
     return tc.settings.keyBindings.find((item) => item.action === action)[what];
@@ -263,6 +277,7 @@ function getKeyBindings(action, what = 'value') {
 function setKeyBindings(action, value) {
   tc.settings.keyBindings.find((item) => item.action === action)['value'] = value;
 }
+// }}}
 
 function defineVideoController() {
   // Data structures
@@ -472,6 +487,7 @@ function defineVideoController() {
   };
 }
 
+// functions to get/check [blacklist] URLs {{{
 function escapeStringRegExp(str) {
   matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
   return str.replace(matchOperatorsRe, '\\$&');
@@ -556,6 +572,7 @@ function isLocationMatch(match) {
 
   return regexp.test(location.href);
 }
+// }}}
 
 var coolDown = false;
 function refreshCoolDown() {
@@ -1073,3 +1090,5 @@ function showController(controller) {
     log('Hiding controller', 5);
   }, 2000);
 }
+
+// vim: foldmethod=marker
