@@ -441,9 +441,18 @@ function toggleDisplaySpeeds() {
     }
 
     const out = Object.entries(storage.speeds).reduce((prev, [key, value]) => {
-      return `${prev}<li>${key} -> ${value}</li>`;
+      return `${prev}
+<div style="display: flex;">
+  <div style="text-align: right; padding-right: 30px; width: 40%;">${key}</div>
+  <div>${value}</div>
+</div>
+      `;
     }, '');
-    speedsDiv.innerHTML = `<ul>${out}</ul>`;
+    speedsDiv.innerHTML = `
+<h3 style="text-align: center;">Remembering a total of ${Object.entries(storage.speeds).length} Website speeds</h3>
+<hr />
+${out}
+`;
   });
 
   speedsDiv.classList.toggle('hidden');
