@@ -1,14 +1,16 @@
 var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 
 var tcDefaults = {
-  speed: 1.0, // default:
-  displayKeyCode: 86, // default: V
-  rememberSpeed: false, // default: false
+  blacklist: `www.instagram.com
+    twitter.com
+    imgur.com
+    teams.microsoft.com
+  `.replace(regStrip, ''),
   audioBoolean: false, // default: false
-  startHidden: false, // default: false
-  forceLastSavedSpeed: false, //default: false
+  controllerOpacity: 0.6, // default: 0.6
+  displayKeyCode: 86, // default: V
   enabled: true, // default enabled
-  controllerOpacity: 0.3, // default: 0.3
+  forceLastSavedSpeed: false, //default: false
   keyBindings: [
     { action: 'display', key: 86, value: 0, force: false, predefined: true }, // V
     { action: 'slower', key: 222, value: 0.1, force: false, predefined: true }, // ;
@@ -25,11 +27,10 @@ var tcDefaults = {
     { action: 'fixspeed-5', key: 53, value: 5, force: true, predefined: false }, // 5
     { action: 'fixspeed-6', key: 54, value: 6, force: true, predefined: false }, // 5
   ],
-  blacklist: `www.instagram.com
-    twitter.com
-    imgur.com
-    teams.microsoft.com
-  `.replace(regStrip, ''),
+  logLevel: 3, // default: 3
+  rememberSpeed: false, // default: false
+  speed: 1.0, // default: 1.0
+  startHidden: false, // default: false
 };
 
 var keyBindings = [];
@@ -298,37 +299,40 @@ function save_options() {
   keyBindings = [];
   Array.from(document.querySelectorAll('.customs')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
 
-  var rememberSpeed = document.getElementById('rememberSpeed').checked;
-  var forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
-  var audioBoolean = document.getElementById('audioBoolean').checked;
-  var enabled = document.getElementById('enabled').checked;
-  var startHidden = document.getElementById('startHidden').checked;
-  var controllerOpacity = document.getElementById('controllerOpacity').value;
-  var blacklist = document.getElementById('blacklist').value;
+  const audioBoolean = document.getElementById('audioBoolean').checked;
+  const blacklist = document.getElementById('blacklist').value;
+  const controllerOpacity = document.getElementById('controllerOpacity').value;
+  const enabled = document.getElementById('enabled').checked;
+  const forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
+  const logLevel = document.getElementById('logLevel').value;
+  const rememberSpeed = document.getElementById('rememberSpeed').checked;
+  const startHidden = document.getElementById('startHidden').checked;
 
   chrome.storage.sync.remove([
-    'resetSpeed',
-    'speedStep',
-    'fastSpeed',
-    'rewindTime',
-    'advanceTime',
-    'resetKeyCode',
-    'slowerKeyCode',
-    'fasterKeyCode',
-    'rewindKeyCode',
     'advanceKeyCode',
+    'advanceTime',
+    'defaultLogLevel',
+    'fasterKeyCode',
     'fastKeyCode',
+    'fastSpeed',
+    'resetKeyCode',
+    'resetSpeed',
+    'rewindKeyCode',
+    'rewindTime',
+    'slowerKeyCode',
+    'speedStep',
   ]);
   chrome.storage.sync.set(
     {
-      rememberSpeed: rememberSpeed,
-      forceLastSavedSpeed: forceLastSavedSpeed,
-      audioBoolean: audioBoolean,
-      enabled: enabled,
-      startHidden: startHidden,
-      controllerOpacity: controllerOpacity,
-      keyBindings: keyBindings,
+      audioBoolean,
       blacklist: blacklist.replace(regStrip, ''),
+      controllerOpacity,
+      enabled,
+      forceLastSavedSpeed,
+      keyBindings,
+      logLevel,
+      rememberSpeed,
+      startHidden,
     },
     function () {
       // Update status to let user know options were saved.
@@ -344,13 +348,14 @@ function save_options() {
 // Restores options from chrome.storage
 function restore_options() {
   chrome.storage.sync.get(tcDefaults, function (storage) {
-    document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
-    document.getElementById('forceLastSavedSpeed').checked = storage.forceLastSavedSpeed;
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
-    document.getElementById('enabled').checked = storage.enabled;
-    document.getElementById('startHidden').checked = storage.startHidden;
-    document.getElementById('controllerOpacity').value = storage.controllerOpacity;
     document.getElementById('blacklist').value = storage.blacklist;
+    document.getElementById('controllerOpacity').value = storage.controllerOpacity;
+    document.getElementById('logLevel').value = storage.logLevel;
+    document.getElementById('enabled').checked = storage.enabled;
+    document.getElementById('forceLastSavedSpeed').checked = storage.forceLastSavedSpeed;
+    document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
+    document.getElementById('startHidden').checked = storage.startHidden;
 
     // ensure that there is a "display" binding for upgrades from versions that had it as a separate binding
     if (storage.keyBindings.filter((x) => x.action == 'display').length == 0) {
@@ -364,7 +369,6 @@ function restore_options() {
 
     for (let i in storage.keyBindings) {
       var item = storage.keyBindings[i];
-      console.log('farzad', 'restore_options', item);
       if (item.predefined) {
         //do predefined ones because their value needed for overlay
         // document.querySelector("#" + item["action"] + " .customDo").value = item["action"];
@@ -388,7 +392,6 @@ function restore_options() {
         // new ones
         add_shortcut();
         const dom = document.querySelector('.customs:last-of-type');
-        console.log('farzad', 'adding shortcut', item['action']);
         dom.querySelector('.customDo').value = item['action'];
 
         if (customActionsNoValues.includes(item['action'])) {
@@ -449,7 +452,9 @@ function toggleDisplaySpeeds() {
       `;
     }, '');
     speedsDiv.innerHTML = `
-<h3 style="text-align: center;">Remembering a total of ${Object.entries(storage.speeds).length} Website speeds</h3>
+<h3 style="text-align: center;">Remembering a total of ${
+      Object.entries(storage.speeds).length
+    } Website speeds</h3>
 <hr />
 ${out}
 `;

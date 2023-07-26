@@ -14,7 +14,7 @@ var tc = {
     forceLastSavedSpeed: false, //default: false
     audioBoolean: false, // default: false
     startHidden: false, // default: false
-    controllerOpacity: 0.3, // default: 0.3
+    controllerOpacity: 0.6, // default: 0.6
     keyBindings: [],
     blacklist: `\
       www.instagram.com
@@ -23,8 +23,8 @@ var tc = {
       imgur.com
       teams.microsoft.com
     `.replace(regStrip, ''),
-    defaultLogLevel: 4,
-    logLevel: 3,
+    defaultLogLevel: 4, // default: 4
+    logLevel: 3, // default: 3
   },
 
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
@@ -46,17 +46,18 @@ function log(message, level) {
   if (typeof level === 'undefined') {
     level = tc.settings.defaultLogLevel;
   }
+
   if (verbosity >= level) {
     if (level === 2) {
-      console.log('ERROR:' + message);
+      console.log(`[FMVSC ERROR]: ${message}`);
     } else if (level === 3) {
-      console.log('WARNING:' + message);
+      console.log(`[FMVSC WARNING]: ${message}`);
     } else if (level === 4) {
-      console.log('INFO:' + message);
+      console.log(`[FMVSC INFO]: ${message}`);
     } else if (level === 5) {
-      console.log('DEBUG:' + message);
+      console.log(`[FMVSC DEBUG]: ${message}`);
     } else if (level === 6) {
-      console.log('DEBUG (VERBOSE):' + message);
+      console.log(`[FMVSC DEBUG (VERBOSE)]: ${message}`);
       console.trace();
     }
   }
@@ -223,31 +224,33 @@ chrome.storage.sync.get(tc.settings, function (storage) {
     tc.settings.version = '0.5.3';
 
     chrome.storage.sync.set({
-      keyBindings: tc.settings.keyBindings,
-      version: tc.settings.version,
-      displayKeyCode: tc.settings.displayKeyCode,
-      rememberSpeed: tc.settings.rememberSpeed,
-      forceLastSavedSpeed: tc.settings.forceLastSavedSpeed,
       audioBoolean: tc.settings.audioBoolean,
-      startHidden: tc.settings.startHidden,
-      enabled: tc.settings.enabled,
-      controllerOpacity: tc.settings.controllerOpacity,
       blacklist: tc.settings.blacklist.replace(regStrip, ''),
+      controllerOpacity: tc.settings.controllerOpacity,
+      defaultLogLevel: tc.settings.defaultLogLevel,
+      displayKeyCode: tc.settings.displayKeyCode,
+      enabled: tc.settings.enabled,
+      forceLastSavedSpeed: tc.settings.forceLastSavedSpeed,
+      keyBindings: tc.settings.keyBindings,
+      rememberSpeed: tc.settings.rememberSpeed,
+      startHidden: tc.settings.startHidden,
+      version: tc.settings.version,
     });
   }
   // }}}
 
   // --> update other settings from storage {{{
-  tc.settings.lastSpeed = Number(storage.lastSpeed);
-  tc.settings.displayKeyCode = Number(storage.displayKeyCode);
-  tc.settings.rememberSpeed = Boolean(storage.rememberSpeed);
-  tc.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
   tc.settings.audioBoolean = Boolean(storage.audioBoolean);
-  tc.settings.enabled = Boolean(storage.enabled);
-  tc.settings.startHidden = Boolean(storage.startHidden);
-  tc.settings.controllerOpacity = Number(storage.controllerOpacity);
   tc.settings.blacklist = String(storage.blacklist);
+  tc.settings.controllerOpacity = Number(storage.controllerOpacity);
+  tc.settings.displayKeyCode = Number(storage.displayKeyCode);
+  tc.settings.enabled = Boolean(storage.enabled);
+  tc.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
+  tc.settings.lastSpeed = Number(storage.lastSpeed);
+  tc.settings.logLevel = Number(storage.logLevel);
+  tc.settings.rememberSpeed = Boolean(storage.rememberSpeed);
   tc.settings.speeds = storage.speeds;
+  tc.settings.startHidden = Boolean(storage.startHidden);
   // }}}
 
   // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
