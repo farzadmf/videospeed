@@ -1,6 +1,23 @@
 var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 var regEndsWithFlags = /\/(?!.*(.).*\1)[gimsuy]*$/;
 
+// -> log levels {{{
+/* Log levels (depends on caller specifying the correct level)
+  1 - none
+  2 - error
+  3 - warning
+  4 - info
+  5 - debug
+  6 - debug high verbosity + stack trace on each message
+*/
+const NONE = 1;
+const ERROR = 2;
+const WARNING = 3;
+const INFO = 4;
+const DEBUG = 5;
+const TRACE = 6;
+// }}}
+
 // -> tc object {{{
 var tc = {
   settings: {
@@ -23,8 +40,8 @@ var tc = {
       imgur.com
       teams.microsoft.com
     `.replace(regStrip, ''),
-    defaultLogLevel: 4, // default: 4
-    logLevel: 3, // default: 3
+    defaultLogLevel: INFO, // default: INFO
+    logLevel: WARNING, // default: WARNING
   },
 
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
@@ -33,15 +50,7 @@ var tc = {
 // }}}
 
 // -> log function {{{
-/* Log levels (depends on caller specifying the correct level)
-  1 - none
-  2 - error
-  3 - warning
-  4 - info
-  5 - debug
-  6 - debug high verbosity + stack trace on each message
-*/
-function log(message, level) {
+function log(message, level, ...args) {
   verbosity = tc.settings.logLevel;
   if (typeof level === 'undefined') {
     level = tc.settings.defaultLogLevel;
@@ -49,15 +58,15 @@ function log(message, level) {
 
   if (verbosity >= level) {
     if (level === 2) {
-      console.log(`[FMVSC ERROR]: ${message}`);
+      console.log(`[FMVSC ERROR]: ${message}`, ...args);
     } else if (level === 3) {
-      console.log(`[FMVSC WARNING]: ${message}`);
+      console.log(`[FMVSC WARNING]: ${message}`, ...args);
     } else if (level === 4) {
-      console.log(`[FMVSC INFO]: ${message}`);
+      console.log(`[FMVSC INFO]: ${message}`, ...args);
     } else if (level === 5) {
-      console.log(`[FMVSC DEBUG]: ${message}`);
+      console.log(`[FMVSC DEBUG]: ${message}`, ...args);
     } else if (level === 6) {
-      console.log(`[FMVSC DEBUG (VERBOSE)]: ${message}`);
+      console.log(`[FMVSC DEBUG (VERBOSE)]: ${message}`, ...args);
       console.trace();
     }
   }
@@ -282,7 +291,9 @@ function setKeyBindings(action, value) {
 }
 // }}}
 
+// -> defineVideoController {{{
 function defineVideoController() {
+  log('Begin defineVideoController', DEBUG);
   // Data structures
   // ---------------
   // videoController (JS object) instances:
@@ -295,6 +306,7 @@ function defineVideoController() {
 
   // added to AUDIO / VIDEO DOM elements
   //    vsc = reference to the videoController
+  // --> tc.videoController = ... {{{
   tc.videoController = function (target, parent) {
     if (target.vsc) {
       return target.vsc;
@@ -308,16 +320,16 @@ function defineVideoController() {
 
     if (!tc.settings.rememberSpeed) {
       if (!storedSpeed) {
-        log('Overwriting stored speed to 1.0 due to rememberSpeed being disabled', 5);
+        log('Overwriting stored speed to 1.0 due to rememberSpeed being disabled', DEBUG);
         storedSpeed = 1.0;
       }
       setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
     } else {
-      log('Recalling stored speed ' + storedSpeed + ' due to rememberSpeed being enabled', 5);
+      log('Recalling stored speed ' + storedSpeed + ' due to rememberSpeed being enabled', DEBUG);
       //storedSpeed = tc.settings.lastSpeed;
     }
 
-    log('Explicitly setting playbackRate to: ' + storedSpeed, 5);
+    log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
     target.playbackRate = storedSpeed;
 
     this.div = this.initializeControls();
@@ -327,11 +339,11 @@ function defineVideoController() {
 
       if (!tc.settings.rememberSpeed) {
         if (!storedSpeed) {
-          log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', 4);
+          log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', INFO);
           storedSpeed = 1.0;
         }
         // resetSpeed isn't really a reset, it's a toggle
-        log('Setting reset keybinding to fast', 5);
+        log('Setting reset keybinding to fast', DEBUG);
         setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
       } else {
         // log(
@@ -344,7 +356,7 @@ function defineVideoController() {
       // necessary when rememberSpeed is disabled (this may accidentally
       // override a website's intentional initial speed setting interfering
       // with the site's default behavior)
-      log('Explicitly setting playbackRate to: ' + storedSpeed, 4);
+      log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
       setSpeed(event.target, storedSpeed);
     };
 
@@ -358,7 +370,7 @@ function defineVideoController() {
           mutation.type === 'attributes' &&
           (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
         ) {
-          log('mutation of A/V element', 5);
+          log('mutation of A/V element', DEBUG);
           var controller = this.div;
           if (!mutation.target.src && !mutation.target.currentSrc) {
             controller.classList.add('vsc-nosource');
@@ -372,7 +384,9 @@ function defineVideoController() {
       attributeFilter: ['src', 'currentSrc'],
     });
   };
+  // }}}
 
+  // --> tc.videoController.prototype.remove = ... {{{
   tc.videoController.prototype.remove = function () {
     this.div.remove();
     this.video.removeEventListener('play', this.handlePlay);
@@ -383,9 +397,11 @@ function defineVideoController() {
       tc.mediaElements.splice(idx, 1);
     }
   };
+  // }}}
 
+  // --> tc.videoController.prototype.initializeControls = ... {{{
   tc.videoController.prototype.initializeControls = function () {
-    log('initializeControls Begin', 5);
+    log('initializeControls Begin', DEBUG);
     const document = this.video.ownerDocument;
     const speed = this.video.playbackRate.toFixed(2);
     const rect = this.video.getBoundingClientRect();
@@ -396,7 +412,7 @@ function defineVideoController() {
     const top = Math.max(rect.top - (offsetRect?.top || 0), 30) + 'px';
     const left = Math.max(rect.left - (offsetRect?.left || 0), 0) + 'px';
 
-    log('Speed variable set to: ' + speed, 5);
+    log('Speed variable set to: ' + speed, DEBUG);
 
     var wrapper = document.createElement('div');
     wrapper.classList.add('vsc-controller');
@@ -488,9 +504,12 @@ function defineVideoController() {
     }
     return wrapper;
   };
+  // }}}
+  log('End defineVideoController', DEBUG);
 }
+// }}}
 
-// functions to get/check [blacklist] URLs {{{
+// -> functions to get/check [blacklist] URLs {{{
 function escapeStringRegExp(str) {
   matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
   return str.replace(matchOperatorsRe, '\\$&');
@@ -577,19 +596,23 @@ function isLocationMatch(match) {
 }
 // }}}
 
+// -> refreshCoolDown {{{
 var coolDown = false;
 function refreshCoolDown() {
-  log('Begin refreshCoolDown', 5);
+  log('Begin refreshCoolDown', DEBUG);
   if (coolDown) {
     clearTimeout(coolDown);
   }
   coolDown = setTimeout(function () {
     coolDown = false;
   }, 1000);
-  log('End refreshCoolDown', 5);
+  log('End refreshCoolDown', DEBUG);
 }
+// }}}
 
+// -> setupListener {{{
 function setupListener() {
+  log('Begin setupListener', DEBUG);
   /**
    * This function is run whenever a video speed rate change occurs.
    * It is used to update the speed that shows up in the display as well as save
@@ -605,22 +628,22 @@ function setupListener() {
     var src = video.currentSrc;
     var speed = Number(video.playbackRate.toFixed(2));
 
-    log('Playback rate changed to ' + speed, 4);
+    log('Playback rate changed to ' + speed, INFO);
 
-    log('Updating controller with new speed', 5);
+    log('Updating controller with new speed', DEBUG);
     speedIndicator.textContent = speed.toFixed(2);
     tc.settings.speeds[getBaseURL(src)] = speed;
 
-    log('Storing lastSpeed in settings for the rememberSpeed feature', 5);
+    log('Storing lastSpeed in settings for the rememberSpeed feature', DEBUG);
     tc.settings.lastSpeed = speed;
-    log('Syncing chrome settings for lastSpeed', 5);
+    log('Syncing chrome settings for lastSpeed', DEBUG);
     chrome.storage.sync.set(
       {
         lastSpeed: speed,
         speeds: tc.settings.speeds,
       },
       function () {
-        log('Speed (and SPEEDS) setting saved: ' + speed, 5);
+        log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG);
       },
     );
     // show the controller for 1000ms if it's hidden.
@@ -631,7 +654,7 @@ function setupListener() {
     'ratechange',
     function (event) {
       if (coolDown) {
-        log('Speed event propagation blocked', 4);
+        log('Speed event propagation blocked', INFO);
         event.stopImmediatePropagation();
       }
       var video = event.target;
@@ -641,27 +664,30 @@ function setupListener() {
        * video speed instead of all video speed change events.
        */
       if (tc.settings.forceLastSavedSpeed) {
-        log('Force last-saved speed is ON', 5);
+        log('Force last-saved speed is ON', DEBUG);
         if (event.detail && event.detail.origin === 'videoSpeed') {
-          log(`Setting playbackRate to event.detail's speed (${event.detail.speed})`, 5);
+          log(`Setting playbackRate to event.detail's speed (${event.detail.speed})`, DEBUG);
           video.playbackRate = event.detail.speed;
           updateSpeedFromEvent(video);
         } else {
-          log(`Setting playbackRate to tc.settings.lastSpeed (${tc.settings.lastSpeed})`, 5);
+          log(`Setting playbackRate to tc.settings.lastSpeed (${tc.settings.lastSpeed})`, DEBUG);
           video.playbackRate = tc.settings.lastSpeed;
         }
         event.stopImmediatePropagation();
       } else {
-        log("Force last-saved speed is OFF; calling 'updateSpeedFromEvent'", 5);
+        log("Force last-saved speed is OFF; calling 'updateSpeedFromEvent'", DEBUG);
         updateSpeedFromEvent(video);
       }
     },
     true,
   );
+  log('End setupListener', DEBUG);
 }
+// }}}
 
+// -> initializeWhenReady {{{
 function initializeWhenReady(document) {
-  log('Begin initializeWhenReady', 5);
+  log('Begin initializeWhenReady', DEBUG);
   if (isBlacklisted()) {
     return;
   }
@@ -679,8 +705,11 @@ function initializeWhenReady(document) {
       };
     }
   }
-  log('End initializeWhenReady', 5);
+  log('End initializeWhenReady', DEBUG);
 }
+// }}}
+
+// -> inIframe {{{
 function inIframe() {
   try {
     return window.self !== window.top;
@@ -688,6 +717,9 @@ function inIframe() {
     return true;
   }
 }
+// }}}
+
+// -> getShadow {{{
 function getShadow(parent) {
   let result = [];
   function getChild(parent) {
@@ -706,12 +738,15 @@ function getShadow(parent) {
   getChild(parent);
   return result.flat(Infinity);
 }
+// }}}
 
+// -> initializeNow {{{
 function initializeNow(document) {
-  log('Begin initializeNow', 5);
+  log('Begin initializeNow', DEBUG);
   if (!tc.settings.enabled) return;
   // enforce init-once due to redundant callers
   if (!document.body || document.body.classList.contains('vsc-initialized')) {
+    log('no body or body has vsc-initialized', TRACE);
     return;
   }
   try {
@@ -720,11 +755,13 @@ function initializeNow(document) {
     // no operation
   }
   document.body.classList.add('vsc-initialized');
-  log('initializeNow: vsc-initialized added to document body', 5);
+  log('initializeNow: vsc-initialized added to document body', DEBUG);
 
   if (document === window.document) {
+    log('calling defineVideoController', TRACE);
     defineVideoController();
   } else {
+    log('adding inject.css to head', TRACE);
     var link = document.createElement('link');
     link.href = chrome.runtime.getURL('inject.css');
     link.type = 'text/css';
@@ -756,7 +793,7 @@ function initializeNow(document) {
           event.getModifierState('Hyper') ||
           event.getModifierState('OS')
         ) {
-          log('Keydown event ignored due to active modifier: ' + keyCode, 5);
+          log('Keydown event ignored due to active modifier: ' + keyCode, DEBUG);
           return;
         }
 
@@ -794,11 +831,15 @@ function initializeNow(document) {
   });
 
   function checkForVideo(node, parent, added) {
+    // This function is called QUITE a few times, so logs are SUPER noisy!
+    // log('Begin checkForVideo', DEBUG);
+
     // Only proceed with supposed removal if node is missing from DOM
-    if (!added && document.body.contains(node)) {
+    if (!added && document.body?.contains(node)) {
       return;
     }
     if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && tc.settings.audioBoolean)) {
+      log('checkForVideo found a VIDEO (or AUDIO)', DEBUG, node.shadowRoot);
       if (added) {
         node.vsc = new tc.videoController(node, parent);
       } else {
@@ -807,11 +848,13 @@ function initializeNow(document) {
         }
       }
     } else if (node.children != undefined) {
+      log(`node has ${node.children.length} children; checkForVideo on each`, DEBUG, node.nodeName, node);
       for (var i = 0; i < node.children.length; i++) {
         const child = node.children[i];
         checkForVideo(child, child.parentNode || parent, added);
       }
     }
+    // log('End checkForVideo', DEBUG);
   }
 
   var observer = new MutationObserver(function (mutations) {
@@ -827,7 +870,7 @@ function initializeNow(document) {
                 if (node === document.documentElement) {
                   // This happens on sites that use document.write, e.g. watch.sling.com
                   // When the document gets replaced, we lose all event handlers, so we need to reinitialize
-                  log('Document was replaced, reinitializing', 5);
+                  log('Document was replaced, reinitializing', DEBUG);
                   initializeWhenReady(document);
                   return;
                 }
@@ -887,11 +930,13 @@ function initializeNow(document) {
     }
     initializeWhenReady(childDocument);
   });
-  log('End initializeNow', 5);
+  log('End initializeNow', DEBUG);
 }
+// }}}
 
+// -> setSpeed {{{
 function setSpeed(video, speed) {
-  log('setSpeed started: ' + speed, 5);
+  log('setSpeed started: ' + speed, DEBUG);
   var speedvalue = speed.toFixed(2);
   if (tc.settings.forceLastSavedSpeed) {
     video.dispatchEvent(
@@ -906,9 +951,11 @@ function setSpeed(video, speed) {
   speedIndicator.textContent = speedvalue;
   tc.settings.lastSpeed = speed;
   refreshCoolDown();
-  log('setSpeed finished: ' + speed, 5);
+  log('setSpeed finished: ' + speed, DEBUG);
 }
+// }}}
 
+// -> runAction {{{
 function runAction(action, value, e) {
   var mediaTags = tc.mediaElements;
 
@@ -932,32 +979,32 @@ function runAction(action, value, e) {
         const speedValue = Number(action.split('-')[1]);
         setSpeed(v, speedValue);
       } else if (action === 'rewind') {
-        log('Rewind', 5);
+        log('Rewind', DEBUG);
         v.currentTime -= value;
       } else if (action === 'advance') {
-        log('Fast forward', 5);
+        log('Fast forward', DEBUG);
         v.currentTime += value;
       } else if (action === 'faster') {
-        log('Increase speed', 5);
+        log('Increase speed', DEBUG);
         // Maximum playback speed in Chrome is set to 16:
         // https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/html/media/html_media_element.cc?gsn=kMinRate&l=166
         var s = Math.min((v.playbackRate < 0.1 ? 0.0 : v.playbackRate) + value, 16);
         setSpeed(v, s);
       } else if (action === 'slower') {
-        log('Decrease speed', 5);
+        log('Decrease speed', DEBUG);
         // Video min rate is 0.0625:
         // https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/html/media/html_media_element.cc?gsn=kMinRate&l=165
         var s = Math.max(v.playbackRate - value, 0.07);
         setSpeed(v, s);
       } else if (action === 'reset') {
-        log('Reset speed', 5);
+        log('Reset speed', DEBUG);
         resetSpeed(v, 1.0);
       } else if (action === 'display') {
-        log('Showing controller', 5);
+        log('Showing controller', DEBUG);
         controller.classList.add('vsc-manual');
         controller.classList.toggle('vsc-hidden');
       } else if (action === 'blink') {
-        log('Showing controller momentarily', 5);
+        log('Showing controller momentarily', DEBUG);
         // if vsc is hidden, show it briefly to give the use visual feedback that the action is excuted.
         if (controller.classList.contains('vsc-hidden') || controller.blinkTimeOut !== undefined) {
           clearTimeout(controller.blinkTimeOut);
@@ -985,56 +1032,68 @@ function runAction(action, value, e) {
       }
     }
   });
-  log('runAction End', 5);
+  log('runAction End', DEBUG);
 }
+// }}}
 
+// -> pause {{{
 function pause(v) {
   if (v.paused) {
-    log('Resuming video', 5);
+    log('Resuming video', DEBUG);
     v.play();
   } else {
-    log('Pausing video', 5);
+    log('Pausing video', DEBUG);
     v.pause();
   }
 }
+// }}}
 
+// -> resetSpeed {{{
 function resetSpeed(v, target) {
   if (v.playbackRate === target) {
     if (v.playbackRate === getKeyBindings('reset')) {
       if (target !== 1.0) {
-        log('Resetting playback speed to 1.0', 4);
+        log('Resetting playback speed to 1.0', INFO);
         setSpeed(v, 1.0);
       } else {
-        log('Toggling playback speed to "fast" speed', 4);
+        log('Toggling playback speed to "fast" speed', INFO);
         setSpeed(v, getKeyBindings('fast'));
       }
     } else {
-      log('Toggling playback speed to "reset" speed', 4);
+      log('Toggling playback speed to "reset" speed', INFO);
       setSpeed(v, getKeyBindings('reset'));
     }
   } else {
-    log('Toggling playback speed to "reset" speed', 4);
+    log('Toggling playback speed to "reset" speed', INFO);
     setKeyBindings('reset', v.playbackRate);
     setSpeed(v, target);
   }
 }
+// }}}
 
+// -> muted {{{
 function muted(v) {
   v.muted = v.muted !== true;
 }
+// }}}
 
+// -> setMark {{{
 function setMark(v) {
-  log('Adding marker', 5);
+  log('Adding marker', DEBUG);
   v.vsc.mark = v.currentTime;
 }
+// }}}
 
+// -> jumpToMark {{{
 function jumpToMark(v) {
-  log('Recalling marker', 5);
+  log('Recalling marker', DEBUG);
   if (v.vsc.mark && typeof v.vsc.mark === 'number') {
     v.currentTime = v.vsc.mark;
   }
 }
+// }}}
 
+// -> handleDrag {{{
 function handleDrag(video, e) {
   const controller = video.vsc.div;
   const shadowController = controller.shadowRoot.querySelector('#controller');
@@ -1079,10 +1138,12 @@ function handleDrag(video, e) {
   parentElement.addEventListener('mouseleave', stopDragging);
   parentElement.addEventListener('mousemove', startDragging);
 }
+// }}}
 
+// -> showController {{{
 var timer = null;
 function showController(controller) {
-  log('Showing controller', 4);
+  log('Showing controller', INFO);
   controller.classList.add('vcs-show');
 
   if (timer) clearTimeout(timer);
@@ -1090,8 +1151,9 @@ function showController(controller) {
   timer = setTimeout(function () {
     controller.classList.remove('vcs-show');
     timer = false;
-    log('Hiding controller', 5);
+    log('Hiding controller', DEBUG);
   }, 2000);
 }
+// }}}
 
 // vim: foldmethod=marker
