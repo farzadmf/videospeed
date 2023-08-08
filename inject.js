@@ -40,6 +40,28 @@ function log(message, level, ...args) {
     }
   }
 }
+
+function logGroup(groupName, level) {
+  const verbosity = tc.settings.logLevel;
+  if (typeof level === 'undefined') {
+    level = tc.settings.defaultLogLevel;
+  }
+
+  if (verbosity >= level) {
+    console.group(groupName);
+  }
+}
+
+function logGroupEnd(level) {
+  const verbosity = tc.settings.logLevel;
+  if (typeof level === 'undefined') {
+    level = tc.settings.defaultLogLevel;
+  }
+
+  if (verbosity >= level) {
+    console.groupEnd();
+  }
+}
 // }}}
 
 // -> tc object {{{
@@ -850,7 +872,7 @@ function initializeNow(document) {
   });
 
   var observer = new MutationObserver(function (mutations) {
-    console.group('MutationObserver');
+    logGroup('MutationObserver', DEBUG);
     log(`MutationObserver called with ${mutations.length} mutations`, DEBUG);
 
     // Process the DOM nodes lazily
@@ -921,7 +943,7 @@ function initializeNow(document) {
               break;
           }
         });
-        console.groupEnd();
+        logGroupEnd(DEBUG);
       },
       { timeout: 1000 },
     );
