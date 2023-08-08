@@ -18,6 +18,30 @@ const DEBUG = 5;
 const TRACE = 6;
 // }}}
 
+// -> log function {{{
+function log(message, level, ...args) {
+  const verbosity = tc.settings.logLevel;
+  if (typeof level === 'undefined') {
+    level = tc.settings.defaultLogLevel;
+  }
+
+  if (verbosity >= level) {
+    if (level === ERROR) {
+      console.log(`[FMVSC ERROR]: ${message}`, ...args);
+    } else if (level === WARNING) {
+      console.log(`[FMVSC WARNING]: ${message}`, ...args);
+    } else if (level === INFO) {
+      console.log(`[FMVSC INFO]: ${message}`, ...args);
+    } else if (level === DEBUG) {
+      console.log(`[FMVSC DEBUG]: ${message}`, ...args);
+    } else if (level === TRACE) {
+      console.log(`[FMVSC DEBUG (VERBOSE)]: ${message}`, ...args);
+      console.trace();
+    }
+  }
+}
+// }}}
+
 // -> tc object {{{
 var tc = {
   settings: {
@@ -46,31 +70,210 @@ var tc = {
 
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
   mediaElements: [],
+
+  observed: new Set(),
 };
 // }}}
 
-// -> log function {{{
-function log(message, level, ...args) {
-  verbosity = tc.settings.logLevel;
-  if (typeof level === 'undefined') {
-    level = tc.settings.defaultLogLevel;
+// -> tc object constructor and methods {{{
+// --> tc.videoController = ... {{{
+tc.videoController = function (target, parent) {
+  log('HERE', DEBUG, target);
+  if (target.vsc) {
+    return target.vsc;
   }
 
-  if (verbosity >= level) {
-    if (level === 2) {
-      console.log(`[FMVSC ERROR]: ${message}`, ...args);
-    } else if (level === 3) {
-      console.log(`[FMVSC WARNING]: ${message}`, ...args);
-    } else if (level === 4) {
-      console.log(`[FMVSC INFO]: ${message}`, ...args);
-    } else if (level === 5) {
-      console.log(`[FMVSC DEBUG]: ${message}`, ...args);
-    } else if (level === 6) {
-      console.log(`[FMVSC DEBUG (VERBOSE)]: ${message}`, ...args);
-      console.trace();
+  tc.mediaElements.push(target);
+
+  this.video = target;
+  this.parent = target.parentElement || parent;
+  storedSpeed = tc.settings.speeds[getBaseURL(target.currentSrc)] || 1.0;
+
+  if (!tc.settings.rememberSpeed) {
+    if (!storedSpeed) {
+      log('Overwriting stored speed to 1.0 due to rememberSpeed being disabled', DEBUG);
+      storedSpeed = 1.0;
     }
+    setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
+  } else {
+    log('Recalling stored speed ' + storedSpeed + ' due to rememberSpeed being enabled', DEBUG);
+    //storedSpeed = tc.settings.lastSpeed;
   }
-}
+
+  log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
+  target.playbackRate = storedSpeed;
+
+  this.div = this.initializeControls();
+
+  var mediaEventAction = function (event) {
+    storedSpeed = tc.settings.speeds[getBaseURL(event.target.currentSrc)] || 1.0;
+
+    if (!tc.settings.rememberSpeed) {
+      if (!storedSpeed) {
+        log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', INFO);
+        storedSpeed = 1.0;
+      }
+      // resetSpeed isn't really a reset, it's a toggle
+      log('Setting reset keybinding to fast', DEBUG);
+      setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
+    } else {
+      // log(
+      //   "Storing lastSpeed into tc.settings.speeds (rememberSpeed enabled)",
+      //   5
+      // );
+      //storedSpeed = tc.settings.lastSpeed;
+    }
+    // TODO: Check if explicitly setting the playback rate to 1.0 is
+    // necessary when rememberSpeed is disabled (this may accidentally
+    // override a website's intentional initial speed setting interfering
+    // with the site's default behavior)
+    log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
+    setSpeed(event.target, storedSpeed);
+  };
+
+  target.addEventListener('play', (this.handlePlay = mediaEventAction.bind(this)));
+
+  target.addEventListener('seeked', (this.handleSeek = mediaEventAction.bind(this)));
+
+  var observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (
+        mutation.type === 'attributes' &&
+        (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
+      ) {
+        log('mutation of A/V element', DEBUG);
+        var controller = this.div;
+        if (!mutation.target.src && !mutation.target.currentSrc) {
+          controller.classList.add('vsc-nosource');
+        } else {
+          controller.classList.remove('vsc-nosource');
+        }
+      }
+    });
+  });
+  observer.observe(target, {
+    attributeFilter: ['src', 'currentSrc'],
+  });
+};
+// }}}
+
+// --> tc.videoController.prototype.remove = ... {{{
+tc.videoController.prototype.remove = function () {
+  this.div.remove();
+  this.video.removeEventListener('play', this.handlePlay);
+  this.video.removeEventListener('seek', this.handleSeek);
+  delete this.video.vsc;
+  let idx = tc.mediaElements.indexOf(this.video);
+  if (idx != -1) {
+    tc.mediaElements.splice(idx, 1);
+  }
+};
+// }}}
+
+// --> tc.videoController.prototype.initializeControls = ... {{{
+tc.videoController.prototype.initializeControls = function () {
+  log('initializeControls Begin', DEBUG);
+  const document = this.video.ownerDocument;
+  const speed = this.video.playbackRate.toFixed(2);
+  const rect = this.video.getBoundingClientRect();
+  // getBoundingClientRect is relative to the viewport; style coordinates
+  // are relative to offsetParent, so we adjust for that here. offsetParent
+  // can be null if the video has `display: none` or is not yet in the DOM.
+  const offsetRect = this.video.offsetParent?.getBoundingClientRect();
+  const top = Math.max(rect.top - (offsetRect?.top || 0), 30) + 'px';
+  const left = Math.max(rect.left - (offsetRect?.left || 0), 0) + 'px';
+
+  log('Speed variable set to: ' + speed, DEBUG);
+
+  var wrapper = document.createElement('div');
+  wrapper.classList.add('vsc-controller');
+
+  if (!this.video.currentSrc) {
+    wrapper.classList.add('vsc-nosource');
+  }
+
+  if (tc.settings.startHidden) {
+    wrapper.classList.add('vsc-hidden');
+  }
+
+  var shadow = wrapper.attachShadow({ mode: 'open' });
+  var shadowTemplate = `
+      <style>
+        @import "${chrome.runtime.getURL('shadow.css')}";
+      </style>
+
+      <div id="controller" style="top:${top}; left:${left}; opacity:${
+    tc.settings.controllerOpacity
+  }">
+        <span data-action="drag" class="draggable">${speed}</span>
+        <span id="controls">
+          <button data-action="rewind" class="rw">«</button>
+          <button data-action="slower">&minus;</button>
+          <button data-action="faster">&plus;</button>
+          <button data-action="advance" class="rw">»</button>
+          <button data-action="display" class="hideButton">&times;</button>
+        </span>
+      </div>
+    `;
+  shadow.innerHTML = shadowTemplate;
+  shadow.querySelector('.draggable').addEventListener(
+    'mousedown',
+    (e) => {
+      runAction(e.target.dataset['action'], false, e);
+      e.stopPropagation();
+    },
+    true,
+  );
+
+  shadow.querySelectorAll('button').forEach(function (button) {
+    button.addEventListener(
+      'click',
+      (e) => {
+        runAction(e.target.dataset['action'], getKeyBindings(e.target.dataset['action']), e);
+        e.stopPropagation();
+      },
+      true,
+    );
+  });
+
+  shadow.querySelector('#controller').addEventListener('click', (e) => e.stopPropagation(), false);
+  shadow
+    .querySelector('#controller')
+    .addEventListener('mousedown', (e) => e.stopPropagation(), false);
+
+  this.speedIndicator = shadow.querySelector('span');
+  var fragment = document.createDocumentFragment();
+  fragment.appendChild(wrapper);
+
+  switch (true) {
+    case location.hostname == 'www.amazon.com':
+    case location.hostname == 'www.reddit.com':
+    case /hbogo\./.test(location.hostname):
+      // insert before parent to bypass overlay
+      this.parent.parentElement.insertBefore(fragment, this.parent);
+      break;
+    case location.hostname == 'www.facebook.com':
+      // this is a monstrosity but new FB design does not have *any*
+      // semantic handles for us to traverse the tree, and deep nesting
+      // that we need to bubble up from to get controller to stack correctly
+      let p =
+        this.parent.parentElement.parentElement.parentElement.parentElement.parentElement
+          .parentElement.parentElement;
+      p.insertBefore(fragment, p.firstChild);
+      break;
+    case location.hostname == 'tv.apple.com':
+      // insert before parent to bypass overlay
+      this.parent.parentNode.insertBefore(fragment, this.parent.parentNode.firstChild);
+      break;
+    default:
+      // Note: when triggered via a MutationRecord, it's possible that the
+      // target is not the immediate parent. This appends the controller as
+      // the first element of the target, which may not be the parent.
+      this.parent.insertBefore(fragment, this.parent.firstChild);
+  }
+  return wrapper;
+};
+// }}}
 // }}}
 
 // -> init from local storage {{{
@@ -288,224 +491,6 @@ function getKeyBindings(action, what = 'value') {
 
 function setKeyBindings(action, value) {
   tc.settings.keyBindings.find((item) => item.action === action)['value'] = value;
-}
-// }}}
-
-// -> defineVideoController {{{
-function defineVideoController() {
-  log('Begin defineVideoController', DEBUG);
-  // Data structures
-  // ---------------
-  // videoController (JS object) instances:
-  //   video = AUDIO/VIDEO DOM element
-  //   parent = A/V DOM element's parentElement OR
-  //            (A/V elements discovered from the Mutation Observer)
-  //            A/V element's parentNode OR the node whose children changed.
-  //   div = Controller's DOM element (which happens to be a DIV)
-  //   speedIndicator = DOM element in the Controller of the speed indicator
-
-  // added to AUDIO / VIDEO DOM elements
-  //    vsc = reference to the videoController
-  // --> tc.videoController = ... {{{
-  tc.videoController = function (target, parent) {
-    if (target.vsc) {
-      return target.vsc;
-    }
-
-    tc.mediaElements.push(target);
-
-    this.video = target;
-    this.parent = target.parentElement || parent;
-    storedSpeed = tc.settings.speeds[getBaseURL(target.currentSrc)] || 1.0;
-
-    if (!tc.settings.rememberSpeed) {
-      if (!storedSpeed) {
-        log('Overwriting stored speed to 1.0 due to rememberSpeed being disabled', DEBUG);
-        storedSpeed = 1.0;
-      }
-      setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
-    } else {
-      log('Recalling stored speed ' + storedSpeed + ' due to rememberSpeed being enabled', DEBUG);
-      //storedSpeed = tc.settings.lastSpeed;
-    }
-
-    log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
-    target.playbackRate = storedSpeed;
-
-    this.div = this.initializeControls();
-
-    var mediaEventAction = function (event) {
-      storedSpeed = tc.settings.speeds[getBaseURL(event.target.currentSrc)] || 1.0;
-
-      if (!tc.settings.rememberSpeed) {
-        if (!storedSpeed) {
-          log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', INFO);
-          storedSpeed = 1.0;
-        }
-        // resetSpeed isn't really a reset, it's a toggle
-        log('Setting reset keybinding to fast', DEBUG);
-        setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
-      } else {
-        // log(
-        //   "Storing lastSpeed into tc.settings.speeds (rememberSpeed enabled)",
-        //   5
-        // );
-        //storedSpeed = tc.settings.lastSpeed;
-      }
-      // TODO: Check if explicitly setting the playback rate to 1.0 is
-      // necessary when rememberSpeed is disabled (this may accidentally
-      // override a website's intentional initial speed setting interfering
-      // with the site's default behavior)
-      log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
-      setSpeed(event.target, storedSpeed);
-    };
-
-    target.addEventListener('play', (this.handlePlay = mediaEventAction.bind(this)));
-
-    target.addEventListener('seeked', (this.handleSeek = mediaEventAction.bind(this)));
-
-    var observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === 'attributes' &&
-          (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
-        ) {
-          log('mutation of A/V element', DEBUG);
-          var controller = this.div;
-          if (!mutation.target.src && !mutation.target.currentSrc) {
-            controller.classList.add('vsc-nosource');
-          } else {
-            controller.classList.remove('vsc-nosource');
-          }
-        }
-      });
-    });
-    observer.observe(target, {
-      attributeFilter: ['src', 'currentSrc'],
-    });
-  };
-  // }}}
-
-  // --> tc.videoController.prototype.remove = ... {{{
-  tc.videoController.prototype.remove = function () {
-    this.div.remove();
-    this.video.removeEventListener('play', this.handlePlay);
-    this.video.removeEventListener('seek', this.handleSeek);
-    delete this.video.vsc;
-    let idx = tc.mediaElements.indexOf(this.video);
-    if (idx != -1) {
-      tc.mediaElements.splice(idx, 1);
-    }
-  };
-  // }}}
-
-  // --> tc.videoController.prototype.initializeControls = ... {{{
-  tc.videoController.prototype.initializeControls = function () {
-    log('initializeControls Begin', DEBUG);
-    const document = this.video.ownerDocument;
-    const speed = this.video.playbackRate.toFixed(2);
-    const rect = this.video.getBoundingClientRect();
-    // getBoundingClientRect is relative to the viewport; style coordinates
-    // are relative to offsetParent, so we adjust for that here. offsetParent
-    // can be null if the video has `display: none` or is not yet in the DOM.
-    const offsetRect = this.video.offsetParent?.getBoundingClientRect();
-    const top = Math.max(rect.top - (offsetRect?.top || 0), 30) + 'px';
-    const left = Math.max(rect.left - (offsetRect?.left || 0), 0) + 'px';
-
-    log('Speed variable set to: ' + speed, DEBUG);
-
-    var wrapper = document.createElement('div');
-    wrapper.classList.add('vsc-controller');
-
-    if (!this.video.currentSrc) {
-      wrapper.classList.add('vsc-nosource');
-    }
-
-    if (tc.settings.startHidden) {
-      wrapper.classList.add('vsc-hidden');
-    }
-
-    var shadow = wrapper.attachShadow({ mode: 'open' });
-    var shadowTemplate = `
-        <style>
-          @import "${chrome.runtime.getURL('shadow.css')}";
-        </style>
-
-        <div id="controller" style="top:${top}; left:${left}; opacity:${
-      tc.settings.controllerOpacity
-    }">
-          <span data-action="drag" class="draggable">${speed}</span>
-          <span id="controls">
-            <button data-action="rewind" class="rw">«</button>
-            <button data-action="slower">&minus;</button>
-            <button data-action="faster">&plus;</button>
-            <button data-action="advance" class="rw">»</button>
-            <button data-action="display" class="hideButton">&times;</button>
-          </span>
-        </div>
-      `;
-    shadow.innerHTML = shadowTemplate;
-    shadow.querySelector('.draggable').addEventListener(
-      'mousedown',
-      (e) => {
-        runAction(e.target.dataset['action'], false, e);
-        e.stopPropagation();
-      },
-      true,
-    );
-
-    shadow.querySelectorAll('button').forEach(function (button) {
-      button.addEventListener(
-        'click',
-        (e) => {
-          runAction(e.target.dataset['action'], getKeyBindings(e.target.dataset['action']), e);
-          e.stopPropagation();
-        },
-        true,
-      );
-    });
-
-    shadow
-      .querySelector('#controller')
-      .addEventListener('click', (e) => e.stopPropagation(), false);
-    shadow
-      .querySelector('#controller')
-      .addEventListener('mousedown', (e) => e.stopPropagation(), false);
-
-    this.speedIndicator = shadow.querySelector('span');
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(wrapper);
-
-    switch (true) {
-      case location.hostname == 'www.amazon.com':
-      case location.hostname == 'www.reddit.com':
-      case /hbogo\./.test(location.hostname):
-        // insert before parent to bypass overlay
-        this.parent.parentElement.insertBefore(fragment, this.parent);
-        break;
-      case location.hostname == 'www.facebook.com':
-        // this is a monstrosity but new FB design does not have *any*
-        // semantic handles for us to traverse the tree, and deep nesting
-        // that we need to bubble up from to get controller to stack correctly
-        let p =
-          this.parent.parentElement.parentElement.parentElement.parentElement.parentElement
-            .parentElement.parentElement;
-        p.insertBefore(fragment, p.firstChild);
-        break;
-      case location.hostname == 'tv.apple.com':
-        // insert before parent to bypass overlay
-        this.parent.parentNode.insertBefore(fragment, this.parent.parentNode.firstChild);
-        break;
-      default:
-        // Note: when triggered via a MutationRecord, it's possible that the
-        // target is not the immediate parent. This appends the controller as
-        // the first element of the target, which may not be the parent.
-        this.parent.insertBefore(fragment, this.parent.firstChild);
-    }
-    return wrapper;
-  };
-  // }}}
-  log('End defineVideoController', DEBUG);
 }
 // }}}
 
@@ -740,6 +725,43 @@ function getShadow(parent) {
 }
 // }}}
 
+// -> checkForVideo {{{
+function checkForVideo(node, parent, added) {
+  // This function is called QUITE a few times, so logs are SUPER noisy!
+  // log('Begin checkForVideo', DEBUG);
+
+  // Only proceed with supposed removal if node is missing from DOM
+  if (!added && document.body?.contains(node)) {
+    return;
+  }
+
+  if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && tc.settings.audioBoolean)) {
+    if (added) {
+      log('added', DEBUG);
+      node.vsc = new tc.videoController(node, parent);
+    } else {
+      log('not added', DEBUG);
+      if (node.vsc) {
+        node.vsc.remove();
+      }
+    }
+  } else if (node.children != undefined) {
+    log(
+      `node has ${node.children.length} children; checkForVideo on each`,
+      TRACE,
+      node.nodeName,
+      node,
+    );
+
+    for (var i = 0; i < node.children.length; i++) {
+      const child = node.children[i];
+      checkForVideo(child, child.parentNode || parent, added);
+    }
+  }
+  // log('End checkForVideo', DEBUG);
+}
+// }}}
+
 // -> initializeNow {{{
 function initializeNow(document) {
   log('Begin initializeNow', DEBUG);
@@ -757,10 +779,7 @@ function initializeNow(document) {
   document.body.classList.add('vsc-initialized');
   log('initializeNow: vsc-initialized added to document body', DEBUG);
 
-  if (document === window.document) {
-    log('calling defineVideoController', TRACE);
-    defineVideoController();
-  } else {
+  if (document !== window.document) {
     log('adding inject.css to head', TRACE);
     var link = document.createElement('link');
     link.href = chrome.runtime.getURL('inject.css');
@@ -793,7 +812,7 @@ function initializeNow(document) {
           event.getModifierState('Hyper') ||
           event.getModifierState('OS')
         ) {
-          log('Keydown event ignored due to active modifier: ' + keyCode, DEBUG);
+          log('Keydown event ignored due to active modifier: ' + keyCode, TRACE);
           return;
         }
 
@@ -830,38 +849,16 @@ function initializeNow(document) {
     );
   });
 
-  function checkForVideo(node, parent, added) {
-    // This function is called QUITE a few times, so logs are SUPER noisy!
-    // log('Begin checkForVideo', DEBUG);
-
-    // Only proceed with supposed removal if node is missing from DOM
-    if (!added && document.body?.contains(node)) {
-      return;
-    }
-    if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && tc.settings.audioBoolean)) {
-      log('checkForVideo found a VIDEO (or AUDIO)', DEBUG, node.shadowRoot);
-      if (added) {
-        node.vsc = new tc.videoController(node, parent);
-      } else {
-        if (node.vsc) {
-          node.vsc.remove();
-        }
-      }
-    } else if (node.children != undefined) {
-      log(`node has ${node.children.length} children; checkForVideo on each`, DEBUG, node.nodeName, node);
-      for (var i = 0; i < node.children.length; i++) {
-        const child = node.children[i];
-        checkForVideo(child, child.parentNode || parent, added);
-      }
-    }
-    // log('End checkForVideo', DEBUG);
-  }
-
   var observer = new MutationObserver(function (mutations) {
+    console.group('MutationObserver');
+    log(`MutationObserver called with ${mutations.length} mutations`, DEBUG);
+
     // Process the DOM nodes lazily
     requestIdleCallback(
-      (_) => {
+      () => {
         mutations.forEach(function (mutation) {
+          log(`mutation type is ${mutation.type}`, DEBUG);
+
           switch (mutation.type) {
             case 'childList':
               mutation.addedNodes.forEach(function (node) {
@@ -875,11 +872,27 @@ function initializeNow(document) {
                   return;
                 }
 
-                checkForVideo(node, node.parentNode || mutation.target, true);
+                const target = node.parentNode || mutation.target;
+
+                if (!tc.observed.has(target)) {
+                  tc.observed.add(target);
+                  log('checkForVideo in chidlListMutation.addedNodes', TRACE, target);
+                  checkForVideo(node, target, true);
+                } else {
+                  log('already observed; skipping', TRACE, target);
+                }
               });
               mutation.removedNodes.forEach(function (node) {
                 if (typeof node === 'function') return;
-                checkForVideo(node, node.parentNode || mutation.target, false);
+
+                const target = node.parentNode || mutation.target;
+                if (!tc.observed.has(target)) {
+                  tc.observed.add(target);
+                  log('checkForVideo in chidlListMutation.removedNodes', TRACE, target);
+                  checkForVideo(node, target, true);
+                } else {
+                  log('already observed; skipping', TRACE, target);
+                }
               });
               break;
             case 'attributes':
@@ -894,12 +907,21 @@ function initializeNow(document) {
                   // only add vsc the first time for the apple-tv case (the attribute change is triggered every time you click the vsc)
                   if (node.vsc && mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER') continue;
                   if (node.vsc) node.vsc.remove();
-                  checkForVideo(node, node.parentNode || mutation.target, true);
+
+                  const target = node.parentNode || mutation.target;
+                  if (!tc.observed.has(target)) {
+                    tc.observed.add(target);
+                    log('checkForVideo in attributesMutation', TRACE, target);
+                    checkForVideo(node, target, true);
+                  } else {
+                    log('already observed; skipping', TRACE, target);
+                  }
                 }
               }
               break;
           }
         });
+        console.groupEnd();
       },
       { timeout: 1000 },
     );
@@ -932,6 +954,25 @@ function initializeNow(document) {
   });
   log('End initializeNow', DEBUG);
 }
+// document.addEventListener('onhashchange', () => log('HASH-CHANGE', INFO));
+// document.addEventListener('navigate', () => log('NAVIGATE', INFO));
+// document.addEventListener('load', () => log('LOOOOOOOOOOOOOOOOAD', INFO));
+// document.addEventListener('readystatechange', () => {
+//   log('readystatechange', INFO, document.readyState);
+//   var flattenedNodes = getShadow(document.body);
+//
+//   var nodes = flattenedNodes.filter((x) => x.tagName == 'VIDEO');
+//   for (let node of nodes) {
+//     // only add vsc the first time for the apple-tv case (the attribute change is triggered every time you click the vsc)
+//     if (node.vsc && mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER') continue;
+//     if (node.vsc) node.vsc.remove();
+//
+//     const target = node.parentNode || document.body;
+//     log('checkForVideo in attributesMutation', TRACE, target);
+//     log(`calling checkForVideo`, INFO, node, target);
+//     checkForVideo(node, target, true);
+//   }
+// });
 // }}}
 
 // -> setSpeed {{{
@@ -969,6 +1010,7 @@ function runAction(action, value, e) {
 
     // Don't change video speed if the video has a different controller
     if (e && !(targetController == controller)) {
+      log('runAction e, targetController, controller', DEBUG, e, targetController, controller);
       return;
     }
 
