@@ -897,7 +897,7 @@ function initializeNow(document) {
                 const target = node.parentNode || mutation.target;
 
                 if (!tc.observed.has(target)) {
-                  tc.observed.add(target);
+                  // tc.observed.add(target);
                   log('checkForVideo in chidlListMutation.addedNodes', TRACE, target);
                   checkForVideo(node, target, true);
                 } else {
@@ -909,7 +909,7 @@ function initializeNow(document) {
 
                 const target = node.parentNode || mutation.target;
                 if (!tc.observed.has(target)) {
-                  tc.observed.add(target);
+                  // tc.observed.add(target);
                   log('checkForVideo in chidlListMutation.removedNodes', TRACE, target);
                   checkForVideo(node, target, true);
                 } else {
@@ -932,7 +932,7 @@ function initializeNow(document) {
 
                   const target = node.parentNode || mutation.target;
                   if (!tc.observed.has(target)) {
-                    tc.observed.add(target);
+                    // tc.observed.add(target);
                     log('checkForVideo in attributesMutation', TRACE, target);
                     checkForVideo(node, target, true);
                   } else {
