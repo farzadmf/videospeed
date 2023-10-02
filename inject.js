@@ -818,7 +818,20 @@ function initializeNow(document) {
     doc.addEventListener(
       'keydown',
       function (event) {
-        if (['INPUT', 'TEXTAREA'].includes(event.srcElement?.nodeName)) return;
+        const ignoredNodeNames = [
+          'TEXTAREA',
+          'INPUT',
+          'CIB-SERP', // Bing chat has this element
+        ];
+
+        // Ignore keydown event if typing in an input box
+        if (
+          ignoredNodeNames.includes(event.target.nodeName) ||
+          event.target.isContentEditable
+        ) {
+          return false;
+        }
+
 
         const keyCode = event.keyCode;
         const shift = event.shiftKey;
@@ -838,15 +851,6 @@ function initializeNow(document) {
         ) {
           log('Keydown event ignored due to active modifier: ' + keyCode, TRACE);
           return;
-        }
-
-        // Ignore keydown event if typing in an input box
-        if (
-          event.target.nodeName === 'INPUT' ||
-          event.target.nodeName === 'TEXTAREA' ||
-          event.target.isContentEditable
-        ) {
-          return false;
         }
 
         // Ignore keydown event if typing in a page without vsc
