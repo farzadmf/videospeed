@@ -818,6 +818,8 @@ function initializeNow(document) {
     doc.addEventListener(
       'keydown',
       function (event) {
+        if (['INPUT', 'TEXTAREA'].includes(event.srcElement?.nodeName)) return;
+
         const keyCode = event.keyCode;
         const shift = event.shiftKey;
         const ctrl = event.ctrlKey;
