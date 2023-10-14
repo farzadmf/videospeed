@@ -225,8 +225,8 @@ tc.videoController.prototype.initializeControls = function () {
       </style>
 
       <div id="controller" style="top:${top}; left:${left}; opacity:${
-    tc.settings.controllerOpacity
-  }">
+        tc.settings.controllerOpacity
+      }">
         <span data-action="drag" class="draggable">${speed}</span>
         <span id="controls">
           <button data-action="rewind" class="rw">«</button>
@@ -356,108 +356,29 @@ chrome.storage.sync.get(tc.settings, function (storage) {
       force: false,
       predefined: false,
     }); // default: .
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-1',
-      key: 49,
-      shift: false,
-      ctrl: false,
-      value: 1,
-      force: true,
-      predefined: false,
-    }); // default: 1
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-1.5',
-      key: 49,
-      shift: true,
-      ctrl: false,
-      value: 1.5,
-      force: true,
-      predefined: false,
-    }); // default: shift+1
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-2',
-      key: 50,
-      shift: false,
-      ctrl: false,
-      value: 2,
-      force: true,
-      predefined: false,
-    }); // default: 2
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-2.5',
-      key: 50,
-      shift: true,
-      ctrl: false,
-      value: 2.5,
-      force: true,
-      predefined: false,
-    }); // default: shift+2
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-3',
-      key: 51,
-      value: 3,
-      shift: false,
-      ctrl: false,
-      force: true,
-      predefined: false,
-    }); // default: 3
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-3.5',
-      key: 51,
-      value: 3.5,
-      shift: true,
-      ctrl: false,
-      force: true,
-      predefined: false,
-    }); // default: shift+3
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-4',
-      key: 52,
-      shift: false,
-      ctrl: false,
-      value: 4,
-      force: true,
-      predefined: false,
-    }); // default: 4
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-4.5',
-      key: 52,
-      shift: true,
-      ctrl: false,
-      value: 4.5,
-      force: true,
-      predefined: false,
-    }); // default: shift+4
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-5',
-      key: 53,
-      shift: false,
-      ctrl: false,
-      value: 5,
-      force: true,
-      predefined: false,
-    }); // default: 5
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-5.5',
-      key: 53,
-      shift: true,
-      ctrl: false,
-      value: 5.5,
-      force: true,
-      predefined: false,
-    }); // default: shift+5
-    tc.settings.keyBindings.push({
-      action: 'fixspeed-6',
-      key: 54,
-      shift: false,
-      ctrl: false,
-      value: 6,
-      force: true,
-      predefined: false,
-    }); // default: 6
+    for (let i = 1; i <= 9; i++) {
+      tc.settings.keyBindings.push({
+        action: `fixspeed-${i}`,
+        key: 48 + i, // 48 is zero
+        shift: false,
+        ctrl: false,
+        value: i,
+        force: true,
+        predefined: false,
+      });
+      tc.settings.keyBindings.push({
+        action: `fixspeed-${i}.5`,
+        key: 48 + i, // 48 is zero
+        shift: true,
+        ctrl: false,
+        value: i + 0.5,
+        force: true,
+        predefined: false,
+      });
+    }
     tc.settings.version = '0.5.3';
 
-    chrome.storage.sync.set({
+    chrome?.storage?.sync?.set({
       audioBoolean: tc.settings.audioBoolean,
       blacklist: tc.settings.blacklist.replace(regStrip, ''),
       controllerOpacity: tc.settings.controllerOpacity,
@@ -825,13 +746,9 @@ function initializeNow(document) {
         ];
 
         // Ignore keydown event if typing in an input box
-        if (
-          ignoredNodeNames.includes(event.target.nodeName) ||
-          event.target.isContentEditable
-        ) {
+        if (ignoredNodeNames.includes(event.target.nodeName) || event.target.isContentEditable) {
           return false;
         }
-
 
         const keyCode = event.keyCode;
         const shift = event.shiftKey;
@@ -878,14 +795,14 @@ function initializeNow(document) {
   });
 
   var observer = new MutationObserver(function (mutations) {
-    logGroup('MutationObserver', DEBUG);
-    log(`MutationObserver called with ${mutations.length} mutations`, DEBUG);
+    logGroup('MutationObserver', TRACE);
+    log(`MutationObserver called with ${mutations.length} mutations`, TRACE);
 
     // Process the DOM nodes lazily
     requestIdleCallback(
       () => {
         mutations.forEach(function (mutation) {
-          log(`mutation type is ${mutation.type}`, DEBUG);
+          log(`mutation type is ${mutation.type}`, TRACE);
 
           switch (mutation.type) {
             case 'childList':
@@ -895,7 +812,7 @@ function initializeNow(document) {
                 if (node === document.documentElement) {
                   // This happens on sites that use document.write, e.g. watch.sling.com
                   // When the document gets replaced, we lose all event handlers, so we need to reinitialize
-                  log('Document was replaced, reinitializing', DEBUG);
+                  log('Document was replaced, reinitializing', TRACE);
                   initializeWhenReady(document);
                   return;
                 }
@@ -949,7 +866,7 @@ function initializeNow(document) {
               break;
           }
         });
-        logGroupEnd(DEBUG);
+        logGroupEnd(TRACE);
       },
       { timeout: 1000 },
     );

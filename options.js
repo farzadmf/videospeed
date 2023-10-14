@@ -25,7 +25,10 @@ var tcDefaults = {
     { action: 'fixspeed-3', key: 51, value: 3, force: true, predefined: false }, // 3
     { action: 'fixspeed-4', key: 52, value: 4, force: true, predefined: false }, // 4
     { action: 'fixspeed-5', key: 53, value: 5, force: true, predefined: false }, // 5
-    { action: 'fixspeed-6', key: 54, value: 6, force: true, predefined: false }, // 5
+    { action: 'fixspeed-6', key: 54, value: 6, force: true, predefined: false }, // 6
+    { action: 'fixspeed-7', key: 55, value: 7, force: true, predefined: false }, // 7
+    { action: 'fixspeed-8', key: 56, value: 8, force: true, predefined: false }, // 8
+    { action: 'fixspeed-9', key: 57, value: 9, force: true, predefined: false }, // 9
   ],
   logLevel: 3, // default: 3
   rememberSpeed: false, // default: false
@@ -180,6 +183,13 @@ var customActionsNoValues = [
   'fixspeed-5',
   'fixspeed-5.5',
   'fixspeed-6',
+  'fixspeed-6.5',
+  'fixspeed-7',
+  'fixspeed-7.5',
+  'fixspeed-8',
+  'fixspeed-8.5',
+  'fixspeed-9',
+  'fixspeed-9.5',
 ];
 
 function add_shortcut() {
@@ -206,6 +216,13 @@ function add_shortcut() {
       <option value="fixspeed-5">5x Speed</option>
       <option value="fixspeed-5.5">5.5x Speed</option>
       <option value="fixspeed-6">6x Speed</option>
+      <option value="fixspeed-6.5">6.5x Speed</option>
+      <option value="fixspeed-7">7x Speed</option>
+      <option value="fixspeed-7.5">7.5x Speed</option>
+      <option value="fixspeed-8">8x Speed</option>
+      <option value="fixspeed-8.5">8.5x Speed</option>
+      <option value="fixspeed-9">9x Speed</option>
+      <option value="fixspeed-9.5">9.5x Speed</option>
       <option value="display">Show/hide controller</option>
     </select>
     <input class="customKey" type="text" placeholder="press a key"/>
