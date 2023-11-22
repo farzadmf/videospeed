@@ -1,6 +1,7 @@
 # Changes in this fork
 
-- The extension will remember the playspeed per Website (not completely tested, but hopefully that's what's going to happen)
+- The extension will remember the playspeed per Website.
+- There are keybindings configurable for speeds 1x thru 9x (with `0.5` steps).
 
 ---
 
