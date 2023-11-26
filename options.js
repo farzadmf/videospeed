@@ -1,5 +1,6 @@
 var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 
+// tdDefaults {{{
 var tcDefaults = {
   blacklist: `www.instagram.com
     twitter.com
@@ -35,9 +36,11 @@ var tcDefaults = {
   speed: 1.0, // default: 1.0
   startHidden: false, // default: false
 };
+// }}}
 
 var keyBindings = [];
 
+// keyCodeAliases {{{
 // Useful sites:
 // - http://gcctech.org/csc/javascript/javascript_keycodes.htm
 // - https://www.toptal.com/developers/keycode (interactive)
@@ -99,7 +102,9 @@ var keyCodeAliases = {
   221: ']',
   222: "'",
 };
+// }}}
 
+// recordKeyPress {{{
 function recordKeyPress(e) {
   if (
     (e.keyCode >= 48 && e.keyCode <= 57) || // Numbers 0-9
@@ -138,7 +143,9 @@ function recordKeyPress(e) {
     e.target.keyCode = null;
   }
 }
+// }}}
 
+// misc functions (input element manipulation etc.) {{{
 function inputFilterNumbersOnly(e) {
   var char = String.fromCharCode(e.keyCode);
   if (!/[\d\.]$/.test(char) || !/^\d+(\.\d*)?$/.test(e.target.value + char)) {
@@ -165,6 +172,21 @@ function updateCustomShortcutInputText(inputItem, keyCode) {
   inputItem.keyCode = keyCode;
 }
 
+function show_experimental() {
+  document
+    .querySelectorAll('.customForce')
+    .forEach((item) => (item.style.display = 'inline-block'));
+}
+
+function forgetAll() {
+  chrome.storage.sync.remove(['speeds']);
+  forgetStatus = document.querySelector('#forgetStatus');
+  forgetStatus.classList.toggle('hidden');
+  setTimeout(() => forgetStatus.classList.toggle('hidden'), 1500);
+}
+// }}}
+
+// customActionsNoValues {{{
 // List of custom actions for which customValue should be disabled
 var customActionsNoValues = [
   'pause',
@@ -191,7 +213,9 @@ var customActionsNoValues = [
   'fixspeed-9',
   'fixspeed-9.5',
 ];
+// }}}
 
+// add_shortcut {{{
 function add_shortcut() {
   var html = `
     <select class="customDo">
@@ -243,7 +267,9 @@ function add_shortcut() {
     customs_element.children[customs_element.childElementCount - 1],
   );
 }
+// }}}
 
+// createKeyBindings {{{
 function createKeyBindings(item) {
   const action = item.querySelector('.customDo').value;
   const key = item.querySelector('.customKey').keyCode;
@@ -255,16 +281,6 @@ function createKeyBindings(item) {
   const force = item.querySelector('.customForce').value;
   const predefined = !!item.id; //item.id ? true : false;
 
-  console.log('farzad', item, {
-    action,
-    key,
-    shift,
-    ctrl,
-    value,
-    force,
-    predefined,
-  });
-
   keyBindings.push({
     action,
     key,
@@ -275,7 +291,9 @@ function createKeyBindings(item) {
     predefined,
   });
 }
+// }}}
 
+// validate {{{
 // Validates settings before saving
 function validate() {
   var valid = true;
@@ -307,7 +325,9 @@ function validate() {
   });
   return valid;
 }
+// }}}
 
+// save_options {{{
 // Saves options to chrome.storage
 function save_options() {
   if (validate() === false) {
@@ -361,7 +381,9 @@ function save_options() {
     },
   );
 }
+// }}}
 
+// restore_options {{{
 // Restores options from chrome.storage
 function restore_options() {
   chrome.storage.sync.get(tcDefaults, function (storage) {
@@ -425,7 +447,9 @@ function restore_options() {
     }
   });
 }
+// }}}
 
+// restore_defaults {{{
 function restore_defaults() {
   chrome.storage.sync.set(tcDefaults, function () {
     restore_options();
@@ -438,20 +462,9 @@ function restore_defaults() {
     }, 1000);
   });
 }
+// }}}
 
-function show_experimental() {
-  document
-    .querySelectorAll('.customForce')
-    .forEach((item) => (item.style.display = 'inline-block'));
-}
-
-function forgetAll() {
-  chrome.storage.sync.remove(['speeds']);
-  forgetStatus = document.querySelector('#forgetStatus');
-  forgetStatus.classList.toggle('hidden');
-  setTimeout(() => forgetStatus.classList.toggle('hidden'), 1500);
-}
-
+// toggleDisplaySpeeds {{{
 function toggleDisplaySpeeds() {
   const speedsDiv = document.querySelector('#speeds');
 
@@ -460,26 +473,81 @@ function toggleDisplaySpeeds() {
       return;
     }
 
-    const out = Object.entries(storage.speeds).reduce((prev, [key, value]) => {
-      return `${prev}
-<div style="display: flex;">
-  <div style="text-align: right; padding-right: 30px; width: 40%;">${key}</div>
-  <div>${value}</div>
-</div>
-      `;
-    }, '');
+    const speeds = _.sortBy(_.toPairs(storage.speeds), (s) => s[0]);
+    const DateTime = luxon.DateTime;
+
+    const display = (s) => {
+      const out = _.map(s, (value) => {
+        const [url, { speed, updated }] = value;
+        return `
+<tr>
+  <td class="url">
+    <div>${url}</div>
+  </td class="speed">
+  <td>
+    <div>${speed}</div>
+  </td>
+  <td class="updated">
+    <div>${DateTime.fromMillis(updated).toFormat('yyyy-MM-dd HH:mm:ss')}</div>
+  </td>
+  <td class="action">
+    <button data-speed-url="${url}">DELETE</button>
+  </td>
+</tr>
+`;
+      }).join('');
+
+      document.querySelector('#speed-items').innerHTML = `
+<table>
+  <tr>
+    <th class="url">URL</th>
+    <th class="speed">SPEED</th>
+    <th class="updated">LAST UPDATED</th>
+    <th class="action">ACTION</th>
+  </tr>
+  ${out}
+</table>
+`;
+    };
+
     speedsDiv.innerHTML = `
 <h3 style="text-align: center;">Remembering a total of ${
       Object.entries(storage.speeds).length
     } Website speeds</h3>
 <hr />
-${out}
+<input style="width: 100%" type="text" id="speeds-filter" placeholder="start typing to filter ..." />
+<hr />
+<div id="speed-items"></div>
 `;
+
+    display(speeds);
+    speedsDiv.scrollIntoView();
+
+    document.querySelector('#speeds-filter').addEventListener('input', () => {
+      const value = document.querySelector('#speeds-filter').value;
+      display(_.filter(speeds, (s) => s[0].toLowerCase().includes(value)));
+    });
+
+    document.querySelectorAll('button[data-speed-url]').forEach(b => {
+      b.addEventListener('click', event => {
+        const url = event.target.getAttribute('data-speed-url');
+        const filteredSpeeds = _.filter(speeds, s => s[0] !== url);
+        const transformed = _.transform(filteredSpeeds, (result, value) => result[value[0]] = value[1], {});
+        chrome.storage.sync.set(
+          {
+            speeds: transformed,
+          },
+          () => display(filteredSpeeds),
+        );
+      });
+    });
   });
 
   speedsDiv.classList.toggle('hidden');
 }
+// }}}
 
+// DOMContentLoaded; entry point basically {{{
 document.addEventListener('DOMContentLoaded', function () {
   restore_options();
 
@@ -528,3 +596,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+// }}}
+
+// vim: foldmethod=marker

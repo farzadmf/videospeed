@@ -84,7 +84,9 @@ button {
   border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 2px;
   outline: none;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.75);
   color: #444;
   text-shadow: 0 1px 0 rgb(240, 240, 240);
   font: inherit;
@@ -137,4 +139,33 @@ select {
 
 .hidden {
   display: none;
+}
+
+table {
+  margin-left: 100px;
+}
+
+table th {
+  border-bottom: 2px solid white;
+}
+
+table .url {
+  text-align: right;
+  padding-right: 30px;
+  width: 40%;
+}
+
+table .speed {
+  padding-right: 10px;
+  text-align: left;
+}
+
+table .updated {
+  padding-left: 15px;
+  text-align: left;
+}
+
+table .action {
+  padding: 0 45px;
+  text-align: center;
 }

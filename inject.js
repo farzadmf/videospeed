@@ -1,6 +1,12 @@
 var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 var regEndsWithFlags = /\/(?!.*(.).*\1)[gimsuy]*$/;
 
+// EXAMPLES {{{
+/*
+ * Reddit page with multiple videos: https://bit.ly/49NeN9v
+ */
+// }}}
+
 // -> log levels {{{
 /* Log levels (depends on caller specifying the correct level)
   1 - none
@@ -109,7 +115,7 @@ tc.videoController = function (target, parent) {
 
   this.video = target;
   this.parent = target.parentElement || parent;
-  storedSpeed = tc.settings.speeds[getBaseURL(target.currentSrc)] || 1.0;
+  storedSpeed = tc.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
 
   if (!tc.settings.rememberSpeed) {
     if (!storedSpeed) {
@@ -128,7 +134,7 @@ tc.videoController = function (target, parent) {
   this.div = this.initializeControls();
 
   var mediaEventAction = function (event) {
-    storedSpeed = tc.settings.speeds[getBaseURL(event.target.currentSrc)] || 1.0;
+    storedSpeed = tc.settings.speeds[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
 
     if (!tc.settings.rememberSpeed) {
       if (!storedSpeed) {
@@ -378,7 +384,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
     }
     tc.settings.version = '0.5.3';
 
-    chrome?.storage?.sync?.set({
+    chrome.storage.sync.set({
       audioBoolean: tc.settings.audioBoolean,
       blacklist: tc.settings.blacklist.replace(regStrip, ''),
       controllerOpacity: tc.settings.controllerOpacity,
@@ -560,7 +566,10 @@ function setupListener() {
 
     log('Updating controller with new speed', DEBUG);
     speedIndicator.textContent = speed.toFixed(2);
-    tc.settings.speeds[getBaseURL(src)] = speed;
+    tc.settings.speeds[getBaseURL(src)] = {
+      speed,
+      updated: new Date().valueOf(),
+    };
 
     log('Storing lastSpeed in settings for the rememberSpeed feature', DEBUG);
     tc.settings.lastSpeed = speed;
@@ -735,7 +744,9 @@ function initializeNow(document) {
     if (inIframe()) docs.push(window.top.document);
   } catch (e) {}
 
+  // set up keydown event listener for each "doc" {{{
   docs.forEach(function (doc) {
+
     doc.addEventListener(
       'keydown',
       function (event) {
@@ -754,7 +765,7 @@ function initializeNow(document) {
         const shift = event.shiftKey;
         const ctrl = event.ctrlKey;
 
-        log('Processing keydown event: ' + keyCode, 6);
+        log('Processing keydown event: ' + keyCode, TRACE);
 
         // Ignore if following modifier is active.
         if (
@@ -793,7 +804,9 @@ function initializeNow(document) {
       true,
     );
   });
+  // }}}
 
+  // create MutationObserver {{{
   var observer = new MutationObserver(function (mutations) {
     logGroup('MutationObserver', TRACE);
     log(`MutationObserver called with ${mutations.length} mutations`, TRACE);
@@ -871,16 +884,24 @@ function initializeNow(document) {
       { timeout: 1000 },
     );
   });
+  // }}}
+
   observer.observe(document, {
     attributeFilter: ['aria-hidden', 'data-focus-method'],
     childList: true,
     subtree: true,
   });
 
+  let mediaTags = [];
   if (tc.settings.audioBoolean) {
-    var mediaTags = document.querySelectorAll('video,audio');
+    mediaTags = [...document.querySelectorAll('video,audio')];
   } else {
-    var mediaTags = document.querySelectorAll('video');
+    mediaTags = [...document.querySelectorAll('video')];
+  }
+
+  const redditPlayer = 'shreddit-player';
+  if (document.querySelector(redditPlayer)) {
+    mediaTags.push(document.querySelector(redditPlayer).shadowRoot.querySelector('video'));
   }
 
   mediaTags.forEach(function (video) {
@@ -922,20 +943,41 @@ function initializeNow(document) {
 
 // -> setSpeed {{{
 function setSpeed(video, speed) {
-  log('setSpeed started: ' + speed, DEBUG);
-  var speedvalue = speed.toFixed(2);
+  log('setSpeed started: ' + speed, DEBUG, video);
+
+  const src = video.currentSrc;
+  const speedvalue = speed.toFixed(2);
+
+  // Not sure when we want dispatch and when playbackRate; added playbackRate
+  // in dispatch because dispatch had no effect in reddit (for example).
   if (tc.settings.forceLastSavedSpeed) {
     video.dispatchEvent(
       new CustomEvent('ratechange', {
         detail: { origin: 'videoSpeed', speed: speedvalue },
       }),
     );
+    // Seems like doing playbackRate directly sometimes gives error:
+    // 'Uncaught (in promise) Error: Not implemented', but it seems to be working?? :/
+    // And no, adding a try/catch here doens't remove the error in the console!
+    video.playbackRate = Number(speedvalue);
   } else {
     video.playbackRate = Number(speedvalue);
   }
+
   var speedIndicator = video.vsc.speedIndicator;
   speedIndicator.textContent = speedvalue;
   tc.settings.lastSpeed = speed;
+  tc.settings.speeds[getBaseURL(src)] = {
+    speed,
+    updated: new Date().valueOf(),
+  };
+  chrome.storage.sync.set(
+    {
+      lastSpeed: speed,
+      speeds: tc.settings.speeds,
+    },
+    () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
+  );
   refreshCoolDown();
   log('setSpeed finished: ' + speed, DEBUG);
 }
