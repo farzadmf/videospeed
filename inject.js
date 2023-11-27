@@ -294,9 +294,11 @@ tc.videoController.prototype.initializeControls = function () {
       this.parent.parentNode.insertBefore(fragment, this.parent.parentNode.firstChild);
       break;
     default:
+      console.log('fmfoo this', this, this.video, this.parent);
       // Note: when triggered via a MutationRecord, it's possible that the
       // target is not the immediate parent. This appends the controller as
       // the first element of the target, which may not be the parent.
+      // this.parent.insertBefore(fragment, this.parent.firstChild);
       this.parent.insertBefore(fragment, this.parent.firstChild);
   }
   return wrapper;
@@ -899,13 +901,34 @@ function initializeNow(document) {
     mediaTags = [...document.querySelectorAll('video')];
   }
 
-  const redditPlayer = 'shreddit-player';
-  if (document.querySelector(redditPlayer)) {
-    mediaTags.push(document.querySelector(redditPlayer).shadowRoot.querySelector('video'));
-  }
+  const shadows = [
+    ['shreddit-player'], // Reddit
+    ['mux-player', 'mux-video'] // totaltypescript
+  ];
+
+  const parents = [];
+  const shadowVideos = [];
+
+  shadows.forEach(sh => {
+    if (document.querySelector(sh[0])) {
+      const root = document.querySelector(sh[0]).shadowRoot;
+
+      if (sh.length === 1) {
+        shadowVideos.push(root.querySelector('video'));
+        parents.push(null);
+      } else {
+        const root2 = root.querySelector(sh[1]).shadowRoot;
+        shadowVideos.push(root2.querySelector('video'));
+        parents.push(root2);
+      }
+    }
+  });
 
   mediaTags.forEach(function (video) {
     video.vsc = new tc.videoController(video);
+  });
+  shadowVideos.forEach(function (video, idx) {
+    video.vsc = new tc.videoController(video, parents[idx]);
   });
 
   var frameTags = document.getElementsByTagName('iframe');
