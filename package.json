@@ -4,9 +4,10 @@
   "description": "- The extension will remember the playspeed per Website (not completely tested, but hopefully that's what's going to happen)",
   "main": "inject.js",
   "devDependencies": {
-    "cws-publish": "^2.1.1",
-    "eslint": "^8.51.0",
-    "prettier": "^3.0.3"
+    "cws-publish": "^2.0.0",
+    "eslint": "*",
+    "prettier": "*",
+    "typescript": "^5.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
