@@ -4,12 +4,15 @@
   "description": "- The extension will remember the playspeed per Website (not completely tested, but hopefully that's what's going to happen)",
   "main": "inject.js",
   "devDependencies": {
+    "@extend-chrome/storage": "*",
+    "@types/node": "^20.10.0",
     "cws-publish": "^2.0.0",
     "eslint": "*",
     "prettier": "*",
     "typescript": "^5.0.0"
   },
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
