@@ -1,4 +1,6 @@
-var regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
+// Well, at least on Mac, if I have this at the top, when null-ls wants to save,
+// it deletes almost half of the file!!! So all the comments to not have it at the top!!!
+const REG_STRIP = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 
 // tdDefaults {{{
 var tcDefaults = {
@@ -6,7 +8,7 @@ var tcDefaults = {
     twitter.com
     imgur.com
     teams.microsoft.com
-  `.replace(regStrip, ''),
+  `.replace(REG_STRIP, ''),
   audioBoolean: false, // default: false
   controllerOpacity: 0.6, // default: 0.6
   displayKeyCode: 86, // default: V
@@ -301,7 +303,7 @@ function validate() {
   var blacklist = document.getElementById('blacklist');
 
   blacklist.value.split('\n').forEach((match) => {
-    match = match.replace(regStrip, '');
+    match = match.replace(REG_STRIP, '');
 
     if (match.startsWith('/')) {
       try {
@@ -362,7 +364,7 @@ function save_options() {
   chrome.storage.sync.set(
     {
       audioBoolean,
-      blacklist: blacklist.replace(regStrip, ''),
+      blacklist: blacklist.replace(REG_STRIP, ''),
       controllerOpacity,
       enabled,
       forceLastSavedSpeed,
