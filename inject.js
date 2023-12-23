@@ -912,7 +912,7 @@ function initializeNow(document) {
     setTimeout(() => {
       let rootEl = document;
       for (let root of sh) {
-        rootEl = rootEl.querySelector(root);
+        rootEl = rootEl?.querySelector(root);
         if (rootEl) {
           rootEl = rootEl.shadowRoot;
           const video = rootEl.querySelector('video');
@@ -1011,7 +1011,7 @@ function setSpeed(video, speed) {
 
 // -> runAction {{{
 function runAction(action, value, e) {
-  var mediaTags = tc.mediaElements;
+  const mediaTags = tc.mediaElements;
 
   // Get the controller that was used if called from a button press event e
   if (e) {
@@ -1054,6 +1054,9 @@ function runAction(action, value, e) {
       } else if (action === 'reset') {
         log('Reset speed', DEBUG);
         resetSpeed(v, 1.0);
+      } else if (action === 'go-start') {
+        log('Go to video start', DEBUG);
+        v.currentTime = 0;
       } else if (action === 'display') {
         log('Showing controller', DEBUG);
         controller.classList.add('vsc-manual');
