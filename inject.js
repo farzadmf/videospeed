@@ -909,25 +909,29 @@ function initializeNow(document) {
   const shadowVideos = [];
 
   shadows.forEach(sh => {
-    if (document.querySelector(sh[0])) {
-      const root = document.querySelector(sh[0]).shadowRoot;
+    setTimeout(() => {
+      let rootEl = document;
+      for (let root of sh) {
+        rootEl = rootEl.querySelector(root);
+        if (rootEl) {
+          rootEl = rootEl.shadowRoot;
+          const video = rootEl.querySelector('video');
 
-      if (sh.length === 1) {
-        shadowVideos.push(root.querySelector('video'));
-        parents.push(null);
-      } else {
-        const root2 = root.querySelector(sh[1]).shadowRoot;
-        shadowVideos.push(root2.querySelector('video'));
-        parents.push(root2);
+          if (video) {
+            parents.push(rootEl);
+            shadowVideos.push(video);
+          }
+        }
       }
-    }
+
+      shadowVideos.forEach(function (video, idx) {
+        video.vsc = new tc.videoController(video, parents[idx]);
+      });
+    }, 1000);
   });
 
   mediaTags.forEach(function (video) {
     video.vsc = new tc.videoController(video);
-  });
-  shadowVideos.forEach(function (video, idx) {
-    video.vsc = new tc.videoController(video, parents[idx]);
   });
 
   var frameTags = document.getElementsByTagName('iframe');

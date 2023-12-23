@@ -23,6 +23,7 @@ var tcDefaults = {
     { action: 'reset', key: 82, value: 1, force: false, predefined: true }, // R
     { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
     { action: 'pause', key: 49, value: 0, force: false, predefined: false }, // 1
+    { action: 'go-start', key: 48, value: 0, force: false, predefined: false }, // 0
     { action: 'fixspeed-1', key: 49, value: 1, force: true, predefined: false }, // 1
     { action: 'fixspeed-2', key: 50, value: 2, force: true, predefined: false }, // 2
     { action: 'fixspeed-3', key: 51, value: 3, force: true, predefined: false }, // 3
@@ -192,6 +193,7 @@ function forgetAll() {
 // List of custom actions for which customValue should be disabled
 var customActionsNoValues = [
   'pause',
+  'go-start',
   'muted',
   'mark',
   'jump',
@@ -229,6 +231,7 @@ function add_shortcut() {
       <option value="fast">Preferred speed</option>
       <option value="muted">Mute</option>
       <option value="pause">Pause</option>
+      <option value="go-start">Jump to video start</option>
       <option value="mark">Set marker</option>
       <option value="jump">Jump to marker</option>
       <option value="fixspeed-1">1x Speed</option>
