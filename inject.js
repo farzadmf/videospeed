@@ -1019,6 +1019,8 @@ function runAction(action, value, e) {
   }
 
   mediaTags.forEach(function (v) {
+    if (!v) return;
+
     var controller = v.vsc.div;
 
     // Don't change video speed if the video has a different controller
@@ -1026,6 +1028,8 @@ function runAction(action, value, e) {
       log('runAction e, targetController, controller', DEBUG, e, targetController, controller);
       return;
     }
+
+    const duration = v.duration;
 
     showController(controller);
 
@@ -1035,10 +1039,10 @@ function runAction(action, value, e) {
         setSpeed(v, speedValue);
       } else if (action === 'rewind') {
         log('Rewind', DEBUG);
-        v.currentTime -= value;
+        v.currentTime -= value * duration / 100;
       } else if (action === 'advance') {
         log('Fast forward', DEBUG);
-        v.currentTime += value;
+        v.currentTime += value * duration / 100;
       } else if (action === 'faster') {
         log('Increase speed', DEBUG);
         // Maximum playback speed in Chrome is set to 16:

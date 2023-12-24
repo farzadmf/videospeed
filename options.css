@@ -169,3 +169,16 @@ table .action {
   padding: 0 45px;
   text-align: center;
 }
+
+input.customValue {
+  width: 80px !important;
+
+  &.small {
+    width: 60px !important;
+  }
+}
+
+.customValueNote {
+  display: inline-block;
+  width: 15px;
+}

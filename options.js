@@ -18,8 +18,8 @@ var tcDefaults = {
     { action: 'display', key: 86, value: 0, force: false, predefined: true }, // V
     { action: 'slower', key: 222, value: 0.1, force: false, predefined: true }, // ;
     { action: 'faster', key: 186, value: 0.1, force: false, predefined: true }, // '
-    { action: 'rewind', key: 90, value: 10, force: false, predefined: true }, // Z
-    { action: 'advance', key: 88, value: 10, force: false, predefined: true }, // X
+    { action: 'rewind', key: 37, value: 5, force: false, predefined: true }, // Left
+    { action: 'advance', key: 39, value: 5, force: false, predefined: true }, // Right
     { action: 'reset', key: 82, value: 1, force: false, predefined: true }, // R
     { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
     { action: 'pause', key: 49, value: 0, force: false, predefined: false }, // 1
