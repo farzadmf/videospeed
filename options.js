@@ -222,60 +222,75 @@ var customActionsNoValues = [
 // add_shortcut {{{
 function add_shortcut() {
   var html = `
-    <select class="customDo">
-      <option value="slower">Decrease speed</option>
-      <option value="faster">Increase speed</option>
-      <option value="rewind">Rewind</option>
-      <option value="advance">Advance</option>
-      <option value="reset">Reset speed</option>
-      <option value="fast">Preferred speed</option>
-      <option value="muted">Mute</option>
-      <option value="pause">Pause</option>
-      <option value="go-start">Jump to video start</option>
-      <option value="mark">Set marker</option>
-      <option value="jump">Jump to marker</option>
-      <option value="fixspeed-1">1x Speed</option>
-      <option value="fixspeed-1.5">1.5x Speed</option>
-      <option value="fixspeed-2">2x Speed</option>
-      <option value="fixspeed-2.5">2.5x Speed</option>
-      <option value="fixspeed-3">3x Speed</option>
-      <option value="fixspeed-3.5">3.5x Speed</option>
-      <option value="fixspeed-4">4x Speed</option>
-      <option value="fixspeed-4.5">4.5x Speed</option>
-      <option value="fixspeed-5">5x Speed</option>
-      <option value="fixspeed-5.5">5.5x Speed</option>
-      <option value="fixspeed-6">6x Speed</option>
-      <option value="fixspeed-6.5">6.5x Speed</option>
-      <option value="fixspeed-7">7x Speed</option>
-      <option value="fixspeed-7.5">7.5x Speed</option>
-      <option value="fixspeed-8">8x Speed</option>
-      <option value="fixspeed-8.5">8.5x Speed</option>
-      <option value="fixspeed-9">9x Speed</option>
-      <option value="fixspeed-9.5">9.5x Speed</option>
-      <option value="display">Show/hide controller</option>
-    </select>
-    <input class="customKey" type="text" placeholder="press a key"/>
-    <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-    <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-    <input class="customValue" type="text" placeholder="value (0.10)"/>
-    <select class="customForce">
-      <option value="false">Do not disable website key bindings</option>
-      <option value="true">Disable website key bindings</option>
-    </select>
-    <button class="removeParent">X</button>`;
-  var div = document.createElement('div');
-  div.setAttribute('class', 'row customs');
-  div.innerHTML = html;
-  var customs_element = document.getElementById('customs');
-  customs_element.insertBefore(
-    div,
-    customs_element.children[customs_element.childElementCount - 1],
-  );
+    <tr>
+      <td>
+        <select class="customDo">
+          <option value="slower">Decrease speed</option>
+          <option value="faster">Increase speed</option>
+          <option value="rewind">Rewind</option>
+          <option value="advance">Advance</option>
+          <option value="reset">Reset speed</option>
+          <option value="fast">Preferred speed</option>
+          <option value="muted">Mute</option>
+          <option value="pause">Pause</option>
+          <option value="go-start">Jump to video start</option>
+          <option value="mark">Set marker</option>
+          <option value="jump">Jump to marker</option>
+          <option value="fixspeed-1">1x Speed</option>
+          <option value="fixspeed-1.5">1.5x Speed</option>
+          <option value="fixspeed-2">2x Speed</option>
+          <option value="fixspeed-2.5">2.5x Speed</option>
+          <option value="fixspeed-3">3x Speed</option>
+          <option value="fixspeed-3.5">3.5x Speed</option>
+          <option value="fixspeed-4">4x Speed</option>
+          <option value="fixspeed-4.5">4.5x Speed</option>
+          <option value="fixspeed-5">5x Speed</option>
+          <option value="fixspeed-5.5">5.5x Speed</option>
+          <option value="fixspeed-6">6x Speed</option>
+          <option value="fixspeed-6.5">6.5x Speed</option>
+          <option value="fixspeed-7">7x Speed</option>
+          <option value="fixspeed-7.5">7.5x Speed</option>
+          <option value="fixspeed-8">8x Speed</option>
+          <option value="fixspeed-8.5">8.5x Speed</option>
+          <option value="fixspeed-9">9x Speed</option>
+          <option value="fixspeed-9.5">9.5x Speed</option>
+          <option value="display">Show/hide controller</option>
+        </select>
+      </td>
+      <td>
+        <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
+        <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
+      </td>
+      <td>
+        <input class="customKey" type="text" placeholder="press a key"/>
+      </td>
+      <td>
+        <input class="customValue" type="text" placeholder="value (0.10)"/>
+      </td>
+      <td>
+        <select class="customForce">
+          <option value="false">Do not disable website key bindings</option>
+          <option value="true">Disable website key bindings</option>
+        </select>
+      </td>
+      <td>
+        <button class="removeParent">X</button>
+      </td>
+    </tr>
+`;
+
+  const shortcuts = document.querySelector('#shortcuts tbody');
+  shortcuts.insertAdjacentHTML('beforeend', html);
 }
 // }}}
 
 // createKeyBindings {{{
 function createKeyBindings(item) {
+  // Ignore rows not containing anything!
+  if (!item.querySelector('.customDo')) {
+    return;
+  }
+
   const action = item.querySelector('.customDo').value;
   const key = item.querySelector('.customKey').keyCode;
 
@@ -339,7 +354,8 @@ function save_options() {
     return;
   }
   keyBindings = [];
-  Array.from(document.querySelectorAll('.customs')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
+
+  Array.from(document.querySelectorAll('#shortcuts tr')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
 
   const audioBoolean = document.getElementById('audioBoolean').checked;
   const blacklist = document.getElementById('blacklist').value;
@@ -411,8 +427,10 @@ function restore_options() {
       });
     }
 
-    for (let i in storage.keyBindings) {
-      var item = storage.keyBindings[i];
+    const keyBindings = _.sortBy(storage.keyBindings, (b) => b.action);
+
+    for (let i in keyBindings) {
+      var item = keyBindings[i];
       if (item.predefined) {
         //do predefined ones because their value needed for overlay
         // document.querySelector("#" + item["action"] + " .customDo").value = item["action"];
@@ -430,12 +448,13 @@ function restore_options() {
         document.querySelector(`#${item['action']} input[name="shift"]`).checked = !!item['shift'];
         document.querySelector(`#${item['action']} input[name="ctrl"]`).checked = item['ctrl'];
 
-        document.querySelector('#' + item['action'] + ' .customValue').value = item['value'];
-        document.querySelector('#' + item['action'] + ' .customForce').value = item['force'];
+        document.querySelector(`#${item['action']} .customValue`).value = item['value'];
+        document.querySelector(`#${item['action']} .customForce`).value = item['force'];
       } else {
         // new ones
         add_shortcut();
-        const dom = document.querySelector('.customs:last-of-type');
+        // const dom = document.querySelector('.customs:last-of-type');
+        const dom = document.querySelector('#shortcuts tr:last-of-type');
         dom.querySelector('.customDo').value = item['action'];
 
         if (customActionsNoValues.includes(item['action'])) {
@@ -503,7 +522,7 @@ function toggleDisplaySpeeds() {
       }).join('');
 
       document.querySelector('#speed-items').innerHTML = `
-<table>
+<table id="website-speeds">
   <tr>
     <th class="url">URL</th>
     <th class="speed">SPEED</th>
@@ -533,11 +552,15 @@ function toggleDisplaySpeeds() {
       display(_.filter(speeds, (s) => s[0].toLowerCase().includes(value)));
     });
 
-    document.querySelectorAll('button[data-speed-url]').forEach(b => {
-      b.addEventListener('click', event => {
+    document.querySelectorAll('button[data-speed-url]').forEach((b) => {
+      b.addEventListener('click', (event) => {
         const url = event.target.getAttribute('data-speed-url');
-        const filteredSpeeds = _.filter(speeds, s => s[0] !== url);
-        const transformed = _.transform(filteredSpeeds, (result, value) => result[value[0]] = value[1], {});
+        const filteredSpeeds = _.filter(speeds, (s) => s[0] !== url);
+        const transformed = _.transform(
+          filteredSpeeds,
+          (result, value) => (result[value[0]] = value[1]),
+          {},
+        );
         chrome.storage.sync.set(
           {
             speeds: transformed,
@@ -584,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.addEventListener('click', (event) => {
     eventCaller(event, 'removeParent', function () {
-      event.target.parentNode.remove();
+      event.target.parentNode.parentNode.remove();
     });
   });
   document.addEventListener('change', (event) => {

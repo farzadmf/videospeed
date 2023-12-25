@@ -1029,7 +1029,8 @@ function runAction(action, value, e) {
       return;
     }
 
-    const duration = v.duration;
+    const percent = value * v.duration / 100;
+    const step = Math.min(value, percent);
 
     showController(controller);
 
@@ -1039,10 +1040,10 @@ function runAction(action, value, e) {
         setSpeed(v, speedValue);
       } else if (action === 'rewind') {
         log('Rewind', DEBUG);
-        v.currentTime -= value * duration / 100;
+        v.currentTime -= step;
       } else if (action === 'advance') {
         log('Fast forward', DEBUG);
-        v.currentTime += value * duration / 100;
+        v.currentTime += step;
       } else if (action === 'faster') {
         log('Increase speed', DEBUG);
         // Maximum playback speed in Chrome is set to 16:

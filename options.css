@@ -71,7 +71,7 @@ section h3 {
   margin-top: 15px;
 }
 
-button {
+button:not(.removeParent) {
   -webkit-appearance: none;
   position: relative;
 
@@ -123,13 +123,31 @@ label:not(.modifier) {
   margin-top: 2em;
 }
 
-select {
-  width: 170px;
+table {
+  select {
+    width: 100%;
+  }
+
+  th {
+    border-bottom: 2px solid white;
+  }
 }
 
-.customForce {
-  /* display: none; */
-  width: 250px;
+#shortcuts {
+  width: 90%;
+
+  tr {
+    padding: 5px 0;
+  }
+
+  td {
+    border-bottom: 1px dashed #ffffff5e;
+    padding: 5px 0;
+  }
+
+  .removeParent {
+    width: 100%;
+  }
 }
 
 .customKey {
@@ -141,44 +159,45 @@ select {
   display: none;
 }
 
-table {
+#website-speeds {
   margin-left: 100px;
 }
 
-table th {
-  border-bottom: 2px solid white;
-}
+#website-speeds {
+  .url {
+    text-align: right;
+    padding-right: 30px;
+    width: 40%;
+  }
 
-table .url {
-  text-align: right;
-  padding-right: 30px;
-  width: 40%;
-}
+  .speed {
+    padding-right: 10px;
+    text-align: left;
+  }
 
-table .speed {
-  padding-right: 10px;
-  text-align: left;
-}
+  .updated {
+    padding-left: 15px;
+    text-align: left;
+  }
 
-table .updated {
-  padding-left: 15px;
-  text-align: left;
-}
-
-table .action {
-  padding: 0 45px;
-  text-align: center;
-}
-
-input.customValue {
-  width: 80px !important;
-
-  &.small {
-    width: 60px !important;
+  .action {
+    padding: 0 45px;
+    text-align: center;
   }
 }
 
-.customValueNote {
+input.customValue {
+  /* width: 80px !important; */
+
+  &.small {
+    width: 40px;
+  }
+}
+
+.modifier:nth-of-type(2) {
+  margin-right: 15px;
+}
+
+.customValueContainer {
   display: inline-block;
-  width: 15px;
 }
