@@ -186,12 +186,9 @@ table {
   }
 }
 
-input.customValue {
-  /* width: 80px !important; */
-
-  &.small {
-    width: 40px;
-  }
+input.customValue.small,
+input.customValue2.small {
+  width: 40px;
 }
 
 .modifier:nth-of-type(2) {

@@ -18,8 +18,8 @@ var tcDefaults = {
     { action: 'display', key: 86, value: 0, force: false, predefined: true }, // V
     { action: 'slower', key: 222, value: 0.1, force: false, predefined: true }, // ;
     { action: 'faster', key: 186, value: 0.1, force: false, predefined: true }, // '
-    { action: 'rewind', key: 37, value: 5, force: false, predefined: true }, // Left
-    { action: 'advance', key: 39, value: 5, force: false, predefined: true }, // Right
+    { action: 'rewind', key: 37, value: 5, value2: 5, force: false, predefined: true }, // Left
+    { action: 'advance', key: 39, value: 5, value2: 5, force: false, predefined: true }, // Right
     { action: 'reset', key: 82, value: 1, force: false, predefined: true }, // R
     { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
     { action: 'pause', key: 49, value: 0, force: false, predefined: false }, // 1
@@ -301,7 +301,7 @@ function createKeyBindings(item) {
   const force = item.querySelector('.customForce').value;
   const predefined = !!item.id; //item.id ? true : false;
 
-  keyBindings.push({
+  let binding = {
     action,
     key,
     shift,
@@ -309,7 +309,17 @@ function createKeyBindings(item) {
     value,
     force,
     predefined,
-  });
+  };
+
+  const value2El = item.querySelector('.customValue2');
+  if (value2El) {
+    binding = {
+      ...binding,
+      value2: Number(value2El.value),
+    }
+  }
+
+  keyBindings.push(binding);
 }
 // }}}
 
@@ -350,7 +360,7 @@ function validate() {
 // save_options {{{
 // Saves options to chrome.storage
 function save_options() {
-  if (validate() === false) {
+  if (!validate()) {
     return;
   }
   keyBindings = [];
@@ -431,33 +441,40 @@ function restore_options() {
 
     for (let i in keyBindings) {
       var item = keyBindings[i];
+      const action = item['action'];
+      const tcDefault = _.find(tcDefaults.keyBindings, b => b.action === action);
+
       if (item.predefined) {
         //do predefined ones because their value needed for overlay
         // document.querySelector("#" + item["action"] + " .customDo").value = item["action"];
-        if (item['action'] == 'display' && typeof item['key'] === 'undefined') {
+        if (action == 'display' && typeof item['key'] === 'undefined') {
           item['key'] = storage.displayKeyCode || tcDefaults.displayKeyCode; // V
         }
 
-        if (customActionsNoValues.includes(item['action']))
-          document.querySelector(`#${item['action']} .customValue`).style.display = 'none';
+
+        if (customActionsNoValues.includes(action))
+          document.querySelector(`#${action} .customValue`).style.display = 'none';
 
         updateCustomShortcutInputText(
-          document.querySelector('#' + item['action'] + ' .customKey'),
+          document.querySelector(`#${action} .customKey`),
           item['key'],
         );
-        document.querySelector(`#${item['action']} input[name="shift"]`).checked = !!item['shift'];
-        document.querySelector(`#${item['action']} input[name="ctrl"]`).checked = item['ctrl'];
+        document.querySelector(`#${action} input[name="shift"]`).checked = !!item['shift'];
+        document.querySelector(`#${action} input[name="ctrl"]`).checked = item['ctrl'];
 
-        document.querySelector(`#${item['action']} .customValue`).value = item['value'];
-        document.querySelector(`#${item['action']} .customForce`).value = item['force'];
+        document.querySelector(`#${action} .customValue`).value = item['value'];
+        document.querySelector(`#${action} .customForce`).value = item['force'];
+
+        const customValue2 = document.querySelector(`#${action} .customValue2`);
+        if (customValue2) customValue2.value = item['value2'] || tcDefault.value2;
       } else {
         // new ones
         add_shortcut();
         // const dom = document.querySelector('.customs:last-of-type');
         const dom = document.querySelector('#shortcuts tr:last-of-type');
-        dom.querySelector('.customDo').value = item['action'];
+        dom.querySelector('.customDo').value = action;
 
-        if (customActionsNoValues.includes(item['action'])) {
+        if (customActionsNoValues.includes(action)) {
           dom.querySelector('.customValue').style.display = 'none';
         }
 
@@ -467,6 +484,9 @@ function restore_options() {
 
         dom.querySelector('.customValue').value = item['value'];
         dom.querySelector('.customForce').value = item['force'];
+
+        const customValue2 = dom.querySelector('.customValue');
+        if (customValue2) customValue2.value = item['value2'];
       }
     }
   });

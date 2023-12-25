@@ -118,8 +118,13 @@
             <input class="customKey" type="text" value="" placeholder="press a key" />
           </td>
           <td>
-            <input class="customValue small" type="text" placeholder="value (5)" />
-            <span class="customValueNote">%</span>
+            <div class="customValueContainer">
+              <span>Min of (</span>
+              <input class="customValue small" type="text" placeholder="value (5)" />
+              <span>% of duration, </span>
+              <input class="customValue2 small" type="text" placeholder="value (5)" />
+              <span>secs)</span>
+            </div>
           </td>
           <td>
             <select class="customForce">
@@ -146,11 +151,11 @@
           </td>
           <td>
             <div class="customValueContainer">
-              <span>Minimum of: </span>
+              <span>Min of (</span>
               <input class="customValue small" type="text" placeholder="value (5)" />
-              <span>% of duration and </span>
+              <span>% of duration, </span>
               <input class="customValue2 small" type="text" placeholder="value (5)" />
-              <span>seconds</span>
+              <span>secs)</span>
             </div>
           </td>
           <td>
