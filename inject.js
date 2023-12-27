@@ -247,7 +247,11 @@ tc.videoController.prototype.initializeControls = function () {
   shadow.querySelector('.draggable').addEventListener(
     'mousedown',
     (e) => {
-      runAction(e.target.dataset['action'], false, e);
+      runAction({
+        action: e.target.dataset['action'],
+        value: false,
+        e,
+      });
       e.stopPropagation();
     },
     true,
@@ -257,7 +261,11 @@ tc.videoController.prototype.initializeControls = function () {
     button.addEventListener(
       'click',
       (e) => {
-        runAction(e.target.dataset['action'], getKeyBindings(e.target.dataset['action']), e);
+        runAction({
+          action: e.target.dataset['action'],
+          value: getKeyBindings(e.target.dataset['action']),
+          e,
+        });
         e.stopPropagation();
       },
       true,
@@ -585,7 +593,7 @@ function setupListener() {
       },
     );
     // show the controller for 1000ms if it's hidden.
-    runAction('blink', null, null);
+    runAction({ action: 'blink' });
   }
 
   document.addEventListener(
@@ -792,7 +800,10 @@ function initializeNow(document) {
         );
 
         if (item) {
-          runAction(item.action, item.value);
+          runAction({
+            action: item.action,
+            value: item.value,
+          });
           if (item.force === 'true') {
             // disable websites key bindings
             event.preventDefault();
@@ -1010,7 +1021,7 @@ function setSpeed(video, speed) {
 // }}}
 
 // -> runAction {{{
-function runAction(action, value, e) {
+function runAction({ action, value, e }) {
   const mediaTags = tc.mediaElements;
 
   // Get the controller that was used if called from a button press event e
