@@ -803,6 +803,7 @@ function initializeNow(document) {
           runAction({
             action: item.action,
             value: item.value,
+            value2: item.value2,
           });
           if (item.force === 'true') {
             // disable websites key bindings
@@ -1021,7 +1022,7 @@ function setSpeed(video, speed) {
 // }}}
 
 // -> runAction {{{
-function runAction({ action, value, e }) {
+function runAction({ action, value, value2, e }) {
   const mediaTags = tc.mediaElements;
 
   // Get the controller that was used if called from a button press event e
@@ -1041,7 +1042,7 @@ function runAction({ action, value, e }) {
     }
 
     const percent = value * v.duration / 100;
-    const step = Math.min(value, percent);
+    const step = Math.min(value2 || 5, percent);
 
     showController(controller);
 
