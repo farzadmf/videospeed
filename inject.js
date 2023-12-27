@@ -96,6 +96,10 @@ var tc = {
     logLevel: WARNING, // default: WARNING
   },
 
+  // To keep track of the documents we're adding event listeners to.
+  // Maps each doc to its kwydown event listener.
+  docs: new Map(),
+
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
   mediaElements: [],
 
@@ -106,7 +110,6 @@ var tc = {
 // -> tc object constructor and methods {{{
 // --> tc.videoController = ... {{{
 tc.videoController = function (target, parent) {
-  log('HERE', DEBUG, target);
   if (target.vsc) {
     return target.vsc;
   }
@@ -170,12 +173,19 @@ tc.videoController = function (target, parent) {
         (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
       ) {
         log('mutation of A/V element', DEBUG);
-        var controller = this.div;
-        if (!mutation.target.src && !mutation.target.currentSrc) {
-          controller.classList.add('vsc-nosource');
-        } else {
-          controller.classList.remove('vsc-nosource');
-        }
+        document.body.classList.remove('vsc-initialized');
+        tc.mediaElements = [];
+        tc.docs.forEach((listener, doc) => {
+          doc.removeEventListener('keydown', listener, true);
+        });
+        tc.docs = new Map();
+        initializeWhenReady(document);
+        // var controller = this.div;
+        // if (!mutation.target.src && !mutation.target.currentSrc) {
+        //   controller.classList.add('vsc-nosource');
+        // } else {
+        //   controller.classList.remove('vsc-nosource');
+        // }
       }
     });
   });
@@ -729,7 +739,7 @@ function initializeNow(document) {
   if (!tc.settings.enabled) return;
   // enforce init-once due to redundant callers
   if (!document.body || document.body.classList.contains('vsc-initialized')) {
-    log('no body or body has vsc-initialized', TRACE);
+    log('no body or body has vsc-initialized', DEBUG);
     return;
   }
   try {
@@ -741,82 +751,82 @@ function initializeNow(document) {
   log('initializeNow: vsc-initialized added to document body', DEBUG);
 
   if (document !== window.document) {
-    log('adding inject.css to head', TRACE);
+    log('adding inject.css to head', DEBUG);
     var link = document.createElement('link');
     link.href = chrome.runtime.getURL('inject.css');
     link.type = 'text/css';
     link.rel = 'stylesheet';
     document.head.appendChild(link);
   }
-  var docs = Array(document);
+  docs = Array(document);
   try {
     if (inIframe()) docs.push(window.top.document);
   } catch (e) {}
 
   // set up keydown event listener for each "doc" {{{
   docs.forEach(function (doc) {
+    const listener = function (event) {
+      const ignoredNodeNames = [
+        'TEXTAREA',
+        'INPUT',
+        'CIB-SERP', // Bing chat has this element
+      ];
 
-    doc.addEventListener(
-      'keydown',
-      function (event) {
-        const ignoredNodeNames = [
-          'TEXTAREA',
-          'INPUT',
-          'CIB-SERP', // Bing chat has this element
-        ];
-
-        // Ignore keydown event if typing in an input box
-        if (ignoredNodeNames.includes(event.target.nodeName) || event.target.isContentEditable) {
-          return false;
-        }
-
-        const keyCode = event.keyCode;
-        const shift = event.shiftKey;
-        const ctrl = event.ctrlKey;
-
-        log('Processing keydown event: ' + keyCode, TRACE);
-
-        // Ignore if following modifier is active.
-        if (
-          !event.getModifierState ||
-          event.getModifierState('Alt') ||
-          event.getModifierState('Control') ||
-          event.getModifierState('Fn') ||
-          event.getModifierState('Meta') ||
-          event.getModifierState('Hyper') ||
-          event.getModifierState('OS')
-        ) {
-          log('Keydown event ignored due to active modifier: ' + keyCode, TRACE);
-          return;
-        }
-
-        // Ignore keydown event if typing in a page without vsc
-        if (!tc.mediaElements.length) {
-          return false;
-        }
-
-        const item = tc.settings.keyBindings.find(
-          (item) => item.key === keyCode && item.shift === shift && item.ctrl === ctrl,
-        );
-
-        if (item) {
-          runAction({
-            action: item.action,
-            value: item.value,
-            value2: item.value2,
-          });
-          if (item.force === 'true') {
-            // disable websites key bindings
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        }
-
+      // Ignore keydown event if typing in an input box
+      if (ignoredNodeNames.includes(event.target.nodeName) || event.target.isContentEditable) {
         return false;
-      },
-      true,
-    );
+      }
+
+      const keyCode = event.keyCode;
+      const shift = event.shiftKey;
+      const ctrl = event.ctrlKey;
+
+      log('Processing keydown event: ' + keyCode, TRACE);
+
+      // Ignore if following modifier is active.
+      if (
+        !event.getModifierState ||
+        event.getModifierState('Alt') ||
+        event.getModifierState('Control') ||
+        event.getModifierState('Fn') ||
+        event.getModifierState('Meta') ||
+        event.getModifierState('Hyper') ||
+        event.getModifierState('OS')
+      ) {
+        log('Keydown event ignored due to active modifier: ' + keyCode, TRACE);
+        return;
+      }
+
+      // Ignore keydown event if typing in a page without vsc
+      if (!tc.mediaElements.length) {
+        return false;
+      }
+
+      const item = tc.settings.keyBindings.find(
+        (item) => item.key === keyCode && item.shift === shift && item.ctrl === ctrl,
+      );
+
+      if (item) {
+        runAction({
+          action: item.action,
+          value: item.value,
+          value2: item.value2,
+        });
+        if (item.force === 'true') {
+          // disable websites key bindings
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+
+      return false;
+    };
+
+    tc.docs.set(doc, listener);
+
+    doc.addEventListener('keydown', tc.docs.get(doc), true);
   });
+
   // }}}
 
   // create MutationObserver {{{
@@ -914,13 +924,13 @@ function initializeNow(document) {
 
   const shadows = [
     ['shreddit-player'], // Reddit
-    ['mux-player', 'mux-video'] // totaltypescript
+    ['mux-player', 'mux-video'], // totaltypescript
   ];
 
   const parents = [];
   const shadowVideos = [];
 
-  shadows.forEach(sh => {
+  shadows.forEach((sh) => {
     setTimeout(() => {
       let rootEl = document;
       for (let root of sh) {
@@ -1041,8 +1051,8 @@ function runAction({ action, value, value2, e }) {
       return;
     }
 
-    const percent = value * v.duration / 100;
-    const step = Math.min(value2 || 5, percent);
+    const percent = (value * v.duration) / 100;
+    const step = Math.min(value2 || 5, percent); // Only used for rewind and advance
 
     showController(controller);
 
