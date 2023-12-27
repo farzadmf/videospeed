@@ -1,4 +1,40 @@
-// -> initializeWhenReady {{{
+// checkForVideo {{{
+function checkForVideo(node, parent, added) {
+  // This function is called QUITE a few times, so logs are SUPER noisy!
+  // log('Begin checkForVideo', DEBUG);
+
+  // Only proceed with supposed removal if node is missing from DOM
+  if (!added && document.body?.contains(node)) {
+    return;
+  }
+
+  if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && vsc.settings.audioBoolean)) {
+    if (added) {
+      log('added', DEBUG);
+      node.vsc = new vsc.videoController(node, parent);
+    } else {
+      log('not added', DEBUG);
+      if (node.vsc) {
+        node.vsc.remove();
+      }
+    }
+  } else if (node.children != undefined) {
+    log(
+      `node has ${node.children.length} children; checkForVideo on each`,
+      TRACE,
+      node.nodeName,
+      node,
+    );
+
+    for (var i = 0; i < node.children.length; i++) {
+      const child = node.children[i];
+      checkForVideo(child, child.parentNode || parent, added);
+    }
+  }
+  // log('End checkForVideo', DEBUG);
+}
+// }}}
+
 function initializeWhenReady(document) {
   log('Begin initializeWhenReady', DEBUG);
   if (isBlacklisted()) {
@@ -20,9 +56,7 @@ function initializeWhenReady(document) {
   }
   log('End initializeWhenReady', DEBUG);
 }
-// }}}
 
-// -> initializeNow {{{
 function initializeNow(document) {
   log('Begin initializeNow', DEBUG);
   if (!vsc.settings.enabled) return;
@@ -32,7 +66,7 @@ function initializeNow(document) {
     return;
   }
   try {
-    setupListener();
+    setupRateChangeListener();
   } catch {
     // no operation
   }
@@ -54,63 +88,7 @@ function initializeNow(document) {
 
   // set up keydown event listener for each "doc" {{{
   docs.forEach(function (doc) {
-    const listener = function (event) {
-      const ignoredNodeNames = [
-        'TEXTAREA',
-        'INPUT',
-        'CIB-SERP', // Bing chat has this element
-      ];
-
-      // Ignore keydown event if typing in an input box
-      if (ignoredNodeNames.includes(event.target.nodeName) || event.target.isContentEditable) {
-        return false;
-      }
-
-      const keyCode = event.keyCode;
-      const shift = event.shiftKey;
-      const ctrl = event.ctrlKey;
-
-      log('Processing keydown event: ' + keyCode, TRACE);
-
-      // Ignore if following modifier is active.
-      if (
-        !event.getModifierState ||
-        event.getModifierState('Alt') ||
-        event.getModifierState('Control') ||
-        event.getModifierState('Fn') ||
-        event.getModifierState('Meta') ||
-        event.getModifierState('Hyper') ||
-        event.getModifierState('OS')
-      ) {
-        log('Keydown event ignored due to active modifier: ' + keyCode, TRACE);
-        return;
-      }
-
-      // Ignore keydown event if typing in a page without vsc
-      if (!vsc.mediaElements.length) {
-        return false;
-      }
-
-      const item = vsc.settings.keyBindings.find(
-        (item) => item.key === keyCode && item.shift === shift && item.ctrl === ctrl,
-      );
-
-      if (item) {
-        runAction({
-          action: item.action,
-          value: item.value,
-          value2: item.value2,
-        });
-        if (item.force === 'true') {
-          // disable websites key bindings
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
-
-      return false;
-    };
-
+    const listener = keyDownListener();
     vsc.docs.set(doc, listener);
 
     doc.addEventListener('keydown', vsc.docs.get(doc), true);
@@ -257,6 +235,5 @@ function initializeNow(document) {
   });
   log('End initializeNow', DEBUG);
 }
-// }}}
 
 // vim: foldmethod=marker
