@@ -98,19 +98,23 @@ vsc.videoController = function (target, parent) {
         (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
       ) {
         log('mutation of A/V element', DEBUG);
-        document.body.classList.remove('vsc-initialized');
-        vsc.mediaElements = [];
-        vsc.docs.forEach((listener, doc) => {
-          doc.removeEventListener('keydown', listener, true);
-        });
-        vsc.docs = new Map();
-        initializeWhenReady(document);
-        // var controller = this.div;
-        // if (!mutation.target.src && !mutation.target.currentSrc) {
-        //   controller.classList.add('vsc-nosource');
-        // } else {
-        //   controller.classList.remove('vsc-nosource');
-        // }
+
+        if (location.hostname === 'www.totaltypescript.com') {
+          document.body.classList.remove('vsc-initialized');
+          vsc.mediaElements = [];
+          vsc.docs.forEach((listener, doc) => {
+            doc.removeEventListener('keydown', listener, true);
+          });
+          vsc.docs = new Map();
+          initializeWhenReady(document);
+        } else {
+          const controller = this.div;
+          if (!mutation.target.src && !mutation.target.currentSrc) {
+            controller.classList.add('vsc-nosource');
+          } else {
+            controller.classList.remove('vsc-nosource');
+          }
+        }
       }
     });
   });
@@ -240,7 +244,6 @@ vsc.videoController.prototype.initializeControls = function () {
       // Note: when triggered via a MutationRecord, it's possible that the
       // target is not the immediate parent. This appends the controller as
       // the first element of the target, which may not be the parent.
-      // this.parent.insertBefore(fragment, this.parent.firstChild);
       this.parent.insertBefore(fragment, this.parent.firstChild);
   }
   return wrapper;
