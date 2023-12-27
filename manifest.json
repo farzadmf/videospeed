@@ -35,7 +35,14 @@
         "https://meet.google.com/*"
       ],
       "css": ["inject.css"],
-      "js": ["helpers/log.js", "helpers/initialize.js", "inject.js"]
+      "js": [
+        "helpers/blacklist.js",
+        "helpers/log.js",
+        "helpers/vsc.js",
+        "helpers/local-storage.js",
+        "helpers/initialize.js",
+        "inject.js"
+      ]
     }
   ],
   "web_accessible_resources": [
