@@ -35,11 +35,13 @@
         "https://meet.google.com/*"
       ],
       "css": ["inject.css"],
-      "js": ["inject.js"]
+      "js": ["helpers/log.js", "helpers/initialize.js", "inject.js"]
     }
   ],
-  "web_accessible_resources": [{
-    "resources": ["inject.css", "shadow.css"],
-    "matches": ["http://*/*", "https://*/*", "file:///*"]
-  }]
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.css", "shadow.css"],
+      "matches": ["http://*/*", "https://*/*", "file:///*"]
+    }
+  ]
 }

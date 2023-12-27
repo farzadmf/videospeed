@@ -7,71 +7,8 @@ var regEndsWithFlags = /\/(?!.*(.).*\1)[gimsuy]*$/;
  */
 // }}}
 
-// -> log levels {{{
-/* Log levels (depends on caller specifying the correct level)
-  1 - none
-  2 - error
-  3 - warning
-  4 - info
-  5 - debug
-  6 - debug high verbosity + stack trace on each message
-*/
-const NONE = 1;
-const ERROR = 2;
-const WARNING = 3;
-const INFO = 4;
-const DEBUG = 5;
-const TRACE = 6;
-// }}}
-
-// -> log function {{{
-function log(message, level, ...args) {
-  const verbosity = tc.settings.logLevel;
-  if (typeof level === 'undefined') {
-    level = tc.settings.defaultLogLevel;
-  }
-
-  if (verbosity >= level) {
-    if (level === ERROR) {
-      console.log(`[FMVSC ERROR]: ${message}`, ...args);
-    } else if (level === WARNING) {
-      console.log(`[FMVSC WARNING]: ${message}`, ...args);
-    } else if (level === INFO) {
-      console.log(`[FMVSC INFO]: ${message}`, ...args);
-    } else if (level === DEBUG) {
-      console.log(`[FMVSC DEBUG]: ${message}`, ...args);
-    } else if (level === TRACE) {
-      console.log(`[FMVSC DEBUG (VERBOSE)]: ${message}`, ...args);
-      console.trace();
-    }
-  }
-}
-
-function logGroup(groupName, level) {
-  const verbosity = tc.settings.logLevel;
-  if (typeof level === 'undefined') {
-    level = tc.settings.defaultLogLevel;
-  }
-
-  if (verbosity >= level) {
-    console.group(groupName);
-  }
-}
-
-function logGroupEnd(level) {
-  const verbosity = tc.settings.logLevel;
-  if (typeof level === 'undefined') {
-    level = tc.settings.defaultLogLevel;
-  }
-
-  if (verbosity >= level) {
-    console.groupEnd();
-  }
-}
-// }}}
-
-// -> tc object {{{
-var tc = {
+// -> vsc object {{{
+var vsc = {
   settings: {
     lastSpeed: 1.0, // default 1x
     enabled: true, // default enabled
@@ -107,20 +44,20 @@ var tc = {
 };
 // }}}
 
-// -> tc object constructor and methods {{{
-// --> tc.videoController = ... {{{
-tc.videoController = function (target, parent) {
+// -> vsc object constructor and methods {{{
+// --> vsc.videoController = ... {{{
+vsc.videoController = function (target, parent) {
   if (target.vsc) {
     return target.vsc;
   }
 
-  tc.mediaElements.push(target);
+  vsc.mediaElements.push(target);
 
   this.video = target;
   this.parent = target.parentElement || parent;
-  storedSpeed = tc.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
+  storedSpeed = vsc.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
 
-  if (!tc.settings.rememberSpeed) {
+  if (!vsc.settings.rememberSpeed) {
     if (!storedSpeed) {
       log('Overwriting stored speed to 1.0 due to rememberSpeed being disabled', DEBUG);
       storedSpeed = 1.0;
@@ -128,7 +65,7 @@ tc.videoController = function (target, parent) {
     setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
   } else {
     log('Recalling stored speed ' + storedSpeed + ' due to rememberSpeed being enabled', DEBUG);
-    //storedSpeed = tc.settings.lastSpeed;
+    //storedSpeed = vsc.settings.lastSpeed;
   }
 
   log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
@@ -137,9 +74,9 @@ tc.videoController = function (target, parent) {
   this.div = this.initializeControls();
 
   var mediaEventAction = function (event) {
-    storedSpeed = tc.settings.speeds[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
+    storedSpeed = vsc.settings.speeds[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
 
-    if (!tc.settings.rememberSpeed) {
+    if (!vsc.settings.rememberSpeed) {
       if (!storedSpeed) {
         log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', INFO);
         storedSpeed = 1.0;
@@ -149,10 +86,10 @@ tc.videoController = function (target, parent) {
       setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
     } else {
       // log(
-      //   "Storing lastSpeed into tc.settings.speeds (rememberSpeed enabled)",
+      //   "Storing lastSpeed into vsc.settings.speeds (rememberSpeed enabled)",
       //   5
       // );
-      //storedSpeed = tc.settings.lastSpeed;
+      //storedSpeed = vsc.settings.lastSpeed;
     }
     // TODO: Check if explicitly setting the playback rate to 1.0 is
     // necessary when rememberSpeed is disabled (this may accidentally
@@ -174,11 +111,11 @@ tc.videoController = function (target, parent) {
       ) {
         log('mutation of A/V element', DEBUG);
         document.body.classList.remove('vsc-initialized');
-        tc.mediaElements = [];
-        tc.docs.forEach((listener, doc) => {
+        vsc.mediaElements = [];
+        vsc.docs.forEach((listener, doc) => {
           doc.removeEventListener('keydown', listener, true);
         });
-        tc.docs = new Map();
+        vsc.docs = new Map();
         initializeWhenReady(document);
         // var controller = this.div;
         // if (!mutation.target.src && !mutation.target.currentSrc) {
@@ -195,21 +132,21 @@ tc.videoController = function (target, parent) {
 };
 // }}}
 
-// --> tc.videoController.prototype.remove = ... {{{
-tc.videoController.prototype.remove = function () {
+// --> vsc.videoController.prototype.remove = ... {{{
+vsc.videoController.prototype.remove = function () {
   this.div.remove();
   this.video.removeEventListener('play', this.handlePlay);
   this.video.removeEventListener('seek', this.handleSeek);
   delete this.video.vsc;
-  let idx = tc.mediaElements.indexOf(this.video);
+  let idx = vsc.mediaElements.indexOf(this.video);
   if (idx != -1) {
-    tc.mediaElements.splice(idx, 1);
+    vsc.mediaElements.splice(idx, 1);
   }
 };
 // }}}
 
-// --> tc.videoController.prototype.initializeControls = ... {{{
-tc.videoController.prototype.initializeControls = function () {
+// --> vsc.videoController.prototype.initializeControls = ... {{{
+vsc.videoController.prototype.initializeControls = function () {
   log('initializeControls Begin', DEBUG);
   const document = this.video.ownerDocument;
   const speed = this.video.playbackRate.toFixed(2);
@@ -230,7 +167,7 @@ tc.videoController.prototype.initializeControls = function () {
     wrapper.classList.add('vsc-nosource');
   }
 
-  if (tc.settings.startHidden) {
+  if (vsc.settings.startHidden) {
     wrapper.classList.add('vsc-hidden');
   }
 
@@ -241,7 +178,7 @@ tc.videoController.prototype.initializeControls = function () {
       </style>
 
       <div id="controller" style="top:${top}; left:${left}; opacity:${
-        tc.settings.controllerOpacity
+        vsc.settings.controllerOpacity
       }">
         <span data-action="drag" class="draggable">${speed}</span>
         <span id="controls">
@@ -324,57 +261,57 @@ tc.videoController.prototype.initializeControls = function () {
 // }}}
 
 // -> init from local storage {{{
-chrome.storage.sync.get(tc.settings, function (storage) {
-  tc.settings.keyBindings = storage.keyBindings; // Array
+chrome.storage.sync.get(vsc.settings, function (storage) {
+  vsc.settings.keyBindings = storage.keyBindings; // Array
 
   // --> update keybindings from storage and sync back {{{
   //
   if (storage.keyBindings.length == 0) {
     // if first initialization of 0.5.3
     // UPDATE
-    tc.settings.keyBindings.push({
+    vsc.settings.keyBindings.push({
       action: 'slower',
       key: Number(storage.slowerKeyCode) || 222,
       value: Number(storage.speedStep) || 0.1,
       force: false,
       predefined: true,
     }); // default S
-    tc.settings.keyBindings.push({
+    vsc.settings.keyBindings.push({
       action: 'faster',
       key: Number(storage.fasterKeyCode) || 186,
       value: Number(storage.speedStep) || 0.1,
       force: false,
       predefined: true,
     }); // default: D
-    tc.settings.keyBindings.push({
+    vsc.settings.keyBindings.push({
       action: 'rewind',
       key: Number(storage.rewindKeyCode) || 90,
       value: Number(storage.rewindTime) || 10,
       force: false,
       predefined: true,
     }); // default: Z
-    tc.settings.keyBindings.push({
+    vsc.settings.keyBindings.push({
       action: 'advance',
       key: Number(storage.advanceKeyCode) || 88,
       value: Number(storage.advanceTime) || 10,
       force: false,
       predefined: true,
     }); // default: X
-    tc.settings.keyBindings.push({
+    vsc.settings.keyBindings.push({
       action: 'reset',
       key: Number(storage.resetKeyCode) || 82,
       value: 1.0,
       force: false,
       predefined: true,
     }); // default: R
-    tc.settings.keyBindings.push({
+    vsc.settings.keyBindings.push({
       action: 'fast',
       key: Number(storage.fastKeyCode) || 71,
       value: Number(storage.fastSpeed) || 3,
       force: false,
       predefined: true,
     }); // default: G
-    tc.settings.keyBindings.push({
+    vsc.settings.keyBindings.push({
       action: 'pause',
       key: 190,
       value: 1,
@@ -382,7 +319,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
       predefined: false,
     }); // default: .
     for (let i = 1; i <= 9; i++) {
-      tc.settings.keyBindings.push({
+      vsc.settings.keyBindings.push({
         action: `fixspeed-${i}`,
         key: 48 + i, // 48 is zero
         shift: false,
@@ -391,7 +328,7 @@ chrome.storage.sync.get(tc.settings, function (storage) {
         force: true,
         predefined: false,
       });
-      tc.settings.keyBindings.push({
+      vsc.settings.keyBindings.push({
         action: `fixspeed-${i}.5`,
         key: 48 + i, // 48 is zero
         shift: true,
@@ -401,41 +338,41 @@ chrome.storage.sync.get(tc.settings, function (storage) {
         predefined: false,
       });
     }
-    tc.settings.version = '0.5.3';
+    vsc.settings.version = '0.5.3';
 
     chrome.storage.sync.set({
-      audioBoolean: tc.settings.audioBoolean,
-      blacklist: tc.settings.blacklist.replace(regStrip, ''),
-      controllerOpacity: tc.settings.controllerOpacity,
-      defaultLogLevel: tc.settings.defaultLogLevel,
-      displayKeyCode: tc.settings.displayKeyCode,
-      enabled: tc.settings.enabled,
-      forceLastSavedSpeed: tc.settings.forceLastSavedSpeed,
-      keyBindings: tc.settings.keyBindings,
-      rememberSpeed: tc.settings.rememberSpeed,
-      startHidden: tc.settings.startHidden,
-      version: tc.settings.version,
+      audioBoolean: vsc.settings.audioBoolean,
+      blacklist: vsc.settings.blacklist.replace(regStrip, ''),
+      controllerOpacity: vsc.settings.controllerOpacity,
+      defaultLogLevel: vsc.settings.defaultLogLevel,
+      displayKeyCode: vsc.settings.displayKeyCode,
+      enabled: vsc.settings.enabled,
+      forceLastSavedSpeed: vsc.settings.forceLastSavedSpeed,
+      keyBindings: vsc.settings.keyBindings,
+      rememberSpeed: vsc.settings.rememberSpeed,
+      startHidden: vsc.settings.startHidden,
+      version: vsc.settings.version,
     });
   }
   // }}}
 
   // --> update other settings from storage {{{
-  tc.settings.audioBoolean = Boolean(storage.audioBoolean);
-  tc.settings.blacklist = String(storage.blacklist);
-  tc.settings.controllerOpacity = Number(storage.controllerOpacity);
-  tc.settings.displayKeyCode = Number(storage.displayKeyCode);
-  tc.settings.enabled = Boolean(storage.enabled);
-  tc.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
-  tc.settings.lastSpeed = Number(storage.lastSpeed);
-  tc.settings.logLevel = Number(storage.logLevel);
-  tc.settings.rememberSpeed = Boolean(storage.rememberSpeed);
-  tc.settings.speeds = storage.speeds;
-  tc.settings.startHidden = Boolean(storage.startHidden);
+  vsc.settings.audioBoolean = Boolean(storage.audioBoolean);
+  vsc.settings.blacklist = String(storage.blacklist);
+  vsc.settings.controllerOpacity = Number(storage.controllerOpacity);
+  vsc.settings.displayKeyCode = Number(storage.displayKeyCode);
+  vsc.settings.enabled = Boolean(storage.enabled);
+  vsc.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
+  vsc.settings.lastSpeed = Number(storage.lastSpeed);
+  vsc.settings.logLevel = Number(storage.logLevel);
+  vsc.settings.rememberSpeed = Boolean(storage.rememberSpeed);
+  vsc.settings.speeds = storage.speeds;
+  vsc.settings.startHidden = Boolean(storage.startHidden);
   // }}}
 
   // ensure that there is a "display" binding (for upgrades from versions that had it as a separate binding)
-  if (tc.settings.keyBindings.filter((x) => x.action == 'display').length == 0) {
-    tc.settings.keyBindings.push({
+  if (vsc.settings.keyBindings.filter((x) => x.action == 'display').length == 0) {
+    vsc.settings.keyBindings.push({
       action: 'display',
       key: Number(storage.displayKeyCode) || 86,
       value: 0,
@@ -451,14 +388,14 @@ chrome.storage.sync.get(tc.settings, function (storage) {
 // -> get/set keybinding functions {{{
 function getKeyBindings(action, what = 'value') {
   try {
-    return tc.settings.keyBindings.find((item) => item.action === action)[what];
+    return vsc.settings.keyBindings.find((item) => item.action === action)[what];
   } catch (e) {
     return false;
   }
 }
 
 function setKeyBindings(action, value) {
-  tc.settings.keyBindings.find((item) => item.action === action)['value'] = value;
+  vsc.settings.keyBindings.find((item) => item.action === action)['value'] = value;
 }
 // }}}
 
@@ -470,7 +407,7 @@ function escapeStringRegExp(str) {
 
 function isBlacklisted() {
   var blacklisted = false;
-  tc.settings.blacklist.split('\n').forEach((match) => {
+  vsc.settings.blacklist.split('\n').forEach((match) => {
     if (isLocationMatch(match)) {
       blacklisted = true;
       return;
@@ -585,18 +522,18 @@ function setupListener() {
 
     log('Updating controller with new speed', DEBUG);
     speedIndicator.textContent = speed.toFixed(2);
-    tc.settings.speeds[getBaseURL(src)] = {
+    vsc.settings.speeds[getBaseURL(src)] = {
       speed,
       updated: new Date().valueOf(),
     };
 
     log('Storing lastSpeed in settings for the rememberSpeed feature', DEBUG);
-    tc.settings.lastSpeed = speed;
+    vsc.settings.lastSpeed = speed;
     log('Syncing chrome settings for lastSpeed', DEBUG);
     chrome.storage.sync.set(
       {
         lastSpeed: speed,
-        speeds: tc.settings.speeds,
+        speeds: vsc.settings.speeds,
       },
       function () {
         log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG);
@@ -619,15 +556,15 @@ function setupListener() {
        * If the last speed is forced, only update the speed based on events created by
        * video speed instead of all video speed change events.
        */
-      if (tc.settings.forceLastSavedSpeed) {
+      if (vsc.settings.forceLastSavedSpeed) {
         log('Force last-saved speed is ON', DEBUG);
         if (event.detail && event.detail.origin === 'videoSpeed') {
           log(`Setting playbackRate to event.detail's speed (${event.detail.speed})`, DEBUG);
           video.playbackRate = event.detail.speed;
           updateSpeedFromEvent(video);
         } else {
-          log(`Setting playbackRate to tc.settings.lastSpeed (${tc.settings.lastSpeed})`, DEBUG);
-          video.playbackRate = tc.settings.lastSpeed;
+          log(`Setting playbackRate to vsc.settings.lastSpeed (${vsc.settings.lastSpeed})`, DEBUG);
+          video.playbackRate = vsc.settings.lastSpeed;
         }
         event.stopImmediatePropagation();
       } else {
@@ -638,30 +575,6 @@ function setupListener() {
     true,
   );
   log('End setupListener', DEBUG);
-}
-// }}}
-
-// -> initializeWhenReady {{{
-function initializeWhenReady(document) {
-  log('Begin initializeWhenReady', DEBUG);
-  if (isBlacklisted()) {
-    return;
-  }
-  window.onload = () => {
-    initializeNow(window.document);
-  };
-  if (document) {
-    if (document.readyState === 'complete') {
-      initializeNow(document);
-    } else {
-      document.onreadystatechange = () => {
-        if (document.readyState === 'complete') {
-          initializeNow(document);
-        }
-      };
-    }
-  }
-  log('End initializeWhenReady', DEBUG);
 }
 // }}}
 
@@ -706,10 +619,10 @@ function checkForVideo(node, parent, added) {
     return;
   }
 
-  if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && tc.settings.audioBoolean)) {
+  if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && vsc.settings.audioBoolean)) {
     if (added) {
       log('added', DEBUG);
-      node.vsc = new tc.videoController(node, parent);
+      node.vsc = new vsc.videoController(node, parent);
     } else {
       log('not added', DEBUG);
       if (node.vsc) {
@@ -733,262 +646,6 @@ function checkForVideo(node, parent, added) {
 }
 // }}}
 
-// -> initializeNow {{{
-function initializeNow(document) {
-  log('Begin initializeNow', DEBUG);
-  if (!tc.settings.enabled) return;
-  // enforce init-once due to redundant callers
-  if (!document.body || document.body.classList.contains('vsc-initialized')) {
-    log('no body or body has vsc-initialized', DEBUG);
-    return;
-  }
-  try {
-    setupListener();
-  } catch {
-    // no operation
-  }
-  document.body.classList.add('vsc-initialized');
-  log('initializeNow: vsc-initialized added to document body', DEBUG);
-
-  if (document !== window.document) {
-    log('adding inject.css to head', DEBUG);
-    var link = document.createElement('link');
-    link.href = chrome.runtime.getURL('inject.css');
-    link.type = 'text/css';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-  }
-  docs = Array(document);
-  try {
-    if (inIframe()) docs.push(window.top.document);
-  } catch (e) {}
-
-  // set up keydown event listener for each "doc" {{{
-  docs.forEach(function (doc) {
-    const listener = function (event) {
-      const ignoredNodeNames = [
-        'TEXTAREA',
-        'INPUT',
-        'CIB-SERP', // Bing chat has this element
-      ];
-
-      // Ignore keydown event if typing in an input box
-      if (ignoredNodeNames.includes(event.target.nodeName) || event.target.isContentEditable) {
-        return false;
-      }
-
-      const keyCode = event.keyCode;
-      const shift = event.shiftKey;
-      const ctrl = event.ctrlKey;
-
-      log('Processing keydown event: ' + keyCode, TRACE);
-
-      // Ignore if following modifier is active.
-      if (
-        !event.getModifierState ||
-        event.getModifierState('Alt') ||
-        event.getModifierState('Control') ||
-        event.getModifierState('Fn') ||
-        event.getModifierState('Meta') ||
-        event.getModifierState('Hyper') ||
-        event.getModifierState('OS')
-      ) {
-        log('Keydown event ignored due to active modifier: ' + keyCode, TRACE);
-        return;
-      }
-
-      // Ignore keydown event if typing in a page without vsc
-      if (!tc.mediaElements.length) {
-        return false;
-      }
-
-      const item = tc.settings.keyBindings.find(
-        (item) => item.key === keyCode && item.shift === shift && item.ctrl === ctrl,
-      );
-
-      if (item) {
-        runAction({
-          action: item.action,
-          value: item.value,
-          value2: item.value2,
-        });
-        if (item.force === 'true') {
-          // disable websites key bindings
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
-
-      return false;
-    };
-
-    tc.docs.set(doc, listener);
-
-    doc.addEventListener('keydown', tc.docs.get(doc), true);
-  });
-
-  // }}}
-
-  // create MutationObserver {{{
-  var observer = new MutationObserver(function (mutations) {
-    logGroup('MutationObserver', TRACE);
-    log(`MutationObserver called with ${mutations.length} mutations`, TRACE);
-
-    // Process the DOM nodes lazily
-    requestIdleCallback(
-      () => {
-        mutations.forEach(function (mutation) {
-          log(`mutation type is ${mutation.type}`, TRACE);
-
-          switch (mutation.type) {
-            case 'childList':
-              mutation.addedNodes.forEach(function (node) {
-                if (typeof node === 'function') return;
-
-                if (node === document.documentElement) {
-                  // This happens on sites that use document.write, e.g. watch.sling.com
-                  // When the document gets replaced, we lose all event handlers, so we need to reinitialize
-                  log('Document was replaced, reinitializing', TRACE);
-                  initializeWhenReady(document);
-                  return;
-                }
-
-                const target = node.parentNode || mutation.target;
-
-                if (!tc.observed.has(target)) {
-                  // tc.observed.add(target);
-                  log('checkForVideo in chidlListMutation.addedNodes', TRACE, target);
-                  checkForVideo(node, target, true);
-                } else {
-                  log('already observed; skipping', TRACE, target);
-                }
-              });
-              mutation.removedNodes.forEach(function (node) {
-                if (typeof node === 'function') return;
-
-                const target = node.parentNode || mutation.target;
-                if (!tc.observed.has(target)) {
-                  // tc.observed.add(target);
-                  log('checkForVideo in chidlListMutation.removedNodes', TRACE, target);
-                  checkForVideo(node, target, true);
-                } else {
-                  log('already observed; skipping', TRACE, target);
-                }
-              });
-              break;
-            case 'attributes':
-              if (
-                (mutation.target.attributes['aria-hidden'] &&
-                  mutation.target.attributes['aria-hidden'].value == 'false') ||
-                mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER'
-              ) {
-                var flattenedNodes = getShadow(document.body);
-                var nodes = flattenedNodes.filter((x) => x.tagName == 'VIDEO');
-                for (let node of nodes) {
-                  // only add vsc the first time for the apple-tv case (the attribute change is triggered every time you click the vsc)
-                  if (node.vsc && mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER') continue;
-                  if (node.vsc) node.vsc.remove();
-
-                  const target = node.parentNode || mutation.target;
-                  if (!tc.observed.has(target)) {
-                    // tc.observed.add(target);
-                    log('checkForVideo in attributesMutation', TRACE, target);
-                    checkForVideo(node, target, true);
-                  } else {
-                    log('already observed; skipping', TRACE, target);
-                  }
-                }
-              }
-              break;
-          }
-        });
-        logGroupEnd(TRACE);
-      },
-      { timeout: 1000 },
-    );
-  });
-  // }}}
-
-  observer.observe(document, {
-    attributeFilter: ['aria-hidden', 'data-focus-method'],
-    childList: true,
-    subtree: true,
-  });
-
-  let mediaTags = [];
-  if (tc.settings.audioBoolean) {
-    mediaTags = [...document.querySelectorAll('video,audio')];
-  } else {
-    mediaTags = [...document.querySelectorAll('video')];
-  }
-
-  const shadows = [
-    ['shreddit-player'], // Reddit
-    ['mux-player', 'mux-video'], // totaltypescript
-  ];
-
-  const parents = [];
-  const shadowVideos = [];
-
-  shadows.forEach((sh) => {
-    setTimeout(() => {
-      let rootEl = document;
-      for (let root of sh) {
-        rootEl = rootEl?.querySelector(root);
-        if (rootEl) {
-          rootEl = rootEl.shadowRoot;
-          const video = rootEl.querySelector('video');
-
-          if (video) {
-            parents.push(rootEl);
-            shadowVideos.push(video);
-          }
-        }
-      }
-
-      shadowVideos.forEach(function (video, idx) {
-        video.vsc = new tc.videoController(video, parents[idx]);
-      });
-    }, 1000);
-  });
-
-  mediaTags.forEach(function (video) {
-    video.vsc = new tc.videoController(video);
-  });
-
-  var frameTags = document.getElementsByTagName('iframe');
-  Array.prototype.forEach.call(frameTags, function (frame) {
-    // Ignore frames we don't have permission to access (different origin).
-    try {
-      var childDocument = frame.contentDocument;
-    } catch (e) {
-      return;
-    }
-    initializeWhenReady(childDocument);
-  });
-  log('End initializeNow', DEBUG);
-}
-// document.addEventListener('onhashchange', () => log('HASH-CHANGE', INFO));
-// document.addEventListener('navigate', () => log('NAVIGATE', INFO));
-// document.addEventListener('load', () => log('LOOOOOOOOOOOOOOOOAD', INFO));
-// document.addEventListener('readystatechange', () => {
-//   log('readystatechange', INFO, document.readyState);
-//   var flattenedNodes = getShadow(document.body);
-//
-//   var nodes = flattenedNodes.filter((x) => x.tagName == 'VIDEO');
-//   for (let node of nodes) {
-//     // only add vsc the first time for the apple-tv case (the attribute change is triggered every time you click the vsc)
-//     if (node.vsc && mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER') continue;
-//     if (node.vsc) node.vsc.remove();
-//
-//     const target = node.parentNode || document.body;
-//     log('checkForVideo in attributesMutation', TRACE, target);
-//     log(`calling checkForVideo`, INFO, node, target);
-//     checkForVideo(node, target, true);
-//   }
-// });
-// }}}
-
 // -> setSpeed {{{
 function setSpeed(video, speed) {
   log('setSpeed started: ' + speed, DEBUG, video);
@@ -998,7 +655,7 @@ function setSpeed(video, speed) {
 
   // Not sure when we want dispatch and when playbackRate; added playbackRate
   // in dispatch because dispatch had no effect in reddit (for example).
-  if (tc.settings.forceLastSavedSpeed) {
+  if (vsc.settings.forceLastSavedSpeed) {
     video.dispatchEvent(
       new CustomEvent('ratechange', {
         detail: { origin: 'videoSpeed', speed: speedvalue },
@@ -1014,15 +671,15 @@ function setSpeed(video, speed) {
 
   var speedIndicator = video.vsc.speedIndicator;
   speedIndicator.textContent = speedvalue;
-  tc.settings.lastSpeed = speed;
-  tc.settings.speeds[getBaseURL(src)] = {
+  vsc.settings.lastSpeed = speed;
+  vsc.settings.speeds[getBaseURL(src)] = {
     speed,
     updated: new Date().valueOf(),
   };
   chrome.storage.sync.set(
     {
       lastSpeed: speed,
-      speeds: tc.settings.speeds,
+      speeds: vsc.settings.speeds,
     },
     () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
   );
@@ -1033,7 +690,7 @@ function setSpeed(video, speed) {
 
 // -> runAction {{{
 function runAction({ action, value, value2, e }) {
-  const mediaTags = tc.mediaElements;
+  const mediaTags = vsc.mediaElements;
 
   // Get the controller that was used if called from a button press event e
   if (e) {
