@@ -1,4 +1,6 @@
 function runAction({ action, value, value2, e }) {
+  log('runAction Start', DEBUG);
+
   const mediaTags = vsc.mediaElements;
 
   // Get the controller that was used if called from a button press event e
@@ -22,39 +24,53 @@ function runAction({ action, value, value2, e }) {
 
     showController(controller);
 
-    if (!v.classList.contains('vsc-cancelled')) {
-      if (action.startsWith('fixspeed')) {
-        const speedValue = Number(action.split('-')[1]);
-        setSpeed(v, speedValue);
-      } else if (action === 'rewind') {
+    console.log('fmfoo', 'action', action);
+
+    if (v.classList.contains('vsc-cancelled')) return;
+
+    if (action.startsWith('fixspeed')) {
+      const speedValue = Number(action.split('-')[1]);
+      setSpeed(v, speedValue);
+      return;
+    }
+
+    switch (action) {
+      case 'rewind':
         log('Rewind', DEBUG);
         v.currentTime -= step;
-      } else if (action === 'advance') {
+        break;
+      case 'advance':
         log('Fast forward', DEBUG);
         v.currentTime += step;
-      } else if (action === 'faster') {
+        break;
+      case 'faster':
         log('Increase speed', DEBUG);
         // Maximum playback speed in Chrome is set to 16:
         // https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/html/media/html_media_element.cc?gsn=kMinRate&l=166
         var s = Math.min((v.playbackRate < 0.1 ? 0.0 : v.playbackRate) + value, 16);
         setSpeed(v, s);
-      } else if (action === 'slower') {
+        break;
+      case 'slower':
         log('Decrease speed', DEBUG);
         // Video min rate is 0.0625:
         // https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/html/media/html_media_element.cc?gsn=kMinRate&l=165
         var s = Math.max(v.playbackRate - value, 0.07);
         setSpeed(v, s);
-      } else if (action === 'reset') {
+        break;
+      case 'reset':
         log('Reset speed', DEBUG);
         resetSpeed(v, 1.0);
-      } else if (action === 'go-start') {
+        break;
+      case 'go-start':
         log('Go to video start', DEBUG);
         v.currentTime = 0;
-      } else if (action === 'display') {
+        break;
+      case 'display':
         log('Showing controller', DEBUG);
         controller.classList.add('vsc-manual');
         controller.classList.toggle('vsc-hidden');
-      } else if (action === 'blink') {
+        break;
+      case 'blink':
         log('Showing controller momentarily', DEBUG);
         // if vsc is hidden, show it briefly to give the use visual feedback that the action is excuted.
         if (controller.classList.contains('vsc-hidden') || controller.blinkTimeOut !== undefined) {
@@ -68,22 +84,26 @@ function runAction({ action, value, value2, e }) {
             value ? value : 1000,
           );
         }
-      } else if (action === 'drag') {
+        break;
+      case 'drag':
         handleDrag(v, e);
-      } else if (action === 'fast') {
+        break;
+      case 'fast':
         resetSpeed(v, value);
-      } else if (action === 'pause') {
+        break;
+      case 'pause':
         pause(v);
-      } else if (action === 'muted') {
+        break;
+      case 'muted':
         muted(v);
-      } else if (action === 'mark') {
+        break;
+      case 'mark':
         setMark(v);
-      } else if (action === 'jump') {
+        break;
+      case 'jump':
         jumpToMark(v);
-      }
+        break;
     }
   });
   log('runAction End', DEBUG);
 }
-
-// vim: foldmethod=marker
