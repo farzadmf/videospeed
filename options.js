@@ -20,6 +20,8 @@ var tcDefaults = {
     { action: 'faster', key: 186, value: 0.1, force: false, predefined: true }, // '
     { action: 'rewind', key: 37, value: 5, value2: 5, force: false, predefined: true }, // Left
     { action: 'advance', key: 39, value: 5, value2: 5, force: false, predefined: true }, // Right
+    { action: 'vol-up', key: 38, value: 0.05, force: false, predefined: true }, // Up
+    { action: 'vol-down', key: 40, value: 0.05, force: false, predefined: true }, // Down
     { action: 'reset', key: 82, value: 1, force: false, predefined: true }, // R
     { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
     { action: 'pause', key: 49, value: 0, force: false, predefined: false }, // 1
@@ -229,6 +231,8 @@ function add_shortcut() {
           <option value="faster">Increase speed</option>
           <option value="rewind">Rewind</option>
           <option value="advance">Advance</option>
+          <option value="vol-down">Decrease volume</option>
+          <option value="vol-up">Increase volume</option>
           <option value="reset">Reset speed</option>
           <option value="fast">Preferred speed</option>
           <option value="muted">Mute</option>
@@ -450,7 +454,6 @@ function restore_options() {
         if (action == 'display' && typeof item['key'] === 'undefined') {
           item['key'] = storage.displayKeyCode || tcDefaults.displayKeyCode; // V
         }
-
 
         if (customActionsNoValues.includes(action))
           document.querySelector(`#${action} .customValue`).style.display = 'none';
