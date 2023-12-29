@@ -57,6 +57,16 @@ function runAction({ action, value, value2, e }) {
         var s = Math.max(v.playbackRate - value, 0.07);
         setSpeed(v, s);
         break;
+      case 'vol-up':
+        log('Increase volume', DEBUG);
+        v.volume = Math.min(1, v.volume + value);
+        log(`Volume is now ${v.volume}`, INFO);
+        break;
+      case 'vol-down':
+        log('Decrease volume', DEBUG);
+        v.volume = Math.max(0, v.volume - value);
+        log(`Volume is now ${v.volume}`, INFO);
+        break;
       case 'reset':
         log('Reset speed', DEBUG);
         resetSpeed(v, 1.0);
