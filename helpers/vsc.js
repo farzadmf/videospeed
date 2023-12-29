@@ -141,7 +141,8 @@ vsc.videoController.prototype.remove = function () {
 vsc.videoController.prototype.initializeControls = function () {
   log('initializeControls Begin', DEBUG);
   const document = this.video.ownerDocument;
-  const speed = this.video.playbackRate.toFixed(2);
+  const speed = this.video.playbackRate.toFixed(1);
+  const volume = (this.video.volume * 100).toFixed(0);
   const rect = this.video.getBoundingClientRect();
   // getBoundingClientRect is relative to the viewport; style coordinates
   // are relative to offsetParent, so we adjust for that here. offsetParent
@@ -172,7 +173,12 @@ vsc.videoController.prototype.initializeControls = function () {
       <div id="controller" style="top:${top}; left:${left}; opacity:${
         vsc.settings.controllerOpacity
       }">
-        <span data-action="drag" class="draggable">${speed}</span>
+        <span data-action="drag" class="draggable">
+          <span id="vsc-speed-val">${speed}</span>
+          <span>(vol:</span>
+          <span id="vsc-volume-val">${volume}</span>
+          <span>)</span>
+        </span>
         <span id="controls">
           <button data-action="rewind" class="rw">«</button>
           <button data-action="slower">&minus;</button>
@@ -216,7 +222,11 @@ vsc.videoController.prototype.initializeControls = function () {
     .querySelector('#controller')
     .addEventListener('mousedown', (e) => e.stopPropagation(), false);
 
-  this.speedIndicator = shadow.querySelector('span');
+  this.speedIndicator = shadow.querySelector('span#vsc-speed-val');
+  this.volumeIndicator = shadow.querySelector('span#vsc-volume-val');
+  this.setSpeedVal = (value) => this.speedIndicator.textContent = value.toFixed(1);
+  this.setVolumeVal = (value) => this.volumeIndicator.textContent = (value * 100).toFixed(0);
+
   var fragment = document.createDocumentFragment();
   fragment.appendChild(wrapper);
 

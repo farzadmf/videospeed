@@ -60,12 +60,12 @@ function runAction({ action, value, value2, e }) {
       case 'vol-up':
         log('Increase volume', DEBUG);
         v.volume = Math.min(1, v.volume + value);
-        log(`Volume is now ${v.volume}`, INFO);
+        v.vsc.setVolumeVal(v.volume);
         break;
       case 'vol-down':
         log('Decrease volume', DEBUG);
         v.volume = Math.max(0, v.volume - value);
-        log(`Volume is now ${v.volume}`, INFO);
+        v.vsc.setVolumeVal(v.volume);
         break;
       case 'reset':
         log('Reset speed', DEBUG);
