@@ -174,10 +174,8 @@ vsc.videoController.prototype.initializeControls = function () {
         vsc.settings.controllerOpacity
       }">
         <span data-action="drag" class="draggable">
-          <span id="vsc-speed-val">${speed}</span>
-          <span>(vol:</span>
-          <span id="vsc-volume-val">${volume}</span>
-          <span>)</span>
+          <span id="vsc-speed-val">${speed}x</span>
+          <span id="vsc-volume-val">(vol: ${volume})</span>
         </span>
         <span id="controls">
           <button data-action="rewind" class="rw">«</button>
@@ -224,8 +222,9 @@ vsc.videoController.prototype.initializeControls = function () {
 
   this.speedIndicator = shadow.querySelector('span#vsc-speed-val');
   this.volumeIndicator = shadow.querySelector('span#vsc-volume-val');
-  this.setSpeedVal = (value) => this.speedIndicator.textContent = value.toFixed(1);
-  this.setVolumeVal = (value) => this.volumeIndicator.textContent = (value * 100).toFixed(0);
+  this.setSpeedVal = (value) => (this.speedIndicator.textContent = `${Number(value).toFixed(1)}x`);
+  this.setVolumeVal = (value) =>
+    (this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`);
 
   var fragment = document.createDocumentFragment();
   fragment.appendChild(wrapper);
