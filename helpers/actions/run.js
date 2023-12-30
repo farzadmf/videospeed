@@ -24,8 +24,6 @@ function runAction({ action, value, value2, e }) {
 
     showController(controller);
 
-    console.log('fmfoo', 'action', action);
-
     if (v.classList.contains('vsc-cancelled')) return;
 
     if (action.startsWith('fixspeed')) {

@@ -81,7 +81,7 @@ function setSpeed(video, speed) {
     video.playbackRate = Number(speedvalue);
   }
 
-  video.vsc.setSpeedVal(speedvalue);
+  video.vsc.setSpeedVal(Number(speedvalue));
 
   vsc.settings.lastSpeed = speed;
   vsc.settings.speeds[getBaseURL(src)] = {
