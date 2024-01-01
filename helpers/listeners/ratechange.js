@@ -41,33 +41,51 @@ function setupRateChangeListener() {
   }
 
   document.addEventListener(
+    'vscsetspeed',
+    (event) => {
+      // console.log('fmfoo vscsetspeed', event);
+    },
+    true,
+  );
+
+  document.addEventListener(
     'ratechange',
-    function (event) {
-      if (coolDown) {
-        log('Speed event propagation blocked', INFO);
-        event.stopImmediatePropagation();
-      }
+    (event) => {
+      // if (coolDown) {
+      //   log('Speed event propagation blocked', INFO);
+      //   event.stopImmediatePropagation();
+      // }
+
       var video = event.target;
+      const src = video.currentSrc;
+      const url = getBaseURL(src);
+
+      if (vsc.settings.forceLastSavedSpeed) {
+        event.stopImmediatePropagation();
+
+        const speed = vsc.settings.speeds[url]?.speed || 1.0;
+        setSpeed(video, speed);
+      }
 
       /**
        * If the last speed is forced, only update the speed based on events created by
        * video speed instead of all video speed change events.
        */
-      if (vsc.settings.forceLastSavedSpeed) {
-        log('Force last-saved speed is ON', DEBUG);
-        if (event.detail && event.detail.origin === 'videoSpeed') {
-          log(`Setting playbackRate to event.detail's speed (${event.detail.speed})`, DEBUG);
-          video.playbackRate = event.detail.speed;
-          updateSpeedFromEvent(video);
-        } else {
-          log(`Setting playbackRate to vsc.settings.lastSpeed (${vsc.settings.lastSpeed})`, DEBUG);
-          video.playbackRate = vsc.settings.lastSpeed;
-        }
-        event.stopImmediatePropagation();
-      } else {
-        log("Force last-saved speed is OFF; calling 'updateSpeedFromEvent'", DEBUG);
-        updateSpeedFromEvent(video);
-      }
+      // if (vsc.settings.forceLastSavedSpeed) {
+      //   log('Force last-saved speed is ON', DEBUG);
+      //   if (event.detail && event.detail.origin === 'videoSpeed') {
+      //     log(`Setting playbackRate to event.detail's speed (${event.detail.speed})`, DEBUG);
+      //     video.playbackRate = event.detail.speed;
+      //     updateSpeedFromEvent(video);
+      //   } else {
+      //     log(`Setting playbackRate to vsc.settings.lastSpeed (${vsc.settings.lastSpeed})`, DEBUG);
+      //     video.playbackRate = vsc.settings.lastSpeed;
+      //   }
+      //   event.stopImmediatePropagation();
+      // } else {
+      //   log("Force last-saved speed is OFF; calling 'updateSpeedFromEvent'", DEBUG);
+      //   updateSpeedFromEvent(video);
+      // }
     },
     true,
   );

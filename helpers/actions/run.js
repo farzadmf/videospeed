@@ -9,7 +9,7 @@ function runAction({ action, value, value2, e }) {
   }
 
   mediaTags.forEach(function (v) {
-    if (!v) return;
+    if (!v || !action) return;
 
     var controller = v.vsc.div;
 

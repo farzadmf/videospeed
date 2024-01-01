@@ -56,7 +56,7 @@ vsc.videoController = function (target, parent) {
     //storedSpeed = vsc.settings.lastSpeed;
   }
 
-  log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
+  log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
   target.playbackRate = storedSpeed;
 
   this.div = this.initializeControls();

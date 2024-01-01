@@ -63,31 +63,43 @@ function setSpeed(video, speed) {
   log('setSpeed started: ' + speed, DEBUG, video);
 
   const src = video.currentSrc;
-  const speedvalue = speed.toFixed(2);
+  const speedvalue = Number(speed).toFixed(1);
+
+  // Seems like doing playbackRate directly sometimes gives error:
+  // 'Uncaught (in promise) Error: Not implemented', but it seems to be working?? :/
+  // And no, adding a try/catch here doens't remove the error in the console!
+  video.playbackRate = Number(speedvalue);
 
   // Not sure when we want dispatch and when playbackRate; added playbackRate
   // in dispatch because dispatch had no effect in reddit (for example).
   if (vsc.settings.forceLastSavedSpeed) {
+    // Any reason to dispatch this here??!!
+    // video.dispatchEvent(
+    //   new CustomEvent('ratechange', {
+    //     detail: { origin: 'videoSpeed', speed: speedvalue },
+    //   }),
+    // );
     video.dispatchEvent(
-      new CustomEvent('ratechange', {
+      new CustomEvent('vscsetspeed', {
         detail: { origin: 'videoSpeed', speed: speedvalue },
       }),
     );
-    // Seems like doing playbackRate directly sometimes gives error:
-    // 'Uncaught (in promise) Error: Not implemented', but it seems to be working?? :/
-    // And no, adding a try/catch here doens't remove the error in the console!
-    video.playbackRate = Number(speedvalue);
-  } else {
-    video.playbackRate = Number(speedvalue);
   }
 
   video.vsc.setSpeedVal(speedvalue);
 
   vsc.settings.lastSpeed = speed;
-  vsc.settings.speeds[getBaseURL(src)] = {
-    speed,
-    updated: new Date().valueOf(),
-  };
+
+  const url = getBaseURL(src);
+  if (Number(speed) === 1) {
+    // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
+    delete vsc.settings.speeds[url];
+  } else {
+    vsc.settings.speeds[url] = {
+      speed,
+      updated: new Date().valueOf(),
+    };
+  }
   chrome.storage.sync.set(
     {
       lastSpeed: speed,
