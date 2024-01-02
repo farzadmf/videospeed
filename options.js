@@ -3,41 +3,61 @@
 const REG_STRIP = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 
 // actions {{{
+const fixSpeedsHelper = (min, max) => {
+  return _.range(min, max + 1, 0.5).map((val) => {
+    const value = val.toFixed(1);
+
+    return {
+      name: `fixspeed-${value}`,
+      description: `${value}x speed`,
+    };
+  });
+};
+
+const fixSpeeds = _.transform(
+  fixSpeedsHelper(1, 9),
+  (result, action) => (result[action.name] = action),
+  {},
+);
+
 const actions = {
-  advance: { name: 'advance', description: 'Advance' },
+  ...fixSpeeds,
+  advance: {
+    description: 'Advance',
+    name: 'advance',
+    postValue2Text: 'secs )',
+    postValueText: '% of duration, ',
+    predefined: true,
+    preValueText: 'Min of (',
+    value2: 5,
+    value: 5,
+  },
   display: { name: 'display', description: 'Show/hide controller' },
-  fast: { name: 'fast', description: 'Preferred speed' },
-  faster: { name: 'faster', description: 'Increase speed' },
-  fixspeed_1: { name: 'fixspeed-1', description: '1x speed' },
-  fixspeed_1_5: { name: 'fixspeed-1.5', description: '1.5x speed' },
-  fixspeed_2: { name: 'fixspeed-2', description: '2x speed' },
-  fixspeed_2_5: { name: 'fixspeed-2.5', description: '2.5x speed' },
-  fixspeed_3: { name: 'fixspeed-3', description: '3x speed' },
-  fixspeed_3_5: { name: 'fixspeed-3.5', description: '3.5x speed' },
-  fixspeed_4: { name: 'fixspeed-4', description: '4x speed' },
-  fixspeed_4_5: { name: 'fixspeed-4.5', description: '4.5x speed' },
-  fixspeed_5: { name: 'fixspeed-5', description: '5x speed' },
-  fixspeed_5_5: { name: 'fixspeed-5.5', description: '5.5x speed' },
-  fixspeed_6: { name: 'fixspeed-6', description: '6x speed' },
-  fixspeed_6_5: { name: 'fixspeed-6.5', description: '6.5x speed' },
-  fixspeed_7: { name: 'fixspeed-7', description: '7x speed' },
-  fixspeed_7_5: { name: 'fixspeed-7.5', description: '7.5x speed' },
-  fixspeed_8: { name: 'fixspeed-8', description: '8x speed' },
-  fixspeed_8_5: { name: 'fixspeed-8.5', description: '8.5x speed' },
-  fixspeed_9: { name: 'fixspeed-9', description: '9x speed' },
-  fixspeed_9_5: { name: 'fixspeed-9.5', description: '9.5x speed' },
-  go_start: { name: 'go-start', description: 'Jump to start' },
+  fast: { name: 'fast', description: 'Preferred speed', value: 1.0 },
+  faster: { name: 'faster', description: 'Increase speed', value: 0.1 },
+  ['go-start']: { name: 'go-start', description: 'Jump to start' },
   jump: { name: 'jump', description: 'Jump to mark' },
   mark: { name: 'mark', description: 'Mark location' },
   muted: { name: 'muted', description: 'Mute' },
   pause: { name: 'pause', description: 'Pause' },
-  reset: { name: 'reset', description: 'Reset speed' },
-  rewind: { name: 'rewind', description: 'Rewind' },
-  slower: { name: 'slower', description: 'Decrease speed' },
-  vol_down: { name: 'vol-down', description: 'Decrease volume' },
-  vol_up: { name: 'vol-up', description: 'Increase volume' },
+  reset: { name: 'reset', description: 'Reset speed', value: 1.0 },
+  rewind: {
+    description: 'Rewind',
+    name: 'rewind',
+    postValue2Text: 'secs )',
+    postValueText: '% of duration, ',
+    predefined: true,
+    preValueText: 'Min of (',
+    value2: 5,
+    value: 5,
+  },
+  slower: { name: 'slower', description: 'Decrease speed', value: 0.1 },
+  ['vol-down']: { name: 'vol-down', description: 'Decrease volume', value: 0.05 },
+  ['vol-up']: { name: 'vol-up', description: 'Increase volume', value: 0.05 },
 };
 // }}}
+
+const noValueActions = _.keys(_.pickBy(actions, (value, _) => value.value === undefined));
 
 // tdDefaults {{{
 var tcDefaults = {
@@ -52,56 +72,35 @@ var tcDefaults = {
   enabled: true, // default enabled
   forceLastSavedSpeed: false, //default: false
   keyBindings: [
-    { action: actions.display, force: false, key: 86, predefined: true, value: 0 }, // V
-    { action: actions.slower, force: false, key: 222, predefined: true, value: 0.1 }, // ;
-    { action: actions.faster, force: false, key: 186, predefined: true, value: 0.1 }, // '
-    { action: actions.vol_up, force: true, key: 38, predefined: true, value: 0.05 }, // Up
-    { action: actions.vol_down, force: true, key: 40, predefined: true, value: 0.05 }, // Down
-    { action: actions.reset, force: false, key: 82, predefined: true, value: 1 }, // R
-    { action: actions.fast, force: false, key: 71, predefined: true, value: 1.8 }, // G
-    { action: actions.pause, force: false, key: 49, predefined: false, value: 0 }, // 1
-    { action: actions.go_start, force: false, key: 48, predefined: false, value: 0 }, // 0
-    { action: actions.fixspeed_1, force: true, key: 49, predefined: false, value: 1 }, // 1
-    { action: actions.fixspeed_2, force: true, key: 50, predefined: false, value: 2 }, // 2
-    { action: actions.fixspeed_3, force: true, key: 51, predefined: false, value: 3 }, // 3
-    { action: actions.fixspeed_4, force: true, key: 52, predefined: false, value: 4 }, // 4
-    { action: actions.fixspeed_5, force: true, key: 53, predefined: false, value: 5 }, // 5
-    { action: actions.fixspeed_6, force: true, key: 54, predefined: false, value: 6 }, // 6
-    { action: actions.fixspeed_7, force: true, key: 55, predefined: false, value: 7 }, // 7
-    { action: actions.fixspeed_8, force: true, key: 56, predefined: false, value: 8 }, // 8
-    { action: actions.fixspeed_9, force: true, key: 57, predefined: false, value: 9 }, // 9
-    { action: actions.fixspeed_1_5, force: true, key: 49, predefined: false, value: 1 }, // shift+1
-    { action: actions.fixspeed_2_5, force: true, key: 50, predefined: false, value: 2 }, // shift+2
-    { action: actions.fixspeed_3_5, force: true, key: 51, predefined: false, value: 3 }, // shift+3
-    { action: actions.fixspeed_4_5, force: true, key: 52, predefined: false, value: 4 }, // shift+4
-    { action: actions.fixspeed_5_5, force: true, key: 53, predefined: false, value: 5 }, // shift+5
-    { action: actions.fixspeed_6_5, force: true, key: 54, predefined: false, value: 6 }, // shift+6
-    { action: actions.fixspeed_7_5, force: true, key: 55, predefined: false, value: 7 }, // shift+7
-    { action: actions.fixspeed_8_5, force: true, key: 56, predefined: false, value: 8 }, // shift+8
-    { action: actions.fixspeed_9_5, force: true, key: 57, predefined: false, value: 9 }, // shift+9
-    // "Special" ones that have more things!
-    {
-      action: actions.rewind,
-      force: true,
-      key: 37,
-      postValue2Text: 'secs )',
-      postValueText: '% of duration, ',
-      predefined: true,
-      preValueText: 'Min of (',
-      value2: 5,
-      value: 5,
-    }, // Left
-    {
-      action: actions.advance,
-      force: true,
-      key: 39,
-      postValue2Text: 'secs )',
-      postValueText: '% of duration, ',
-      predefined: true,
-      preValueText: 'Min of (',
-      value2: 5,
-      value: 5,
-    }, // Right
+    { action: actions.display, force: false, key: 86, predefined: true }, // V
+    { action: actions.fast, force: false, key: 71, predefined: true }, // G
+    { action: actions.faster, force: false, key: 186, predefined: true }, // '
+    { action: actions['fixspeed-1.0'], force: true, key: 49, predefined: false }, // 1
+    { action: actions['fixspeed-1.5'], force: true, key: 49, predefined: false }, // shift+1
+    { action: actions['fixspeed-2.0'], force: true, key: 50, predefined: false }, // 2
+    { action: actions['fixspeed-2.5'], force: true, key: 50, predefined: false }, // shift+2
+    { action: actions['fixspeed-3.0'], force: true, key: 51, predefined: false }, // 3
+    { action: actions['fixspeed-3.5'], force: true, key: 51, predefined: false }, // shift+3
+    { action: actions['fixspeed-4.0'], force: true, key: 52, predefined: false }, // 4
+    { action: actions['fixspeed-4.5'], force: true, key: 52, predefined: false }, // shift+4
+    { action: actions['fixspeed-5.0'], force: true, key: 53, predefined: false }, // 5
+    { action: actions['fixspeed-5.5'], force: true, key: 53, predefined: false }, // shift+5
+    { action: actions['fixspeed-6.0'], force: true, key: 54, predefined: false }, // 6
+    { action: actions['fixspeed-6.5'], force: true, key: 54, predefined: false }, // shift+6
+    { action: actions['fixspeed-7.0'], force: true, key: 55, predefined: false }, // 7
+    { action: actions['fixspeed-7.5'], force: true, key: 55, predefined: false }, // shift+7
+    { action: actions['fixspeed-8.0'], force: true, key: 56, predefined: false }, // 8
+    { action: actions['fixspeed-8.5'], force: true, key: 56, predefined: false }, // shift+8
+    { action: actions['fixspeed-9.0'], force: true, key: 57, predefined: false }, // 9
+    { action: actions['fixspeed-9.5'], force: true, key: 57, predefined: false }, // shift+9
+    { action: actions['go-start'], force: false, key: 48, predefined: false }, // 0
+    { action: actions.pause, force: false, key: 49, predefined: false }, // 1
+    { action: actions.reset, force: false, key: 82, predefined: true }, // R
+    { action: actions.slower, force: false, key: 222, predefined: true }, // ;
+    { action: actions['vol-down'], force: true, key: 40, predefined: true }, // Down
+    { action: actions['vol-up'], force: true, key: 38, predefined: true }, // Up
+    { action: actions.rewind, force: true, key: 37, predefined: true }, // Left
+    { action: actions.advance, force: true, key: 39, predefined: true }, // Right
   ],
   logLevel: 3, // default: 3
   rememberSpeed: false, // default: false
@@ -118,16 +117,23 @@ const bindingOptions = _.map(
 const getTcDefaultBinding = (action) => {
   const toCompare = typeof action === 'string' ? action : action.name;
 
-  return _.find(tcDefaults.keyBindings, (b) => b.action.name === toCompare);
-}
+  return _.find(tcDefaults.keyBindings, (b) => {
+    if (!toCompare.includes('fixspeed')) {
+      return b.action.name === toCompare;
+    }
 
-var keyBindings = [];
+    const speedVal = Number(toCompare.split('-')[1]).toFixed(1);
+    return b.action.name === `fixspeed-${speedVal}`;
+  });
+};
+
+let keyBindings = [];
 
 // keyCodeAliases {{{
 // Useful sites:
 // - http://gcctech.org/csc/javascript/javascript_keycodes.htm
 // - https://www.toptal.com/developers/keycode (interactive)
-var keyCodeAliases = {
+const keyCodeAliases = {
   0: 'null',
   null: 'null',
   undefined: 'null',
@@ -269,41 +275,12 @@ function forgetAll() {
 }
 // }}}
 
-// customActionsNoValues {{{
-// List of custom actions for which customValue should be disabled
-var customActionsNoValues = [
-  actions.pause.name,
-  actions.go_start.name,
-  actions.muted.name,
-  actions.mark.name,
-  actions.jump.name,
-  actions.display.name,
-  actions.fixspeed_1.name,
-  actions.fixspeed_1_5.name,
-  actions.fixspeed_2.name,
-  actions.fixspeed_2_5.name,
-  actions.fixspeed_3.name,
-  actions.fixspeed_3_5.name,
-  actions.fixspeed_4.name,
-  actions.fixspeed_4_5.name,
-  actions.fixspeed_5.name,
-  actions.fixspeed_5_5.name,
-  actions.fixspeed_6.name,
-  actions.fixspeed_6_5.name,
-  actions.fixspeed_7.name,
-  actions.fixspeed_7_5.name,
-  actions.fixspeed_8.name,
-  actions.fixspeed_8_5.name,
-  actions.fixspeed_9.name,
-  actions.fixspeed_9_5.name,
-];
-// }}}
-
 // add_predefined {{{
 function addBinding(item) {
   const { action, predefined, value2 } = item;
 
-  const tcDefault = getTcDefaultBinding(action)
+  const tcDefault = getTcDefaultBinding(action);
+  console.log('action', action, 'tcDefault', tcDefault);
 
   let valueHtml = `
   <input class="customValue w-50" type="text" placeholder="value (0.10)" />
@@ -526,6 +503,9 @@ function saveOptions() {
 
   Array.from(document.querySelectorAll('#shortcuts tr')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
 
+  console.log('fmfoo', keyBindings);
+  return;
+
   const audioBoolean = document.getElementById('audioBoolean').checked;
   const blacklist = document.getElementById('blacklist').value;
   const controllerOpacity = document.getElementById('controllerOpacity').value;
@@ -586,29 +566,19 @@ function restoreOptions() {
     document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
     document.getElementById('startHidden').checked = storage.startHidden;
 
-    // ensure that there is a "display" binding for upgrades from versions that had it as a separate binding
-    if (storage.keyBindings.filter((x) => x.action == 'display').length == 0) {
-      storage.keyBindings.push({
-        action: 'display',
-        value: 0,
-        force: false,
-        predefined: true,
-      });
-    }
-
     const keyBindings = _.sortBy(storage.keyBindings, (b) => b.action.description);
 
     for (let item of keyBindings) {
       const action = item.action;
 
-      const tcDefault = getTcDefaultBinding(action)
+      const tcDefault = getTcDefaultBinding(action);
 
       addBinding(item);
 
       const dom = document.querySelector('#shortcuts tbody tr:last-of-type');
       dom.querySelector('.customDo').value = action;
 
-      if (customActionsNoValues.includes(action)) {
+      if (noValueActions.includes(action)) {
         dom.querySelector('.customValue').style.display = 'none';
       }
 
@@ -641,7 +611,7 @@ function restoreOptions() {
           item['key'] = storage.displayKeyCode || tcDefaults.displayKeyCode; // V
         }
 
-        if (customActionsNoValues.includes(action))
+        if (noValueActions.includes(action))
           document.querySelector(`#${action} .customValue`).style.display = 'none';
 
         updateCustomShortcutInputText(
@@ -663,7 +633,7 @@ function restoreOptions() {
         const dom = document.querySelector('#shortcuts tbody tr:last-of-type');
         dom.querySelector('.customDo').value = action;
 
-        if (customActionsNoValues.includes(action)) {
+        if (noValueActions.includes(action)) {
           dom.querySelector('.customValue').style.display = 'none';
         }
 
@@ -832,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const parent = event.target.parentNode;
       const customValue = parent.querySelector('.customValue');
 
-      if (customActionsNoValues.includes(event.target.value)) {
+      if (noValueActions.includes(event.target.value)) {
         customValue.style.display = 'none';
         customValue.value = 0;
       } else {
