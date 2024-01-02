@@ -1,365 +1,120 @@
 <!doctype html>
-<html>
+<html data-bs-theme="dark">
   <head>
     <title>Video Speed Controller: Options</title>
     <link rel="stylesheet" href="external/bootstrap-5.3.2.min.css" />
-    <link rel="stylesheet" href="options.css" />
     <script src="external/lodash-4.17.15-min.js"></script>
     <script src="external/luxon.min.js"></script>
     <script src="options.js"></script>
   </head>
   <body>
-    <header>
-      <h1>Video Speed Controller</h1>
-    </header>
+    <div class="container">
+      <header>
+        <h1>Video Speed Controller</h1>
+      </header>
 
-    <section id="customs">
-      <h3>Shortcuts</h3>
-      <table id="shortcuts">
-        <!-- header {{{ -->
-        <tr>
-          <th>COMMAND</th>
-          <th>MODIFIERS</th>
-          <th>KEY</th>
-          <th>VALUE(S)</th>
-          <th>OPTIONS</th>
-          <th>OTHER</th>
-        </tr>
-        <!-- }}} -->
-        <!-- display {{{ -->
-        <tr id="display">
-          <td>
-            <select class="customDo">
-              <option value="display">Show/hide controller</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <input class="customValue" type="text" placeholder="value (0.10)" />
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- slower {{{ -->
-        <tr id="slower">
-          <td>
-            <select class="customDo">
-              <option value="slower">Decrease speed</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <input class="customValue" type="text" placeholder="value (0.10)" />
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- faster {{{ -->
-        <tr id="faster">
-          <td>
-            <select class="customDo">
-              <option value="faster">Increase speed</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <input class="customValue" type="text" placeholder="value (0.10)" />
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- rewind {{{ -->
-        <tr id="rewind">
-          <td>
-            <select class="customDo">
-              <option value="rewind">Rewind</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <div class="customValueContainer">
-              <span>Min of (</span>
-              <input class="customValue small" type="text" placeholder="value (5)" />
-              <span>% of duration, </span>
-              <input class="customValue2 small" type="text" placeholder="value (5)" />
-              <span>secs)</span>
-            </div>
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- advance {{{ -->
-        <tr id="advance">
-          <td>
-            <select class="customDo">
-              <option value="advance">Advance</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <div class="customValueContainer">
-              <span>Min of (</span>
-              <input class="customValue small" type="text" placeholder="value (5)" />
-              <span>% of duration, </span>
-              <input class="customValue2 small" type="text" placeholder="value (5)" />
-              <span>secs)</span>
-            </div>
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- vol-down {{{ -->
-        <tr id="vol-down">
-          <td>
-            <select class="customDo">
-              <option value="vol-down">Decrease volume</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <input class="customValue" type="text" placeholder="value (0.05)" />
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- vol-up {{{ -->
-        <tr id="vol-up">
-          <td>
-            <select class="customDo">
-              <option value="vol-up">Increase volume</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <input class="customValue" type="text" placeholder="value (0.05)" />
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- reset {{{ -->
-        <tr id="reset">
-          <td>
-            <select class="customDo">
-              <option value="reset">Reset speed</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <input class="customValue" type="text" placeholder="value (1.00)" disabled />
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <!-- fast {{{ -->
-        <tr id="fast">
-          <td>
-            <select class="customDo">
-              <option value="fast">Preferred speed</option>
-            </select>
-          </td>
-          <td>
-            <input type="checkbox" name="shift" /><label class="modifier">SHIFT</label>
-            <input type="checkbox" name="ctrl" /><label class="modifier">CTRL</label>
-          </td>
-          <td>
-            <input class="customKey" type="text" value="" placeholder="press a key" />
-          </td>
-          <td>
-            <input class="customValue" type="text" placeholder="value (1.80)" />
-          </td>
-          <td>
-            <select class="customForce">
-              <option value="false">Do not disable website key bindings</option>
-              <option value="true">Disable website key bindings</option>
-            </select>
-          </td>
-          <td></td>
-        </tr>
-        <!-- }}} -->
-        <tr>
-          <td colspan="6">
-            <hr />
-          </td>
-        </tr>
-      </table>
+      <section id="customs">
+        <h3>Shortcuts</h3>
+        <table class="table table-striped table-bordered table-sm" id="shortcuts">
+          <thead>
+          <!-- header {{{ -->
+            25+10+10+30+25+5=105
+            <tr>
+              <th style="width: 20%">COMMAND</th>
+              <th class="width: 5%">MODIFIERS</th>
+              <th style="width: 10%;">KEY</th>
+              <th style="width: 30%;">VALUE(S)</th>
+              <th style="width: 30%;">OPTIONS</th>
+              <th style="width: 5%;">OTHER</th>
+            </tr>
+          <!-- }}} -->
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
 
-      <button id="add">Add New</button>
-    </section>
+        <button id="add" class="btn btn-primary" style="display: none;">Add New</button>
+      </section>
 
-    <hr />
+      <hr />
 
-    <section>
-      <div class="row">
-        <input id="website1Pattern" type="text" value="youtube.com" class="websiteName" />
-        <input id="website1Speed" type="text" value="2.5" />
-      </div>
-    </section>
+      <section>
+        <div class="row">
+          <input id="website1Pattern" type="text" value="youtube.com" class="websiteName" />
+          <input id="website1Speed" type="text" value="2.5" />
+        </div>
+      </section>
 
-    <hr />
+      <hr />
 
-    <section>
-      <h3>Other</h3>
-      <div class="row">
-        <label for="enabled">Enable</label>
-        <input id="enabled" type="checkbox" />
-      </div>
-      <div class="row">
-        <label for="startHidden">Hide controller by default</label>
-        <input id="startHidden" type="checkbox" />
-      </div>
-      <div class="row">
-        <label for="rememberSpeed">Remember playback speed</label>
-        <input id="rememberSpeed" type="checkbox" />
-      </div>
-      <div class="row">
-        <label for="forceLastSavedSpeed"
-          >Force last saved speed<br />
-          <em>Useful for video players that override the speeds set by VideoSpeed</em></label
-        >
-        <input id="forceLastSavedSpeed" type="checkbox" />
-      </div>
-      <div class="row">
-        <label for="audioBoolean">Work on audio</label>
-        <input id="audioBoolean" type="checkbox" />
-      </div>
-      <div class="row">
-        <label for="controllerOpacity">Controller opacity</label>
-        <input id="controllerOpacity" type="text" value="" />
-      </div>
-      <div class="row">
-        <label for="logLevel">Log level</label>
-        <select class="customForce" id="logLevel">
-          <option value="2">2: ERROR</option>
-          <option value="3">3: WARNING</option>
-          <option value="4">4: INFO</option>
-          <option value="5">5: DEBUG</option>
-          <option value="6">6: DEUBG (VERBOSE)</option>
-        </select>
-      </div>
-      <div class="row">
-        <label for="blacklist"
-          >Sites on which extension is disabled<br />
-          (one per line)<br />
-          <br />
-          <em>
-            <a href="https://www.regexpal.com/">Regex</a> is supported.<br />
-            Be sure to use the literal notation.<br />
-            ie: /(.+)youtube\.com(\/*)$/gi
-          </em>
-        </label>
-        <textarea id="blacklist" rows="10" cols="50"></textarea>
-      </div>
-    </section>
+      <section>
+        <h3>Other</h3>
+        <div class="row">
+          <label for="enabled">Enable</label>
+          <input id="enabled" type="checkbox" />
+        </div>
+        <div class="row">
+          <label for="startHidden">Hide controller by default</label>
+          <input id="startHidden" type="checkbox" />
+        </div>
+        <div class="row">
+          <label for="rememberSpeed">Remember playback speed</label>
+          <input id="rememberSpeed" type="checkbox" />
+        </div>
+        <div class="row">
+          <label for="forceLastSavedSpeed"
+            >Force last saved speed<br />
+            <em>Useful for video players that override the speeds set by VideoSpeed</em></label
+          >
+          <input id="forceLastSavedSpeed" type="checkbox" />
+        </div>
+        <div class="row">
+          <label for="audioBoolean">Work on audio</label>
+          <input id="audioBoolean" type="checkbox" />
+        </div>
+        <div class="row">
+          <label for="controllerOpacity">Controller opacity</label>
+          <input id="controllerOpacity" type="text" value="" />
+        </div>
+        <div class="row">
+          <label for="logLevel">Log level</label>
+          <select class="customForce" id="logLevel">
+            <option value="2">2: ERROR</option>
+            <option value="3">3: WARNING</option>
+            <option value="4">4: INFO</option>
+            <option value="5">5: DEBUG</option>
+            <option value="6">6: DEUBG (VERBOSE)</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="blacklist"
+            >Sites on which extension is disabled<br />
+            (one per line)<br />
+            <br />
+            <em>
+              <a href="https://www.regexpal.com/">Regex</a> is supported.<br />
+              Be sure to use the literal notation.<br />
+              ie: /(.+)youtube\.com(\/*)$/gi
+            </em>
+          </label>
+          <textarea id="blacklist" rows="10" cols="50"></textarea>
+        </div>
+      </section>
 
-    <button id="save">Save</button>
-    <button id="restore">Restore Defaults</button>
-    <button id="experimental">Show Experimental Features</button>
-    <div id="status"></div>
+      <button id="save">Save</button>
+      <button id="restore">Restore Defaults</button>
+      <button id="experimental">Show Experimental Features</button>
+      <div id="status"></div>
 
-    <hr />
+      <hr />
 
-    <p></p>
-    <div>
-      <button id="forgetAll">Forget all speeds</button>
-      <button id="toggleDisplaySpeeds">Toggle display all speeds</button>
-      <span id="forgetStatus" class="hidden">Forgot all!</span>
-      <div id="speeds" class="hidden">
+      <p></p>
+      <div>
+        <button id="forgetAll">Forget all speeds</button>
+        <button id="toggleDisplaySpeeds">Toggle display all speeds</button>
+        <span id="forgetStatus" class="hidden">Forgot all!</span>
+        <div id="speeds" class="hidden">
+      </div>
     </div>
     <script src="external/popper-2.11.8.min.js"></script>
     <script src="external/bootstrap-5.3.2.min.js"></script>
