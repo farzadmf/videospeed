@@ -76,23 +76,23 @@ var tcDefaults = {
     { action: actions.fast, force: false, key: 71, predefined: true }, // G
     { action: actions.faster, force: false, key: 186, predefined: true }, // '
     { action: actions['fixspeed-1.0'], force: true, key: 49, predefined: false }, // 1
-    { action: actions['fixspeed-1.5'], force: true, key: 49, predefined: false }, // shift+1
+    { action: actions['fixspeed-1.5'], force: true, key: 49, predefined: false, shift: true }, // shift+1
     { action: actions['fixspeed-2.0'], force: true, key: 50, predefined: false }, // 2
-    { action: actions['fixspeed-2.5'], force: true, key: 50, predefined: false }, // shift+2
+    { action: actions['fixspeed-2.5'], force: true, key: 50, predefined: false, shift: true }, // shift+2
     { action: actions['fixspeed-3.0'], force: true, key: 51, predefined: false }, // 3
-    { action: actions['fixspeed-3.5'], force: true, key: 51, predefined: false }, // shift+3
+    { action: actions['fixspeed-3.5'], force: true, key: 51, predefined: false, shift: true }, // shift+3
     { action: actions['fixspeed-4.0'], force: true, key: 52, predefined: false }, // 4
-    { action: actions['fixspeed-4.5'], force: true, key: 52, predefined: false }, // shift+4
+    { action: actions['fixspeed-4.5'], force: true, key: 52, predefined: false, shift: true }, // shift+4
     { action: actions['fixspeed-5.0'], force: true, key: 53, predefined: false }, // 5
-    { action: actions['fixspeed-5.5'], force: true, key: 53, predefined: false }, // shift+5
+    { action: actions['fixspeed-5.5'], force: true, key: 53, predefined: false, shift: true }, // shift+5
     { action: actions['fixspeed-6.0'], force: true, key: 54, predefined: false }, // 6
-    { action: actions['fixspeed-6.5'], force: true, key: 54, predefined: false }, // shift+6
+    { action: actions['fixspeed-6.5'], force: true, key: 54, predefined: false, shift: true }, // shift+6
     { action: actions['fixspeed-7.0'], force: true, key: 55, predefined: false }, // 7
-    { action: actions['fixspeed-7.5'], force: true, key: 55, predefined: false }, // shift+7
+    { action: actions['fixspeed-7.5'], force: true, key: 55, predefined: false, shift: true }, // shift+7
     { action: actions['fixspeed-8.0'], force: true, key: 56, predefined: false }, // 8
-    { action: actions['fixspeed-8.5'], force: true, key: 56, predefined: false }, // shift+8
+    { action: actions['fixspeed-8.5'], force: true, key: 56, predefined: false, shift: true }, // shift+8
     { action: actions['fixspeed-9.0'], force: true, key: 57, predefined: false }, // 9
-    { action: actions['fixspeed-9.5'], force: true, key: 57, predefined: false }, // shift+9
+    { action: actions['fixspeed-9.5'], force: true, key: 57, predefined: false, shift: true }, // shift+9
     { action: actions['go-start'], force: false, key: 48, predefined: false }, // 0
     { action: actions.pause, force: false, key: 49, predefined: false }, // 1
     { action: actions.reset, force: false, key: 82, predefined: true }, // R
@@ -126,6 +126,17 @@ const getTcDefaultBinding = (action) => {
     return b.action.name === `fixspeed-${speedVal}`;
   });
 };
+
+const getActionName = (action) => {
+  const toCompare = typeof action === 'string' ? action : action.name;
+
+  if (!toCompare.includes('fixspeed')) {
+    return toCompare;
+  }
+
+  const speedVal = Number(toCompare.split('-')[1]).toFixed(1);
+  return `fixspeed-${speedVal}`;
+}
 
 let keyBindings = [];
 
@@ -277,10 +288,10 @@ function forgetAll() {
 
 // add_predefined {{{
 function addBinding(item) {
-  const { action, predefined, value2 } = item;
+  const { action, predefined } = item;
+  const value2 = item.value2 || action.value2;
 
   const tcDefault = getTcDefaultBinding(action);
-  console.log('action', action, 'tcDefault', tcDefault);
 
   let valueHtml = `
   <input class="customValue w-50" type="text" placeholder="value (0.10)" />
@@ -288,22 +299,26 @@ function addBinding(item) {
 
   if (value2) {
     valueHtml = `
-  <span>${item.preValueText || tcDefault.preValueText}</span>
-  <input class="customValue w-25" type="text" placeholder="value (${tcDefault.value})" />
-  <span>${item.postValueText || tcDefault.postValueText}</span>
-  <input class="customValue2 w-25" type="text" placeholder="value (${tcDefault.value2})" />
-  <span>${item.postValue2Text || tcDefault.postValue2Text}</span>
+  <span>${tcDefault.action.preValueText}</span>
+  <input class="customValue" style="width: 10%;" type="text" placeholder="value (${tcDefault.action.value})" />
+  <span>${tcDefault.action.postValueText}</span>
+  <input class="customValue2" style="width: 10%;" type="text" placeholder="value (${tcDefault.action.value2})" />
+  <span>${tcDefault.action.postValue2Text}</span>
 `;
   }
 
   let removeBtn = '';
+  let predefinedInput = '';
   if (!predefined) {
     removeBtn = '<button class="removeParent btn btn-danger">X</button>';
+  } else {
+    predefinedInput = '<input type="hidden" class="predefined" />'
   }
 
   const html = `
 <tr id="${action}">
   <td>
+    ${predefinedInput}
     <select class="customDo form-select">
       ${bindingOptions.join('\n')}
     </select>
@@ -349,77 +364,6 @@ function addBinding(item) {
 
 // }}}
 
-// add_shortcut {{{
-function add_shortcut() {
-  const html = `
-    <tr>
-      <td>
-        <select class="customDo form-select">
-          <option value="slower">Decrease speed</option>
-          <option value="faster">Increase speed</option>
-          <option value="rewind">Rewind</option>
-          <option value="advance">Advance</option>
-          <option value="vol-down">Decrease volume</option>
-          <option value="vol-up">Increase volume</option>
-          <option value="reset">Reset speed</option>
-          <option value="fast">Preferred speed</option>
-          <option value="muted">Mute</option>
-          <option value="pause">Pause</option>
-          <option value="go-start">Jump to video start</option>
-          <option value="mark">Set marker</option>
-          <option value="jump">Jump to marker</option>
-          <option value="fixspeed-1">1x Speed</option>
-          <option value="fixspeed-1.5">1.5x Speed</option>
-          <option value="fixspeed-2">2x Speed</option>
-          <option value="fixspeed-2.5">2.5x Speed</option>
-          <option value="fixspeed-3">3x Speed</option>
-          <option value="fixspeed-3.5">3.5x Speed</option>
-          <option value="fixspeed-4">4x Speed</option>
-          <option value="fixspeed-4.5">4.5x Speed</option>
-          <option value="fixspeed-5">5x Speed</option>
-          <option value="fixspeed-5.5">5.5x Speed</option>
-          <option value="fixspeed-6">6x Speed</option>
-          <option value="fixspeed-6.5">6.5x Speed</option>
-          <option value="fixspeed-7">7x Speed</option>
-          <option value="fixspeed-7.5">7.5x Speed</option>
-          <option value="fixspeed-8">8x Speed</option>
-          <option value="fixspeed-8.5">8.5x Speed</option>
-          <option value="fixspeed-9">9x Speed</option>
-          <option value="fixspeed-9.5">9.5x Speed</option>
-          <option value="display">Show/hide controller</option>
-        </select>
-      </td>
-      <td>
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" name="shift" /><label class="modifier form-check-label">SHIFT</label>
-        </div>
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" name="ctrl" /><label class="modifier form-check-label">CTRL</label>
-        </div>
-      </td>
-      <td>
-        <input class="customKey" type="text" placeholder="press a key"/>
-      </td>
-      <td>
-        <input class="customValue" type="text" placeholder="value (0.10)"/>
-      </td>
-      <td>
-        <select class="customForce form-select">
-          <option value="false">Do not disable website key bindings</option>
-          <option value="true">Disable website key bindings</option>
-        </select>
-      </td>
-      <td>
-        <button class="removeParent btn btn-danger">X</button>
-      </td>
-    </tr>
-`;
-
-  const shortcuts = document.querySelector('#shortcuts tbody');
-  shortcuts.insertAdjacentHTML('beforeend', html);
-}
-// }}}
-
 // createKeyBindings {{{
 function createKeyBindings(item) {
   // Ignore rows not containing anything!
@@ -427,32 +371,41 @@ function createKeyBindings(item) {
     return;
   }
 
-  const action = item.querySelector('.customDo').value;
+  const actionName = item.querySelector('.customDo').value;
+  const action = _.pick(actions, [actionName])[actionName];
+  const tcDefault = getTcDefaultBinding(action);
+
   const key = item.querySelector('.customKey').keyCode;
 
   const shift = item.querySelector('input[name="shift"]').checked;
   const ctrl = item.querySelector('input[name="ctrl"]').checked;
 
-  const value = Number(item.querySelector('.customValue').value);
   const force = JSON.parse(item.querySelector('.customForce').value);
-  const predefined = !!item.id; //item.id ? true : false;
+  const predefined = !!item.querySelector('.predefined');
 
   let binding = {
     action,
     key,
-    shift,
-    ctrl,
-    value,
     force,
     predefined,
   };
 
-  const value2El = item.querySelector('.customValue2');
-  if (value2El) {
-    binding = {
-      ...binding,
-      value2: Number(value2El.value),
-    };
+  if (shift) { binding = {...binding, shift }};
+  if (ctrl) { binding = {...binding, ctrl }};
+
+  if (!noValueActions.includes(actionName)) {
+    const value = Number(item.querySelector('.customValue').value);
+    if (value !== tcDefault.action.value) {
+      binding = {...binding, value };
+    }
+
+    const value2El = item.querySelector('.customValue2');
+    if (value2El) {
+      const value2 = Number(value2El.value);
+      if (value2 !== tcDefault.action.value2) {
+        binding = {...binding, value2 };
+      }
+    }
   }
 
   keyBindings.push(binding);
@@ -502,9 +455,6 @@ function saveOptions() {
   keyBindings = [];
 
   Array.from(document.querySelectorAll('#shortcuts tr')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
-
-  console.log('fmfoo', keyBindings);
-  return;
 
   const audioBoolean = document.getElementById('audioBoolean').checked;
   const blacklist = document.getElementById('blacklist').value;
@@ -569,24 +519,23 @@ function restoreOptions() {
     const keyBindings = _.sortBy(storage.keyBindings, (b) => b.action.description);
 
     for (let item of keyBindings) {
-      const action = item.action;
-
-      const tcDefault = getTcDefaultBinding(action);
+      const actionName = getActionName(item.action);
+      const tcDefault = getTcDefaultBinding(actionName);
 
       addBinding(item);
 
       const dom = document.querySelector('#shortcuts tbody tr:last-of-type');
-      dom.querySelector('.customDo').value = action;
+      dom.querySelector('.customDo').value = actionName;
 
-      if (noValueActions.includes(action)) {
+      if (noValueActions.includes(actionName)) {
         dom.querySelector('.customValue').style.display = 'none';
       }
 
       updateCustomShortcutInputText(dom.querySelector('.customKey'), item.key);
-      dom.querySelector('input[name="shift"]').checked = item.shift;
-      dom.querySelector('input[name="ctrl"]').checked = item.ctrl;
+      dom.querySelector('input[name="shift"]').checked = !!item.shift;
+      dom.querySelector('input[name="ctrl"]').checked = !!item.ctrl;
 
-      dom.querySelector('.customValue').value = item.value;
+      dom.querySelector('.customValue').value = item.value || tcDefault.action.value;
 
       const force = JSON.parse(item.force);
       dom.querySelector('.customForce').value = force;
@@ -594,60 +543,8 @@ function restoreOptions() {
       const colorCls = force ? 'text-warning' : 'text-success';
       dom.querySelector('.customForce').classList.add(colorCls);
 
-      if (item.value2 || tcDefault.value2) {
-        const customValue2 = dom.querySelector('.customValue2');
-        if (customValue2) customValue2.value = item.value2 || tcDefault.value2;
-      }
-
-      /*
-      if (item.predefined) {
-        add_predefined({ action });
-        const dom = document.querySelector('#farzad tbody tr:last-of-type');
-        dom.querySelector('.customDo').value = action;
-
-        //do predefined ones because their value needed for overlay
-        // document.querySelector("#" + item["action"] + " .customDo").value = item["action"];
-        if (action == 'display' && typeof item['key'] === 'undefined') {
-          item['key'] = storage.displayKeyCode || tcDefaults.displayKeyCode; // V
-        }
-
-        if (noValueActions.includes(action))
-          document.querySelector(`#${action} .customValue`).style.display = 'none';
-
-        updateCustomShortcutInputText(
-          document.querySelector(`#${action} .customKey`),
-          item['key'],
-        );
-        document.querySelector(`#${action} input[name="shift"]`).checked = !!item['shift'];
-        document.querySelector(`#${action} input[name="ctrl"]`).checked = item['ctrl'];
-
-        document.querySelector(`#${action} .customValue`).value = item['value'];
-        document.querySelector(`#${action} .customForce`).value = item['force'];
-
-        const customValue2 = document.querySelector(`#${action} .customValue2`);
-        if (customValue2) customValue2.value = item['value2'] || tcDefault.value2;
-      } else {
-        // new ones
-        add_shortcut();
-        // const dom = document.querySelector('.customs:last-of-type');
-        const dom = document.querySelector('#shortcuts tbody tr:last-of-type');
-        dom.querySelector('.customDo').value = action;
-
-        if (noValueActions.includes(action)) {
-          dom.querySelector('.customValue').style.display = 'none';
-        }
-
-        updateCustomShortcutInputText(dom.querySelector('.customKey'), item['key']);
-        dom.querySelector('input[name="shift"]').checked = item['shift'];
-        dom.querySelector('input[name="ctrl"]').checked = item['ctrl'];
-
-        dom.querySelector('.customValue').value = item['value'];
-        dom.querySelector('.customForce').value = item['force'];
-
-        const customValue2 = dom.querySelector('.customValue');
-        if (customValue2) customValue2.value = item['value2'];
-      }
-      */
+      const customValue2 = dom.querySelector('.customValue2');
+      if (customValue2) customValue2.value = item.value2 || tcDefault.action.value2;
     }
 
     const total = _.keys(actions).length;
