@@ -11,6 +11,7 @@ function runAction({ action, value, value2, e }) {
   mediaTags.forEach(function (v) {
     if (!v || !action) return;
 
+    const actionName = action.name;
     var controller = v.vsc.div;
 
     // Don't change video speed if the video has a different controller
@@ -26,13 +27,13 @@ function runAction({ action, value, value2, e }) {
 
     if (v.classList.contains('vsc-cancelled')) return;
 
-    if (action.startsWith('fixspeed')) {
-      const speedValue = Number(action.split('-')[1]);
+    if (actionName.startsWith('fixspeed')) {
+      const speedValue = Number(actionName.split('-')[1]);
       setSpeed(v, speedValue);
       return;
     }
 
-    switch (action) {
+    switch (actionName) {
       case 'rewind':
         log('Rewind', DEBUG);
         v.currentTime -= step;
