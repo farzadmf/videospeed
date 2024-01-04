@@ -11,6 +11,8 @@ function runAction({ action, value, value2, e }) {
   mediaTags.forEach(function (v) {
     if (!v || !action) return;
 
+    console.log('fmfoo runAction', action, _);
+
     const actionName = action.name;
     var controller = v.vsc.div;
 

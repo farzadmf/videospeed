@@ -36,6 +36,9 @@
       ],
       "css": ["inject.css"],
       "js": [
+        "external/lodash-4.17.15-min.js",
+        "shared/all-actions.js",
+        "shared/defaults.js",
         "helpers/log.js",
         "helpers/misc.js",
         "helpers/actions/run.js",

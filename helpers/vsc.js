@@ -99,6 +99,14 @@ vsc.videoController = function (target, parent) {
       ) {
         log('mutation of A/V element', DEBUG);
 
+        // document.body.classList.remove('vsc-initialized');
+        // vsc.mediaElements = [];
+        // vsc.docs.forEach((listener, doc) => {
+        //   doc.removeEventListener('keydown', listener, true);
+        // });
+        // vsc.docs = new Map();
+        // initializeWhenReady(document);
+
         if (location.hostname === 'www.totaltypescript.com') {
           document.body.classList.remove('vsc-initialized');
           vsc.mediaElements = [];
@@ -174,8 +182,8 @@ vsc.videoController.prototype.initializeControls = function () {
         vsc.settings.controllerOpacity
       }">
         <span data-action="drag" class="draggable">
-          <span id="vsc-speed-val">${speed}x</span>
-          <span id="vsc-volume-val">(vol: ${volume})</span>
+          <span id="vsc-speed-val" data-action="drag">${speed}x</span>
+          <span id="vsc-volume-val" data-action="drag">(vol: ${volume})</span>
         </span>
         <span id="controls">
           <button data-action="rewind" class="rw">«</button>
@@ -190,6 +198,7 @@ vsc.videoController.prototype.initializeControls = function () {
   shadow.querySelector('.draggable').addEventListener(
     'mousedown',
     (e) => {
+      console.log('fmfoo mousedown', e.target, e.target.dataset['action']);
       runAction({
         action: e.target.dataset['action'],
         value: false,
@@ -220,12 +229,12 @@ vsc.videoController.prototype.initializeControls = function () {
     .querySelector('#controller')
     .addEventListener('mousedown', (e) => e.stopPropagation(), false);
 
-  this.speedIndicator = shadow.querySelector('span#vsc-speed-val');
-  this.volumeIndicator = shadow.querySelector('span#vsc-volume-val');
   this.setSpeedVal = (value) => (this.speedIndicator.textContent = `${Number(value).toFixed(1)}x`);
   this.setVolumeVal = (value) =>
     (this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`);
 
+  this.speedIndicator = shadow.querySelector('span#vsc-speed-val');
+  this.volumeIndicator = shadow.querySelector('span#vsc-volume-val');
   var fragment = document.createDocumentFragment();
   fragment.appendChild(wrapper);
 

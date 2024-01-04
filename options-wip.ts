@@ -55,11 +55,11 @@ var tcDefaults = {
 
 var keyBindings: KeyBinding[] = [];
 
-// keyCodeAliases {{{
+// KEY_CODES {{{
 // Useful sites:
 // - http://gcctech.org/csc/javascript/javascript_keycodes.htm
 // - https://www.toptal.com/developers/keycode (interactive)
-var keyCodeAliases = {
+var KEY_CODES = {
   0: 'null',
   null: 'null',
   undefined: 'null',
@@ -622,7 +622,7 @@ function inputFocus(e) {
 }
 
 function inputBlur(e) {
-  e.target.value = keyCodeAliases[e.target.keyCode] || String.fromCharCode(e.target.keyCode);
+  e.target.value = KEY_CODES[e.target.keyCode] || String.fromCharCode(e.target.keyCode);
 }
   document.addEventListener('keypress', (event) => {
     var char = event.key;
