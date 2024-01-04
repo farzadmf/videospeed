@@ -161,3 +161,16 @@ const recordKeyPress = (e) => {
     e.target.keyCode = null;
   }
 };
+
+const inputFilterNumbersOnly = (e) => {
+  var char = String.fromCharCode(e.keyCode);
+  if (!/[\d\.]$/.test(char) || !/^\d+(\.\d*)?$/.test(e.target.value + char)) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+};
+
+const inputFocus = (e) => (e.target.value = '');
+
+const inputBlur = (e) =>
+  (e.target.value = KEY_CODES[e.target.keyCode] || String.fromCharCode(e.target.keyCode));

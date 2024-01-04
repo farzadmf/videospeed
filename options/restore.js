@@ -1,3 +1,8 @@
+const updateCustomShortcutInputText = (inputItem, keyCode) => {
+  inputItem.value = KEY_CODES[keyCode] || String.fromCharCode(keyCode);
+  inputItem.keyCode = keyCode;
+};
+
 const restoreOptions = () => {
   chrome.storage.sync.get(tcDefaults, function (storage) {
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
