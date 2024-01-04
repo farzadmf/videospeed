@@ -73,7 +73,7 @@ function initializeNow(document) {
   document.body.classList.add('vsc-initialized');
   log('initializeNow: vsc-initialized added to document body', DEBUG);
 
-  if (document !== window.document) {
+  if (document !== window.document && !!document.host) {
     log('adding inject.css to head', DEBUG);
     var link = document.createElement('link');
     link.href = chrome.runtime.getURL('inject.css');
@@ -83,7 +83,7 @@ function initializeNow(document) {
   }
   docs = Array(document);
   try {
-    if (inIframe()) docs.push(window.top.document);
+    if (inIframe() && !!window.top.document.host) docs.push(window.top.document);
   } catch (e) {}
 
   // set up keydown event listener for each "doc" {{{
