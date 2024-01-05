@@ -1,24 +1,33 @@
-function runAction({ action, value, value2, e }) {
+const runAction = ({ actionItem, ev }) => {
   log('runAction Start', DEBUG);
 
   const mediaTags = vsc.mediaElements;
 
+  let value, value2;
+  let actionName = '';
+  if (typeof actionItem === 'string') {
+    // For "built-in" actions (such as blink, drag etc.) that have no
+    // binding, setting, key, etc.
+    actionName = actionItem;
+  } else {
+    actionName = actionItem.action.name;
+    value = actionItem.value || actionItem.action.value;
+    value2 = actionItem.value2 || actionItem.action.value2;
+  }
+
   // Get the controller that was used if called from a button press event e
-  if (e) {
-    var targetController = e.target.getRootNode().host;
+  if (ev) {
+    var targetController = ev.target.getRootNode().host;
   }
 
   mediaTags.forEach(function (v) {
-    if (!v || !action) return;
+    if (!v || !actionName) return;
 
-    console.log('fmfoo runAction', action, _);
-
-    const actionName = action.name;
     var controller = v.vsc.div;
 
     // Don't change video speed if the video has a different controller
-    if (e && !(targetController == controller)) {
-      log('runAction e, targetController, controller', DEBUG, e, targetController, controller);
+    if (ev && !(targetController == controller)) {
+      log('runAction e, targetController, controller', DEBUG, ev, targetController, controller);
       return;
     }
 
@@ -97,7 +106,7 @@ function runAction({ action, value, value2, e }) {
         }
         break;
       case 'drag':
-        handleDrag(v, e);
+        handleDrag(v, ev);
         break;
       case 'fast':
         resetSpeed(v, value);
@@ -117,4 +126,4 @@ function runAction({ action, value, value2, e }) {
     }
   });
   log('runAction End', DEBUG);
-}
+};

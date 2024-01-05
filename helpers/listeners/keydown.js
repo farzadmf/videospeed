@@ -12,8 +12,6 @@ const keyDownListener = () =>
     }
 
     const keyCode = event.keyCode;
-    const shift = !!event.shiftKey;
-    const ctrl = !!event.ctrlKey;
 
     log('Processing keydown event: ' + keyCode, TRACE);
 
@@ -36,17 +34,12 @@ const keyDownListener = () =>
       return false;
     }
 
-    const item = vsc.settings.keyBindings.find(
-      (item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl,
-    );
+    const actionItem = vsc.actionByKeyEvent(event);
 
-    if (item) {
-      runAction({
-        action: item.action,
-        value: item.value || item.action.value,
-        value2: item.value2 || item.action.value2,
-      });
-      if (item.force) {
+    if (actionItem) {
+      runAction({ actionItem });
+
+      if (actionItem.force) {
         // disable websites key bindings
         event.preventDefault();
         event.stopPropagation();

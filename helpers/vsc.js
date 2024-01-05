@@ -31,6 +31,19 @@ var vsc = {
   mediaElements: [],
 
   observed: new Set(),
+
+  actionByKeyEvent: (event) => {
+    const keyCode = event.keyCode;
+    const shift = !!event.shiftKey;
+    const ctrl = !!event.ctrlKey;
+
+    return vsc.settings.keyBindings.find(
+      (item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl,
+    );
+  },
+
+  actionByName: (actionName) =>
+    vsc.settings.keyBindings.find((item) => item.action.name === actionName),
 };
 
 // -> vsc.videoController = ... {{{
@@ -197,14 +210,13 @@ vsc.videoController.prototype.initializeControls = function () {
   shadow.innerHTML = shadowTemplate;
   shadow.querySelector('.draggable').addEventListener(
     'mousedown',
-    (e) => {
-      console.log('fmfoo mousedown', e.target, e.target.dataset['action']);
+    (ev) => {
       runAction({
-        action: e.target.dataset['action'],
-        value: false,
-        e,
+        actionItem: ev.target.dataset['action'],
+        ev,
       });
-      e.stopPropagation();
+      ev.preventDefault();
+      ev.stopPropagation();
     },
     true,
   );
@@ -212,13 +224,14 @@ vsc.videoController.prototype.initializeControls = function () {
   shadow.querySelectorAll('button').forEach(function (button) {
     button.addEventListener(
       'click',
-      (e) => {
+      (ev) => {
+        const actionItem = vsc.actionByName(ev.target.dataset['action']);
+
         runAction({
-          action: e.target.dataset['action'],
-          value: getKeyBindings(e.target.dataset['action']),
-          e,
+          actionItem,
+          ev,
         });
-        e.stopPropagation();
+        ev.stopPropagation();
       },
       true,
     );

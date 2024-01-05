@@ -115,8 +115,6 @@ function handleDrag(video, e) {
   const controller = video.vsc.div;
   const shadowController = controller.shadowRoot.querySelector('#controller');
 
-  console.log('fmfoo', shadowController);
-
   // Find nearest parent of same size as video parent.
   var parentElement = controller.parentElement;
   while (
