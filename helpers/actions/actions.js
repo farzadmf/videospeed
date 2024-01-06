@@ -86,7 +86,7 @@ function setSpeed(video, speed) {
     );
   }
 
-  video.vsc.setSpeedVal(speedvalue);
+  video.vsc?.setSpeedVal(speedvalue);
 
   vsc.settings.lastSpeed = speed;
 
@@ -100,13 +100,18 @@ function setSpeed(video, speed) {
       updated: new Date().valueOf(),
     };
   }
-  chrome.storage.sync.set(
-    {
-      lastSpeed: speed,
-      speeds: vsc.settings.speeds,
-    },
-    () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
-  );
+  try {
+    chrome.storage.sync.set(
+      {
+        lastSpeed: speed,
+        speeds: vsc.settings.speeds,
+      },
+      () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
+    );
+  } catch (err) {
+    // Not doing anything!
+  }
+
   refreshCoolDown();
   log('setSpeed finished: ' + speed, DEBUG);
 }

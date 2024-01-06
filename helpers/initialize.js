@@ -3,17 +3,19 @@ function checkForVideo(node, parent, added) {
   // This function is called QUITE a few times, so logs are SUPER noisy!
   // log('Begin checkForVideo', DEBUG);
 
-  // Only proceed with supposed removal if node is missing from DOM
-  if (!added && document.body?.contains(node)) {
-    return;
-  }
-
   if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && vsc.settings.audioBoolean)) {
-    if (added) {
-      log('added', DEBUG);
-      node.vsc = new vsc.videoController(node, parent);
-    } else {
-      log('not added', DEBUG);
+    if (added && !node.vsc) {
+      log('node added', DEBUG, node);
+
+      if (!node.vsc) {
+        log('node does not have vsc on it', DEBUG, node);
+        node.vsc = new vsc.videoController(node, parent);
+      } else {
+        log('node already has vsc on it', DEBUG, node.vsc);
+      }
+      // Only proceed with supposed removal if node is missing from DOM
+    } else if (!document.body?.contains(node)) {
+      log('node removed; removing vsc', DEBUG, node);
       if (node.vsc) {
         node.vsc.remove();
       }
@@ -58,6 +60,9 @@ function initializeWhenReady(document) {
 }
 
 function initializeNow(document) {
+  // Check location.host to be set to not add, eg., about:blank
+  if (!document.location.host) return;
+
   log('Begin initializeNow', DEBUG);
   if (!vsc.settings.enabled) return;
   // enforce init-once due to redundant callers
@@ -73,7 +78,7 @@ function initializeNow(document) {
   document.body.classList.add('vsc-initialized');
   log('initializeNow: vsc-initialized added to document body', DEBUG);
 
-  if (document !== window.document && !!document.host) {
+  if (document !== window.document) {
     log('adding inject.css to head', DEBUG);
     var link = document.createElement('link');
     link.href = chrome.runtime.getURL('inject.css');
@@ -85,6 +90,10 @@ function initializeNow(document) {
   try {
     if (inIframe() && !!window.top.document.host) docs.push(window.top.document);
   } catch (e) {}
+
+  logGroup('DOCS', DEBUG);
+  docs.forEach((d, i) => log(`doc #${i}`, d.location, d));
+  logGroupEnd();
 
   // set up keydown event listener for each "doc" {{{
   docs.forEach(function (doc) {
@@ -137,7 +146,7 @@ function initializeNow(document) {
                 if (!vsc.observed.has(target)) {
                   // vsc.observed.add(target);
                   log('checkForVideo in chidlListMutation.removedNodes', TRACE, target);
-                  checkForVideo(node, target, true);
+                  checkForVideo(node, target, false);
                 } else {
                   log('already observed; skipping', TRACE, target);
                 }

@@ -100,9 +100,15 @@ vsc.videoController = function (target, parent) {
     setSpeed(event.target, storedSpeed);
   };
 
-  target.addEventListener('play', (this.handlePlay = mediaEventAction.bind(this)));
+  target.addEventListener('play', () => {
+    log('handling play event', DEBUG);
+    (this.handlePlay = mediaEventAction.bind(this))
+  });
 
-  target.addEventListener('seeked', (this.handleSeek = mediaEventAction.bind(this)));
+  target.addEventListener('seeked', () => {
+    log('handling seek event', DEBUG);
+    (this.handleSeek = mediaEventAction.bind(this))
+  });
 
   var observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
