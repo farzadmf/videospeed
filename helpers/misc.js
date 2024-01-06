@@ -37,16 +37,9 @@ function getShadow(parent) {
   return result.flat(Infinity);
 }
 
-let coolDown = false;
-function refreshCoolDown() {
-  log('Begin refreshCoolDown', DEBUG);
-  if (coolDown) {
-    clearTimeout(coolDown);
-  }
-  coolDown = setTimeout(function () {
-    coolDown = false;
-  }, 1000);
-  log('End refreshCoolDown', DEBUG);
-}
+const startCoolDown = _.debounce(() => {
+  log('cooldown finished', DEBUG);
+  vsc.coolDown = false;
+}, 1000);
 
 // vim: foldmethod=marker

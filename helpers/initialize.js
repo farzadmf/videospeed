@@ -131,25 +131,15 @@ function initializeNow(document) {
 
                 const target = node.parentNode || mutation.target;
 
-                if (!vsc.observed.has(target)) {
-                  // vsc.observed.add(target);
-                  log('checkForVideo in chidlListMutation.addedNodes', TRACE, target);
-                  checkForVideo(node, target, true);
-                } else {
-                  log('already observed; skipping', TRACE, target);
-                }
+                log('checkForVideo in chidlListMutation.addedNodes', TRACE, target);
+                checkForVideo(node, target, true);
               });
               mutation.removedNodes.forEach(function (node) {
                 if (typeof node === 'function') return;
 
                 const target = node.parentNode || mutation.target;
-                if (!vsc.observed.has(target)) {
-                  // vsc.observed.add(target);
-                  log('checkForVideo in chidlListMutation.removedNodes', TRACE, target);
-                  checkForVideo(node, target, false);
-                } else {
-                  log('already observed; skipping', TRACE, target);
-                }
+                log('checkForVideo in chidlListMutation.removedNodes', TRACE, target);
+                checkForVideo(node, target, false);
               });
               break;
             case 'attributes':
@@ -166,13 +156,8 @@ function initializeNow(document) {
                   if (node.vsc) node.vsc.remove();
 
                   const target = node.parentNode || mutation.target;
-                  if (!vsc.observed.has(target)) {
-                    // vsc.observed.add(target);
-                    log('checkForVideo in attributesMutation', TRACE, target);
-                    checkForVideo(node, target, true);
-                  } else {
-                    log('already observed; skipping', TRACE, target);
-                  }
+                  log('checkForVideo in attributesMutation', TRACE, target);
+                  checkForVideo(node, target, true);
                 }
               }
               break;

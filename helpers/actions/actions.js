@@ -60,6 +60,8 @@ function showController(controller) {
 }
 
 function setSpeed(video, speed) {
+  if (vsc.coolDown) return;
+
   log('setSpeed started: ' + speed, DEBUG, video);
 
   const src = video.currentSrc;
@@ -112,7 +114,10 @@ function setSpeed(video, speed) {
     // Not doing anything!
   }
 
-  refreshCoolDown();
+  vsc.coolDown = true;
+  log('starting cooldown', DEBUG);
+  startCoolDown();
+
   log('setSpeed finished: ' + speed, DEBUG);
 }
 

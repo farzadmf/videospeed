@@ -51,11 +51,15 @@ function setupRateChangeListener() {
   document.addEventListener(
     'ratechange',
     (event) => {
-      // if (coolDown) {
-      //   log('Speed event propagation blocked', INFO);
-      //   event.stopImmediatePropagation();
-      // }
+      if (vsc.coolDown) {
+        log('ratechange handler: speed event propagation blocked', DEBUG);
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
 
+      log('handling ratechange event', DEBUG);
       var video = event.target;
       const src = video.currentSrc;
       const url = getBaseURL(src);

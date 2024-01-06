@@ -30,7 +30,7 @@ var vsc = {
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
   mediaElements: [],
 
-  observed: new Set(),
+  coolDown: false,
 
   actionByKeyEvent: (event) => {
     const keyCode = event.keyCode;
@@ -283,6 +283,7 @@ vsc.videoController.prototype.initializeControls = function () {
       // the first element of the target, which may not be the parent.
       this.parent.insertBefore(fragment, this.parent.firstChild);
   }
+  log('initializeControls End', DEBUG);
   return wrapper;
 };
 // }}}
