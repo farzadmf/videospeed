@@ -60,7 +60,9 @@ function showController(controller) {
 }
 
 function setSpeed(video, speed) {
-  if (vsc.coolDown) return;
+  // As mentioned in ratechange handler:
+  // Disabling cooldown since, eg., the speed is not updated on the video! :/
+  // if (vsc.coolDown) return;
 
   log('setSpeed started: ' + speed, DEBUG, video);
 

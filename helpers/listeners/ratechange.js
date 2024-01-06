@@ -51,13 +51,14 @@ function setupRateChangeListener() {
   document.addEventListener(
     'ratechange',
     (event) => {
-      if (vsc.coolDown) {
-        log('ratechange handler: speed event propagation blocked', DEBUG);
-        event.stopImmediatePropagation();
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
+      // Disabling cooldown since, eg., the speed is not updated on the video! :/
+      // if (vsc.coolDown) {
+      //   log('ratechange handler: speed event propagation blocked', DEBUG);
+      //   event.stopImmediatePropagation();
+      //   event.preventDefault();
+      //   event.stopPropagation();
+      //   return;
+      // }
 
       log('handling ratechange event', DEBUG);
       var video = event.target;
