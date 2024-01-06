@@ -45,7 +45,7 @@ class VideoController {
       setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
     }
 
-    log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
+    log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
     target.playbackRate = storedSpeed;
 
     this.div = this.initializeControls();

@@ -12,18 +12,18 @@ function resetSpeed(v, target) {
   if (v.playbackRate === target) {
     if (v.playbackRate === getKeyBindings('reset')) {
       if (target !== 1.0) {
-        log('Resetting playback speed to 1.0', INFO);
+        log('Resetting playback speed to 1.0', DEBUG);
         setSpeed(v, 1.0);
       } else {
-        log('Toggling playback speed to "fast" speed', INFO);
+        log('Toggling playback speed to "fast" speed', DEBUG);
         setSpeed(v, getKeyBindings('fast'));
       }
     } else {
-      log('Toggling playback speed to "reset" speed', INFO);
+      log('Toggling playback speed to "reset" speed', DEBUG);
       setSpeed(v, getKeyBindings('reset'));
     }
   } else {
-    log('Toggling playback speed to "reset" speed', INFO);
+    log('Toggling playback speed to "reset" speed', DEBUG);
     setKeyBindings('reset', v.playbackRate);
     setSpeed(v, target);
   }
@@ -47,7 +47,7 @@ function jumpToMark(v) {
 
 let timer = null;
 function showController(controller) {
-  log('Showing controller', INFO);
+  log('Showing controller', DEBUG);
   controller.classList.add('vcs-show');
 
   if (timer) clearTimeout(timer);

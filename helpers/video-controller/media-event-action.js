@@ -3,7 +3,7 @@ const mediaEventAction = (event) => {
 
   if (!this.settings.rememberSpeed) {
     if (!storedSpeed) {
-      log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', INFO);
+      log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', DEBUG);
       storedSpeed = 1.0;
     }
     // resetSpeed isn't really a reset, it's a toggle
@@ -11,6 +11,6 @@ const mediaEventAction = (event) => {
     setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
   } else {
   }
-  log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
+  log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
   setSpeed(event.target, storedSpeed);
 };

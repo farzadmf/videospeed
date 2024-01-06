@@ -15,7 +15,7 @@ function setupRateChangeListener() {
     var src = video.currentSrc;
     var speed = Number(video.playbackRate.toFixed(2));
 
-    log('Playback rate changed to ' + speed, INFO);
+    log('Playback rate changed to ' + speed, DEBUG);
 
     log('Updating controller with new speed', DEBUG);
     speedIndicator.textContent = speed.toFixed(2);

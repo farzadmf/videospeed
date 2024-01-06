@@ -69,7 +69,7 @@ vsc.videoController = function (target, parent) {
     //storedSpeed = vsc.settings.lastSpeed;
   }
 
-  log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
+  log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
   target.playbackRate = storedSpeed;
 
   this.div = this.initializeControls();
@@ -79,7 +79,7 @@ vsc.videoController = function (target, parent) {
 
     if (!vsc.settings.rememberSpeed) {
       if (!storedSpeed) {
-        log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', INFO);
+        log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', DEBUG);
         storedSpeed = 1.0;
       }
       // resetSpeed isn't really a reset, it's a toggle
@@ -96,7 +96,7 @@ vsc.videoController = function (target, parent) {
     // necessary when rememberSpeed is disabled (this may accidentally
     // override a website's intentional initial speed setting interfering
     // with the site's default behavior)
-    log('Explicitly setting playbackRate to: ' + storedSpeed, INFO);
+    log('Explicitly setting playbackRate to: ' + storedSpeed, DEBUG);
     setSpeed(event.target, storedSpeed);
   };
 
