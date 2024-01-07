@@ -64,7 +64,7 @@ function setSpeed(video, speed) {
   // Disabling cooldown since, eg., the speed is not updated on the video! :/
   // if (vsc.coolDown) return;
 
-  log('setSpeed started: ' + speed, DEBUG, video);
+  log('setSpeed started: ' + speed, DEBUG);
 
   const src = video.currentSrc;
   const speedvalue = Number(speed).toFixed(1);
@@ -105,18 +105,19 @@ function setSpeed(video, speed) {
     };
   }
   try {
-    chrome.storage.sync.set(
-      {
-        lastSpeed: speed,
-        speeds: vsc.settings.speeds,
-      },
-      () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
-    );
+    if (!vsc.coolDown) {
+      chrome.storage.sync.set(
+        {
+          lastSpeed: speed,
+          speeds: vsc.settings.speeds,
+        },
+        () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
+      );
+    }
   } catch (err) {
     // Not doing anything!
   }
 
-  vsc.coolDown = true;
   log('starting cooldown', DEBUG);
   startCoolDown();
 

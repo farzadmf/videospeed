@@ -20,6 +20,7 @@ const runAction = ({ actionItem, ev }) => {
     var targetController = ev.target.getRootNode().host;
   }
 
+  log('will run action', DEBUG, actionName, `for ${mediaTags.length} media tags`, mediaTags);
   mediaTags.forEach(function (v) {
     if (!v || !actionName) return;
 

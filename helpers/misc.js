@@ -37,9 +37,14 @@ function getShadow(parent) {
   return result.flat(Infinity);
 }
 
-const startCoolDown = _.debounce(() => {
+const resetCoolDown = _.debounce(() => {
   log('cooldown finished', DEBUG);
   vsc.coolDown = false;
 }, 1000);
+
+const startCoolDown = () => {
+  vsc.coolDown = true;
+  resetCoolDown();
+};
 
 // vim: foldmethod=marker
