@@ -38,10 +38,6 @@ class VideoController {
     const storedSpeed = this.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
 
     if (!this.settings.rememberSpeed) {
-      if (!storedSpeed) {
-        log('Overwriting stored speed to 1.0 due to rememberSpeed being disabled', DEBUG);
-        storedSpeed = 1.0;
-      }
       setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
     }
 

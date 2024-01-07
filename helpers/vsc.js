@@ -78,20 +78,10 @@ vsc.videoController = function (target, parent) {
     storedSpeed = vsc.settings.speeds[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
 
     if (!vsc.settings.rememberSpeed) {
-      if (!storedSpeed) {
-        log('Overwriting stored speed to 1.0 (rememberSpeed not enabled)', DEBUG);
-        storedSpeed = 1.0;
-      }
       // resetSpeed isn't really a reset, it's a toggle
-      log('Setting reset keybinding to fast', DEBUG);
       setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed
-    } else {
-      // log(
-      //   "Storing lastSpeed into vsc.settings.speeds (rememberSpeed enabled)",
-      //   5
-      // );
-      //storedSpeed = vsc.settings.lastSpeed;
     }
+
     // TODO: Check if explicitly setting the playback rate to 1.0 is
     // necessary when rememberSpeed is disabled (this may accidentally
     // override a website's intentional initial speed setting interfering
@@ -177,8 +167,6 @@ vsc.videoController.prototype.initializeControls = function () {
   const offsetRect = this.video.offsetParent?.getBoundingClientRect();
   const top = Math.max(rect.top - (offsetRect?.top || 0), 30) + 'px';
   const left = Math.max(rect.left - (offsetRect?.left || 0), 0) + 'px';
-
-  log('Speed variable set to: ' + speed, DEBUG);
 
   var wrapper = document.createElement('div');
   wrapper.classList.add('vsc-controller');
