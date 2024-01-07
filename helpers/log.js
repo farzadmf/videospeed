@@ -14,7 +14,7 @@ const DEBUG = 5;
 const TRACE = 6;
 
 function log(message, level, ...args) {
-  const verbosity = DEBUG;
+  const verbosity = vsc.settings.logLevel;
   if (typeof level === 'undefined') {
     level = vsc.settings.defaultLogLevel;
   }

@@ -1,5 +1,7 @@
 const keyDownListener = () =>
   function (event) {
+    log('handling keydown for key', DEBUG, event.key);
+
     const ignoredNodeNames = [
       'TEXTAREA',
       'INPUT',
@@ -12,8 +14,6 @@ const keyDownListener = () =>
     }
 
     const keyCode = event.keyCode;
-
-    log('Processing keydown event: ' + keyCode, TRACE);
 
     // Ignore if following modifier is active.
     if (
