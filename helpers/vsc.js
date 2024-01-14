@@ -74,7 +74,7 @@ vsc.videoController = function (target, parent) {
 
   this.div = this.initializeControls();
 
-  var mediaEventAction = function (event) {
+  const mediaEventAction = function (event) {
     storedSpeed = vsc.settings.speeds[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
 
     if (!vsc.settings.rememberSpeed) {
@@ -90,10 +90,19 @@ vsc.videoController = function (target, parent) {
     setSpeed(event.target, storedSpeed);
   };
 
+  const volumeEventAction = function(event) {
+
+  }
+
   target.addEventListener('play', () => {
     log('handling play event', DEBUG);
     (this.handlePlay = mediaEventAction.bind(this))
   });
+
+  target.addEventListener('volumechange', () => {
+    log('handling volume change', DEBUG);
+    (this.handleVolumeChange = volumeEventAction.bind(this))
+  })
 
   target.addEventListener('seeked', () => {
     log('handling seek event', DEBUG);
