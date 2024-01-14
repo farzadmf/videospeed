@@ -5,3 +5,4 @@ local
 .idea/
 node_modules
 dist
+build
