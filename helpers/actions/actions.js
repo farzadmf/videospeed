@@ -115,7 +115,7 @@ function setSpeed(video, speed) {
       );
     }
   } catch (err) {
-    // Not doing anything!
+    log('got an error when saving speed', WARNING, err);
   }
 
   log('starting cooldown', DEBUG);
