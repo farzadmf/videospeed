@@ -105,15 +105,13 @@ function setSpeed(video, speed) {
     };
   }
   try {
-    if (!vsc.coolDown) {
-      chrome.storage.sync.set(
-        {
-          lastSpeed: speed,
-          speeds: vsc.settings.speeds,
-        },
-        () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
-      );
-    }
+    chrome.storage.sync.set(
+      {
+        lastSpeed: speed,
+        speeds: vsc.settings.speeds,
+      },
+      () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
+    );
   } catch (err) {
     log('got an error when saving speed', WARNING, err);
   }
