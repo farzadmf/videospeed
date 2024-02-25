@@ -13,7 +13,13 @@ const INFO = 4;
 const DEBUG = 5;
 const TRACE = 6;
 
+const CUSTOM = 10;
+
 function log(message, level, ...args) {
+  if (level === CUSTOM) {
+    return;
+  }
+
   const verbosity = vsc.settings.logLevel;
   if (typeof level === 'undefined') {
     level = vsc.settings.defaultLogLevel;

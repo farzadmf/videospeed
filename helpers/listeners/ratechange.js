@@ -63,6 +63,9 @@ function setupRateChangeListener() {
       log('handling ratechange event', DEBUG);
       var video = event.target;
       const src = video.currentSrc;
+
+      if (!src) return;
+
       const url = getBaseURL(src);
 
       if (vsc.settings.forceLastSavedSpeed) {

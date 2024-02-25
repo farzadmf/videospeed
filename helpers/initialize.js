@@ -37,8 +37,7 @@ function checkForVideo(node, parent, added) {
 }
 // }}}
 
-function initializeWhenReady(document) {
-  log('Begin initializeWhenReady', DEBUG);
+const initializeWhenReady = (document) => {
   if (isBlacklisted()) {
     return;
   }
@@ -56,14 +55,12 @@ function initializeWhenReady(document) {
       };
     }
   }
-  log('End initializeWhenReady', DEBUG);
-}
+};
 
-function initializeNow(document) {
+const initializeNow = (document) => {
   // Check location.host to be set to not add, eg., about:blank
   if (!document.location.host) return;
 
-  log('Begin initializeNow', DEBUG);
   if (!vsc.settings.enabled) return;
   // enforce init-once due to redundant callers
   if (!document.body || document.body.classList.contains('vsc-initialized')) {
@@ -228,6 +225,6 @@ function initializeNow(document) {
     initializeWhenReady(childDocument);
   });
   log('End initializeNow', DEBUG);
-}
+};
 
 // vim: foldmethod=marker

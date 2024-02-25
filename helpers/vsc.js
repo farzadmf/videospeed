@@ -90,23 +90,21 @@ vsc.videoController = function (target, parent) {
     setSpeed(event.target, storedSpeed);
   };
 
-  const volumeEventAction = function(event) {
-
-  }
+  const volumeEventAction = function (event) {};
 
   target.addEventListener('play', () => {
     log('handling play event', DEBUG);
-    (this.handlePlay = mediaEventAction.bind(this))
+    this.handlePlay = mediaEventAction.bind(this);
   });
 
   target.addEventListener('volumechange', () => {
     log('handling volume change', DEBUG);
-    (this.handleVolumeChange = volumeEventAction.bind(this))
-  })
+    this.handleVolumeChange = volumeEventAction.bind(this);
+  });
 
   target.addEventListener('seeked', () => {
     log('handling seek event', DEBUG);
-    (this.handleSeek = mediaEventAction.bind(this))
+    this.handleSeek = mediaEventAction.bind(this);
   });
 
   var observer = new MutationObserver((mutations) => {
@@ -125,14 +123,15 @@ vsc.videoController = function (target, parent) {
         // vsc.docs = new Map();
         // initializeWhenReady(document);
 
+        document.body.classList.remove('vsc-initialized');
+        mutation.target.vsc?.remove();
+
         if (location.hostname === 'www.totaltypescript.com') {
-          document.body.classList.remove('vsc-initialized');
           vsc.mediaElements = [];
           vsc.docs.forEach((listener, doc) => {
             doc.removeEventListener('keydown', listener, true);
           });
           vsc.docs = new Map();
-          initializeWhenReady(document);
         } else {
           const controller = this.div;
           if (!mutation.target.src && !mutation.target.currentSrc) {
@@ -141,6 +140,8 @@ vsc.videoController = function (target, parent) {
             controller.classList.remove('vsc-nosource');
           }
         }
+
+        initializeWhenReady(document);
       }
     });
   });
@@ -168,6 +169,7 @@ vsc.videoController.prototype.initializeControls = function () {
   log('initializeControls Begin', DEBUG);
   const document = this.video.ownerDocument;
   const speed = this.video.playbackRate.toFixed(1);
+
   const volume = (this.video.volume * 100).toFixed(0);
   const rect = this.video.getBoundingClientRect();
   // getBoundingClientRect is relative to the viewport; style coordinates
