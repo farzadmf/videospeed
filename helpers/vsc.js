@@ -26,6 +26,7 @@ var vsc = {
   // To keep track of the documents we're adding event listeners to.
   // Maps each doc to its kwydown event listener.
   docs: new Map(),
+  docsSet: new Set(),
 
   // Holds a reference to all of the AUDIO/VIDEO DOM elements we've attached to
   mediaElements: [],
@@ -161,6 +162,11 @@ vsc.videoController.prototype.remove = function () {
   if (idx != -1) {
     vsc.mediaElements.splice(idx, 1);
   }
+
+  vsc.docs.forEach((listener, doc) => doc.removeEventListener('keydown', listener));
+
+  vsc.docs = new Map();
+  vsc.docs = new Set();
 };
 // }}}
 

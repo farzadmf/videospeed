@@ -94,7 +94,11 @@ const initializeNow = (document) => {
 
   // set up keydown event listener for each "doc" {{{
   docs.forEach(function (doc) {
+    if (vsc.docsSet.has(doc)) return;
+
     const listener = keyDownListener();
+
+    vsc.docsSet.add(doc);
     vsc.docs.set(doc, listener);
 
     doc.addEventListener('keydown', vsc.docs.get(doc), true);
