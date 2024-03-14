@@ -1,0 +1,27 @@
+{
+  "name": "Video Speed Controller React/Vite",
+  "short_name": "videospeed",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "minimum_chrome_version": "89",
+  "description": "Speed up, slow down, advance and rewind HTML5 audio/video with shortcuts",
+  "homepage_url": "https://github.com/farzadmf/videospeed",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["storage"],
+  "options_ui": {
+    "page": "options-react.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_icon": {
+      "19": "icons/icon19.png",
+      "38": "icons/icon38.png",
+      "48": "icons/icon48.png"
+    },
+    "default_popup": "popup-react.html"
+  }
+}
