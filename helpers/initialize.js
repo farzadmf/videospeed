@@ -1,5 +1,13 @@
 // checkForVideo {{{
-function checkForVideo(node, parent, added) {
+let documentAndShadowRootObserver;
+
+const documentAndShadowRootObserverOptions = {
+  attributeFilter: ['aria-hidden', 'data-focus-method'],
+  childList: true,
+  subtree: true,
+};
+
+function checkForVideoAndShadowRoot(node, parent, added) {
   // This function is called QUITE a few times, so logs are SUPER noisy!
   // log('Begin checkForVideo', DEBUG);
 
@@ -20,17 +28,17 @@ function checkForVideo(node, parent, added) {
         node.vsc.remove();
       }
     }
-  } else if (node.children != undefined) {
-    log(
-      `node has ${node.children.length} children; checkForVideo on each`,
-      TRACE,
-      node.nodeName,
-      node,
-    );
-
-    for (var i = 0; i < node.children.length; i++) {
-      const child = node.children[i];
-      checkForVideo(child, child.parentNode || parent, added);
+  } else {
+    var children = [];
+    if (node.shadowRoot) {
+      documentAndShadowRootObserver?.observe(node.shadowRoot, documentAndShadowRootObserverOptions);
+      children = Array.from(node.shadowRoot.children);
+    }
+    if (node.children) {
+      children = [...children, ...node.children];
+    }
+    for (const child of children) {
+      checkForVideoAndShadowRoot(child, child.parentNode || parent, added);
     }
   }
   // log('End checkForVideo', DEBUG);
@@ -107,7 +115,7 @@ const initializeNow = (document) => {
   // }}}
 
   // create MutationObserver {{{
-  var observer = new MutationObserver(function (mutations) {
+  documentAndShadowRootObserver = new MutationObserver(function (mutations) {
     logGroup('MutationObserver', TRACE);
     log(`MutationObserver called with ${mutations.length} mutations`, TRACE);
 
@@ -133,14 +141,14 @@ const initializeNow = (document) => {
                 const target = node.parentNode || mutation.target;
 
                 log('checkForVideo in chidlListMutation.addedNodes', TRACE, target);
-                checkForVideo(node, target, true);
+                checkForVideoAndShadowRoot(node, target, true);
               });
               mutation.removedNodes.forEach(function (node) {
                 if (typeof node === 'function') return;
 
                 const target = node.parentNode || mutation.target;
                 log('checkForVideo in chidlListMutation.removedNodes', TRACE, target);
-                checkForVideo(node, target, false);
+                checkForVideoAndShadowRoot(node, target, false);
               });
               break;
             case 'attributes':
@@ -158,9 +166,11 @@ const initializeNow = (document) => {
 
                   const target = node.parentNode || mutation.target;
                   log('checkForVideo in attributesMutation', TRACE, target);
-                  checkForVideo(node, target, true);
+                  checkForVideoAndShadowRoot(node, target, true);
                 }
               }
+              break;
+            default:
               break;
           }
         });
@@ -171,48 +181,52 @@ const initializeNow = (document) => {
   });
   // }}}
 
-  observer.observe(document, {
-    attributeFilter: ['aria-hidden', 'data-focus-method'],
-    childList: true,
-    subtree: true,
+  documentAndShadowRootObserver.observe(document, documentAndShadowRootObserverOptions);
+
+  documentAndShadowRootObserver.observe(document, documentAndShadowRootObserverOptions);
+
+  const mediaTagSelector = vsc.settings.audioBoolean ? 'video,audio' : 'video';
+  const mediaTags = Array.from(document.querySelectorAll(mediaTagSelector));
+
+  document.querySelectorAll('*').forEach((element) => {
+    if (element.shadowRoot) {
+      documentAndShadowRootObserver.observe(
+        element.shadowRoot,
+        documentAndShadowRootObserverOptions,
+      );
+      mediaTags.push(...element.shadowRoot.querySelectorAll(mediaTagSelector));
+    }
   });
 
-  let mediaTags = [];
-  if (vsc.settings.audioBoolean) {
-    mediaTags = [...document.querySelectorAll('video,audio')];
-  } else {
-    mediaTags = [...document.querySelectorAll('video')];
-  }
-
-  const shadows = [
-    ['shreddit-player'], // Reddit
-    ['mux-player', 'mux-video'], // totaltypescript
-  ];
-
-  const parents = [];
-  const shadowVideos = [];
-
-  shadows.forEach((sh) => {
-    setTimeout(() => {
-      let rootEl = document;
-      for (let root of sh) {
-        rootEl = rootEl?.querySelector(root);
-        if (rootEl) {
-          rootEl = rootEl.shadowRoot;
-          const video = rootEl.querySelector('video');
-
-          if (video) {
-            parents.push(rootEl);
-            shadowVideos.push(video);
-          }
-        }
-      }
-
-      shadowVideos.forEach(function (video, idx) {
-        video.vsc = new vsc.videoController(video, parents[idx]);
-      });
-    }, 1000);
-  });
+  // const shadows = [
+  //   ['shreddit-player'], // Reddit
+  //   ['mux-player', 'mux-video'], // totaltypescript
+  // ];
+  //
+  // const parents = [];
+  // const shadowVideos = [];
+  //
+  // shadows.forEach((sh) => {
+  //   setTimeout(() => {
+  //     let rootEl = document;
+  //     for (let root of sh) {
+  //       rootEl = rootEl?.querySelector(root);
+  //       if (rootEl) {
+  //         rootEl = rootEl.shadowRoot;
+  //         const video = rootEl.querySelector('video');
+  //
+  //         if (video) {
+  //           parents.push(rootEl);
+  //           shadowVideos.push(video);
+  //         }
+  //       }
+  //     }
+  //
+  //     shadowVideos.forEach(function (video, idx) {
+  //       video.vsc = new vsc.videoController(video, parents[idx]);
+  //     });
+  //   }, 1000);
+  // });
 
   mediaTags.forEach(function (video) {
     video.vsc = new vsc.videoController(video);
