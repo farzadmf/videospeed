@@ -7,21 +7,21 @@
   "description": "Speed up, slow down, advance and rewind HTML5 audio/video with shortcuts",
   "homepage_url": "https://github.com/farzadmf/videospeed",
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon-react-16.png",
+    "48": "icons/icon-react-48.png",
+    "128": "icons/icon-react-128.png"
   },
   "permissions": ["storage"],
   "options_ui": {
-    "page": "options-react.html",
+    "page": "src/options/index.html",
     "open_in_tab": true
   },
   "action": {
     "default_icon": {
-      "19": "icons/icon19.png",
-      "38": "icons/icon38.png",
-      "48": "icons/icon48.png"
+      "19": "icons/icon-react-19.png",
+      "38": "icons/icon-react-38.png",
+      "48": "icons/icon-react-48.png"
     },
-    "default_popup": "popup-react.html"
+    "default_popup": "src/popup/index.html"
   }
 }
