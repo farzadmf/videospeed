@@ -9,7 +9,7 @@ export const Options = () => {
 
   return (
     <>
-      <h1>OPTIONS APP!</h1>
+      <h1 className="text-2xl">OPTIONS APP!</h1>
     </>
   );
 };
