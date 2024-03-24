@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#disable').classList.toggle('hide', !enabled);
 
     const suffix = `${enabled ? '' : '_disabled'}.png`;
-    chrome.browserAction.setIcon({
+    chrome.action.setIcon({
       path: {
         19: 'icons/icon19' + suffix,
         38: 'icons/icon38' + suffix,
@@ -50,9 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function settingsSavedReloadMessage(enabled) {
-    setStatusMessage(
-      `${enabled ? 'Enabled' : 'Disabled'}. Reload page to see changes`,
-    );
+    setStatusMessage(`${enabled ? 'Enabled' : 'Disabled'}. Reload page to see changes`);
   }
 
   function setStatusMessage(str) {
