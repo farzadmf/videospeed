@@ -1,15 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const Options = () => {
+  const [hello, setHello] = useState('');
+
   useEffect(() => {
     chrome.storage.sync.get('hello', (items) => {
-      console.log(items);
+      setHello(items['hello']);
     });
   }, []);
 
   return (
-    <>
-      <h1 className="text-2xl">OPTIONS APP!</h1>
-    </>
+    <div className="h-dvh grid place-content-center content-start gap-4 my-10">
+      <h1 className="text-2xl text-white">Options</h1>
+      <p>Hello is {hello}</p>
+    </div>
   );
 };
