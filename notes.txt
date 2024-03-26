@@ -1,10 +1,15 @@
 Some URLs for testing videos:
 
-https://realpython.com/lessons/hello-walrus/
-https://www.youtube.com/watch?v=WH_FUQgMvuY
-https://www.reddit.com/r/commandline/comments/sf5gcr/interactively_search_github_repos/
+- https://realpython.com/lessons/hello-walrus/
+- https://www.youtube.com/watch?v=WH_FUQgMvuY
+- https://www.reddit.com/r/commandline/comments/sf5gcr/interactively_search_github_repos/
 
-Increasing volume beyong 100%: https://stackoverflow.com/a/43794379/3646201
+- Increasing volume beyong 100%: https://stackoverflow.com/a/43794379/3646201
+
+Check https://openai.com/blog/sora-first-impressions to see if we can attach to the videos:
+- When a button is clicked, it loads an iframe inside a div
+- That iframe has divs etc. containing the video
+- Wait, the `left-0` div already has the iframe (and the video), so why are we not attaching?
 
 Icon sizes:
 You should always provide a 128x128 icon; it's used during installation and by
