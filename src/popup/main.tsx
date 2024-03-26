@@ -1,31 +1,26 @@
-import { useState } from 'react';
-
 export const Popup = () => {
-  const [val, setVal] = useState('');
-
   return (
-    <div className="my-10 grid min-h-[400px] min-w-[250px] place-content-center content-start items-start gap-4">
-      <button
-        className="btn btn-primary btn-sm"
-        onClick={() => window.open(chrome.runtime.getURL('/src/options/index.html'))}
-      >
-        Settings ...
-      </button>
-      <input
-        className="rounded border text-base"
-        value={val}
-        onChange={(e) => setVal(e.target.value)}
-      />
-      <button
-        className="btn btn-primary btn-sm"
-        onClick={() =>
-          chrome.storage.sync.set({ hello: val }, () => {
-            console.log('SAVED???!!');
-          })
-        }
-      >
-        Save!
-      </button>
+    <div className="container mx-auto min-h-[200px] min-w-[250px]">
+      <div className="my-10 grid grid-cols-1 items-center justify-items-center">
+        <button
+          className="btn btn-primary btn-sm my-5 w-8/12"
+          onClick={() => window.open(chrome.runtime.getURL('/src/options/index.html'))}
+        >
+          Options ...
+        </button>
+        <button
+          className="btn btn-primary btn-sm my-5 w-8/12"
+          onClick={() => window.open('https://github.com/farzadmf/videospeed/issues')}
+        >
+          Issues ...
+        </button>
+        <button
+          className="btn btn-primary btn-sm my-5 w-8/12"
+          onClick={() => window.open('https://github.com/farzadmf/videospeed')}
+        >
+          About ...
+        </button>
+      </div>
     </div>
   );
 };

@@ -16,6 +16,20 @@
     "page": "src/options/index.html",
     "open_in_tab": true
   },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "match_about_blank": true,
+      "exclude_matches": [
+        "https://plus.google.com/hangouts/*",
+        "https://hangouts.google.com/*",
+        "https://meet.google.com/*"
+      ],
+      "js": ["src/content/index.js"]
+    }
+  ],
+
   "action": {
     "default_icon": {
       "19": "icons/icon-react-19.png",
