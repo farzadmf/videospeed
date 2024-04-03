@@ -5,8 +5,13 @@ export type KeyBinding = {
   ctrl?: boolean;
   force: boolean;
   key: number;
+  postValue2Text?: string;
+  postValueText?: string;
   predefined: boolean;
+  preValueText?: string;
   shift?: boolean;
+  value2?: number;
+  value?: number;
 };
 
 export type Action = {
