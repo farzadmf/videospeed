@@ -1,4 +1,5 @@
 // import { useEffect, useState } from 'react';
+import { KeybindingRow } from './components/keybinding-row';
 import { defaultOptions } from './defaults';
 import _ from 'lodash';
 
@@ -16,8 +17,8 @@ export const Options = () => {
     <div className="container mx-auto flex flex-col items-center">
       <h1 className="text-3xl text-white">Options</h1>
       <div className="divider divider-primary my-1"></div>
-      <table className="table">
-        <thead className="text-base">
+      <table className="table table-zebra-zebra">
+        <thead>
           <tr>
             <th>COMMAND</th>
             <th>MODIFIERS</th>
@@ -29,13 +30,7 @@ export const Options = () => {
         </thead>
         <tbody>
           {_.sortBy(options.keyBindings, (b) => b.action.description).map((b, idx) => (
-            <tr className="my-1 flex w-full text-base" key={idx}>
-              <td>{b.action.description}</td>
-              <td>
-                <input type="checkbox" checked={b.shift} />
-                <input type="checkbox" checked={b.ctrl} />
-              </td>
-            </tr>
+            <KeybindingRow key={idx} binding={b} />
           ))}
         </tbody>
       </table>
