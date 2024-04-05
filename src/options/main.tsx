@@ -1,23 +1,31 @@
-// import { useEffect, useState } from 'react';
 import { KeybindingRow } from './components/keybinding-row';
 import { defaultOptions } from './defaults';
+import { Options } from './types';
 import _ from 'lodash';
+import { useEffect, useState } from 'react';
 
-export const Options = () => {
-  // const [hello, setHello] = useState('');
-  const options = defaultOptions;
+export const OptionsPage = () => {
+  const [options, setOptions] = useState(defaultOptions);
 
-  // useEffect(() => {
-  //   chrome.storage.sync.get('hello', (items) => {
-  //     setHello(items['hello']);
-  //   });
-  // }, []);
+  useEffect(() => {
+    chrome.storage.local.get(defaultOptions, (items) => {
+      setOptions(items as Options);
+    });
+  }, []);
+
+  const clearStorage = () => {
+    chrome.storage.local.clear(() => setOptions(defaultOptions));
+  };
 
   return (
     <div className="container mx-auto flex flex-col items-center">
+      <button className="btn btn-sm btn-secondary mt-5" onClick={clearStorage}>
+        CLEAR STORAGE!!!
+      </button>
+      <hr />
       <h1 className="text-3xl text-white">Options</h1>
       <div className="divider divider-primary my-1"></div>
-      <table className="table table-zebra-zebra">
+      <table className="table table-zebra-zebra table-pin-rows">
         <thead>
           <tr>
             <th>COMMAND</th>

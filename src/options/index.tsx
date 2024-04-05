@@ -1,10 +1,10 @@
+import '../shread/index.css';
+import { OptionsPage } from './main';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Options } from './main';
-import '../shread/index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Options />
+    <OptionsPage />
   </React.StrictMode>,
 );
