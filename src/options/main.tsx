@@ -1,6 +1,6 @@
 import { KeybindingRow } from './components/keybinding-row';
 import { defaultOptions } from './defaults';
-import { Options } from './types';
+import { KeyBinding, Options } from './types';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
@@ -15,6 +15,14 @@ export const OptionsPage = () => {
 
   const clearStorage = () => {
     chrome.storage.local.clear(() => setOptions(defaultOptions));
+  };
+
+  const onUpdate = (binding: KeyBinding) => {
+    const idx = _.findIndex(options.keyBindings, (b) => b.action.name === binding.action.name);
+    options.keyBindings[idx] = binding;
+
+    console.log(options.keyBindings[idx]);
+    setOptions(_.cloneDeep(options));
   };
 
   return (
@@ -33,12 +41,12 @@ export const OptionsPage = () => {
             <th>KEY</th>
             <th>VALUE(S)</th>
             <th>OPTIONS</th>
-            <th>OTHER</th>
+            <th>REMOVE</th>
           </tr>
         </thead>
         <tbody>
           {_.sortBy(options.keyBindings, (b) => b.action.description).map((b, idx) => (
-            <KeybindingRow key={idx} binding={b} />
+            <KeybindingRow key={idx} binding={b} onUpdate={onUpdate} />
           ))}
         </tbody>
       </table>
