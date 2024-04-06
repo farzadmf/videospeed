@@ -20,6 +20,7 @@
     "@trivago/prettier-plugin-sort-imports": "*",
     "@types/chrome": "*",
     "@types/lodash": "^4.0.0",
+    "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "*",

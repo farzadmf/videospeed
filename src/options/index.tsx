@@ -1,5 +1,5 @@
-import '../shread/index.css';
 import { OptionsPage } from './main';
+import '@shared/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 

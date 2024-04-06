@@ -1,7 +1,7 @@
+import { Popup } from './main';
+import '@shared/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Popup } from './main';
-import '../shread/index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
