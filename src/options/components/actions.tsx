@@ -1,4 +1,4 @@
-import { ACTIONS } from '@shared/.';
+import { ACTIONS } from '@/shared';
 import _ from 'lodash';
 import { useState } from 'react';
 

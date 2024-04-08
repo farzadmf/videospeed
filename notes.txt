@@ -1,3 +1,11 @@
+Progress:
+- Trying to go through inject.js and bring in functions.
+- Created a class as VideoController (will contain VideoWrapper objects).
+  * VideoWrapper class TBD...
+- Trying to implement initializeNow
+
+---
+
 Some URLs for testing videos:
 
 - https://realpython.com/lessons/hello-walrus/

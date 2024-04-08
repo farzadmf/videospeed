@@ -1,6 +1,6 @@
 import { REG_STRIP } from './constants';
 import { Options } from './types';
-import { ACTIONS } from '@shared/.';
+import { ACTIONS } from '@/shared';
 
 export const defaultOptions = new Options({
   blacklist: `www.instagram.com

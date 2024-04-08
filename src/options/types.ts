@@ -31,6 +31,7 @@ export class Options {
   logLevel: number;
   rememberSpeed: boolean;
   speed: number;
+  speeds: Record<string, { speed: number }>;
   startHidden: boolean;
 
   constructor({
@@ -45,8 +46,8 @@ export class Options {
     rememberSpeed,
     speed,
     startHidden,
+    speeds = {},
   }: {
-    speed: number;
     audioBoolean: boolean;
     blacklist: string;
     controllerOpacity: number;
@@ -56,6 +57,8 @@ export class Options {
     keyBindings: KeyBinding[];
     logLevel: number;
     rememberSpeed: boolean;
+    speed: number;
+    speeds?: Record<string, { speed: number }>;
     startHidden: boolean;
   }) {
     this.audioBoolean = audioBoolean;
@@ -68,6 +71,7 @@ export class Options {
     this.logLevel = logLevel;
     this.rememberSpeed = rememberSpeed;
     this.speed = speed;
+    this.speeds = speeds;
     this.startHidden = startHidden;
   }
 

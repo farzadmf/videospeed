@@ -1,5 +1,5 @@
 import { Popup } from './main';
-import '@shared/index.css';
+import '@/shared/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 

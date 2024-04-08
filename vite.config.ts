@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [react(), crx({ manifest }), eslint()],
   resolve: {
     alias: {
-      '@shared': path.resolve(__dirname, 'src/shared'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   server: {
