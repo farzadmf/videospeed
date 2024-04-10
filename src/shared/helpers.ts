@@ -55,3 +55,27 @@ const escapeStringRegExp = (str: string) => {
   const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
   return str.replace(matchOperatorsRe, '\\$&');
 };
+
+export const getShadow = (parent: ParentNode) => {
+  const result: Element[] = [];
+
+  const getChild = (parent: ParentNode) => {
+    if (parent.firstElementChild) {
+      let child = parent.firstElementChild;
+
+      do {
+        result.push(child);
+        getChild(child);
+        if (child.shadowRoot) {
+          result.push(...getShadow(child.shadowRoot));
+        }
+        if (child.nextElementSibling) {
+          child = child.nextElementSibling;
+        }
+      } while (child);
+    }
+  };
+
+  getChild(parent);
+  return result.flat(Infinity);
+};

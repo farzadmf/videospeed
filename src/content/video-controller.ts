@@ -1,15 +1,34 @@
+import _ from 'lodash';
+
 import { Options } from '@/options/types';
 import { getBaseURL, inIframe, isLocationMatch } from '@/shared/helpers';
-import _ from 'lodash';
+
+import { checkVideo } from './checkVideo';
+import { docShadowRootMutationCallback } from './document-observer';
 
 export class VideoControler {
   readonly options: Options;
+  private nodes: Set<Node>;
   // Intentionally naming it "doc" because "document" is a known global, and if I
   //  forget to do 'this.document' and only 'document', it thinks it's fine!
   private doc?: Document = undefined;
+  private documentAndShadowRootObserver?: MutationObserver = undefined;
 
   constructor(options: Options) {
     this.options = options;
+    this.nodes = new Set<Node>();
+
+    this.documentAndShadowRootObserver = new MutationObserver(
+      docShadowRootMutationCallback({
+        addNode: this.addNode,
+        checkFunc: checkVideo,
+        removeNode: this.removeNode,
+        observeNode: this.observeNode,
+        initializeWhenReady: this.initializeWhenReady,
+        nodes: this.nodes,
+        options: this.options,
+      }),
+    );
   }
 
   initializeWhenReady() {
@@ -22,12 +41,12 @@ export class VideoControler {
     window.onload = () => {
       this.initializeNow();
     };
-    if (document) {
-      if (document.readyState === 'complete') {
+    if (this.doc) {
+      if (this.doc.readyState === 'complete') {
         this.initializeNow();
       } else {
-        document.onreadystatechange = () => {
-          if (document.readyState === 'complete') {
+        this.doc.onreadystatechange = () => {
+          if (this.doc?.readyState === 'complete') {
             this.initializeNow();
           }
         };
@@ -81,11 +100,23 @@ export class VideoControler {
         if (this.options.forceLastSavedSpeed) {
           event.stopImmediatePropagation();
 
-          const speed = this.options.speeds[url]?.speed || 1.0;
-          setSpeed(video, speed);
+          // const speed = this.options.speeds[url]?.speed || 1.0;
+          // setSpeed(video, speed);
         }
       },
       true,
     );
+  }
+
+  addNode(node: Node): void {
+    console.log('adding node', node);
+  }
+
+  removeNode(node: Node): void {
+    console.log('adding node', node);
+  }
+
+  observeNode(node: Node): void {
+    console.log('observing node', node);
   }
 }
