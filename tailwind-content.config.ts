@@ -10,4 +10,8 @@ export default {
     extend: {},
   },
   plugins: [daisyui],
+  prefix: 't-',
+  daisyui: {
+    prefix: 'd-',
+  },
 } satisfies Config;

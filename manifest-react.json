@@ -22,7 +22,7 @@
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "match_about_blank": true,
       "exclude_matches": ["https://plus.google.com/hangouts/*", "https://hangouts.google.com/*", "https://meet.google.com/*"],
-      "js": ["src/content/index.ts"]
+      "js": ["src/content/play.tsx"]
     }
   ],
   "action": {
