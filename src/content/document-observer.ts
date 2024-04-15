@@ -1,19 +1,25 @@
-import { CheckFunc, CheckProps } from './check';
 import { Options } from '@/options/types';
 import { getShadow } from '@/shared';
 
-export type HelloProps = {
+import { CheckVideoProps, checkVideo } from './check-video';
+
+export const OBSERVE_OPTIONS = {
+  attributeFilter: ['aria-hidden', 'data-focus-method'],
+  childList: true,
+  subtree: true,
+};
+
+export type DocShadowRootObserverProps = {
   addNode: (node: Node) => void;
-  checkFunc: CheckFunc;
   initializeWhenReady: (doc: Document) => void;
   nodes: Set<Node>;
   observeNode: (node: Node) => void;
   options: Options;
   removeNode: (node: Node) => void;
 };
+
 export const docShadowRootMutationCallback =
-  ({ addNode, checkFunc, initializeWhenReady, nodes, observeNode, options, removeNode }: HelloProps): MutationCallback =>
-  // ({ checkFunc }: { checkFunc: CheckFunc }): MutationCallback =>
+  ({ addNode, initializeWhenReady, nodes, observeNode, options, removeNode }: DocShadowRootObserverProps): MutationCallback =>
   (mutations) => {
     // Process the DOM nodes lazily
     requestIdleCallback(
@@ -21,9 +27,8 @@ export const docShadowRootMutationCallback =
         mutations.forEach(function (mutation) {
           const element = mutation.target as Element;
 
-          const commonProps: Partial<CheckProps> = {
+          const commonProps: Partial<CheckVideoProps> = {
             addNode,
-            checkFunc,
             observeNode,
             options,
             removeNode,
@@ -43,23 +48,23 @@ export const docShadowRootMutationCallback =
 
                 const target = node.parentNode || mutation.target;
 
-                checkFunc({
+                checkVideo({
                   ...commonProps,
                   added: true,
                   parent: target,
                   node,
-                } as CheckProps);
+                } as CheckVideoProps);
               });
               mutation.removedNodes.forEach((node) => {
                 if (typeof node === 'function') return;
 
                 const target = node.parentNode || mutation.target;
-                checkFunc({
+                checkVideo({
                   ...commonProps,
                   added: false,
                   parent: target,
                   node,
-                } as CheckProps);
+                } as CheckVideoProps);
               });
               break;
             case 'attributes':
@@ -77,12 +82,12 @@ export const docShadowRootMutationCallback =
                   removeNode(node);
 
                   const target = node.parentNode || mutation.target;
-                  checkFunc({
+                  checkVideo({
                     ...commonProps,
                     added: false,
                     parent: target,
                     node,
-                  } as CheckProps);
+                  } as CheckVideoProps);
                 }
               }
               break;

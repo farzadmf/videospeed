@@ -10,7 +10,6 @@ const documentAndShadowRootObserverOptions = {
 function checkForVideoAndShadowRoot(node, parent, added) {
   // This function is called QUITE a few times, so logs are SUPER noisy!
   // log('Begin checkForVideo', DEBUG);
-
   if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && vsc.settings.audioBoolean)) {
     if (added && !node.vsc) {
       log('node added', DEBUG, node);
@@ -153,8 +152,7 @@ const initializeNow = (document) => {
               break;
             case 'attributes':
               if (
-                (mutation.target.attributes['aria-hidden'] &&
-                  mutation.target.attributes['aria-hidden'].value == 'false') ||
+                (mutation.target.attributes['aria-hidden'] && mutation.target.attributes['aria-hidden'].value == 'false') ||
                 mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER'
               ) {
                 var flattenedNodes = getShadow(document.body);
@@ -183,17 +181,14 @@ const initializeNow = (document) => {
 
   documentAndShadowRootObserver.observe(document, documentAndShadowRootObserverOptions);
 
-  documentAndShadowRootObserver.observe(document, documentAndShadowRootObserverOptions);
+  // documentAndShadowRootObserver.observe(document, documentAndShadowRootObserverOptions);
 
   const mediaTagSelector = vsc.settings.audioBoolean ? 'video,audio' : 'video';
   const mediaTags = Array.from(document.querySelectorAll(mediaTagSelector));
 
   document.querySelectorAll('*').forEach((element) => {
     if (element.shadowRoot) {
-      documentAndShadowRootObserver.observe(
-        element.shadowRoot,
-        documentAndShadowRootObserverOptions,
-      );
+      documentAndShadowRootObserver.observe(element.shadowRoot, documentAndShadowRootObserverOptions);
       mediaTags.push(...element.shadowRoot.querySelectorAll(mediaTagSelector));
     }
   });

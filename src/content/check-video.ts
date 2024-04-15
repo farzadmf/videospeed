@@ -3,7 +3,6 @@ import { Options } from '@/options/types';
 export type CheckVideoProps = {
   added: boolean;
   addNode: (node: Node) => void;
-  checkFunc: CheckVideo;
   node: Node;
   options: Options;
   parent: Node | ParentNode;
@@ -13,16 +12,8 @@ export type CheckVideoProps = {
 
 export type CheckVideo = (props: CheckVideoProps) => void;
 
-export const checkVideo: CheckVideo = ({
-  added,
-  addNode,
-  checkFunc,
-  node,
-  observeNode,
-  options,
-  parent,
-  removeNode,
-}: CheckVideoProps) => {
+export const checkVideo: CheckVideo = ({ added, addNode, node, observeNode, options, parent, removeNode }: CheckVideoProps) => {
+  const element = node as Element;
   if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && options.audioBoolean)) {
     if (added) {
       addNode(node);
@@ -31,7 +22,6 @@ export const checkVideo: CheckVideo = ({
     }
   } else {
     let children: Element[] = [];
-    const element = node as Element;
     if (element.shadowRoot) {
       observeNode(element.shadowRoot);
       children = Array.from(element.shadowRoot.children);
@@ -40,10 +30,9 @@ export const checkVideo: CheckVideo = ({
       children = [...children, ...element.children];
     }
     for (const child of children) {
-      checkFunc({
+      checkVideo({
         added,
         addNode,
-        checkFunc,
         node: child,
         observeNode,
         options,

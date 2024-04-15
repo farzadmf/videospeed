@@ -1,3 +1,5 @@
-import { ACTIONS } from '@/shared';
+import { defaultOptions } from '@/options/defaults';
 
-console.log('AM I WORK?', ACTIONS);
+import { VideoControler } from './video-controller';
+
+new VideoControler(defaultOptions);

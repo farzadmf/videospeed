@@ -3,8 +3,7 @@ import _ from 'lodash';
 import { Options } from '@/options/types';
 import { getBaseURL, inIframe, isLocationMatch } from '@/shared/helpers';
 
-import { checkVideo } from './checkVideo';
-import { docShadowRootMutationCallback } from './document-observer';
+import { OBSERVE_OPTIONS, docShadowRootMutationCallback } from './document-observer';
 
 export class VideoControler {
   readonly options: Options;
@@ -21,7 +20,6 @@ export class VideoControler {
     this.documentAndShadowRootObserver = new MutationObserver(
       docShadowRootMutationCallback({
         addNode: this.addNode,
-        checkFunc: checkVideo,
         removeNode: this.removeNode,
         observeNode: this.observeNode,
         initializeWhenReady: this.initializeWhenReady,
@@ -29,6 +27,8 @@ export class VideoControler {
         options: this.options,
       }),
     );
+
+    this.initializeWhenReady();
   }
 
   initializeWhenReady() {
@@ -56,6 +56,7 @@ export class VideoControler {
 
   initializeNow() {
     // Check location.host to be set to not add, eg., about:blank
+
     if (!this.doc?.location.host) return;
     if (!this.options.enabled) return;
 
@@ -77,7 +78,11 @@ export class VideoControler {
     const docs = Array(document);
     try {
       if (inIframe() && !!window?.top?.document?.location.host) docs.push(window.top.document);
-    } catch (e) {}
+    } catch (e) {
+      /* ignore */
+    }
+
+    this.documentAndShadowRootObserver?.observe(this.doc, OBSERVE_OPTIONS);
   }
 
   isBlacklisted(): boolean {
@@ -109,14 +114,16 @@ export class VideoControler {
   }
 
   addNode(node: Node): void {
-    console.log('adding node', node);
+    console.log('🪚 addNode:', node);
   }
 
   removeNode(node: Node): void {
-    console.log('adding node', node);
+    console.log('🪚 removeNode:', node);
   }
 
   observeNode(node: Node): void {
-    console.log('observing node', node);
+    console.log('🪚 observeNode:', node);
+
+    this.documentAndShadowRootObserver?.observe(node, OBSERVE_OPTIONS);
   }
 }
