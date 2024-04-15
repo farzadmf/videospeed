@@ -14,7 +14,10 @@ export type CheckVideo = (props: CheckVideoProps) => void;
 
 export const checkVideo: CheckVideo = ({ added, addNode, node, observeNode, options, parent, removeNode }: CheckVideoProps) => {
   const element = node as Element;
+
   if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && options.audioBoolean)) {
+    console.log('🪚 found video', node);
+
     if (added) {
       addNode(node);
     } else if (!document.body?.contains(node)) {

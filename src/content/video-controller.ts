@@ -19,10 +19,10 @@ export class VideoControler {
 
     this.documentAndShadowRootObserver = new MutationObserver(
       docShadowRootMutationCallback({
-        addNode: this.addNode,
-        removeNode: this.removeNode,
-        observeNode: this.observeNode,
-        initializeWhenReady: this.initializeWhenReady,
+        addNode: this.addNode.bind(this),
+        removeNode: this.removeNode.bind(this),
+        observeNode: this.observeNode.bind(this),
+        initializeWhenReady: this.initializeWhenReady.bind(this),
         nodes: this.nodes,
         options: this.options,
       }),
@@ -122,8 +122,6 @@ export class VideoControler {
   }
 
   observeNode(node: Node): void {
-    console.log('🪚 observeNode:', node);
-
-    this.documentAndShadowRootObserver?.observe(node, OBSERVE_OPTIONS);
+    this.documentAndShadowRootObserver!.observe(node, OBSERVE_OPTIONS);
   }
 }
