@@ -1,30 +1,33 @@
 import _ from 'lodash';
 
-import { Options } from '@/options/types';
+import { AudioVideoNode, Options } from '@/options/types';
 import { getBaseURL, inIframe, isLocationMatch } from '@/shared/helpers';
 
+import { Contrls } from './controls';
 import { OBSERVE_OPTIONS, docShadowRootMutationCallback } from './document-observer';
 
 export class VideoControler {
-  readonly options: Options;
-  private nodes: Set<Node>;
+  readonly _options: Options;
+  private _nodes: Set<AudioVideoNode>;
   // Intentionally naming it "doc" because "document" is a known global, and if I
   //  forget to do 'this.document' and only 'document', it thinks it's fine!
-  private doc?: Document = undefined;
-  private documentAndShadowRootObserver?: MutationObserver = undefined;
+  private _document?: Document = undefined;
+  private _documentAndShadowRootObserver?: MutationObserver = undefined;
+  private _controls: Map<AudioVideoNode, Contrls>;
 
   constructor(options: Options) {
-    this.options = options;
-    this.nodes = new Set<Node>();
+    this._options = options;
+    this._nodes = new Set();
+    this._controls = new Map();
 
-    this.documentAndShadowRootObserver = new MutationObserver(
+    this._documentAndShadowRootObserver = new MutationObserver(
       docShadowRootMutationCallback({
         addNode: this.addNode.bind(this),
         removeNode: this.removeNode.bind(this),
         observeNode: this.observeNode.bind(this),
         initializeWhenReady: this.initializeWhenReady.bind(this),
-        nodes: this.nodes,
-        options: this.options,
+        nodes: this._nodes,
+        options: this._options,
       }),
     );
 
@@ -36,17 +39,17 @@ export class VideoControler {
       return;
     }
 
-    this.doc = window.document;
+    this._document = window.document;
 
     window.onload = () => {
       this.initializeNow();
     };
-    if (this.doc) {
-      if (this.doc.readyState === 'complete') {
+    if (this._document) {
+      if (this._document.readyState === 'complete') {
         this.initializeNow();
       } else {
-        this.doc.onreadystatechange = () => {
-          if (this.doc?.readyState === 'complete') {
+        this._document.onreadystatechange = () => {
+          if (this._document?.readyState === 'complete') {
             this.initializeNow();
           }
         };
@@ -56,16 +59,15 @@ export class VideoControler {
 
   initializeNow() {
     // Check location.host to be set to not add, eg., about:blank
+    if (!this._document?.location.host) return;
+    if (!this._options.enabled) return;
 
-    if (!this.doc?.location.host) return;
-    if (!this.options.enabled) return;
-
-    if (!this.doc.body || this.doc.body.classList.contains('vsc-initialized')) {
+    if (!this._document.body || this._document.body.classList.contains('vsc-initialized')) {
       return;
     }
 
     this.setupRateChangeListener();
-    this.doc.body.classList.add('vsc-initialized');
+    this._document.body.classList.add('vsc-initialized');
 
     if (document !== window.document) {
       const link = document.createElement('link');
@@ -82,16 +84,16 @@ export class VideoControler {
       /* ignore */
     }
 
-    this.documentAndShadowRootObserver?.observe(this.doc, OBSERVE_OPTIONS);
+    this._documentAndShadowRootObserver?.observe(this._document, OBSERVE_OPTIONS);
   }
 
   isBlacklisted(): boolean {
-    const list = this.options.blacklist.split('\n');
+    const list = this._options.blacklist.split('\n');
     return Boolean(_.find(list, (loc) => isLocationMatch(loc)));
   }
 
   setupRateChangeListener() {
-    this.doc?.addEventListener(
+    this._document?.addEventListener(
       'ratechange',
       (event) => {
         const video = event.target as HTMLVideoElement;
@@ -102,7 +104,7 @@ export class VideoControler {
         const url = getBaseURL(src);
         if (!url) return;
 
-        if (this.options.forceLastSavedSpeed) {
+        if (this._options.forceLastSavedSpeed) {
           event.stopImmediatePropagation();
 
           // const speed = this.options.speeds[url]?.speed || 1.0;
@@ -113,15 +115,18 @@ export class VideoControler {
     );
   }
 
-  addNode(node: Node): void {
-    console.log('🪚 addNode:', node);
+  addNode(node: AudioVideoNode): void {
+    if (this._nodes.has(node)) return;
+
+    this._nodes.add(node);
+    this._controls.set(node, new Contrls({ audioVideo: node }));
   }
 
-  removeNode(node: Node): void {
+  removeNode(node: AudioVideoNode): void {
     console.log('🪚 removeNode:', node);
   }
 
   observeNode(node: Node): void {
-    this.documentAndShadowRootObserver!.observe(node, OBSERVE_OPTIONS);
+    this._documentAndShadowRootObserver!.observe(node, OBSERVE_OPTIONS);
   }
 }

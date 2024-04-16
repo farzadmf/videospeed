@@ -1,4 +1,4 @@
-import { Options } from '@/options/types';
+import { AudioVideoNode, Options } from '@/options/types';
 import { getShadow } from '@/shared';
 
 import { CheckVideoProps, checkVideo } from './check-video';
@@ -10,12 +10,12 @@ export const OBSERVE_OPTIONS = {
 };
 
 export type DocShadowRootObserverProps = {
-  addNode: (node: Node) => void;
+  addNode: (node: AudioVideoNode) => void;
   initializeWhenReady: (doc: Document) => void;
   nodes: Set<Node>;
   observeNode: (node: Node) => void;
   options: Options;
-  removeNode: (node: Node) => void;
+  removeNode: (node: AudioVideoNode) => void;
 };
 
 export const docShadowRootMutationCallback =

@@ -1,12 +1,12 @@
-import { Options } from '@/options/types';
+import { AudioVideoNode, Options } from '@/options/types';
 
 export type CheckVideoProps = {
   added: boolean;
-  addNode: (node: Node) => void;
+  addNode: (node: AudioVideoNode) => void;
   node: Node;
   options: Options;
   parent: Node | ParentNode;
-  removeNode: (node: Node) => void;
+  removeNode: (node: AudioVideoNode) => void;
   observeNode: (node: Node) => void;
 };
 
@@ -16,12 +16,10 @@ export const checkVideo: CheckVideo = ({ added, addNode, node, observeNode, opti
   const element = node as Element;
 
   if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && options.audioBoolean)) {
-    console.log('🪚 found video', node);
-
     if (added) {
-      addNode(node);
-    } else if (!document.body?.contains(node)) {
-      removeNode(node);
+      addNode(node as AudioVideoNode);
+    } else if (!document.body.contains(node)) {
+      removeNode(node as AudioVideoNode);
     }
   } else {
     let children: Element[] = [];

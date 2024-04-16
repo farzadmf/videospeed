@@ -1,5 +1,7 @@
 import { REG_STRIP } from './constants';
 
+export type AudioVideoNode = HTMLAudioElement | HTMLVideoElement;
+
 export type KeyBinding = {
   action: Action;
   ctrl?: boolean;
