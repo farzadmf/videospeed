@@ -1,9 +1,18 @@
-import './index.css';
+export const App = () => {
+  const hello = () => {
+    alert('boo boo 3');
+  };
 
-export const App = () => (
-  <div className="t-fixed t-bottom-[85px] t-left-[100px] t-z-[99] t-w-1/2 t-text-2xl">
-    <div className="t-bg-slate-500 t-text-3xl">one box</div>
-    <div>two box</div>
-    <button className="t-d-btn t-d-btn-secondary">PLEASE</button>
-  </div>
-);
+  return (
+    <div className="t-absolute t-bottom-[105px] t-left-[100px] t-z-[99] t-w-1/2 t-text-2xl">
+      <div className="t-bg-slate-500 t-text-lg">one box</div>
+      <div className="t-flex t-flex-col">
+        <div>two box</div>
+        <div>three box</div>
+      </div>
+      <button className="t-d-btn t-d-btn-primary" onClick={hello}>
+        PLEASE
+      </button>
+    </div>
+  );
+};
