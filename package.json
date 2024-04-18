@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.23",
+    "@thedutchcoder/postcss-rem-to-px": "^0.0.2",
     "@trivago/prettier-plugin-sort-imports": "*",
     "@types/chrome": "*",
     "@types/lodash": "^4.0.0",
@@ -34,6 +35,7 @@
     "eslint-plugin-react-hooks": "*",
     "eslint-plugin-react-refresh": "*",
     "postcss": "^8.0.0",
+    "postcss-prefix-selector": "^1.0.0",
     "prettier-plugin-tailwindcss": "*",
     "sass": "^1.0.0",
     "tailwindcss": "^3.0.0",

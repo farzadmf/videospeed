@@ -19,7 +19,6 @@ export class Contrls {
     globalStyleSheet.replaceSync(styles);
 
     shadow.adoptedStyleSheets = [globalStyleSheet];
-    // document.body.appendChild(container);
     audioVideo.parentNode?.parentNode?.appendChild(container);
     const root = ReactDOM.createRoot(shadow);
 
@@ -27,13 +26,6 @@ export class Contrls {
       <React.StrictMode>
         <App />
       </React.StrictMode>,
-      // <div className="t-absolute t-top-[20px] t-left-[80px]">
-      //   <div className="t-flex t-flex-col">
-      //     <button className="vu-btn vu-btn-primary">BUTTON 1</button>
-      //     <button className="vu-btn vu-btn-primary">BUTTON 2</button>
-      //     <button className="vu-btn vu-btn-primary">BUTTON 3</button>
-      //   </div>
-      // </div>,
     );
 
     alert('🪚 div added?');

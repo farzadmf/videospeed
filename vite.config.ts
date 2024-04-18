@@ -12,6 +12,9 @@ export default defineConfig({
     react(),
     crx({
       manifest: manifest as ManifestV3Export,
+      contentScripts: {
+        injectCss: true,
+      },
     }),
     eslint(),
   ],
