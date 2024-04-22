@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { AudioVideoNode } from '@/options/types';
+import styles from '@/shared/index.css?inline';
 
-import styles from './index.css?inline';
 import { App } from './play2';
 
 export class Contrls {
