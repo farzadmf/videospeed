@@ -18,7 +18,7 @@ import tailwindcss from 'tailwindcss';
  */
 function transformSelector(prefix, selector, prefixedSelector) {
   if ([':root', ':host', 'html', 'body'].includes(selector)) {
-    return ':host';
+    return ':host, :root';
   }
   if (['[data-theme]', '[data-theme=light]', '[data-theme=dark]'].includes(selector)) {
     return `:host ${selector}`;
