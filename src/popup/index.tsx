@@ -5,7 +5,7 @@ import '@/shared/index.css';
 
 import { Popup } from './main';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('vu-content')!).render(
   <React.StrictMode>
     <Popup />
   </React.StrictMode>,

@@ -1,9 +1,11 @@
-import { OptionsPage } from './main';
-import '@/shared/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+import '@/shared/index.css';
+
+import { OptionsPage } from './main';
+
+ReactDOM.createRoot(document.getElementById('vu-content')!).render(
   <React.StrictMode>
     <OptionsPage />
   </React.StrictMode>,
