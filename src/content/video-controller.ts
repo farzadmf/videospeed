@@ -84,7 +84,17 @@ export class VideoControler {
       /* ignore */
     }
 
-    this._documentAndShadowRootObserver?.observe(this._document, OBSERVE_OPTIONS);
+    this._documentAndShadowRootObserver!.observe(this._document, OBSERVE_OPTIONS);
+
+    const mediaTagSelector = this._options.audioBoolean ? 'video,audio' : 'video';
+    const mediaTags = Array.from(document.querySelectorAll(mediaTagSelector));
+
+    document.querySelectorAll('*').forEach((element) => {
+      if (element.shadowRoot) {
+        this._documentAndShadowRootObserver!.observe(element.shadowRoot, OBSERVE_OPTIONS);
+        mediaTags.push(...element.shadowRoot.querySelectorAll(mediaTagSelector));
+      }
+    });
   }
 
   isBlacklisted(): boolean {
