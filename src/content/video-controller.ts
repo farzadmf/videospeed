@@ -69,14 +69,6 @@ export class VideoControler {
     this.setupRateChangeListener();
     this._document.body.classList.add('vsc-initialized');
 
-    if (document !== window.document) {
-      const link = document.createElement('link');
-      link.href = chrome.runtime.getURL('inject.css');
-      link.type = 'text/css';
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-
     const docs = Array(document);
     try {
       if (inIframe() && !!window?.top?.document?.location.host) docs.push(window.top.document);
