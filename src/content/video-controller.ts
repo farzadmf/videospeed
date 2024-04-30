@@ -7,18 +7,21 @@ import { Contrls } from './controls';
 import { OBSERVE_OPTIONS, docShadowRootMutationCallback } from './document-observer';
 
 export class VideoControler {
-  readonly _options: Options;
-  private _nodes: Set<AudioVideoNode>;
-  // Intentionally naming it "doc" because "document" is a known global, and if I
-  //  forget to do 'this.document' and only 'document', it thinks it's fine!
-  private _document?: Document = undefined;
-  private _documentAndShadowRootObserver?: MutationObserver = undefined;
   private _controls: Map<AudioVideoNode, Contrls>;
+  private _document: Document;
+  private _documentAndShadowRootObserver?: MutationObserver = undefined;
+  private _nodes: Set<AudioVideoNode>;
+  private _options: Options;
 
   constructor(options: Options) {
-    this._options = options;
-    this._nodes = new Set();
     this._controls = new Map();
+    this._document = window.document;
+    this._nodes = new Set();
+    this._options = options;
+
+    if (this.isBlacklisted()) {
+      return;
+    }
 
     this._documentAndShadowRootObserver = new MutationObserver(
       docShadowRootMutationCallback({
@@ -35,12 +38,6 @@ export class VideoControler {
   }
 
   initializeWhenReady() {
-    if (this.isBlacklisted()) {
-      return;
-    }
-
-    this._document = window.document;
-
     window.onload = () => {
       this.initializeNow();
     };
@@ -49,7 +46,7 @@ export class VideoControler {
         this.initializeNow();
       } else {
         this._document.onreadystatechange = () => {
-          if (this._document?.readyState === 'complete') {
+          if (this._document.readyState === 'complete') {
             this.initializeNow();
           }
         };
@@ -59,7 +56,7 @@ export class VideoControler {
 
   initializeNow() {
     // Check location.host to be set to not add, eg., about:blank
-    if (!this._document?.location.host) return;
+    if (!this._document.location.host) return;
     if (!this._options.enabled) return;
 
     if (!this._document.body || this._document.body.classList.contains('vsc-initialized')) {
@@ -76,14 +73,14 @@ export class VideoControler {
       /* ignore */
     }
 
-    this._documentAndShadowRootObserver!.observe(this._document, OBSERVE_OPTIONS);
+    this.observeNode(this._document);
 
     const mediaTagSelector = this._options.audioBoolean ? 'video,audio' : 'video';
     const mediaTags = Array.from(document.querySelectorAll(mediaTagSelector));
 
     document.querySelectorAll('*').forEach((element) => {
       if (element.shadowRoot) {
-        this._documentAndShadowRootObserver!.observe(element.shadowRoot, OBSERVE_OPTIONS);
+        this.observeNode(element.shadowRoot);
         mediaTags.push(...element.shadowRoot.querySelectorAll(mediaTagSelector));
       }
     });
@@ -95,7 +92,7 @@ export class VideoControler {
   }
 
   setupRateChangeListener() {
-    this._document?.addEventListener(
+    this._document.addEventListener(
       'ratechange',
       (event) => {
         const video = event.target as HTMLVideoElement;
