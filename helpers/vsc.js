@@ -38,13 +38,10 @@ var vsc = {
     const shift = !!event.shiftKey;
     const ctrl = !!event.ctrlKey;
 
-    return vsc.settings.keyBindings.find(
-      (item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl,
-    );
+    return vsc.settings.keyBindings.find((item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl);
   },
 
-  actionByName: (actionName) =>
-    vsc.settings.keyBindings.find((item) => item.action.name === actionName),
+  actionByName: (actionName) => vsc.settings.keyBindings.find((item) => item.action.name === actionName),
 };
 
 // -> vsc.videoController = ... {{{
@@ -110,10 +107,7 @@ vsc.videoController = function (target, parent) {
 
   var observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if (
-        mutation.type === 'attributes' &&
-        (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
-      ) {
+      if (mutation.type === 'attributes' && (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')) {
         log('mutation of A/V element', DEBUG);
 
         // document.body.classList.remove('vsc-initialized');
@@ -202,9 +196,7 @@ vsc.videoController.prototype.initializeControls = function () {
         @import "${chrome.runtime.getURL('shadow.css')}";
       </style>
 
-      <div id="controller" style="top:${top}; left:${left}; opacity:${
-        vsc.settings.controllerOpacity
-      }">
+      <div id="controller" style="top:${top}; left:${left}; opacity:${vsc.settings.controllerOpacity}">
         <span data-action="drag" class="draggable">
           <span id="vsc-speed-val" data-action="drag">${speed}x</span>
           <span id="vsc-volume-val" data-action="drag">(vol: ${volume})</span>
@@ -249,13 +241,10 @@ vsc.videoController.prototype.initializeControls = function () {
   });
 
   shadow.querySelector('#controller').addEventListener('click', (e) => e.stopPropagation(), false);
-  shadow
-    .querySelector('#controller')
-    .addEventListener('mousedown', (e) => e.stopPropagation(), false);
+  shadow.querySelector('#controller').addEventListener('mousedown', (e) => e.stopPropagation(), false);
 
   this.setSpeedVal = (value) => (this.speedIndicator.textContent = `${Number(value).toFixed(1)}x`);
-  this.setVolumeVal = (value) =>
-    (this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`);
+  this.setVolumeVal = (value) => (this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`);
 
   this.speedIndicator = shadow.querySelector('span#vsc-speed-val');
   this.volumeIndicator = shadow.querySelector('span#vsc-volume-val');
@@ -267,15 +256,14 @@ vsc.videoController.prototype.initializeControls = function () {
     case location.hostname == 'www.reddit.com':
     case /hbogo\./.test(location.hostname):
       // insert before parent to bypass overlay
-      this.parent.parentElement.insertBefore(fragment, this.parent);
+      this.parent?.parentElement?.insertBefore(fragment, this.parent);
+      // this.parent.parentElement.insertBefore(fragment, this.parent);
       break;
     case location.hostname == 'www.facebook.com':
       // this is a monstrosity but new FB design does not have *any*
       // semantic handles for us to traverse the tree, and deep nesting
       // that we need to bubble up from to get controller to stack correctly
-      let p =
-        this.parent.parentElement.parentElement.parentElement.parentElement.parentElement
-          .parentElement.parentElement;
+      let p = this.parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
       p.insertBefore(fragment, p.firstChild);
       break;
     case location.hostname == 'tv.apple.com':
