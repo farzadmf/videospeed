@@ -6,7 +6,7 @@ const keyDownListener = () =>
       'TEXTAREA',
       'INPUT',
       'CIB-SERP', // Bing chat has this element
-      'SHREDDIT-MARKDOWN-COMPOSER', // Reddit's new Markdown editor
+      'SHREDDIT-COMPOSER', // Reddit's new Markdown editor
     ];
 
     // Ignore keydown event if typing in an input box
