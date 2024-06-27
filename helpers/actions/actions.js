@@ -80,11 +80,17 @@ function setSpeed(video, speed) {
     // Any reason to dispatch this here??!!
     // video.dispatchEvent(
     //   new CustomEvent('ratechange', {
+    //     // bubbles and composed are needed to allow event to 'escape' open shadow DOMs
+    //     bubbles: true,
+    //     composed: true,
     //     detail: { origin: 'videoSpeed', speed: speedvalue },
     //   }),
     // );
     video.dispatchEvent(
       new CustomEvent('vscsetspeed', {
+        // bubbles and composed are needed to allow event to 'escape' open shadow DOMs
+        bubbles: true,
+        composed: true,
         detail: { origin: 'videoSpeed', speed: speedvalue },
       }),
     );
@@ -140,10 +146,7 @@ function handleDrag(video, e) {
   shadowController.classList.add('dragging');
 
   const initialMouseXY = [e.clientX, e.clientY];
-  const initialControllerXY = [
-    parseInt(shadowController.style.left),
-    parseInt(shadowController.style.top),
-  ];
+  const initialControllerXY = [parseInt(shadowController.style.left), parseInt(shadowController.style.top)];
 
   const startDragging = (e) => {
     let style = shadowController.style;

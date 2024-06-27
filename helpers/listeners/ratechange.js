@@ -61,7 +61,14 @@ function setupRateChangeListener() {
       // }
 
       log('handling ratechange event', DEBUG);
-      var video = event.target;
+
+      /**
+       * Normally we'd do 'event.target' here. But that doesn't work with shadow DOMs. For
+       * an event that bubbles up out of a shadow DOM, event.target is the root of the shadow
+       * DOM. For 'open' shadow DOMs, event.composedPath()[0] is the actual element that will
+       * first receive the event, and it's equivalent to event.target in non-shadow-DOM cases.
+       */
+      var video = event.composedPath()[0];
       const src = video.currentSrc;
 
       if (!src) return;
