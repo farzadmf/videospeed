@@ -79,6 +79,9 @@ const initializeNow = (document) => {
   } catch {
     // no operation
   }
+
+  injectScriptForSite();
+
   document.body.classList.add('vsc-initialized');
   log('initializeNow: vsc-initialized added to document body', DEBUG);
 
@@ -238,6 +241,18 @@ const initializeNow = (document) => {
     initializeWhenReady(childDocument);
   });
   log('End initializeNow', DEBUG);
+};
+
+const injectScriptForSite = () => {
+  const elt = document.createElement('script');
+  switch (true) {
+    case location.hostname == 'www.netflix.com':
+      elt.src = chrome.runtime.getURL('scriptforsite/netflix.js');
+      break;
+  }
+  if (elt.src) {
+    document.head.appendChild(elt);
+  }
 };
 
 // vim: foldmethod=marker

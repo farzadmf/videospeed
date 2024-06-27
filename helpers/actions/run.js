@@ -48,11 +48,11 @@ const runAction = ({ actionItem, ev }) => {
     switch (actionName) {
       case 'rewind':
         log('Rewind', DEBUG);
-        v.currentTime -= step;
+        seek(v, -step);
         break;
       case 'advance':
         log('Fast forward', DEBUG);
-        v.currentTime += step;
+        seek(v, step);
         break;
       case 'faster':
         log('Increase speed', DEBUG);
@@ -127,4 +127,14 @@ const runAction = ({ actionItem, ev }) => {
     }
   });
   log('runAction End', DEBUG);
+};
+
+const seek = (mediaTag, seekSeconds) => {
+  switch (true) {
+    case location.hostname == 'www.netflix.com':
+      window.postMessage({ action: 'videospeed-seek', seekMs: seekSeconds * 1000 }, 'https://www.netflix.com');
+      break;
+    default:
+      mediaTag.currentTime += seekSeconds;
+  }
 };
