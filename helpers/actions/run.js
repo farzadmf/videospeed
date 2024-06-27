@@ -70,12 +70,12 @@ const runAction = ({ actionItem, ev }) => {
         break;
       case 'vol-up':
         log('Increase volume', DEBUG);
-        v.volume = Math.min(1, v.volume + value);
+        v.volume = Math.min(1, (v.volume + value).toFixed(2));
         v.vsc.setVolumeVal(v.volume);
         break;
       case 'vol-down':
         log('Decrease volume', DEBUG);
-        v.volume = Math.max(0, v.volume - value);
+        v.volume = Math.max(0, (v.volume - value).toFixed(2));
         v.vsc.setVolumeVal(v.volume);
         break;
       case 'reset':
