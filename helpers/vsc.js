@@ -252,7 +252,9 @@ vsc.videoController.prototype.initializeControls = function () {
   fragment.appendChild(wrapper);
 
   switch (true) {
-    case location.hostname == 'www.amazon.com':
+    // Only special-case Prime Video, not product-page videos (which use
+    // "vjs-tech"), otherwise the overlay disappears in fullscreen mode
+    case location.hostname == 'www.amazon.com' && !this.video.classList.contains('vjs-tech'):
     case location.hostname == 'www.reddit.com':
     case /hbogo\./.test(location.hostname):
       // insert before parent to bypass overlay
