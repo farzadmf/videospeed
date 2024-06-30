@@ -12,6 +12,8 @@ Some URLs for testing videos:
 - https://www.youtube.com/watch?v=WH_FUQgMvuY
 - https://www.reddit.com/r/commandline/comments/sf5gcr/interactively_search_github_repos/
 - https://www.epicweb.dev/talks/let-me-be <- doesn't even load!
+- https://www.loom.com/share/154457fdea8e4e3c8b9bbe5ab8d6b1c5?sid=fc8184ec-c14e-4af6-8437-686c31a32059
+  seems to be working, but it's not visible.
 
 - Increasing volume beyong 100%: https://stackoverflow.com/a/43794379/3646201
 
