@@ -54,7 +54,7 @@ vsc.videoController = function (target, parent) {
 
   this.video = target;
   this.parent = target.parentElement || parent;
-  storedSpeed = vsc.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
+  let storedSpeed = vsc.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
 
   if (!vsc.settings.rememberSpeed) {
     if (!storedSpeed) {

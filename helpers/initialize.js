@@ -187,6 +187,11 @@ const initializeNow = (document) => {
   // documentAndShadowRootObserver.observe(document, documentAndShadowRootObserverOptions);
 
   const mediaTagSelector = vsc.settings.audioBoolean ? 'video,audio' : 'video';
+  const mediaTagNodeNames = ['VIDEO'];
+  if (vsc.settings.audioBoolean) {
+    mediaTagNodeNames.push('AUDIO');
+  }
+
   const mediaTags = Array.from(document.querySelectorAll(mediaTagSelector));
 
   document.querySelectorAll('*').forEach((element) => {
@@ -196,14 +201,23 @@ const initializeNow = (document) => {
     }
   });
 
-  // const shadows = [
-  //   ['shreddit-player'], // Reddit
-  //   ['mux-player', 'mux-video'], // totaltypescript
-  // ];
-  //
-  // const parents = [];
-  // const shadowVideos = [];
-  //
+  const ignoredNodes = ['#text', 'STYLE', 'SCRIPT'];
+  const processShadowRoots = (elem) => {
+    if (mediaTagNodeNames.includes(elem.nodeName)) {
+      mediaTags.push(elem);
+    }
+
+    const children = Array.from(elem.childNodes);
+    if (elem.shadowRoot) {
+      children.push(...elem.shadowRoot.childNodes);
+    }
+    Array.from(children)
+      .filter((n) => !ignoredNodes.includes(n.nodeName))
+      .forEach((sh) => processShadowRoots(sh));
+  };
+
+  processShadowRoots(document);
+
   // shadows.forEach((sh) => {
   //   setTimeout(() => {
   //     let rootEl = document;
@@ -220,9 +234,9 @@ const initializeNow = (document) => {
   //       }
   //     }
   //
-  //     shadowVideos.forEach(function (video, idx) {
-  //       video.vsc = new vsc.videoController(video, parents[idx]);
-  //     });
+  //     // shadowVideos.forEach(function (video, idx) {
+  //     //   video.vsc = new vsc.videoController(video, parents[idx]);
+  //     // });
   //   }, 1000);
   // });
 
