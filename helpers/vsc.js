@@ -176,8 +176,14 @@ vsc.videoController.prototype.initializeControls = function () {
   // are relative to offsetParent, so we adjust for that here. offsetParent
   // can be null if the video has `display: none` or is not yet in the DOM.
   const offsetRect = this.video.offsetParent?.getBoundingClientRect();
-  const top = Math.max(rect.top - (offsetRect?.top || 0), 30) + 'px';
-  const left = Math.max(rect.left - (offsetRect?.left || 0), 0) + 'px';
+  let top = Math.max(rect.top - (offsetRect?.top || 0), 30) + 'px';
+  let left = Math.max(rect.left - (offsetRect?.left || 0), 0) + 'px';
+
+  // Couldn't figure out a proper way, so hacking it!
+  if (location.hostname.match(/totaltypescript.com/)) {
+    top = Math.max(rect.top - (rect?.top || 0), 30) + 'px';
+    left = Math.max(rect.left - (rect?.left || 0), 0) + 'px';
+  }
 
   var wrapper = document.createElement('div');
   wrapper.classList.add('vsc-controller');
