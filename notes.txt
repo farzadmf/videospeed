@@ -21,6 +21,7 @@ Some URLs for testing videos:
   - https://www.loom.com/share/154457fdea8e4e3c8b9bbe5ab8d6b1c5?sid=fc8184ec-c14e-4af6-8437-686c31a32059
   - https://scottjehl.com/learn/webcomponentsdemystified/ -> works, but not visible
   - https://redd.it/zrt1rb
+  - https://shkspr.mobi/blog/2024/10/you-can-use-text-wrap-balance-on-icons/
 
 - Appears at a random place at the bottom:
   - https://www.comfydeploy.com/blog/you-dont-need-nextjs
