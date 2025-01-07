@@ -25,6 +25,8 @@ Some URLs for testing videos:
 
 - Appears at a random place at the bottom:
   - https://www.comfydeploy.com/blog/you-dont-need-nextjs
+- Appears on the timeline, preventing clicking on it:
+  - https://redd.it/1hveiuk
 
 - Increasing volume beyong 100%: https://stackoverflow.com/a/43794379/3646201
 
