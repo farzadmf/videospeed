@@ -22,6 +22,7 @@ Some URLs for testing videos:
   - https://scottjehl.com/learn/webcomponentsdemystified/ -> works, but not visible
   - https://redd.it/zrt1rb
   - https://shkspr.mobi/blog/2024/10/you-can-use-text-wrap-balance-on-icons/
+  - https://gitnation.com/contents/why-you-should-use-redux-in-2024
 
 - Appears at a random place at the bottom:
   - https://www.comfydeploy.com/blog/you-dont-need-nextjs
