@@ -118,25 +118,25 @@ vsc.videoController = function (target, parent) {
         // vsc.docs = new Map();
         // initializeWhenReady(document);
 
-        document.body.classList.remove('vsc-initialized');
-        mutation.target.vsc?.remove();
-
-        if (location.hostname === 'www.totaltypescript.com') {
-          vsc.mediaElements = [];
-          vsc.docs.forEach((listener, doc) => {
-            doc.removeEventListener('keydown', listener, true);
-          });
-          vsc.docs = new Map();
+        // document.body.classList.remove('vsc-initialized');
+        // mutation.target.vsc?.remove();
+        //
+        // if (location.hostname === 'www.totaltypescript.com') {
+        //   vsc.mediaElements = [];
+        //   vsc.docs.forEach((listener, doc) => {
+        //     doc.removeEventListener('keydown', listener, true);
+        //   });
+        //   vsc.docs = new Map();
+        // } else {
+        const controller = this.div;
+        if (!mutation.target.src && !mutation.target.currentSrc) {
+          controller.classList.add('vsc-nosource');
         } else {
-          const controller = this.div;
-          if (!mutation.target.src && !mutation.target.currentSrc) {
-            controller.classList.add('vsc-nosource');
-          } else {
-            controller.classList.remove('vsc-nosource');
-          }
+          controller.classList.remove('vsc-nosource');
         }
+        // }
 
-        initializeWhenReady(document);
+        // initializeWhenReady(document);
       }
     });
   });
