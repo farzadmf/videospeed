@@ -69,18 +69,12 @@ function setupRateChangeListener() {
        * first receive the event, and it's equivalent to event.target in non-shadow-DOM cases.
        */
       var video = event.composedPath()[0];
-      const src = video.currentSrc;
-
-      if (!src) return;
-
-      const url = getBaseURL(src);
 
       if (vsc.settings.forceLastSavedSpeed) {
         event.stopImmediatePropagation();
-
-        const speed = vsc.settings.speeds[url]?.speed || 1.0;
-        setSpeed(video, speed);
       }
+
+      setSpeed(video);
 
       /**
        * If the last speed is forced, only update the speed based on events created by

@@ -66,8 +66,18 @@ function setSpeed(video, speed) {
 
   log('setSpeed started: ' + speed, DEBUG);
 
-  const src = video.currentSrc;
-  const speedvalue = Number(speed).toFixed(1);
+  const src = video?.currentSrc;
+  if (!src) return;
+
+  if (speed === undefined) {
+    const url = getBaseURL(src);
+
+    if (vsc.settings.forceLastSavedSpeed) {
+      speed = vsc.settings.speeds[url]?.speed;
+    }
+  }
+
+  const speedvalue = Number(speed || 1.0).toFixed(1);
 
   // Seems like doing playbackRate directly sometimes gives error:
   // 'Uncaught (in promise) Error: Not implemented', but it seems to be working?? :/
