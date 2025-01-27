@@ -90,20 +90,13 @@ vsc.videoController = function (target, parent) {
 
   const volumeEventAction = function (event) {};
 
-  target.addEventListener('play', () => {
-    log('handling play event', DEBUG);
-    this.handlePlay = mediaEventAction.bind(this);
-  });
+  this.handlePlay = (event) => mediaEventAction(event);
+  this.handleVolumeChange = volumeEventAction.bind(event);
+  this.handleSeek = (event) => mediaEventAction(event);
 
-  target.addEventListener('volumechange', () => {
-    log('handling volume change', DEBUG);
-    this.handleVolumeChange = volumeEventAction.bind(this);
-  });
-
-  target.addEventListener('seeked', () => {
-    log('handling seek event', DEBUG);
-    this.handleSeek = mediaEventAction.bind(this);
-  });
+  target.addEventListener('play', this.handlePlay);
+  target.addEventListener('volumechange', this.handleVolumeChange);
+  target.addEventListener('seeked', this.handleSeek);
 
   var observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
@@ -152,8 +145,11 @@ vsc.videoController = function (target, parent) {
 // -> vsc.videoController.prototype.remove = ... {{{
 vsc.videoController.prototype.remove = function () {
   this.div.remove();
+
   this.video.removeEventListener('play', this.handlePlay);
   this.video.removeEventListener('seek', this.handleSeek);
+  this.video.removeEventListener('volumechange', this.handleVolumeChange);
+
   delete this.video.vsc;
   let idx = vsc.mediaElements.indexOf(this.video);
   if (idx != -1) {
