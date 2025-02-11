@@ -3,7 +3,7 @@
   "importOrder": ["^@/(.*)$", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "printWidth": 130,
+  "printWidth": 120,
   "proseWrap": "always",
   "semi": true,
   "singleQuote": true,

@@ -38,7 +38,9 @@ var vsc = {
     const shift = !!event.shiftKey;
     const ctrl = !!event.ctrlKey;
 
-    return vsc.settings.keyBindings.find((item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl);
+    return vsc.settings.keyBindings.find(
+      (item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl,
+    );
   },
 
   actionByName: (actionName) => vsc.settings.keyBindings.find((item) => item.action.name === actionName),
@@ -100,7 +102,10 @@ vsc.videoController = function (target, parent) {
 
   var observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if (mutation.type === 'attributes' && (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')) {
+      if (
+        mutation.type === 'attributes' &&
+        (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
+      ) {
         log('mutation of A/V element', DEBUG);
 
         // document.body.classList.remove('vsc-initialized');
@@ -129,6 +134,7 @@ vsc.videoController = function (target, parent) {
           controller.classList.remove('vsc-nosource');
 
           setSpeed(this.video);
+          this.adjustLocation();
         }
         // }
 
@@ -170,19 +176,26 @@ vsc.videoController.prototype.initializeControls = function () {
   const speed = this.video.playbackRate.toFixed(1);
 
   const volume = (this.video.volume * 100).toFixed(0);
-  const rect = this.video.getBoundingClientRect();
-  // getBoundingClientRect is relative to the viewport; style coordinates
-  // are relative to offsetParent, so we adjust for that here. offsetParent
-  // can be null if the video has `display: none` or is not yet in the DOM.
-  const offsetRect = this.video.offsetParent?.getBoundingClientRect();
-  let top = Math.max(rect.top - (offsetRect?.top || 0), 30) + 'px';
-  let left = Math.max(rect.left - (offsetRect?.left || 0), 0) + 'px';
 
-  // Couldn't figure out a proper way, so hacking it!
-  if (location.hostname.match(/totaltypescript.com/)) {
-    top = Math.max(rect.top - (rect?.top || 0), 30) + 'px';
-    left = Math.max(rect.left - (rect?.left || 0), 0) + 'px';
-  }
+  this.adjustLocation = () => {
+    // getBoundingClientRect is relative to the viewport; style coordinates
+    // are relative to offsetParent, so we adjust for that here. offsetParent
+    // can be null if the video has `display: none` or is not yet in the DOM.
+    const offsetRect = this.video.offsetParent?.getBoundingClientRect();
+    const rect = this.video.getBoundingClientRect();
+
+    let top = Math.max(rect.top - (offsetRect?.top || 0), 0);
+    let left = Math.max(rect.left - (offsetRect?.left || 0), 0);
+
+    // Couldn't figure out a proper way, so hacking it!
+    if (location.hostname.match(/totaltypescript.com/)) {
+      top = Math.max(rect.top - (rect?.top || 0), 0);
+      left = Math.max(rect.left - (rect?.left || 0), 0);
+    }
+
+    this.controller.style.left = `${left}px`;
+    this.controller.style.top = `${top}px`;
+  };
 
   var wrapper = document.createElement('div');
   wrapper.classList.add('vsc-controller');
@@ -201,7 +214,7 @@ vsc.videoController.prototype.initializeControls = function () {
         @import "${chrome.runtime.getURL('shadow.css')}";
       </style>
 
-      <div id="controller" style="top:${top}; left:${left}; opacity:${vsc.settings.controllerOpacity}">
+      <div id="controller" style="top:0; left:0; opacity:${vsc.settings.controllerOpacity}">
         <span data-action="drag" class="draggable">
           <span id="vsc-speed-val" data-action="drag">${speed}x</span>
           <span id="vsc-volume-val" data-action="drag">(vol: ${volume})</span>
@@ -253,8 +266,12 @@ vsc.videoController.prototype.initializeControls = function () {
 
   this.speedIndicator = shadow.querySelector('span#vsc-speed-val');
   this.volumeIndicator = shadow.querySelector('span#vsc-volume-val');
+  this.controller = shadow.querySelector('div#controller');
+
   var fragment = document.createDocumentFragment();
   fragment.appendChild(wrapper);
+
+  this.adjustLocation();
 
   switch (true) {
     // Only special-case Prime Video, not product-page videos (which use
@@ -270,7 +287,8 @@ vsc.videoController.prototype.initializeControls = function () {
       // this is a monstrosity but new FB design does not have *any*
       // semantic handles for us to traverse the tree, and deep nesting
       // that we need to bubble up from to get controller to stack correctly
-      let p = this.parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+      let p =
+        this.parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
       p.insertBefore(fragment, p.firstChild);
       break;
     case location.hostname == 'tv.apple.com':
