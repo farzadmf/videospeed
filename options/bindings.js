@@ -1,21 +1,25 @@
 const addBinding = (item) => {
+  // When this is called because we click "Add New" in options, 'item' would be a PointerEvent,
+  //  so 'action' and 'preddefined' would be undefined.
   const { action, predefined } = item;
-  const value2 = item.value2 || action.value2;
-
-  const tcDefault = getTcDefaultBinding(action);
 
   let valueHtml = `
   <input class="customValue w-50" type="text" placeholder="value (0.10)" />
 `;
 
-  if (value2) {
-    valueHtml = `
+  if (!(action === undefined || predefined === undefined)) {
+    const value2 = item.value2 || action.value2;
+    const tcDefault = getTcDefaultBinding(action);
+
+    if (value2) {
+      valueHtml = `
   <span>${tcDefault.action.preValueText}</span>
   <input class="customValue" style="width: 10%;" type="text" placeholder="value (${tcDefault.action.value})" />
   <span>${tcDefault.action.postValueText}</span>
   <input class="customValue2" style="width: 10%;" type="text" placeholder="value (${tcDefault.action.value2})" />
   <span>${tcDefault.action.postValue2Text}</span>
 `;
+    }
   }
 
   let removeBtn = '';
@@ -31,7 +35,7 @@ const addBinding = (item) => {
   <td>
     ${predefinedInput}
     <select class="customDo form-select">
-      ${ACTION_OPTIONS.join('\n')}
+      ${action === undefined ? ALLOWED_ACTION_OPTIONS().join('\n') : ACTION_OPTIONS.join('\n')}
     </select>
   </td>
   <td>

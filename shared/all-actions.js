@@ -59,3 +59,17 @@ const ACTION_OPTIONS = _.map(
   ACTIONS,
   ({ name, description }) => `<option value="${name}">${description}</option>`,
 );
+
+const ALLOWED_ACTION_OPTIONS = () => {
+  const usedOptions = _.map(
+    document.querySelectorAll('#shortcuts td:first-child select'),
+    (s) => s.value,
+  );
+
+  const filtered = _.filter(ACTIONS, ({ name }) => usedOptions.indexOf(name) === -1);
+
+  return _.map(
+    filtered,
+    ({ name, description }) => `<option value="${name}">${description}</option>`,
+  );
+};
