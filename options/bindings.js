@@ -4,7 +4,7 @@ const addBinding = (item) => {
   const { action, predefined } = item;
 
   let valueHtml = `
-  <input class="customValue w-50" type="text" placeholder="value (0.10)" />
+  <input class="customValue w-50 form-control" type="text" placeholder="value (0.10)" />
 `;
 
   if (!(action === undefined || predefined === undefined)) {
@@ -14,9 +14,9 @@ const addBinding = (item) => {
     if (value2) {
       valueHtml = `
   <span>${tcDefault.action.preValueText}</span>
-  <input class="customValue" style="width: 10%;" type="text" placeholder="value (${tcDefault.action.value})" />
+  <input class="customValue" style="width: 10%; display: inline-block;" type="text" placeholder="value (${tcDefault.action.value})" />
   <span>${tcDefault.action.postValueText}</span>
-  <input class="customValue2" style="width: 10%;" type="text" placeholder="value (${tcDefault.action.value2})" />
+  <input class="customValue2" style="width: 10%; display: inline-block" type="text" placeholder="value (${tcDefault.action.value2})" />
   <span>${tcDefault.action.postValue2Text}</span>
 `;
     }
@@ -40,14 +40,16 @@ const addBinding = (item) => {
   </td>
   <td>
     <div class="form-check">
-      <input type="checkbox" class="form-check-input" name="shift" /><label class="modifier form-check-label">SHIFT</label>
+      <input type="checkbox" class="form-check-input" name="shift" />
+      <label class="modifier form-check-label">SHIFT</label>
     </div>
     <div class="form-check">
-      <input type="checkbox" class="form-check-input" name="ctrl" /><label class="modifier form-check-label">CTRL</label>
+      <input type="checkbox" class="form-check-input" name="ctrl" />
+      <label class="modifier form-check-label">CTRL</label>
     </div>
   </td>
   <td>
-    <input class="customKey w-50" type="text" value="" placeholder="press a key" class="form-control" />
+    <input class="customKey w-50 form-control" type="text" value="" placeholder="press a key" />
   </td>
   <td>
     ${valueHtml}
