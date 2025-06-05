@@ -1,13 +1,9 @@
 function getKeyBindings(action, what = 'value') {
-  try {
-    return vsc.settings.keyBindings.find((item) => item.action === action)[what];
-  } catch (e) {
-    return false;
-  }
+  return vsc.settings.keyBindings.find((item) => item.action?.name === action)[what];
 }
 
 function setKeyBindings(action, value) {
-  vsc.settings.keyBindings.find((item) => item.action === action)['value'] = value;
+  vsc.settings.keyBindings.find((item) => item.action?.name === action)['value'] = value;
 }
 
 function inIframe() {
