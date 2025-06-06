@@ -1,4 +1,4 @@
-const toggleSpeeds = () => {
+function toggleSpeeds() {
   const speedsDiv = document.querySelector('#speeds');
 
   chrome.storage.sync.get('speeds', (storage) => {
@@ -80,5 +80,5 @@ const toggleSpeeds = () => {
     });
   });
 
-  speedsDiv.classList.toggle('hidden');
-};
+  speedsDiv.classList.toggle('d-none');
+}

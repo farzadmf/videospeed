@@ -15,8 +15,8 @@ function show_experimental() {
 function forgetAll() {
   chrome.storage.sync.remove(['speeds']);
   forgetStatus = document.querySelector('#forgetStatus');
-  forgetStatus.classList.toggle('hidden');
-  setTimeout(() => forgetStatus.classList.toggle('hidden'), 1500);
+  forgetStatus.classList.toggle('d-none');
+  setTimeout(() => forgetStatus.classList.toggle('d-none'), 1500);
 }
 // }}}
 
