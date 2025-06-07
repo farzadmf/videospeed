@@ -1,4 +1,6 @@
-function toggleSpeeds() {
+let speeds;
+
+function loadSpeeds() {
   const speedsDiv = document.querySelector('#speeds');
 
   chrome.storage.sync.get('speeds', (storage) => {
@@ -6,33 +8,57 @@ function toggleSpeeds() {
       return;
     }
 
-    const speeds = _.sortBy(_.toPairs(storage.speeds), (s) => s[0]);
-    const DateTime = luxon.DateTime;
+    speeds = _.sortBy(_.toPairs(storage.speeds), (s) => s[0]);
 
-    const display = (s) => {
-      const out = _.map(s, (value) => {
-        const [url, { speed, updated }] = value;
-        return `
-<tr>
-  <td class="url">
+    speedsDiv.innerHTML = `
+<h3 class="text-center">Remembering a total of ${
+      Object.entries(storage.speeds).length
+    } Website speeds</h3>
+<input class="form-control mb-4" 100%" type="text" id="speeds-filter" placeholder="start typing to filter ..." />
+<div id="speed-items"></div>
+`;
+
+    displaySpeeds();
+    setUpForgetButtons();
+    speedsDiv.scrollIntoView();
+
+    document.querySelector('#speeds-filter').addEventListener('input', filterSpeeds);
+  });
+}
+
+function displaySpeeds() {
+  const DateTime = luxon.DateTime;
+
+  let out = '';
+  speeds.forEach((value, idx) => {
+    const [url, { speed, updated }] = value;
+
+    out = `
+${out}
+<tr data-speed-row>
+  <td>
+    <div>${idx + 1}</div>
+  </td>
+  <td>
     <div>${url}</div>
-  </td class="speed">
+  </td>
   <td>
     <div>${speed}</div>
   </td>
-  <td class="updated">
+  <td>
     <div>${DateTime.fromMillis(updated).toFormat('yyyy-MM-dd HH:mm:ss')}</div>
   </td>
-  <td class="action">
-    <button data-speed-url="${url}">DELETE</button>
+  <td>
+    <button class="btn btn-danger btn-sm" data-speed-url="${url}">Forget</button>
   </td>
 </tr>
 `;
-      }).join('');
+  });
 
-      document.querySelector('#speed-items').innerHTML = `
-<table id="website-speeds">
+  document.querySelector('#speed-items').innerHTML = `
+<table id="website-speeds" class="table table-striped table-bordered table-sm">
   <tr>
+    <th class="url">Index</th>
     <th class="url">URL</th>
     <th class="speed">SPEED</th>
     <th class="updated">LAST UPDATED</th>
@@ -41,44 +67,57 @@ function toggleSpeeds() {
   ${out}
 </table>
 `;
-    };
 
-    speedsDiv.innerHTML = `
-<h3 style="text-align: center;">Remembering a total of ${
-      Object.entries(storage.speeds).length
-    } Website speeds</h3>
-<hr />
-<input style="width: 100%" type="text" id="speeds-filter" placeholder="start typing to filter ..." />
-<hr />
-<div id="speed-items"></div>
-`;
+  setUpForgetButtons();
+}
 
-    display(speeds);
-    speedsDiv.scrollIntoView();
+function filterSpeeds() {
+  const filterTerm = document.querySelector('#speeds-filter').value;
 
-    document.querySelector('#speeds-filter').addEventListener('input', () => {
-      const value = document.querySelector('#speeds-filter').value;
-      display(_.filter(speeds, (s) => s[0].toLowerCase().includes(value)));
-    });
+  const all = Array.from(document.querySelectorAll('tr[data-speed-row]'));
+  all.forEach((el) => el.classList.add('d-none'));
 
-    document.querySelectorAll('button[data-speed-url]').forEach((b) => {
-      b.addEventListener('click', (event) => {
-        const url = event.target.getAttribute('data-speed-url');
-        const filteredSpeeds = _.filter(speeds, (s) => s[0] !== url);
-        const transformed = _.transform(
-          filteredSpeeds,
-          (result, value) => (result[value[0]] = value[1]),
-          {},
-        );
-        chrome.storage.sync.set(
-          {
-            speeds: transformed,
-          },
-          () => display(filteredSpeeds),
-        );
-      });
-    });
+  // When filterTerm is empty, nothing matches
+  const matching = filterTerm
+    ? Array.from(
+        document.querySelectorAll(
+          `tr[data-speed-row]:has(button[data-speed-url*="${filterTerm}"])`,
+        ),
+      )
+    : all;
+  matching.forEach((el) => el.classList.remove('d-none'));
+}
+
+function setUpForgetButtons() {
+  document.querySelectorAll('button[data-speed-url]').forEach((b) => {
+    b.addEventListener('click', forgetSpeed);
   });
+}
 
-  speedsDiv.classList.toggle('d-none');
+function forgetSpeed(event) {
+  const url = event.target.getAttribute('data-speed-url');
+  speeds = _.filter(speeds, (s) => s[0] !== url);
+
+  displaySpeeds();
+  filterSpeeds();
+  syncSpeeds();
+}
+
+function cleanUpSpeeds(event) {
+  speeds = _.filter(speeds, (s) => !!s[1].speed);
+
+  displaySpeeds();
+  filterSpeeds();
+  syncSpeeds();
+}
+
+function syncSpeeds() {
+  const transformed = _.transform(speeds, (result, value) => (result[value[0]] = value[1]), {});
+
+  chrome.storage.sync.set(
+    {
+      speeds: transformed,
+    },
+    () => displaySpeeds(),
+  );
 }

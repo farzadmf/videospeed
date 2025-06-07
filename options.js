@@ -23,13 +23,14 @@ function forgetAll() {
 // DOMContentLoaded; entry point basically {{{
 document.addEventListener('DOMContentLoaded', function () {
   restoreOptions();
+  loadSpeeds();
 
-  document.getElementById('save').addEventListener('click', saveOptions);
-  document.getElementById('add').addEventListener('click', addBinding);
-  document.getElementById('restore').addEventListener('click', restoreDefaults);
-  document.getElementById('experimental').addEventListener('click', show_experimental);
-  document.getElementById('forgetAll').addEventListener('click', forgetAll);
-  document.getElementById('toggleSpeeds').addEventListener('click', toggleSpeeds);
+  document.querySelector('#save').addEventListener('click', saveOptions);
+  document.querySelector('#add').addEventListener('click', addBinding);
+  document.querySelector('#restore').addEventListener('click', restoreDefaults);
+  document.querySelector('#experimental').addEventListener('click', show_experimental);
+  document.querySelector('#forgetAll').addEventListener('click', forgetAll);
+  document.querySelector('#cleanUp').addEventListener('click', cleanUpSpeeds);
 
   function eventCaller(event, className, funcName) {
     if (!event.target.classList.contains(className)) {

@@ -111,7 +111,7 @@ function setSpeed(video, speed) {
   vsc.settings.lastSpeed = speed;
 
   const url = getBaseURL(src);
-  if (Number(speed) === 1) {
+  if (!speed || Number(speed) === 1) {
     // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
     delete vsc.settings.speeds[url];
   } else {
@@ -120,6 +120,7 @@ function setSpeed(video, speed) {
       updated: new Date().valueOf(),
     };
   }
+
   try {
     chrome.storage.sync.set(
       {
@@ -156,7 +157,10 @@ function handleDrag(video, e) {
   shadowController.classList.add('dragging');
 
   const initialMouseXY = [e.clientX, e.clientY];
-  const initialControllerXY = [parseInt(shadowController.style.left), parseInt(shadowController.style.top)];
+  const initialControllerXY = [
+    parseInt(shadowController.style.left),
+    parseInt(shadowController.style.top),
+  ];
 
   const startDragging = (e) => {
     let style = shadowController.style;
