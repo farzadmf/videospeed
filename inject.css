@@ -101,3 +101,13 @@ div.legacy-video-player.has_played.vertically_center:before {
 .dv-player-fullscreen .vsc-controller {
   height: 0;
 }
+
+/* Fix for Google Drive overlay: https://github.com/igrigorik/videospeed/issues/1156 */
+#player .html5-video-container .vsc-controller {
+  position: relative;
+  top: 10px;
+}
+
+section[role='tabpanel'][aria-label='Video Player'] {
+  top: 80px;
+}
