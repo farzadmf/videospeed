@@ -264,6 +264,8 @@ vsc.videoController.prototype.initializeControls = function () {
     .querySelector('#controller')
     .addEventListener('mousedown', (e) => e.stopPropagation(), false);
 
+  shadow.querySelector('#controller').addEventListener('wheel', wheelListener, { passive: false });
+
   this.setSpeedVal = (value) => (this.speedIndicator.textContent = `${Number(value).toFixed(1)}x`);
   this.setVolumeVal = (value) =>
     (this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`);

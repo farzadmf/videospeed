@@ -49,6 +49,7 @@
         "helpers/actions/actions.js",
         "helpers/listeners/ratechange.js",
         "helpers/listeners/keydown.js",
+        "helpers/listeners/wheel.js",
         "helpers/blacklist.js",
         "helpers/vsc.js",
         "helpers/storage.js",
