@@ -49,7 +49,7 @@
 
 /* Google Photos player */
 /* Inline preview doesn't have any additional hooks, relying on Aria label */
-a[aria-label^="Video"] .vsc-controller {
+a[aria-label^='Video'] .vsc-controller {
   position: relative;
   top: 35px;
 }
@@ -94,5 +94,10 @@ div.legacy-video-player.has_played.vertically_center:before {
 
 /* Fix black overlay on openai.com */
 .Shared-Video-player > .vsc-controller {
+  height: 0;
+}
+
+/* Fix black overlay on Amazon Prime Video */
+.dv-player-fullscreen .vsc-controller {
   height: 0;
 }
