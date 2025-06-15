@@ -19,23 +19,10 @@ function setupRateChangeListener() {
 
     log('Updating controller with new speed', DEBUG);
     speedIndicator.textContent = speed.toFixed(2);
-    vsc.settings.speeds[getBaseURL(src)] = {
-      speed,
-      updated: new Date().valueOf(),
-    };
 
-    log('Storing lastSpeed in settings for the rememberSpeed feature', DEBUG);
-    vsc.settings.lastSpeed = speed;
-    log('Syncing chrome settings for lastSpeed', DEBUG);
-    chrome.storage.sync.set(
-      {
-        lastSpeed: speed,
-        speeds: vsc.settings.speeds,
-      },
-      function () {
-        log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG);
-      },
-    );
+    const url = getBaseURL(src);
+    syncSpeedValue({ speed, url });
+
     // show the controller for 1000ms if it's hidden.
     runAction({ action: 'blink' });
   }

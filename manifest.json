@@ -51,7 +51,7 @@
         "helpers/listeners/keydown.js",
         "helpers/blacklist.js",
         "helpers/vsc.js",
-        "helpers/local-storage.js",
+        "helpers/storage.js",
         "helpers/initialize.js",
         "inject.js"
       ]

@@ -111,27 +111,7 @@ function setSpeed(video, speed) {
   vsc.settings.lastSpeed = speed;
 
   const url = getBaseURL(src);
-  if (!speed || Number(speed) === 1) {
-    // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
-    delete vsc.settings.speeds[url];
-  } else {
-    vsc.settings.speeds[url] = {
-      speed,
-      updated: new Date().valueOf(),
-    };
-  }
-
-  try {
-    chrome.storage.sync.set(
-      {
-        lastSpeed: speed,
-        speeds: vsc.settings.speeds,
-      },
-      () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
-    );
-  } catch (err) {
-    log('got an error when saving speed', WARNING, err);
-  }
+  syncSpeedValue({ speed, url });
 
   log('starting cooldown', DEBUG);
   startCoolDown();

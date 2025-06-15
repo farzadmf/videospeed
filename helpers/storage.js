@@ -1,3 +1,31 @@
+function syncSpeedValue({ speed, url }) {
+  if (!speed || Number(speed) === 1) {
+    // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
+    delete vsc.settings.speeds[url];
+  } else {
+    log('Storing lastSpeed in settings for the rememberSpeed feature', DEBUG);
+    vsc.settings.lastSpeed = speed;
+    log('Syncing chrome settings for lastSpeed', DEBUG);
+
+    vsc.settings.speeds[url] = {
+      speed,
+      updated: new Date().valueOf(),
+    };
+  }
+
+  try {
+    chrome.storage.sync.set(
+      {
+        lastSpeed: speed,
+        speeds: vsc.settings.speeds,
+      },
+      () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
+    );
+  } catch (err) {
+    log('got an error when saving speed', WARNING, err);
+  }
+}
+
 const initLocalStorage = () => {
   chrome.storage.sync.get(vsc.settings, function (storage) {
     vsc.settings.keyBindings = storage.keyBindings; // Array
