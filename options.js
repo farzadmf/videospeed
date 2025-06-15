@@ -31,6 +31,13 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelector('#experimental').addEventListener('click', show_experimental);
   document.querySelector('#forgetAll').addEventListener('click', forgetAll);
   document.querySelector('#cleanUp').addEventListener('click', cleanUpSpeeds);
+  document.querySelector('#about').addEventListener('click', function () {
+    window.open('https://github.com/farzadmf/videospeed');
+  });
+
+  document.querySelector('#feedback').addEventListener('click', function () {
+    window.open('https://github.com/farzadmf/videospeed/issues');
+  });
 
   function eventCaller(event, className, funcName) {
     if (!event.target.classList.contains(className)) {
