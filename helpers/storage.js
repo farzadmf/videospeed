@@ -109,6 +109,7 @@ const initLocalStorage = () => {
       chrome.storage.sync.set({
         audioBoolean: vsc.settings.audioBoolean,
         blacklist: vsc.settings.blacklist.replace(REG_STRIP, ''),
+        controllerButtonSize: vsc.settings.controllerButtonSize,
         controllerOpacity: vsc.settings.controllerOpacity,
         defaultLogLevel: vsc.settings.defaultLogLevel,
         displayKeyCode: vsc.settings.displayKeyCode,
@@ -125,6 +126,7 @@ const initLocalStorage = () => {
     // --> update other settings from storage {{{
     vsc.settings.audioBoolean = Boolean(storage.audioBoolean);
     vsc.settings.blacklist = String(storage.blacklist);
+    vsc.settings.controllerButtonSize = Number(storage.controllerButtonSize);
     vsc.settings.controllerOpacity = Number(storage.controllerOpacity);
     vsc.settings.displayKeyCode = Number(storage.displayKeyCode);
     vsc.settings.enabled = Boolean(storage.enabled);

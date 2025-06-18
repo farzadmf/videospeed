@@ -216,7 +216,7 @@ vsc.videoController.prototype.initializeControls = function () {
       </style>
 
       <div id="controller" style="top:0; left:0; opacity:${vsc.settings.controllerOpacity}">
-        <span data-action="drag" class="draggable">
+        <span data-action="drag" class="draggable" style="font-size: ${vsc.settings.controllerButtonSize}px; line-height: ${vsc.settings.controllerButtonSize}px;">
           <span id="vsc-speed-val" data-action="drag">${speed}x</span>
           <span id="vsc-volume-val" data-action="drag">(vol: ${volume})</span>
         </span>
@@ -254,6 +254,14 @@ vsc.videoController.prototype.initializeControls = function () {
           ev,
         });
         ev.stopPropagation();
+      },
+      true,
+    );
+
+    button.addEventListener(
+      'touchstart',
+      (e) => {
+        e.stopPropagation();
       },
       true,
     );

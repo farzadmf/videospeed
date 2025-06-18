@@ -7,6 +7,7 @@ const restoreOptions = () => {
   chrome.storage.sync.get(tcDefaults, function (storage) {
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
     document.getElementById('blacklist').value = storage.blacklist;
+    document.getElementById('controllerButtonSize').value = storage.controllerButtonSize;
     document.getElementById('controllerOpacity').value = storage.controllerOpacity;
     document.getElementById('logLevel').value = storage.logLevel;
     document.getElementById('enabled').checked = storage.enabled;

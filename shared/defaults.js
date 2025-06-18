@@ -8,6 +8,7 @@ const tcDefaults = {
     teams.microsoft.com
   `.replace(REG_STRIP, ''),
   audioBoolean: false, // default: false
+  controllerButtonSize: 14,
   controllerOpacity: 0.6, // default: 0.6
   displayKeyCode: 86, // default: V
   enabled: true, // default enabled

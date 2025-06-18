@@ -8,6 +8,7 @@ const saveOptions = () => {
 
   const audioBoolean = document.getElementById('audioBoolean').checked;
   const blacklist = document.getElementById('blacklist').value;
+  const controllerButtonSize = document.getElementById('controllerButtonSize').value;
   const controllerOpacity = document.getElementById('controllerOpacity').value;
   const enabled = document.getElementById('enabled').checked;
   const forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
@@ -33,6 +34,7 @@ const saveOptions = () => {
     {
       audioBoolean,
       blacklist: blacklist.replace(REG_STRIP, ''),
+      controllerButtonSize,
       controllerOpacity,
       enabled,
       forceLastSavedSpeed,
