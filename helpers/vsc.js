@@ -193,19 +193,15 @@ vsc.videoController.prototype.initializeControls = function () {
         @import "${chrome.runtime.getURL('shadow.css')}";
       </style>
 
-      <div id="controller" style="top:0; left:0; opacity:${vsc.settings.controllerOpacity}">
-        <span
-          data-action="drag"
-          class="draggable"
-          style="font-size: ${vsc.settings.controllerButtonSize}px;"
-        >
+      <div
+        id="controller"
+        style="top:0; left:0; opacity:${vsc.settings.controllerOpacity} font-size: ${vsc.settings.controllerButtonSize}px;"
+      >
+        <span data-action="drag" class="draggable">
           <span id="vsc-speed-val" data-action="drag">${speed}x</span>
           <span id="vsc-volume-val" data-action="drag">(vol: ${volume})</span>
         </span>
-        <span
-          id="controls"
-          style="font-size: ${vsc.settings.controllerButtonSize}px;"
-        >
+        <span id="controls">
           <button data-action="rewind" class="rw">«</button>
           <button data-action="slower">&minus;</button>
           <button data-action="faster">&plus;</button>
