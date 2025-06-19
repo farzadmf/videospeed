@@ -4,7 +4,7 @@ const updateCustomShortcutInputText = (inputItem, keyCode) => {
 };
 
 const restoreOptions = () => {
-  chrome.storage.sync.get(tcDefaults, function (storage) {
+  chrome.storage.sync.get(vscDefaults, function (storage) {
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
     document.getElementById('blacklist').value = storage.blacklist;
     document.getElementById('controllerButtonSize').value = storage.controllerButtonSize;
@@ -56,7 +56,7 @@ const restoreOptions = () => {
 };
 
 const restoreDefaults = () => {
-  chrome.storage.sync.set(tcDefaults, function () {
+  chrome.storage.sync.set(vscDefaults, function () {
     restoreOptions();
     document.querySelectorAll('.removeParent').forEach((button) => button.click()); // Remove added shortcuts
     // Update status to let user know options were saved.

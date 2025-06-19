@@ -1,7 +1,7 @@
 const getTcDefaultBinding = (action) => {
   const toCompare = typeof action === 'string' ? action : action.name;
 
-  return _.find(tcDefaults.keyBindings, (b) => {
+  return _.find(vscDefaults.keyBindings, (b) => {
     if (!toCompare.includes('fixspeed')) {
       return b.action.name === toCompare;
     }

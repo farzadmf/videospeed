@@ -1,18 +1,17 @@
-const REG_STRIP = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
-const REG_ENDS_WITH_FLAGS = /\/(?!.*(.).*\1)[gimsuy]*$/;
-
-const tcDefaults = {
+const vscDefaults = {
+  audioBoolean: false,
   blacklist: `www.instagram.com
     twitter.com
+    vine.co
     imgur.com
     teams.microsoft.com
   `.replace(REG_STRIP, ''),
-  audioBoolean: false, // default: false
   controllerButtonSize: 14,
-  controllerOpacity: 0.6, // default: 0.6
-  displayKeyCode: 86, // default: V
-  enabled: true, // default enabled
-  forceLastSavedSpeed: false, //default: false
+  controllerOpacity: 0.6,
+  defaultLogLevel: INFO,
+  displayKeyCode: 86, // key: V
+  enabled: true,
+  forceLastSavedSpeed: true,
   keyBindings: [
     { action: ACTIONS.display, force: false, key: 86, predefined: true }, // V
     { action: ACTIONS.fast, force: false, key: 71, predefined: true }, // G
@@ -44,8 +43,10 @@ const tcDefaults = {
     { action: ACTIONS.rewind, force: true, key: 37, predefined: true }, // Left
     { action: ACTIONS.advance, force: true, key: 39, predefined: true }, // Right
   ],
-  logLevel: 3, // default: 3
-  rememberSpeed: false, // default: false
-  speed: 1.0, // default: 1.0
-  startHidden: false, // default: false
+  lastSpeed: 1.0,
+  logLevel: WARNING,
+  rememberSpeed: false,
+  speed: 1.0,
+  speeds: {}, // empty object to hold speed for each source
+  startHidden: false,
 };

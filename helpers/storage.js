@@ -30,7 +30,7 @@ const initLocalStorage = () => {
   chrome.storage.sync.get(vsc.settings, function (storage) {
     vsc.settings.keyBindings = storage.keyBindings; // Array
 
-    // --> update keybindings from storage and sync back {{{
+    // --> update keybindings from storage and sync back (only if it's "empty") {{{
     //
     if (storage.keyBindings.length == 0) {
       // if first initialization of 0.5.3

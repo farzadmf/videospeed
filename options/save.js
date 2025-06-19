@@ -8,11 +8,11 @@ const saveOptions = () => {
 
   const audioBoolean = document.getElementById('audioBoolean').checked;
   const blacklist = document.getElementById('blacklist').value;
-  const controllerButtonSize = document.getElementById('controllerButtonSize').value;
-  const controllerOpacity = document.getElementById('controllerOpacity').value;
+  const controllerButtonSize = Number(document.getElementById('controllerButtonSize').value);
+  const controllerOpacity = Number(document.getElementById('controllerOpacity').value);
   const enabled = document.getElementById('enabled').checked;
   const forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
-  const logLevel = document.getElementById('logLevel').value;
+  const logLevel = Number(document.getElementById('logLevel').value);
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
   const startHidden = document.getElementById('startHidden').checked;
 

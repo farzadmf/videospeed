@@ -1,27 +1,5 @@
 var vsc = {
-  settings: {
-    lastSpeed: 1.0, // default 1x
-    enabled: true, // default enabled
-    speeds: {}, // empty object to hold speed for each source
-    speedBySite: true,
-
-    displayKeyCode: 86, // default: V
-    rememberSpeed: false, // default: false
-    forceLastSavedSpeed: false, //default: false
-    audioBoolean: false, // default: false
-    startHidden: false, // default: false
-    controllerOpacity: 0.6, // default: 0.6
-    keyBindings: [],
-    blacklist: `\
-      www.instagram.com
-      twitter.com
-      vine.co
-      imgur.com
-      teams.microsoft.com
-    `.replace(REG_STRIP, ''),
-    defaultLogLevel: INFO, // default: INFO
-    logLevel: WARNING, // default: WARNING
-  },
+  settings: { ...vscDefaults },
 
   // To keep track of the documents we're adding event listeners to.
   // Maps each doc to its kwydown event listener.
@@ -216,11 +194,18 @@ vsc.videoController.prototype.initializeControls = function () {
       </style>
 
       <div id="controller" style="top:0; left:0; opacity:${vsc.settings.controllerOpacity}">
-        <span data-action="drag" class="draggable" style="font-size: ${vsc.settings.controllerButtonSize}px; line-height: ${vsc.settings.controllerButtonSize}px;">
+        <span
+          data-action="drag"
+          class="draggable"
+          style="font-size: ${vsc.settings.controllerButtonSize}px;"
+        >
           <span id="vsc-speed-val" data-action="drag">${speed}x</span>
           <span id="vsc-volume-val" data-action="drag">(vol: ${volume})</span>
         </span>
-        <span id="controls">
+        <span
+          id="controls"
+          style="font-size: ${vsc.settings.controllerButtonSize}px;"
+        >
           <button data-action="rewind" class="rw">«</button>
           <button data-action="slower">&minus;</button>
           <button data-action="faster">&plus;</button>
