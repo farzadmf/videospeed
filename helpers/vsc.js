@@ -195,7 +195,7 @@ vsc.videoController.prototype.initializeControls = function () {
 
       <div
         id="controller"
-        style="top:0; left:0; opacity:${vsc.settings.controllerOpacity} font-size: ${vsc.settings.controllerButtonSize}px;"
+        style="top:0; left:0; opacity:${vsc.settings.controllerOpacity}; font-size: ${vsc.settings.controllerButtonSize}px;"
       >
         <span data-action="drag" class="draggable">
           <span id="vsc-speed-val" data-action="drag">${speed}x</span>
