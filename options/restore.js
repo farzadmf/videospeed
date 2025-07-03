@@ -28,13 +28,13 @@ const restoreOptions = () => {
 
       if (NO_VALUE_ACTIONS.includes(actionName)) {
         dom.querySelector('.customValue').style.display = 'none';
+      } else {
+        dom.querySelector('.customValue').value = item.value || tcDefault.action.value;
       }
 
       updateCustomShortcutInputText(dom.querySelector('.customKey'), item.key);
       dom.querySelector('input[name="shift"]').checked = !!item.shift;
       dom.querySelector('input[name="ctrl"]').checked = !!item.ctrl;
-
-      dom.querySelector('.customValue').value = item.value || tcDefault.action.value;
 
       const force = JSON.parse(item.force);
       dom.querySelector('.customForce').value = force;
