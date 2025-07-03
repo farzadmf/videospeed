@@ -11,10 +11,7 @@
     "48": "src/assets/icons/icon48.png",
     "128": "src/assets/icons/icon128.png"
   },
-  "permissions": [
-    "storage",
-    "activeTab"
-  ],
+  "permissions": ["storage", "activeTab"],
   "options_ui": {
     "page": "src/ui/options/options.html",
     "open_in_tab": true
@@ -30,22 +27,11 @@
   "content_scripts": [
     {
       "all_frames": true,
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "file:///*"
-      ],
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
       "match_about_blank": true,
-      "exclude_matches": [
-        "https://hangouts.google.com/*",
-        "https://meet.google.com/*"
-      ],
-      "css": [
-        "src/styles/inject.css"
-      ],
-      "js": [
-        "src/content/injector.js"
-      ]
+      "exclude_matches": ["https://hangouts.google.com/*", "https://meet.google.com/*"],
+      "css": ["src/styles/inject.css"],
+      "js": ["src/content/injector.js"]
     }
   ],
   "web_accessible_resources": [
@@ -61,11 +47,8 @@
         "src/site-handlers/*.js",
         "src/content/*.js"
       ],
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "file:///*"
-      ]
+      "matches": ["http://*/*", "https://*/*", "file:///*"]
     }
   ]
 }
+
