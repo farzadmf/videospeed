@@ -17,33 +17,47 @@ class ActionHandler {
    * @param {*} value - Action value
    * @param {Event} e - Event object (optional)
    */
-  runAction(action, value, e) {
-    window.VSC.logger.debug(`runAction Begin: ${action}`);
+  runAction({ actionItem, event }) {
+    window.VSC.logger.debug(`runAction Begin: ${actionItem}`);
+
+    window.VSC.logger.info('runAction Begin:', this);
 
     const mediaTags = this.config.getMediaElements();
 
-    // Get the controller that was used if called from a button press event
-    let targetController = null;
-    if (e) {
-      targetController = e.target.getRootNode().host;
+    let value, value2;
+    let actionName = '';
+    if (typeof actionItem === 'string') {
+      // For "built-in" actions (such as blink, drag etc.) that have no
+      // binding, setting, key, etc.
+      actionName = actionItem;
+    } else {
+      actionName = actionItem.action.name;
+      value = actionItem.value || actionItem.action.value;
+      value2 = actionItem.value2 || actionItem.action.value2;
     }
 
-    mediaTags.forEach((v) => {
-      const controller = v.vsc?.div;
+    // Get the controller that was used if called from a button press event
+    let targetController = null;
+    if (event) {
+      targetController = event.target.getRootNode().host;
+    }
+
+    mediaTags.forEach((video) => {
+      const controller = video.vsc?.div;
 
       if (!controller) {
         return;
       }
 
       // Don't change video speed if the video has a different controller
-      if (e && !(targetController === controller)) {
+      if (event && !(targetController === controller)) {
         return;
       }
 
       this.eventManager.showController(controller);
 
-      if (!v.classList.contains('vsc-cancelled')) {
-        this.executeAction(action, value, v, e);
+      if (!video.classList.contains('vsc-cancelled')) {
+        this.executeAction({ actionName, value, value2, video, event });
       }
     });
 
@@ -58,16 +72,25 @@ class ActionHandler {
    * @param {Event} e - Event object (optional)
    * @private
    */
-  executeAction(action, value, video, e) {
-    switch (action) {
+  executeAction({ actionName, value, value2, video, event }) {
+    const percent = (value * video.duration) / 100;
+    const step = Math.min(value2 || 5, percent); // Only used for rewind and advance
+
+    if (actionName.startsWith('fixspeed')) {
+      const speedValue = Number(actionName.split('-')[1]);
+      this.setSpeed(video, speedValue);
+      return;
+    }
+
+    switch (actionName) {
       case 'rewind':
         window.VSC.logger.debug('Rewind');
-        this.seek(video, -value);
+        this.seek(video, -step);
         break;
 
       case 'advance':
         window.VSC.logger.debug('Fast forward');
-        this.seek(video, value);
+        this.seek(video, step);
         break;
 
       case 'faster': {
@@ -115,7 +138,7 @@ class ActionHandler {
         break;
 
       case 'drag':
-        window.VSC.DragHandler.handleDrag(video, e);
+        window.VSC.DragHandler.handleDrag(video, event);
         break;
 
       case 'fast':
@@ -180,7 +203,7 @@ class ActionHandler {
       }
 
       default:
-        window.VSC.logger.warn(`Unknown action: ${action}`);
+        window.VSC.logger.warn(`Unknown action: ${actionName}`);
     }
   }
 
@@ -191,6 +214,19 @@ class ActionHandler {
    */
   setSpeed(video, speed) {
     window.VSC.logger.debug(`setSpeed started: ${speed}`);
+
+    const src = video?.currentSrc;
+    if (!src) {
+      return;
+    }
+
+    if (speed === undefined) {
+      const url = window.VSC.getBaseURL(src);
+
+      if (this.config.settings.forceLastSavedSpeed) {
+        speed = this.config.settings.speeds[url]?.speed;
+      }
+    }
 
     const speedValue = speed.toFixed(2);
     const numericSpeed = Number(speedValue);
