@@ -32,30 +32,32 @@ class Logger {
    * @param {string} message - Message to log
    * @param {number} level - Log level (optional, uses default if not specified)
    */
-  log(message, level) {
+  log(level, ...message) {
     const logLevel = typeof level === 'undefined' ? this.defaultLevel : level;
     const LOG_LEVELS = window.VSC.Constants.LOG_LEVELS;
+
+    const consoleLog = (...msg) => console.log('[FMVSC]', ...msg);
 
     if (this.verbosity >= logLevel) {
       switch (logLevel) {
         case LOG_LEVELS.ERROR:
-          console.log(`ERROR:${message}`);
+          consoleLog('ERR |', ...message);
           break;
         case LOG_LEVELS.WARNING:
-          console.log(`WARNING:${message}`);
+          consoleLog('WRN |', ...message);
           break;
         case LOG_LEVELS.INFO:
-          console.log(`INFO:${message}`);
+          consoleLog('INF |', ...message);
           break;
         case LOG_LEVELS.DEBUG:
-          console.log(`DEBUG:${message}`);
+          consoleLog('DBG |', ...message);
           break;
         case LOG_LEVELS.VERBOSE:
-          console.log(`DEBUG (VERBOSE):${message}`);
+          consoleLog('VRB |', ...message);
           console.trace();
           break;
         default:
-          console.log(message);
+          consoleLog(...message);
       }
     }
   }
@@ -64,40 +66,40 @@ class Logger {
    * Log error message
    * @param {string} message - Error message
    */
-  error(message) {
-    this.log(message, window.VSC.Constants.LOG_LEVELS.ERROR);
+  error(...message) {
+    this.log(window.VSC.Constants.LOG_LEVELS.ERROR, ...message);
   }
 
   /**
    * Log warning message
    * @param {string} message - Warning message
    */
-  warn(message) {
-    this.log(message, window.VSC.Constants.LOG_LEVELS.WARNING);
+  warn(...message) {
+    this.log(window.VSC.Constants.LOG_LEVELS.WARNING, ...message);
   }
 
   /**
    * Log info message
    * @param {string} message - Info message
    */
-  info(message) {
-    this.log(message, window.VSC.Constants.LOG_LEVELS.INFO);
+  info(...message) {
+    this.log(window.VSC.Constants.LOG_LEVELS.INFO, ...message);
   }
 
   /**
    * Log debug message
    * @param {string} message - Debug message
    */
-  debug(message) {
-    this.log(message, window.VSC.Constants.LOG_LEVELS.DEBUG);
+  debug(...message) {
+    this.log(window.VSC.Constants.LOG_LEVELS.DEBUG, message);
   }
 
   /**
    * Log verbose debug message with stack trace
    * @param {string} message - Verbose debug message
    */
-  verbose(message) {
-    this.log(message, window.VSC.Constants.LOG_LEVELS.VERBOSE);
+  verbose(...message) {
+    this.log(window.VSC.Constants.LOG_LEVELS.VERBOSE, ...message);
   }
 }
 
