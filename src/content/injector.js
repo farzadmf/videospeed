@@ -39,6 +39,7 @@ async function injectModules() {
       'src/utils/logger.js',
       'src/utils/dom-utils.js',
       'src/utils/event-manager.js',
+      'src/utils/url.js',
       'src/core/storage-manager.js',
       'src/core/config.js',
       'src/observers/media-observer.js',
