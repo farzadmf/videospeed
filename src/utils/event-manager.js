@@ -80,13 +80,12 @@ class EventManager {
       return false;
     }
 
-    // Find matching key binding
-    const keyBinding = this.config.settings.keyBindings.find((item) => item.key === keyCode);
+    const actionItem = this.config.getActionByKeyEvent(event);
 
-    if (keyBinding) {
-      this.actionHandler.runAction(keyBinding.action, keyBinding.value);
+    if (actionItem) {
+      this.actionHandler.runAction({ actionItem });
 
-      if (keyBinding.force === 'true') {
+      if (actionItem.force === 'true') {
         // Disable website's key bindings
         event.preventDefault();
         event.stopPropagation();
@@ -214,7 +213,7 @@ class EventManager {
     }
 
     // Show controller briefly if hidden
-    this.actionHandler.runAction('blink', null, null);
+    this.actionHandler.runAction({ actionItem: 'blink' });
   }
 
   /**

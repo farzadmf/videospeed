@@ -33,10 +33,10 @@ class ControlsManager {
 
     draggable.addEventListener(
       'mousedown',
-      (e) => {
-        this.actionHandler.runAction(e.target.dataset['action'], false, e);
-        e.stopPropagation();
-        e.preventDefault();
+      (event) => {
+        this.actionHandler.runAction({ actionItem: event.target.dataset['action'], event });
+        event.stopPropagation();
+        event.preventDefault();
       },
       true
     );
@@ -52,13 +52,12 @@ class ControlsManager {
       // Click handler
       button.addEventListener(
         'click',
-        (e) => {
-          this.actionHandler.runAction(
-            e.target.dataset['action'],
-            this.config.getKeyBinding(e.target.dataset['action']),
-            e
-          );
-          e.stopPropagation();
+        (event) => {
+          const actionItem = this.config.getActionByName(event.target.dataset['action']);
+          console.log('FMFOO[7]: controls.js:56: actionItem=', actionItem);
+
+          this.actionHandler.runAction({ actionItem, event });
+          event.stopPropagation();
         },
         true
       );
@@ -66,8 +65,8 @@ class ControlsManager {
       // Touch handler to prevent conflicts
       button.addEventListener(
         'touchstart',
-        (e) => {
-          e.stopPropagation();
+        (event) => {
+          event.stopPropagation();
         },
         true
       );
