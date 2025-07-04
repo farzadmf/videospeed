@@ -281,7 +281,7 @@ window.addEventListener('VSC_MESSAGE', (event) => {
 
       case window.VSC.Constants.MESSAGE_TYPES.TOGGLE_DISPLAY:
         if (extension.actionHandler) {
-          extension.actionHandler.runAction('display', null, null);
+          extension.actionHandler.runAction({ actionItem: 'display' });
         }
         break;
     }
