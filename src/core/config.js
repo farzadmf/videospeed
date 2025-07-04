@@ -77,6 +77,20 @@ class VideoSpeedConfig {
     }
   }
 
+  getActionByName(actionName) {
+    return this.settings.keyBindings.find((item) => item.action.name === actionName);
+  }
+
+  getActionByKeyEvent(event) {
+    const keyCode = event.keyCode;
+    const shift = !!event.shiftKey;
+    const ctrl = !!event.ctrlKey;
+
+    return this.settings.keyBindings.find(
+      (item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl
+    );
+  }
+
   /**
    * Get a specific key binding
    * @param {string} action - Action name
