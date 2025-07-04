@@ -69,7 +69,7 @@ async function injectModules() {
     // Set up message bridge between popup and injected scripts
     setupMessageBridge();
   } catch (error) {
-    console.error('💥 Module injection failed:', error);
+    console.error('[FMVSC] 💥 Module injection failed:', error);
   }
 }
 
@@ -79,7 +79,7 @@ async function injectSiteSpecificScripts() {
     // Check current domain and inject appropriate scripts
     const hostname = location.hostname;
     if (hostname === 'www.netflix.com') {
-      console.log('🎬 Netflix detected, injecting Netflix script...');
+      console.log('[FMVSC] 🎬 Netflix detected, injecting Netflix script...');
       await injectScript('src/site-handlers/scripts/netflix.js');
     }
 
@@ -88,7 +88,7 @@ async function injectSiteSpecificScripts() {
     //   await injectScript('src/site-handlers/scripts/youtube.js');
     // }
   } catch (error) {
-    console.error('❌ Failed to inject site-specific scripts:', error);
+    console.error('[FMVSC] ❌ Failed to inject site-specific scripts:', error);
   }
 }
 
@@ -127,7 +127,7 @@ function setupMessageBridge() {
         });
       });
     } catch (error) {
-      console.error('❌ Failed to save settings to Chrome storage:', error);
+      console.error('[FMVSC] ❌ Failed to save settings to Chrome storage:', error);
     }
   });
 }
