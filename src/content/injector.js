@@ -40,7 +40,7 @@ async function injectModules() {
       'src/utils/dom-utils.js',
       'src/utils/event-manager.js',
       'src/core/storage-manager.js',
-      'src/core/settings.js',
+      'src/core/config.js',
       'src/observers/media-observer.js',
       'src/observers/mutation-observer.js',
       'src/core/action-handler.js',
