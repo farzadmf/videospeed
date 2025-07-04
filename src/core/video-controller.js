@@ -134,6 +134,7 @@ class VideoController {
 
     // Store speed indicator reference
     this.speedIndicator = window.VSC.ShadowDOMManager.getSpeedIndicator(shadow);
+    this.volumeIndicator = window.VSC.ShadowDOMManager.getVolumeIndicator(shadow);
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
@@ -268,6 +269,14 @@ class VideoController {
     delete this.video.vsc;
 
     window.VSC.logger.debug('VideoController removed successfully');
+  }
+
+  setSpeedVal(value) {
+    this.speedIndicator.textContent = `${Number(value).toFixed(1)}x`;
+  }
+
+  setVolumeVal(value) {
+    this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`;
   }
 }
 
