@@ -18,16 +18,16 @@ window.defineModule = function (name, dependencies, factory) {
     dependencies = [];
   }
 
-  const modulePromise = Promise.all(
-    dependencies.map(dep => loadModule(dep))
-  ).then(deps => {
-    const module = { exports: {} };
-    const result = factory.apply(null, [module, ...deps]);
-    // If factory returns something, use that, otherwise use module.exports
-    const moduleExports = result !== undefined ? result : module.exports;
-    moduleRegistry.set(name, moduleExports);
-    return moduleExports;
-  });
+  const modulePromise = Promise.all(dependencies.map((dep) => window.loadModule(dep))).then(
+    (deps) => {
+      const module = { exports: {} };
+      const result = factory.apply(null, [module, ...deps]);
+      // If factory returns something, use that, otherwise use module.exports
+      const moduleExports = result !== undefined ? result : module.exports;
+      moduleRegistry.set(name, moduleExports);
+      return moduleExports;
+    }
+  );
 
   modulePromises.set(name, modulePromise);
   return modulePromise;
@@ -70,3 +70,4 @@ window.loadModule = function (name) {
 };
 
 window.VSC.logger.debug('Module loader initialized');
+

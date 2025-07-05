@@ -35,6 +35,7 @@ async function injectModules() {
     injectCSS();
 
     const modules = [
+      'src/assets/pkgs/lodash-4.7.15.min.js',
       'src/utils/constants.js',
       'src/utils/logger.js',
       'src/utils/dom-utils.js',
