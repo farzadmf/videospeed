@@ -37,6 +37,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "src/assets/pkgs/*.js",
         "src/styles/inject.css",
         "src/styles/shadow.css",
         "src/module-loader.js",
@@ -51,4 +52,3 @@
     }
   ]
 }
-
