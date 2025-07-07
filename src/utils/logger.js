@@ -36,28 +36,28 @@ class Logger {
     const logLevel = typeof level === 'undefined' ? this.defaultLevel : level;
     const LOG_LEVELS = window.VSC.Constants.LOG_LEVELS;
 
-    const consoleLog = (...msg) => console.log('[FMVSC]', ...msg);
-
     if (this.verbosity >= logLevel) {
+      const trace = new Error().stack;
+
       switch (logLevel) {
         case LOG_LEVELS.ERROR:
-          consoleLog('ERR |', ...message);
+          console.log('%c[FMVSC] ERR |', 'color: red', ...message, trace);
           break;
         case LOG_LEVELS.WARNING:
-          consoleLog('WRN |', ...message);
+          console.log('%c[FMVSC] WRN |', 'color: yellow', ...message);
           break;
         case LOG_LEVELS.INFO:
-          consoleLog('INF |', ...message);
+          console.log('%c[FMVSC] INF |', 'color:  green', ...message);
           break;
         case LOG_LEVELS.DEBUG:
-          consoleLog('DBG |', ...message);
+          console.log('%c[FMVSC] DBG |', 'color: cyan', ...message);
           break;
         case LOG_LEVELS.VERBOSE:
-          consoleLog('VRB |', ...message);
+          console.log('%c[FMVSC] VRB |', 'color: magenta', ...message);
           console.trace();
           break;
         default:
-          consoleLog(...message);
+          console.log('[FMVSC]', ...message);
       }
     }
   }
