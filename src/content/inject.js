@@ -10,6 +10,7 @@ class VideoSpeedExtension {
     this.eventManager = null;
     this.mutationObserver = null;
     this.mediaObserver = null;
+    this.shadowHostObserver = null;
     this.initialized = false;
   }
 
@@ -104,8 +105,26 @@ class VideoSpeedExtension {
         this.mutationObserver.start(document);
       }
 
+      // Start the shadow host observer
+      if (this.shadowHostObserver) {
+        this.shadowHostObserver.observe(document, { childList: true, subtree: true });
+      }
+
       // Scan for existing media elements
       this.scanExistingMedia(document);
+
+      // Initialize any iframes
+      const iframes = document.getElementsByTagName('iframe');
+      for (const iframe of iframes) {
+        try {
+          const iframeDocument = iframe.contentDocument;
+          if (iframeDocument) {
+            this.initializeWhenReady(iframeDocument, (doc) => this.initializeDocument(doc));
+          }
+        } catch (e) {
+          this.logger.warn(`Could not access iframe content: ${e.message}`);
+        }
+      }
 
       this.logger.debug('Document initialization completed');
     } catch (error) {
@@ -126,6 +145,17 @@ class VideoSpeedExtension {
       (video, parent) => this.onVideoFound(video, parent),
       (video) => this.onVideoRemoved(video)
     );
+
+    // Mutation observer for shadow DOM hosts
+    this.shadowHostObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.shadowRoot) {
+            this.initializeDocument(node.shadowRoot);
+          }
+        }
+      }
+    });
   }
 
   /**
@@ -174,13 +204,30 @@ class VideoSpeedExtension {
    */
   scanExistingMedia(document) {
     try {
-      const mediaElements = this.mediaObserver.scanAll(document);
+      const mediaElements = [];
+      const mediaTagSelector = this.config.settings.audioBoolean ? 'video,audio' : 'video';
 
-      mediaElements.forEach((media) => {
+      const findMediaRecursively = (rootNode) => {
+        const mediaInNode = rootNode.querySelectorAll(mediaTagSelector);
+        mediaInNode.forEach((media) => mediaElements.push(media));
+
+        const allChildren = rootNode.querySelectorAll('*');
+        allChildren.forEach((child) => {
+          if (child.shadowRoot) {
+            findMediaRecursively(child.shadowRoot);
+          }
+        });
+      };
+
+      findMediaRecursively(document);
+
+      const uniqueMediaElements = [...new Set(mediaElements)];
+
+      uniqueMediaElements.forEach((media) => {
         this.onVideoFound(media, media.parentElement);
       });
 
-      this.logger.info(`Attached controllers to ${mediaElements.length} existing media elements`);
+      this.logger.info(`Attached controllers to ${uniqueMediaElements.length} existing media elements`);
     } catch (error) {
       this.logger.error(`Failed to scan existing media: ${error.message}`);
     }
@@ -209,6 +256,10 @@ class VideoSpeedExtension {
     try {
       if (this.mutationObserver) {
         this.mutationObserver.stop();
+      }
+
+      if (this.shadowHostObserver) {
+        this.shadowHostObserver.disconnect();
       }
 
       if (this.eventManager) {
