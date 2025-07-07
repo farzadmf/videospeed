@@ -85,7 +85,7 @@ class EventManager {
     if (actionItem) {
       this.actionHandler.runAction({ actionItem });
 
-      if (actionItem.force === 'true') {
+      if (actionItem.force) {
         // Disable website's key bindings
         event.preventDefault();
         event.stopPropagation();
