@@ -7,6 +7,7 @@
 function injectScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
+    script.type = 'module';
     script.src = chrome.runtime.getURL(src);
     script.onload = () => {
       resolve();
@@ -36,6 +37,9 @@ async function injectModules() {
 
     const modules = [
       'src/assets/pkgs/lodash-4.7.15.min.js',
+      'src/shared/actions.js',
+      'src/shared/constants.js',
+      'src/shared/defaults.js',
       'src/utils/constants.js',
       'src/utils/logger.js',
       'src/utils/dom-utils.js',
