@@ -91,7 +91,7 @@ class Logger {
    * @param {string} message - Debug message
    */
   debug(...message) {
-    this.log(window.VSC.Constants.LOG_LEVELS.DEBUG, message);
+    this.log(window.VSC.Constants.LOG_LEVELS.DEBUG, ...message);
   }
 
   /**
