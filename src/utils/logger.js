@@ -103,6 +103,8 @@ class Logger {
   }
 }
 
+export const logger = new Logger();
+
 // Create singleton instance
 window.VSC.logger = new Logger();
 
