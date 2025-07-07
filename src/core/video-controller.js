@@ -5,7 +5,10 @@
 
 window.VSC = window.VSC || {};
 
-class VideoController {
+export class VideoController {
+  /**
+   * @param {HTMLMediaElement & { vsc?: VideoController }} target - Video element
+   */
   constructor(target, parent, config, actionHandler) {
     // Return existing controller if already attached
     if (target.vsc) {

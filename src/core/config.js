@@ -5,6 +5,8 @@
 
 window.VSC = window.VSC || {};
 
+import { logger } from '../utils/logger.js';
+
 class VideoSpeedConfig {
   constructor() {
     this.settings = { ...window.VSC.Constants.DEFAULT_SETTINGS };
@@ -29,7 +31,7 @@ class VideoSpeedConfig {
       this.settings.keyBindings = storage.keyBindings || [];
 
       if (!storage.keyBindings || storage.keyBindings.length === 0) {
-        window.VSC.logger.info('First initialization - setting up default key bindings');
+        logger.info('First initialization - setting up default key bindings');
         await this.initializeDefaultKeyBindings(storage);
       }
 
@@ -52,12 +54,12 @@ class VideoSpeedConfig {
       this.ensureDisplayBinding(storage);
 
       // Update logger verbosity
-      window.VSC.logger.setVerbosity(this.settings.logLevel);
+      logger.setVerbosity(this.settings.logLevel);
 
-      window.VSC.logger.info('Settings loaded successfully');
+      logger.info('Settings loaded successfully');
       return this.settings;
     } catch (error) {
-      window.VSC.logger.error(`Failed to load settings: ${error.message}`);
+      logger.error(`Failed to load settings: ${error.message}`);
       return window.VSC.Constants.DEFAULT_SETTINGS;
     }
   }
@@ -71,9 +73,9 @@ class VideoSpeedConfig {
     try {
       this.settings = { ...this.settings, ...newSettings };
       await window.VSC.StorageManager.set(this.settings);
-      window.VSC.logger.info('Settings saved successfully');
+      logger.info('Settings saved successfully');
     } catch (error) {
-      window.VSC.logger.error(`Failed to save settings: ${error.message}`);
+      logger.error(`Failed to save settings: ${error.message}`);
     }
   }
 
@@ -102,7 +104,7 @@ class VideoSpeedConfig {
       const binding = this.settings.keyBindings.find((item) => item.action === action);
       return binding ? binding[property] : false;
     } catch (e) {
-      window.VSC.logger.error(`Failed to get key binding for ${action}: ${e.message}`);
+      logger.error(`Failed to get key binding for ${action}: ${e.message}`);
       return false;
     }
   }
@@ -119,7 +121,7 @@ class VideoSpeedConfig {
         binding.value = value;
       }
     } catch (e) {
-      window.VSC.logger.error(`Failed to set key binding for ${action}: ${e.message}`);
+      logger.error(`Failed to set key binding for ${action}: ${e.message}`);
     }
   }
 
@@ -263,7 +265,7 @@ class VideoSpeedConfig {
 }
 
 // Create singleton instance
-window.VSC.videoSpeedConfig = new VideoSpeedConfig();
+export const config = new VideoSpeedConfig();
 
 // Also export the constructor for testing
 window.VSC.VideoSpeedConfig = VideoSpeedConfig;

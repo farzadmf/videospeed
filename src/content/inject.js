@@ -3,6 +3,10 @@
  * Modular architecture using global variables loaded via script array
  */
 
+import { VideoController } from '../core/video-controller.js';
+import { logger } from '../utils/logger.js';
+import { config } from '../core/config.js';
+
 class VideoSpeedExtension {
   constructor() {
     this.config = null;
@@ -12,6 +16,8 @@ class VideoSpeedExtension {
     this.mediaObserver = null;
     this.shadowHostObserver = null;
     this.initialized = false;
+    this.logger = logger;
+    this.config = config;
   }
 
   /**
@@ -20,10 +26,8 @@ class VideoSpeedExtension {
   async initialize() {
     try {
       // Access global modules
-      this.VideoController = window.VSC.VideoController;
       this.ActionHandler = window.VSC.ActionHandler;
       this.EventManager = window.VSC.EventManager;
-      this.logger = window.VSC.logger;
       this.isBlacklisted = window.VSC.DomUtils.isBlacklisted;
       this.initializeWhenReady = window.VSC.DomUtils.initializeWhenReady;
       this.siteHandlerManager = window.VSC.siteHandlerManager;
@@ -34,7 +38,6 @@ class VideoSpeedExtension {
       this.logger.info('Video Speed Controller starting...');
 
       // Load configuration
-      this.config = window.VSC.videoSpeedConfig;
       await this.config.load();
 
       // Check if extension is enabled
@@ -159,7 +162,7 @@ class VideoSpeedExtension {
 
   /**
    * Handle newly found video element
-   * @param {HTMLMediaElement} video - Video element
+   * @param {HTMLMediaElement & { vsc?: VideoController }} video - Video element
    * @param {HTMLElement} parent - Parent element
    */
   onVideoFound(video, parent) {
@@ -175,7 +178,7 @@ class VideoSpeedExtension {
       }
 
       this.logger.debug('Attaching controller to new video element');
-      video.vsc = new this.VideoController(video, parent, this.config, this.actionHandler);
+      video.vsc = new VideoController(video, parent, this.config, this.actionHandler);
     } catch (error) {
       console.error('💥 Failed to attach controller to video:', error);
       this.logger.error(`Failed to attach controller to video: ${error.message}`);
@@ -184,7 +187,7 @@ class VideoSpeedExtension {
 
   /**
    * Handle removed video element
-   * @param {HTMLMediaElement} video - Video element
+   * @param {HTMLMediaElement & { vsc?: VideoController }} video - Video element
    */
   onVideoRemoved(video) {
     try {
@@ -226,7 +229,9 @@ class VideoSpeedExtension {
         this.onVideoFound(media, media.parentElement);
       });
 
-      this.logger.info(`Attached controllers to ${uniqueMediaElements.length} existing media elements`);
+      this.logger.info(
+        `Attached controllers to ${uniqueMediaElements.length} existing media elements`
+      );
     } catch (error) {
       this.logger.error(`Failed to scan existing media: ${error.message}`);
     }

@@ -5,6 +5,8 @@
 
 window.VSC = window.VSC || {};
 
+import { getBaseURL } from '../utils/url.js';
+
 class ActionHandler {
   constructor(config, eventManager) {
     this.config = config;
@@ -221,7 +223,7 @@ class ActionHandler {
     }
 
     if (speed === undefined) {
-      const url = window.VSC.getBaseURL(src);
+      const url = getBaseURL(src);
 
       if (this.config.settings.forceLastSavedSpeed) {
         speed = this.config.settings.speeds[url]?.speed;

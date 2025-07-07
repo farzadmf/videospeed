@@ -1,6 +1,4 @@
-window.VSC = window.VSC || {};
-
-function getBaseURL(fullURL) {
+export function getBaseURL(fullURL) {
   const urlReg = new RegExp(new RegExp(/(https?:\/\/.*?\/).*/));
   const match = fullURL.match(urlReg);
 
@@ -10,5 +8,3 @@ function getBaseURL(fullURL) {
 
   return null;
 }
-
-window.VSC.getBaseURL = getBaseURL;
