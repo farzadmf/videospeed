@@ -119,7 +119,7 @@ class VideoSpeedExtension {
         try {
           const iframeDocument = iframe.contentDocument;
           if (iframeDocument) {
-            this.initializeWhenReady(iframeDocument, (doc) => this.initializeDocument(doc));
+            this.initializeWhenReady(iframeDocument, (doc) => this.scanExistingMedia(doc));
           }
         } catch (e) {
           this.logger.warn(`Could not access iframe content: ${e.message}`);
@@ -146,12 +146,11 @@ class VideoSpeedExtension {
       (video) => this.onVideoRemoved(video)
     );
 
-    // Mutation observer for shadow DOM hosts
     this.shadowHostObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
           if (node.shadowRoot) {
-            this.initializeDocument(node.shadowRoot);
+            this.scanExistingMedia(node.shadowRoot);
           }
         }
       }
