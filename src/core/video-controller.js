@@ -5,9 +5,12 @@
 
 window.VSC = window.VSC || {};
 
+import { getBaseURL } from '../utils/url.js';
+
 export class VideoController {
   /**
    * @param {HTMLMediaElement & { vsc?: VideoController }} target - Video element
+   * @param {VideoSpeedConfig} config - Config
    */
   constructor(target, parent, config, actionHandler) {
     // Return existing controller if already attached
@@ -51,7 +54,7 @@ export class VideoController {
 
     // Check if we should use per-video stored speeds
     const videoSrc = this.video.currentSrc || this.video.src;
-    const storedVideoSpeed = this.config.settings.speeds[videoSrc];
+    const storedVideoSpeed = this.config.settings.speeds[getBaseURL(videoSrc)]?.speed || 1.0;
 
     if (this.config.settings.rememberSpeed) {
       if (storedVideoSpeed) {
