@@ -5,6 +5,7 @@
 
 window.VSC = window.VSC || {};
 
+import { logger } from '../utils/logger.js';
 import { getBaseURL } from '../utils/url.js';
 
 class ActionHandler {
@@ -20,9 +21,9 @@ class ActionHandler {
    * @param {Event} e - Event object (optional)
    */
   runAction({ actionItem, event }) {
-    window.VSC.logger.debug(`runAction Begin: ${actionItem}`);
+    logger.debug(`runAction Begin: ${actionItem}`);
 
-    window.VSC.logger.info('runAction Begin:', this);
+    logger.info('runAction Begin:', this);
 
     const mediaTags = this.config.getMediaElements();
 
@@ -63,7 +64,7 @@ class ActionHandler {
       }
     });
 
-    window.VSC.logger.debug('runAction End');
+    logger.debug('runAction End');
   }
 
   /**
@@ -86,17 +87,17 @@ class ActionHandler {
 
     switch (actionName) {
       case 'rewind':
-        window.VSC.logger.debug('Rewind');
+        logger.debug('Rewind');
         this.seek(video, -step);
         break;
 
       case 'advance':
-        window.VSC.logger.debug('Fast forward');
+        logger.debug('Fast forward');
         this.seek(video, step);
         break;
 
       case 'faster': {
-        window.VSC.logger.debug('Increase speed');
+        logger.debug('Increase speed');
         const fasterSpeed = Math.min(
           (video.playbackRate < 0.1 ? 0.0 : video.playbackRate) + value,
           window.VSC.Constants.SPEED_LIMITS.MAX
@@ -106,7 +107,7 @@ class ActionHandler {
       }
 
       case 'slower': {
-        window.VSC.logger.debug('Decrease speed');
+        logger.debug('Decrease speed');
         const slowerSpeed = Math.max(
           video.playbackRate - value,
           window.VSC.Constants.SPEED_LIMITS.MIN
@@ -116,16 +117,16 @@ class ActionHandler {
       }
 
       case 'reset':
-        window.VSC.logger.debug('Reset speed');
+        logger.debug('Reset speed');
         this.resetSpeed(video, 1.0);
         break;
 
       case 'display': {
-        window.VSC.logger.debug('Display action triggered');
+        logger.debug('Display action triggered');
         const controller = video.vsc.div;
 
         if (!controller) {
-          window.VSC.logger.error('No controller found for video');
+          logger.error('No controller found for video');
           return;
         }
 
@@ -135,7 +136,7 @@ class ActionHandler {
       }
 
       case 'blink':
-        window.VSC.logger.debug('Showing controller momentarily');
+        logger.debug('Showing controller momentarily');
         this.blinkController(video.vsc.div, value);
         break;
 
@@ -178,10 +179,10 @@ class ActionHandler {
           speed > 0 &&
           speed <= window.VSC.Constants.SPEED_LIMITS.MAX
         ) {
-          window.VSC.logger.log('Setting speed to:', speed);
+          logger.log('Setting speed to:', speed);
           this.setSpeed(video, speed);
         } else {
-          window.VSC.logger.warn('Invalid speed value:', speed);
+          logger.warn('Invalid speed value:', speed);
         }
         break;
       }
@@ -189,23 +190,23 @@ class ActionHandler {
       case 'ADJUST_SPEED': {
         const delta = value;
         if (typeof delta === 'number') {
-          window.VSC.logger.log('Adjusting speed by:', delta);
+          logger.log('Adjusting speed by:', delta);
           this.adjustSpeed(delta);
         } else {
-          window.VSC.logger.warn('Invalid delta value:', delta);
+          logger.warn('Invalid delta value:', delta);
         }
         break;
       }
 
       case 'RESET_SPEED': {
-        window.VSC.logger.log('Resetting speed');
+        logger.log('Resetting speed');
         const preferredSpeed = this.config.getSpeedStep('fast');
         this.setSpeed(video, preferredSpeed);
         break;
       }
 
       default:
-        window.VSC.logger.warn(`Unknown action: ${actionName}`);
+        logger.warn(`Unknown action: ${actionName}`);
     }
   }
 
@@ -215,7 +216,7 @@ class ActionHandler {
    * @param {number} speed - Speed to set
    */
   setSpeed(video, speed) {
-    window.VSC.logger.debug(`setSpeed started: ${speed}`);
+    logger.debug(`setSpeed started: ${speed}`);
 
     const src = video?.currentSrc;
     if (!src) {
@@ -256,7 +257,7 @@ class ActionHandler {
       const videoSrc = video.currentSrc || video.src;
       if (videoSrc) {
         this.config.settings.speeds[videoSrc] = numericSpeed;
-        window.VSC.logger.debug(`Stored speed ${numericSpeed} for video: ${videoSrc}`);
+        logger.debug(`Stored speed ${numericSpeed} for video: ${videoSrc}`);
       }
     }
 
@@ -268,7 +269,7 @@ class ActionHandler {
 
     this.eventManager.refreshCoolDown();
 
-    window.VSC.logger.debug(`setSpeed finished: ${speed}`);
+    logger.debug(`setSpeed finished: ${speed}`);
   }
 
   /**
@@ -287,10 +288,10 @@ class ActionHandler {
    */
   pause(video) {
     if (video.paused) {
-      window.VSC.logger.debug('Resuming video');
+      logger.debug('Resuming video');
       video.play();
     } else {
-      window.VSC.logger.debug('Pausing video');
+      logger.debug('Pausing video');
       video.pause();
     }
   }
@@ -304,18 +305,18 @@ class ActionHandler {
     if (video.playbackRate === target) {
       if (video.playbackRate === this.config.getKeyBinding('reset')) {
         if (target !== 1.0) {
-          window.VSC.logger.info('Resetting playback speed to 1.0');
+          logger.info('Resetting playback speed to 1.0');
           this.setSpeed(video, 1.0);
         } else {
-          window.VSC.logger.info('Toggling playback speed to "fast" speed');
+          logger.info('Toggling playback speed to "fast" speed');
           this.setSpeed(video, this.config.getKeyBinding('fast'));
         }
       } else {
-        window.VSC.logger.info('Toggling playback speed to "reset" speed');
+        logger.info('Toggling playback speed to "reset" speed');
         this.setSpeed(video, this.config.getKeyBinding('reset'));
       }
     } else {
-      window.VSC.logger.info('Toggling playback speed to "reset" speed');
+      logger.info('Toggling playback speed to "reset" speed');
       this.config.setKeyBinding('reset', video.playbackRate);
       this.setSpeed(video, target);
     }
@@ -352,7 +353,7 @@ class ActionHandler {
    * @param {HTMLMediaElement} video - Video element
    */
   setMark(video) {
-    window.VSC.logger.debug('Adding marker');
+    logger.debug('Adding marker');
     video.vsc.mark = video.currentTime;
   }
 
@@ -361,7 +362,7 @@ class ActionHandler {
    * @param {HTMLMediaElement} video - Video element
    */
   jumpToMark(video) {
-    window.VSC.logger.debug('Recalling marker');
+    logger.debug('Recalling marker');
     if (video.vsc.mark && typeof video.vsc.mark === 'number') {
       video.currentTime = video.vsc.mark;
     }

@@ -5,6 +5,8 @@
 
 window.VSC = window.VSC || {};
 
+import { logger } from '../utils/logger.js';
+
 class EventManager {
   constructor(config, actionHandler) {
     this.config = config;
@@ -62,11 +64,11 @@ class EventManager {
   handleKeydown(event) {
     const keyCode = event.keyCode;
 
-    window.VSC.logger.verbose(`Processing keydown event: ${keyCode}`);
+    logger.verbose(`Processing keydown event: ${keyCode}`);
 
     // Ignore if following modifier is active
     if (this.hasActiveModifier(event)) {
-      window.VSC.logger.debug(`Keydown event ignored due to active modifier: ${keyCode}`);
+      logger.debug(`Keydown event ignored due to active modifier: ${keyCode}`);
       return;
     }
 
@@ -91,7 +93,7 @@ class EventManager {
         event.stopPropagation();
       }
     } else {
-      window.VSC.logger.verbose(`No key binding found for keyCode: ${keyCode}`);
+      logger.verbose(`No key binding found for keyCode: ${keyCode}`);
     }
 
     return false;
@@ -153,7 +155,7 @@ class EventManager {
    */
   handleRateChange(event) {
     if (this.coolDown) {
-      window.VSC.logger.info('Speed event propagation blocked');
+      logger.info('Speed event propagation blocked');
       event.stopImmediatePropagation();
     }
 
@@ -189,27 +191,27 @@ class EventManager {
     const src = video.currentSrc;
     const speed = Number(video.playbackRate.toFixed(2));
 
-    window.VSC.logger.info(`Playback rate changed to ${speed}`);
+    logger.info(`Playback rate changed to ${speed}`);
 
     // Update controller display
-    window.VSC.logger.debug('Updating controller with new speed');
+    logger.debug('Updating controller with new speed');
     speedIndicator.textContent = speed.toFixed(2);
 
     // Store speed for this source
     this.config.settings.speeds[src] = speed;
 
     // Store as last speed for remember feature
-    window.VSC.logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
+    logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
     this.config.settings.lastSpeed = speed;
 
     // Save to Chrome storage if available
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-      window.VSC.logger.debug('Syncing chrome settings for lastSpeed');
+      logger.debug('Syncing chrome settings for lastSpeed');
       chrome.storage.sync.set({ lastSpeed: speed }, () => {
-        window.VSC.logger.debug(`Speed setting saved: ${speed}`);
+        logger.debug(`Speed setting saved: ${speed}`);
       });
     } else {
-      window.VSC.logger.debug('Chrome storage not available, skipping speed sync');
+      logger.debug('Chrome storage not available, skipping speed sync');
     }
 
     // Show controller briefly if hidden
@@ -220,7 +222,7 @@ class EventManager {
    * Start cooldown period to prevent event spam
    */
   refreshCoolDown() {
-    window.VSC.logger.debug('Begin refreshCoolDown');
+    logger.debug('Begin refreshCoolDown');
 
     if (this.coolDown) {
       clearTimeout(this.coolDown);
@@ -230,7 +232,7 @@ class EventManager {
       this.coolDown = false;
     }, 1000);
 
-    window.VSC.logger.debug('End refreshCoolDown');
+    logger.debug('End refreshCoolDown');
   }
 
   /**
@@ -238,7 +240,7 @@ class EventManager {
    * @param {Element} controller - Controller element
    */
   showController(controller) {
-    window.VSC.logger.info('Showing controller');
+    logger.info('Showing controller');
     controller.classList.add('vcs-show');
 
     if (this.timer) {
@@ -248,7 +250,7 @@ class EventManager {
     this.timer = setTimeout(() => {
       controller.classList.remove('vcs-show');
       this.timer = null;
-      window.VSC.logger.debug('Hiding controller');
+      logger.debug('Hiding controller');
     }, 2000);
   }
 
@@ -261,7 +263,7 @@ class EventManager {
         try {
           doc.removeEventListener(type, handler, useCapture);
         } catch (e) {
-          window.VSC.logger.warn(`Failed to remove event listener: ${e.message}`);
+          logger.warn(`Failed to remove event listener: ${e.message}`);
         }
       });
     });
