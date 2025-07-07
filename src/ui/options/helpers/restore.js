@@ -6,12 +6,12 @@ import { getActionName, getTcDefaultBinding } from './misc.js';
 
 const _ = window._;
 
-export const updateCustomShortcutInputText = (inputItem, keyCode) => {
+export function updateCustomShortcutInputText(inputItem, keyCode) {
   inputItem.value = KEY_CODES[keyCode] || String.fromCharCode(keyCode);
   inputItem.keyCode = keyCode;
-};
+}
 
-export const restoreOptions = () => {
+export function restoreOptions() {
   chrome.storage.sync.get(vscDefaults, (storage) => {
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
     document.getElementById('blacklist').value = storage.blacklist;
@@ -63,12 +63,13 @@ export const restoreOptions = () => {
       document.querySelector('#add').style.display = '';
     }
   });
-};
+}
 
-export const restoreDefaults = () => {
+export function restoreDefaults() {
   chrome.storage.sync.set(vscDefaults, () => {
     restoreOptions();
     document.querySelectorAll('.removeParent').forEach((button) => button.click()); // Remove added shortcuts
+
     // Update status to let user know options were saved.
     const status = document.getElementById('status');
     status.textContent = 'Default options restored';
@@ -76,4 +77,4 @@ export const restoreDefaults = () => {
       status.textContent = '';
     }, 1000);
   });
-};
+}
