@@ -1,4 +1,4 @@
-import { vscDefaults } from '../../../shared/defaults.js';
+import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 import { ACTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
 import { KEY_CODES } from './key-codes.js';
 import { addBinding } from './bindings.js';
@@ -12,7 +12,7 @@ export function updateCustomShortcutInputText(inputItem, keyCode) {
 }
 
 export function restoreOptions() {
-  chrome.storage.sync.get(vscDefaults, (storage) => {
+  chrome.storage.sync.get(VSC_DEFAULTS, (storage) => {
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
     document.getElementById('blacklist').value = storage.blacklist;
     document.getElementById('controllerButtonSize').value = storage.controllerButtonSize;
@@ -66,7 +66,7 @@ export function restoreOptions() {
 }
 
 export function restoreDefaults() {
-  chrome.storage.sync.set(vscDefaults, () => {
+  chrome.storage.sync.set(VSC_DEFAULTS, () => {
     restoreOptions();
     document.querySelectorAll('.removeParent').forEach((button) => button.click()); // Remove added shortcuts
 

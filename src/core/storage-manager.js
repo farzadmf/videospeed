@@ -5,7 +5,9 @@
 
 window.VSC = window.VSC || {};
 
-class StorageManager {
+import { logger } from '../utils/logger.js';
+
+export class StorageManager {
   // Cache for user settings injected from content script
   static _injectedSettings = null;
 
@@ -13,7 +15,7 @@ class StorageManager {
   static _setupSettingsListener() {
     if (typeof window !== 'undefined' && !this._listenerSetup) {
       window.addEventListener('VSC_USER_SETTINGS', (event) => {
-        window.VSC.logger.debug('Received user settings from content script');
+        logger.debug('Received user settings from content script');
         this._injectedSettings = event.detail;
       });
       this._listenerSetup = true;
@@ -32,19 +34,19 @@ class StorageManager {
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
       return new Promise((resolve) => {
         chrome.storage.sync.get(defaults, (storage) => {
-          window.VSC.logger.debug('Retrieved settings from storage');
+          logger.debug('Retrieved settings from storage');
           resolve(storage);
         });
       });
     } else {
       // Fallback for injected page context - use injected settings if available
       if (this._injectedSettings) {
-        window.VSC.logger.debug('Using injected user settings');
-        window.VSC.logger.debug('Using injected user settings from content script');
+        logger.debug('Using injected user settings');
+        logger.debug('Using injected user settings from content script');
         // Merge injected settings with defaults
         return Promise.resolve({ ...defaults, ...this._injectedSettings });
       } else {
-        window.VSC.logger.debug('Chrome storage not available, using default settings');
+        logger.debug('Chrome storage not available, using default settings');
         return Promise.resolve(defaults);
       }
     }
@@ -60,7 +62,7 @@ class StorageManager {
 
     if (this._injectedSettings) {
       const merged = { ...defaults, ...this._injectedSettings };
-      window.VSC.logger.debug('Using available injected settings');
+      logger.debug('Using available injected settings');
       return Promise.resolve(merged);
     }
 
@@ -68,7 +70,7 @@ class StorageManager {
       const checkSettings = () => {
         if (this._injectedSettings) {
           const merged = { ...defaults, ...this._injectedSettings };
-          window.VSC.logger.debug('Injected settings now available');
+          logger.debug('Injected settings now available');
           resolve(merged);
         } else {
           // Check again in next tick
@@ -89,14 +91,14 @@ class StorageManager {
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
       return new Promise((resolve) => {
         chrome.storage.sync.set(data, () => {
-          window.VSC.logger.debug('Settings saved to storage');
+          logger.debug('Settings saved to storage');
           resolve();
         });
       });
     } else {
       // Fallback for injected page context - send save request to content script
-      window.VSC.logger.debug('Sending save request to content script');
-      window.VSC.logger.debug('Sending settings save request to content script');
+      logger.debug('Sending save request to content script');
+      logger.debug('Sending settings save request to content script');
 
       // Send data to content script via custom event
       window.dispatchEvent(
@@ -120,7 +122,7 @@ class StorageManager {
   static async remove(keys) {
     return new Promise((resolve) => {
       chrome.storage.sync.remove(keys, () => {
-        window.VSC.logger.debug('Keys removed from storage');
+        logger.debug('Keys removed from storage');
         resolve();
       });
     });
@@ -133,7 +135,7 @@ class StorageManager {
   static async clear() {
     return new Promise((resolve) => {
       chrome.storage.sync.clear(() => {
-        window.VSC.logger.debug('Storage cleared');
+        logger.debug('Storage cleared');
         resolve();
       });
     });

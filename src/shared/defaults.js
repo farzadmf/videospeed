@@ -1,7 +1,7 @@
 import { REG_STRIP, INFO, WARNING } from './constants.js';
 import { ACTIONS } from './actions.js';
 
-export const vscDefaults = {
+export const VSC_DEFAULTS = {
   audioBoolean: false,
   blacklist: `www.instagram.com
     twitter.com
