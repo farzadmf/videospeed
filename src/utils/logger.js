@@ -5,10 +5,12 @@
 
 window.VSC = window.VSC || {};
 
+import { LOG_LEVELS } from '../shared/constants.js';
+
 class Logger {
   constructor() {
-    this.verbosity = 3; // Default warning level
-    this.defaultLevel = 4; // Default info level
+    this.verbosity = LOG_LEVELS.WARNING;
+    this.defaultLevel = LOG_LEVELS.INFO;
   }
 
   /**
@@ -34,7 +36,6 @@ class Logger {
    */
   log(level, ...message) {
     const logLevel = typeof level === 'undefined' ? this.defaultLevel : level;
-    const LOG_LEVELS = window.VSC.Constants.LOG_LEVELS;
 
     if (this.verbosity >= logLevel) {
       const trace = new Error().stack;
