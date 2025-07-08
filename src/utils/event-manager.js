@@ -9,9 +9,8 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
-import { getBaseURL } from '../utils/url.js';
 
-class EventManager {
+export class EventManager {
   /**
    * @param {VideoSpeedConfig} config - config handler
    */
@@ -161,26 +160,36 @@ class EventManager {
    * @private
    */
   handleRateChange(event) {
-    if (this.coolDown) {
-      logger.info('Speed event propagation blocked');
-      event.stopImmediatePropagation();
-    }
+    // 2025-07-07 | I don't think I need this as I disabled CustomEvent in action-handler's
+    //              setSpeed (no idea why it's there TBH).
+    // if (this.coolDown) {
+    //   logger.info('Speed event propagation blocked');
+    //   event.stopImmediatePropagation();
+    // }
 
     // Get the actual video element (handle shadow DOM)
     const video = event.composedPath()[0];
 
-    // Handle forced last saved speed
     if (this.config.settings.forceLastSavedSpeed) {
-      if (event.detail && event.detail.origin === 'videoSpeed') {
-        video.playbackRate = event.detail.speed;
-        this.updateSpeedFromEvent(video);
-      } else {
-        video.playbackRate = this.config.settings.lastSpeed;
-      }
       event.stopImmediatePropagation();
-    } else {
-      this.updateSpeedFromEvent(video);
     }
+
+    // 2025-07-07 | Disabled this to match the old behavior I had, and it seems to be
+    //              working, so why complicate my life?!
+    // Handle forced last saved speed
+    // if (this.config.settings.forceLastSavedSpeed) {
+    //   if (event.detail && event.detail.origin === 'videoSpeed') {
+    //     video.playbackRate = event.detail.speed;
+    //     this.updateSpeedFromEvent(video);
+    //   } else {
+    //     video.playbackRate = this.config.settings.lastSpeed;
+    //   }
+    //   event.stopImmediatePropagation();
+    // } else {
+    //   this.updateSpeedFromEvent(video);
+    // }
+
+    this.actionHandler.setSpeed(video);
   }
 
   /**
@@ -188,36 +197,38 @@ class EventManager {
    * @param {HTMLMediaElement & { vsc?: VideoController }} video - Video element
    * @private
    */
-  updateSpeedFromEvent(video) {
-    // Check if video has a controller attached
-    if (!video.vsc) {
-      return;
-    }
-
-    const src = video.currentSrc;
-    const url = getBaseURL(src);
-    const speed = Number(video.playbackRate.toFixed(1));
-
-    logger.info(`Playback rate changed to ${speed}`);
-
-    video.vsc.setSpeedVal(speed);
-
-    this.config.syncSpeedValue({ speed, url });
-
-    // 2025-07-07 | why wouldn't this be available?!
-    // Save to Chrome storage if available
-    // if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-    //   logger.debug('Syncing chrome settings for lastSpeed');
-    //   chrome.storage.sync.set({ lastSpeed: speed }, () => {
-    //     logger.debug(`Speed setting saved: ${speed}`);
-    //   });
-    // } else {
-    //   logger.debug('Chrome storage not available, skipping speed sync');
-    // }
-
-    // Show controller briefly if hidden
-    this.actionHandler.runAction({ actionItem: 'blink' });
-  }
+  // 2025-07-07 | Well, seems like with all the things I disabled in handleRateChange, this
+  //              method became redundant, so ...
+  // updateSpeedFromEvent(video) {
+  //   // Check if video has a controller attached
+  //   if (!video.vsc) {
+  //     return;
+  //   }
+  //
+  //   const src = video.currentSrc;
+  //   const url = getBaseURL(src);
+  //   const speed = Number(video.playbackRate.toFixed(1));
+  //
+  //   logger.info(`Playback rate changed to ${speed}`);
+  //
+  //   video.vsc.setSpeedVal(speed);
+  //
+  //   this.config.syncSpeedValue({ speed, url });
+  //
+  //   // 2025-07-07 | why wouldn't this be available?!
+  //   // Save to Chrome storage if available
+  //   // if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+  //   //   logger.debug('Syncing chrome settings for lastSpeed');
+  //   //   chrome.storage.sync.set({ lastSpeed: speed }, () => {
+  //   //     logger.debug(`Speed setting saved: ${speed}`);
+  //   //   });
+  //   // } else {
+  //   //   logger.debug('Chrome storage not available, skipping speed sync');
+  //   // }
+  //
+  //   // Show controller briefly if hidden
+  //   this.actionHandler.runAction({ actionItem: 'blink' });
+  // }
 
   /**
    * Start cooldown period to prevent event spam

@@ -4,6 +4,7 @@
  *
  * @typedef {import('./video-controller.js').VideoController} VideoController
  * @typedef {import('./config.js').VideoSpeedConfig} VideoSpeedConfig
+ * @typedef {import('../utils/event-manager.js').EventManager} EventManager
  */
 
 window.VSC = window.VSC || {};
@@ -13,7 +14,8 @@ import { getBaseURL } from '../utils/url.js';
 
 class ActionHandler {
   /**
-   * @param {VideoSpeedConfig} config - config handler
+   * @param {VideoSpeedConfig} config - Config handler
+   * @param {EventManager} eventManager - Event manager
    */
   constructor(config, eventManager) {
     this.config = config;
@@ -224,7 +226,7 @@ class ActionHandler {
   setSpeed(video, speed) {
     logger.debug(`setSpeed started: ${speed}`);
 
-    const src = video?.currentSrc;
+    const src = video?.src || video?.currentSrc;
     if (!src) {
       return;
     }
@@ -236,23 +238,33 @@ class ActionHandler {
       }
     }
 
-    const speedValue = speed.toFixed(2);
+    // 2025-07-07 | For some reason, this ends up being undefined sometimes 🤷
+    if (speed === undefined) {
+      return;
+    }
+
+    const speedValue = speed.toFixed(1);
     const numericSpeed = Number(speedValue);
 
-    if (this.config.settings.forceLastSavedSpeed) {
-      video.dispatchEvent(
-        new CustomEvent('ratechange', {
-          bubbles: true,
-          composed: true,
-          detail: { origin: 'videoSpeed', speed: speedValue },
-        })
-      );
-    } else {
-      video.playbackRate = numericSpeed;
-    }
+    video.playbackRate = numericSpeed;
+
+    // 2025-07-07 | Doing this creates an infinite loop, so I ignore cooldown
+    //              in event-manager and not do this here either!
+    // if (this.config.settings.forceLastSavedSpeed) {
+    //   video.dispatchEvent(
+    //     new CustomEvent('ratechange', {
+    //       bubbles: true,
+    //       composed: true,
+    //       detail: { origin: 'videoSpeed', speed: speedValue },
+    //     })
+    //   );
+    // } else {
+    //   video.playbackRate = numericSpeed;
+    // }
 
     video.vsc.setSpeedVal(numericSpeed);
 
+    // 2025-07-07 | Don't think I need this; I'm handing things differently.
     // Store per-video speed if rememberSpeed is enabled
     // if (this.config.settings.rememberSpeed) {
     //   const videoSrc = video.currentSrc || video.src;
