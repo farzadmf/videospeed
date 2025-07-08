@@ -79,6 +79,10 @@ export class VideoSpeedConfig {
 
   /**
    * Sync speed value in storage
+   * @typedef {Object} SyncSpeedValueOptions
+   * @property {number} speed - Speed value to sync
+   * @property {string} url - URL associated with the speed value
+   * @param {SyncSpeedValueOptions} options - Options for syncing speed value
    */
   syncSpeedValue({ speed, url }) {
     logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
@@ -112,7 +116,7 @@ export class VideoSpeedConfig {
 
   /**
    * Get an action based on the received keyboard event
-   * @param {CustomEvent} event - Keyboard event
+   * @param {KeyboardEvent} event - Keyboard event
    */
   getActionByKeyEvent(event) {
     const keyCode = event.keyCode;
