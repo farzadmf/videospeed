@@ -16,7 +16,6 @@ class VideoSpeedExtension {
     this.mediaObserver = null;
     this.shadowHostObserver = null;
     this.initialized = false;
-    this.logger = logger;
     this.config = config;
   }
 
@@ -35,20 +34,20 @@ class VideoSpeedExtension {
       this.MediaElementObserver = window.VSC.MediaElementObserver;
       this.MESSAGE_TYPES = window.VSC.Constants.MESSAGE_TYPES;
 
-      this.logger.info('Video Speed Controller starting...');
+      logger.info('Video Speed Controller starting...');
 
       // Load configuration
       await this.config.load();
 
       // Check if extension is enabled
       if (!this.config.settings.enabled) {
-        this.logger.info('Extension is disabled');
+        logger.info('Extension is disabled');
         return;
       }
 
       // Check if site is blacklisted
       if (this.isBlacklisted(this.config.settings.blacklist)) {
-        this.logger.info('Site is blacklisted');
+        logger.info('Site is blacklisted');
         return;
       }
 
@@ -68,12 +67,12 @@ class VideoSpeedExtension {
         this.initializeDocument(doc);
       });
 
-      this.logger.info('Video Speed Controller initialized successfully');
+      logger.info('Video Speed Controller initialized successfully');
       this.initialized = true;
     } catch (error) {
-      console.error(`❌ Failed to initialize Video Speed Controller: ${error.message}`);
-      console.error('📋 Full error details:', error);
-      console.error('🔍 Error stack:', error.stack);
+      logger.error(`❌ Failed to initialize Video Speed Controller: ${error.message}`);
+      logger.error('📋 Full error details:', error);
+      logger.error('🔍 Error stack:', error.stack);
     }
   }
 
@@ -90,7 +89,7 @@ class VideoSpeedExtension {
 
       if (document.body) {
         document.body.classList.add('vsc-initialized');
-        this.logger.debug('vsc-initialized added to document body');
+        logger.debug('vsc-initialized added to document body');
       }
 
       // Set up event listeners
@@ -125,13 +124,13 @@ class VideoSpeedExtension {
             this.initializeWhenReady(iframeDocument, (doc) => this.scanExistingMedia(doc));
           }
         } catch (e) {
-          this.logger.warn(`Could not access iframe content: ${e.message}`);
+          logger.warn(`Could not access iframe content: ${e.message}`);
         }
       }
 
-      this.logger.debug('Document initialization completed');
+      logger.debug('Document initialization completed');
     } catch (error) {
-      this.logger.error(`Failed to initialize document: ${error.message}`);
+      logger.error(`Failed to initialize document: ${error.message}`);
     }
   }
 
@@ -168,20 +167,20 @@ class VideoSpeedExtension {
   onVideoFound(video, parent) {
     try {
       if (!this.mediaObserver.isValidMediaElement(video)) {
-        this.logger.debug('Video element is not valid for controller attachment');
+        logger.debug('Video element is not valid for controller attachment');
         return;
       }
 
       if (video.vsc) {
-        this.logger.debug('Video already has controller attached');
+        logger.debug('Video already has controller attached');
         return;
       }
 
-      this.logger.debug('Attaching controller to new video element');
+      logger.debug('Attaching controller to new video element');
       video.vsc = new VideoController(video, parent, this.config, this.actionHandler);
     } catch (error) {
-      console.error('💥 Failed to attach controller to video:', error);
-      this.logger.error(`Failed to attach controller to video: ${error.message}`);
+      logger.error('💥 Failed to attach controller to video:', error);
+      logger.error(`Failed to attach controller to video: ${error.message}`);
     }
   }
 
@@ -192,11 +191,11 @@ class VideoSpeedExtension {
   onVideoRemoved(video) {
     try {
       if (video.vsc) {
-        this.logger.debug('Removing controller from video element');
+        logger.debug('Removing controller from video element');
         video.vsc.remove();
       }
     } catch (error) {
-      this.logger.error(`Failed to remove video controller: ${error.message}`);
+      logger.error(`Failed to remove video controller: ${error.message}`);
     }
   }
 
@@ -229,11 +228,9 @@ class VideoSpeedExtension {
         this.onVideoFound(media, media.parentElement);
       });
 
-      this.logger.info(
-        `Attached controllers to ${uniqueMediaElements.length} existing media elements`
-      );
+      logger.info(`Attached controllers to ${uniqueMediaElements.length} existing media elements`);
     } catch (error) {
-      this.logger.error(`Failed to scan existing media: ${error.message}`);
+      logger.error(`Failed to scan existing media: ${error.message}`);
     }
   }
 
@@ -250,7 +247,7 @@ class VideoSpeedExtension {
     link.type = 'text/css';
     link.rel = 'stylesheet';
     document.head.appendChild(link);
-    this.logger.debug('CSS injected into iframe document');
+    logger.debug('CSS injected into iframe document');
   }
 
   /**
@@ -280,9 +277,9 @@ class VideoSpeedExtension {
       });
 
       this.initialized = false;
-      this.logger.info('Video Speed Controller cleaned up');
+      logger.info('Video Speed Controller cleaned up');
     } catch (error) {
-      this.logger.error(`Failed to cleanup: ${error.message}`);
+      logger.error(`Failed to cleanup: ${error.message}`);
     }
   }
 }
@@ -353,7 +350,7 @@ window.addEventListener('beforeunload', () => {
 
 // Auto-initialize - settings loading will wait for injected settings if needed
 extension.initialize().catch((error) => {
-  console.error(`Extension initialization failed: ${error.message}`);
+  logger.error(`Extension initialization failed: ${error.message}`);
   window.VSC.logger.error(`Extension initialization failed: ${error.message}`);
 });
 
