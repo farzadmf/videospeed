@@ -83,6 +83,8 @@ export class VideoSpeedConfig {
   syncSpeedValue({ speed, url }) {
     logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
 
+    logger.info('there sync', speed);
+
     if (!speed || Number(speed) === 1) {
       // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
       delete this.settings.speeds[url];
@@ -92,12 +94,12 @@ export class VideoSpeedConfig {
         speed,
         updated: new Date().valueOf(),
       };
-
-      this.save({
-        lastSpeed: this.settings.lastSpeed,
-        speeds: this.settings.speeds,
-      });
     }
+
+    this.save({
+      lastSpeed: this.settings.lastSpeed,
+      speeds: this.settings.speeds,
+    });
   }
 
   /**
