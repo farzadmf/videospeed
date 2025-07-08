@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
 import { StorageManager } from './storage-manager.js';
 import { VSC_DEFAULTS } from '../shared/defaults.js';
 
-class VideoSpeedConfig {
+export class VideoSpeedConfig {
   constructor() {
     this.settings = { ...VSC_DEFAULTS };
     this.mediaElements = [];
@@ -77,10 +77,41 @@ class VideoSpeedConfig {
     }
   }
 
+  /**
+   * Sync speed value in storage
+   */
+  syncSpeedValue({ speed, url }) {
+    logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
+
+    if (!speed || Number(speed) === 1) {
+      // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
+      delete this.settings.speeds[url];
+    } else {
+      this.settings.lastSpeed = speed;
+      this.settings.speeds[url] = {
+        speed,
+        updated: new Date().valueOf(),
+      };
+
+      this.save({
+        lastSpeed: this.settings.lastSpeed,
+        speeds: this.settings.speeds,
+      });
+    }
+  }
+
+  /**
+   * Get an action by name
+   * @param {string} actionName - Action name to search
+   */
   getActionByName(actionName) {
     return this.settings.keyBindings.find((item) => item.action.name === actionName);
   }
 
+  /**
+   * Get an action based on the received keyboard event
+   * @param {CustomEvent} event - Keyboard event
+   */
   getActionByKeyEvent(event) {
     const keyCode = event.keyCode;
     const shift = !!event.shiftKey;

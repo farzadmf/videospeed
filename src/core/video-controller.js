@@ -6,6 +6,7 @@
 window.VSC = window.VSC || {};
 
 import { getBaseURL } from '../utils/url.js';
+import { logger } from '../utils/logger.js';
 
 export class VideoController {
   /**
@@ -42,7 +43,7 @@ export class VideoController {
     // Attach controller to video element
     target.vsc = this;
 
-    window.VSC.logger.info('VideoController initialized for video element');
+    logger.info('VideoController initialized for video element');
   }
 
   /**
@@ -58,27 +59,27 @@ export class VideoController {
 
     if (this.config.settings.rememberSpeed) {
       if (storedVideoSpeed) {
-        window.VSC.logger.debug(`Using stored speed for video: ${storedVideoSpeed}`);
+        logger.debug(`Using stored speed for video: ${storedVideoSpeed}`);
         targetSpeed = storedVideoSpeed;
       } else if (this.config.settings.lastSpeed) {
-        window.VSC.logger.debug(`Using lastSpeed: ${this.config.settings.lastSpeed}`);
+        logger.debug(`Using lastSpeed: ${this.config.settings.lastSpeed}`);
         targetSpeed = this.config.settings.lastSpeed;
       }
 
       // Reset speed isn't really a reset, it's a toggle to stored speed
       this.config.setKeyBinding('reset', targetSpeed);
     } else {
-      window.VSC.logger.debug('rememberSpeed disabled - using 1.0x speed');
+      logger.debug('rememberSpeed disabled - using 1.0x speed');
       targetSpeed = 1.0;
       // Reset speed toggles to fast speed when rememberSpeed is disabled
       this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
     }
 
-    window.VSC.logger.debug(`Setting initial playbackRate to: ${targetSpeed}`);
+    logger.debug(`Setting initial playbackRate to: ${targetSpeed}`);
 
     // Apply the speed immediately if forceLastSavedSpeed is enabled
     if (this.config.settings.forceLastSavedSpeed && targetSpeed !== 1.0) {
-      window.VSC.logger.debug('forceLastSavedSpeed enabled - dispatching ratechange event');
+      logger.debug('forceLastSavedSpeed enabled - dispatching ratechange event');
       this.video.dispatchEvent(
         new CustomEvent('ratechange', {
           bubbles: true,
@@ -97,13 +98,13 @@ export class VideoController {
    * @private
    */
   initializeControls() {
-    window.VSC.logger.debug('initializeControls Begin');
+    logger.debug('initializeControls Begin');
 
     const document = this.video.ownerDocument;
     const speed = this.video.playbackRate.toFixed(2);
     const position = window.VSC.ShadowDOMManager.calculatePosition(this.video);
 
-    window.VSC.logger.debug(`Speed variable set to: ${speed}`);
+    logger.debug(`Speed variable set to: ${speed}`);
 
     // Create wrapper element
     const wrapper = document.createElement('div');
@@ -145,7 +146,7 @@ export class VideoController {
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
 
-    window.VSC.logger.debug('initializeControls End');
+    logger.debug('initializeControls End');
     return wrapper;
   }
 
@@ -183,7 +184,7 @@ export class VideoController {
         break;
     }
 
-    window.VSC.logger.debug(`Controller inserted using ${positioning.insertionMethod} method`);
+    logger.debug(`Controller inserted using ${positioning.insertionMethod} method`);
   }
 
   /**
@@ -196,17 +197,17 @@ export class VideoController {
 
       if (!this.config.settings.rememberSpeed) {
         if (!storedSpeed) {
-          window.VSC.logger.info('Overwriting stored speed to 1.0 (rememberSpeed not enabled)');
+          logger.info('Overwriting stored speed to 1.0 (rememberSpeed not enabled)');
           storedSpeed = 1.0;
         }
-        window.VSC.logger.debug('Setting reset keybinding to fast');
+        logger.debug('Setting reset keybinding to fast');
         this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
       } else {
-        window.VSC.logger.debug('Storing lastSpeed into settings (rememberSpeed enabled)');
+        logger.debug('Storing lastSpeed into settings (rememberSpeed enabled)');
         storedSpeed = this.config.settings.lastSpeed;
       }
 
-      window.VSC.logger.info(`Explicitly setting playbackRate to: ${storedSpeed}`);
+      logger.info(`Explicitly setting playbackRate to: ${storedSpeed}`);
       this.actionHandler.setSpeed(event.target, storedSpeed);
     };
 
@@ -228,7 +229,7 @@ export class VideoController {
           mutation.type === 'attributes' &&
           (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
         ) {
-          window.VSC.logger.debug('mutation of A/V element');
+          logger.debug('mutation of A/V element');
           const controller = this.div;
           if (!mutation.target.src && !mutation.target.currentSrc) {
             controller.classList.add('vsc-nosource');
@@ -248,7 +249,7 @@ export class VideoController {
    * Remove controller and clean up
    */
   remove() {
-    window.VSC.logger.debug('Removing VideoController');
+    logger.debug('Removing VideoController');
 
     // Remove DOM element
     if (this.div && this.div.parentNode) {
@@ -274,7 +275,7 @@ export class VideoController {
     // Remove reference from video element
     delete this.video.vsc;
 
-    window.VSC.logger.debug('VideoController removed successfully');
+    logger.debug('VideoController removed successfully');
   }
 
   setSpeedVal(value) {
