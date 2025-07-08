@@ -39,8 +39,6 @@ class VideoSpeedExtension {
       // Load configuration
       await this.config.load();
 
-      logger.info('fuck first', this.config);
-
       // Check if extension is enabled
       if (!this.config.settings.enabled) {
         logger.info('Extension is disabled');
