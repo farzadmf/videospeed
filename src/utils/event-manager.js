@@ -1,13 +1,20 @@
 /**
  * Event management system for Video Speed Controller
  * Modular architecture using global variables
+ *
+ * @typedef {import('../core/video-controller.js').VideoController} VideoController
+ * @typedef {import('../core/config.js').VideoSpeedConfig} VideoSpeedConfig
  */
 
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
+import { getBaseURL } from '../utils/url.js';
 
 class EventManager {
+  /**
+   * @param {VideoSpeedConfig} config - config handler
+   */
   constructor(config, actionHandler) {
     this.config = config;
     this.actionHandler = actionHandler;
@@ -178,7 +185,7 @@ class EventManager {
 
   /**
    * Update speed indicators and storage when rate changes
-   * @param {HTMLMediaElement} video - Video element
+   * @param {HTMLMediaElement & { vsc?: VideoController }} video - Video element
    * @private
    */
   updateSpeedFromEvent(video) {
@@ -187,32 +194,26 @@ class EventManager {
       return;
     }
 
-    const speedIndicator = video.vsc.speedIndicator;
     const src = video.currentSrc;
-    const speed = Number(video.playbackRate.toFixed(2));
+    const url = getBaseURL(src);
+    const speed = Number(video.playbackRate.toFixed(1));
 
     logger.info(`Playback rate changed to ${speed}`);
 
-    // Update controller display
-    logger.debug('Updating controller with new speed');
-    speedIndicator.textContent = speed.toFixed(2);
+    video.vsc.setSpeedVal(speed);
 
-    // Store speed for this source
-    this.config.settings.speeds[src] = speed;
+    this.config.syncSpeedValue({ speed, url });
 
-    // Store as last speed for remember feature
-    logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
-    this.config.settings.lastSpeed = speed;
-
+    // 2025-07-07 | why wouldn't this be available?!
     // Save to Chrome storage if available
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-      logger.debug('Syncing chrome settings for lastSpeed');
-      chrome.storage.sync.set({ lastSpeed: speed }, () => {
-        logger.debug(`Speed setting saved: ${speed}`);
-      });
-    } else {
-      logger.debug('Chrome storage not available, skipping speed sync');
-    }
+    // if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+    //   logger.debug('Syncing chrome settings for lastSpeed');
+    //   chrome.storage.sync.set({ lastSpeed: speed }, () => {
+    //     logger.debug(`Speed setting saved: ${speed}`);
+    //   });
+    // } else {
+    //   logger.debug('Chrome storage not available, skipping speed sync');
+    // }
 
     // Show controller briefly if hidden
     this.actionHandler.runAction({ actionItem: 'blink' });

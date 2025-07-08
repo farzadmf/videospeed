@@ -48,7 +48,7 @@ export const VSC_DEFAULTS = {
   ],
   lastSpeed: 1.0,
   logLevel: LOG_LEVELS.WARNING,
-  rememberSpeed: false,
+  rememberSpeed: true,
   speed: 1.0,
   speeds: {}, // empty object to hold speed for each source
   startHidden: false,

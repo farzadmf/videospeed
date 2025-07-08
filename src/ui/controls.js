@@ -54,7 +54,6 @@ class ControlsManager {
         'click',
         (event) => {
           const actionItem = this.config.getActionByName(event.target.dataset['action']);
-          console.log('FMFOO[7]: controls.js:56: actionItem=', actionItem);
 
           this.actionHandler.runAction({ actionItem, event });
           event.stopPropagation();

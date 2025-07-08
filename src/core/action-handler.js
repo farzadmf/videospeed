@@ -1,6 +1,9 @@
 /**
  * Action handling system for Video Speed Controller
  * Modular architecture using global variables
+ *
+ * @typedef {import('./video-controller.js').VideoController} VideoController
+ * @typedef {import('./config.js').VideoSpeedConfig} VideoSpeedConfig
  */
 
 window.VSC = window.VSC || {};
@@ -9,6 +12,9 @@ import { logger } from '../utils/logger.js';
 import { getBaseURL } from '../utils/url.js';
 
 class ActionHandler {
+  /**
+   * @param {VideoSpeedConfig} config - config handler
+   */
   constructor(config, eventManager) {
     this.config = config;
     this.eventManager = eventManager;
@@ -212,7 +218,7 @@ class ActionHandler {
 
   /**
    * Set video playback speed
-   * @param {HTMLMediaElement} video - Video element
+   * @param {HTMLMediaElement & { vsc?: VideoController }} video - Video element
    * @param {number} speed - Speed to set
    */
   setSpeed(video, speed) {
@@ -223,9 +229,8 @@ class ActionHandler {
       return;
     }
 
+    const url = getBaseURL(src);
     if (speed === undefined) {
-      const url = getBaseURL(src);
-
       if (this.config.settings.forceLastSavedSpeed) {
         speed = this.config.settings.speeds[url]?.speed;
       }
@@ -246,25 +251,21 @@ class ActionHandler {
       video.playbackRate = numericSpeed;
     }
 
-    const speedIndicator = video.vsc.speedIndicator;
-    speedIndicator.textContent = numericSpeed.toFixed(2);
-
-    // Update settings
-    this.config.settings.lastSpeed = numericSpeed;
+    video.vsc.setSpeedVal(numericSpeed);
 
     // Store per-video speed if rememberSpeed is enabled
-    if (this.config.settings.rememberSpeed) {
-      const videoSrc = video.currentSrc || video.src;
-      if (videoSrc) {
-        this.config.settings.speeds[videoSrc] = numericSpeed;
-        logger.debug(`Stored speed ${numericSpeed} for video: ${videoSrc}`);
-      }
-    }
+    // if (this.config.settings.rememberSpeed) {
+    //   const videoSrc = video.currentSrc || video.src;
+    //
+    //   if (videoSrc) {
+    //     this.config.settings.speeds[videoSrc] = numericSpeed;
+    //     logger.debug(`Stored speed ${numericSpeed} for video: ${videoSrc}`);
+    //   }
+    // }
 
-    // Save settings to storage for persistence
-    this.config.save({
-      lastSpeed: this.config.settings.lastSpeed,
-      speeds: this.config.settings.speeds,
+    this.config.syncSpeedValue({
+      speed: numericSpeed,
+      url,
     });
 
     this.eventManager.refreshCoolDown();
