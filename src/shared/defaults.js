@@ -1,4 +1,4 @@
-import { REG_STRIP, INFO, WARNING } from './constants.js';
+import { REG_STRIP, LOG_LEVELS } from './constants.js';
 import { ACTIONS } from './actions.js';
 
 export const VSC_DEFAULTS = {
@@ -11,7 +11,7 @@ export const VSC_DEFAULTS = {
   `.replace(REG_STRIP, ''),
   controllerButtonSize: 14,
   controllerOpacity: 0.6,
-  defaultLogLevel: INFO,
+  defaultLogLevel: LOG_LEVELS.INFO,
   displayKeyCode: 86, // key: V
   enabled: true,
   forceLastSavedSpeed: true,
@@ -47,7 +47,7 @@ export const VSC_DEFAULTS = {
     { action: ACTIONS.advance, force: true, key: 39, predefined: true }, // Right
   ],
   lastSpeed: 1.0,
-  logLevel: WARNING,
+  logLevel: LOG_LEVELS.WARNING,
   rememberSpeed: false,
   speed: 1.0,
   speeds: {}, // empty object to hold speed for each source

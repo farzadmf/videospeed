@@ -6,13 +6,16 @@
   5 - debug
   6 - debug high verbosity + stack trace on each message
 */
-export const NONE = 1;
-export const ERROR = 2;
-export const WARNING = 3;
-export const INFO = 4;
-export const DEBUG = 5;
-export const TRACE = 6;
-export const CUSTOM = 10;
+
+export const LOG_LEVELS = {
+  NONE: 1,
+  ERROR: 2,
+  WARNING: 3,
+  INFO: 4,
+  DEBUG: 5,
+  TRACE: 6,
+  CUSTOM: 10,
+};
 
 export const REG_STRIP = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 export const REG_ENDS_WITH_FLAGS = /\/(?!.*(.).*\1)[gimsuy]*$/;
