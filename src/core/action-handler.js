@@ -226,7 +226,7 @@ class ActionHandler {
   setSpeed(video, speed) {
     logger.debug(`setSpeed started: ${speed}`);
 
-    const src = video?.src || video?.currentSrc;
+    const src = video?.currentSrc || video?.src;
     if (!src) {
       return;
     }

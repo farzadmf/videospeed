@@ -84,7 +84,7 @@ export class VideoController {
         new CustomEvent('ratechange', {
           bubbles: true,
           composed: true,
-          detail: { origin: 'videoSpeed', speed: targetSpeed.toFixed(2) },
+          detail: { origin: 'videoSpeed', speed: targetSpeed.toFixed(1) },
         })
       );
     } else {
@@ -101,7 +101,7 @@ export class VideoController {
     logger.debug('initializeControls Begin');
 
     const document = this.video.ownerDocument;
-    const speed = this.video.playbackRate.toFixed(2);
+    const speed = this.video.playbackRate.toFixed(1);
     const position = window.VSC.ShadowDOMManager.calculatePosition(this.video);
 
     logger.debug(`Speed variable set to: ${speed}`);
@@ -193,7 +193,8 @@ export class VideoController {
    */
   setupEventHandlers() {
     const mediaEventAction = (event) => {
-      let storedSpeed = this.config.settings.speeds[event.target.currentSrc];
+      const url = getBaseURL(event.target.currentSrc);
+      let storedSpeed = this.config.settings.speeds[url]?.speed || 1.0;
 
       if (!this.config.settings.rememberSpeed) {
         if (!storedSpeed) {
@@ -203,8 +204,9 @@ export class VideoController {
         logger.debug('Setting reset keybinding to fast');
         this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
       } else {
-        logger.debug('Storing lastSpeed into settings (rememberSpeed enabled)');
-        storedSpeed = this.config.settings.lastSpeed;
+        // logger.debug('Storing lastSpeed into settings (rememberSpeed enabled)');
+        // 2025-07-07 | lastSpeed shouldn't be used in favor of settings.speeds.
+        // storedSpeed = this.config.settings.lastSpeed;
       }
 
       logger.info(`Explicitly setting playbackRate to: ${storedSpeed}`);
@@ -278,11 +280,21 @@ export class VideoController {
     logger.debug('VideoController removed successfully');
   }
 
+  /**
+   * Set speed indicator's text
+   * @param {number|string} value - Speed value
+   */
   setSpeedVal(value) {
+    logger.debug(`setSpeedVal: ${value}`);
     this.speedIndicator.textContent = `${Number(value).toFixed(1)}x`;
   }
 
+  /**
+   * Set volume indicator's text
+   * @param {number|string} value - Volume value
+   */
   setVolumeVal(value) {
+    logger.debug(`setVolumeVal: ${value}`);
     this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`;
   }
 }

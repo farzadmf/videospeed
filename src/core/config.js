@@ -29,24 +29,25 @@ export class VideoSpeedConfig {
 
       // Handle key bindings migration/initialization
       this.settings.keyBindings = storage.keyBindings || [];
-
       if (!storage.keyBindings || storage.keyBindings.length === 0) {
         logger.info('First initialization - setting up default key bindings');
         await this.initializeDefaultKeyBindings();
       }
 
+      this.settings.speeds = storage.speeds || {};
+
       // Apply loaded settings
-      this.settings.lastSpeed = Number(storage.lastSpeed);
-      this.settings.displayKeyCode = Number(storage.displayKeyCode);
-      this.settings.rememberSpeed = Boolean(storage.rememberSpeed);
-      this.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
       this.settings.audioBoolean = Boolean(storage.audioBoolean);
-      this.settings.enabled = Boolean(storage.enabled);
-      this.settings.startHidden = Boolean(storage.startHidden);
-      this.settings.controllerOpacity = Number(storage.controllerOpacity);
-      this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
       this.settings.blacklist = String(storage.blacklist);
+      this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
+      this.settings.controllerOpacity = Number(storage.controllerOpacity);
+      this.settings.displayKeyCode = Number(storage.displayKeyCode);
+      this.settings.enabled = Boolean(storage.enabled);
+      this.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
+      this.settings.lastSpeed = Number(storage.lastSpeed);
       this.settings.logLevel = Number(storage.logLevel || VSC_DEFAULTS.logLevel);
+      this.settings.rememberSpeed = Boolean(storage.rememberSpeed);
+      this.settings.startHidden = Boolean(storage.startHidden);
 
       // Ensure display binding exists (for upgrades)
       this.ensureDisplayBinding(storage);
@@ -86,8 +87,6 @@ export class VideoSpeedConfig {
    */
   syncSpeedValue({ speed, url }) {
     logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
-
-    logger.info('there sync', speed);
 
     if (!speed || Number(speed) === 1) {
       // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
