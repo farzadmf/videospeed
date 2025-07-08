@@ -1,11 +1,11 @@
-import { vscDefaults } from '../../../shared/defaults.js';
+import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 
 const _ = window._;
 
 export const getTcDefaultBinding = (action) => {
   const toCompare = typeof action === 'string' ? action : action.name;
 
-  return _.find(vscDefaults.keyBindings, (b) => {
+  return _.find(VSC_DEFAULTS.keyBindings, (b) => {
     if (!toCompare.includes('fixspeed')) {
       return b.action.name === toCompare;
     }

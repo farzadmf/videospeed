@@ -6,10 +6,12 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
+import { StorageManager } from './storage-manager.js';
+import { VSC_DEFAULTS } from '../shared/defaults.js';
 
 class VideoSpeedConfig {
   constructor() {
-    this.settings = { ...window.VSC.Constants.DEFAULT_SETTINGS };
+    this.settings = { ...VSC_DEFAULTS };
     this.mediaElements = [];
   }
 
@@ -22,17 +24,15 @@ class VideoSpeedConfig {
       // In injected context, wait for user settings to be available
       const isInjectedContext = typeof chrome === 'undefined' || !chrome.storage;
       const storage = isInjectedContext
-        ? await window.VSC.StorageManager.waitForInjectedSettings(
-            window.VSC.Constants.DEFAULT_SETTINGS
-          )
-        : await window.VSC.StorageManager.get(window.VSC.Constants.DEFAULT_SETTINGS);
+        ? await StorageManager.waitForInjectedSettings(VSC_DEFAULTS)
+        : await StorageManager.get(VSC_DEFAULTS);
 
       // Handle key bindings migration/initialization
       this.settings.keyBindings = storage.keyBindings || [];
 
       if (!storage.keyBindings || storage.keyBindings.length === 0) {
         logger.info('First initialization - setting up default key bindings');
-        await this.initializeDefaultKeyBindings(storage);
+        await this.initializeDefaultKeyBindings();
       }
 
       // Apply loaded settings
@@ -46,9 +46,7 @@ class VideoSpeedConfig {
       this.settings.controllerOpacity = Number(storage.controllerOpacity);
       this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
       this.settings.blacklist = String(storage.blacklist);
-      this.settings.logLevel = Number(
-        storage.logLevel || window.VSC.Constants.DEFAULT_SETTINGS.logLevel
-      );
+      this.settings.logLevel = Number(storage.logLevel || VSC_DEFAULTS.logLevel);
 
       // Ensure display binding exists (for upgrades)
       this.ensureDisplayBinding(storage);
@@ -60,7 +58,7 @@ class VideoSpeedConfig {
       return this.settings;
     } catch (error) {
       logger.error(`Failed to load settings: ${error.message}`);
-      return window.VSC.Constants.DEFAULT_SETTINGS;
+      return VSC_DEFAULTS;
     }
   }
 
@@ -72,7 +70,7 @@ class VideoSpeedConfig {
   async save(newSettings = {}) {
     try {
       this.settings = { ...this.settings, ...newSettings };
-      await window.VSC.StorageManager.set(this.settings);
+      await StorageManager.set(this.settings);
       logger.info('Settings saved successfully');
     } catch (error) {
       logger.error(`Failed to save settings: ${error.message}`);
@@ -130,90 +128,25 @@ class VideoSpeedConfig {
    * @param {Object} storage - Storage object with legacy values
    * @private
    */
-  async initializeDefaultKeyBindings(storage) {
-    const keyBindings = [];
-
-    // Migrate from legacy settings if they exist
-    keyBindings.push({
-      action: 'slower',
-      key: Number(storage.slowerKeyCode) || 83,
-      value: Number(storage.speedStep) || 0.1,
-      force: false,
-      predefined: true,
-    });
-
-    keyBindings.push({
-      action: 'faster',
-      key: Number(storage.fasterKeyCode) || 68,
-      value: Number(storage.speedStep) || 0.1,
-      force: false,
-      predefined: true,
-    });
-
-    keyBindings.push({
-      action: 'rewind',
-      key: Number(storage.rewindKeyCode) || 90,
-      value: Number(storage.rewindTime) || 10,
-      force: false,
-      predefined: true,
-    });
-
-    keyBindings.push({
-      action: 'advance',
-      key: Number(storage.advanceKeyCode) || 88,
-      value: Number(storage.advanceTime) || 10,
-      force: false,
-      predefined: true,
-    });
-
-    keyBindings.push({
-      action: 'reset',
-      key: Number(storage.resetKeyCode) || 82,
-      value: 1.0,
-      force: false,
-      predefined: true,
-    });
-
-    keyBindings.push({
-      action: 'fast',
-      key: Number(storage.fastKeyCode) || 71,
-      value: Number(storage.fastSpeed) || 1.8,
-      force: false,
-      predefined: true,
-    });
-
-    keyBindings.push({
-      action: 'mark',
-      key: 77, // M key
-      value: 0,
-      force: false,
-      predefined: true,
-    });
-
-    keyBindings.push({
-      action: 'jump',
-      key: 74, // J key
-      value: 0,
-      force: false,
-      predefined: true,
-    });
+  async initializeDefaultKeyBindings() {
+    const keyBindings = VSC_DEFAULTS.keyBindings;
 
     this.settings.keyBindings = keyBindings;
     this.settings.version = '0.5.3';
 
     // Save the migrated settings
-    await window.VSC.StorageManager.set({
-      keyBindings: this.settings.keyBindings,
-      version: this.settings.version,
-      displayKeyCode: this.settings.displayKeyCode,
-      rememberSpeed: this.settings.rememberSpeed,
-      forceLastSavedSpeed: this.settings.forceLastSavedSpeed,
+    await StorageManager.set({
       audioBoolean: this.settings.audioBoolean,
-      startHidden: this.settings.startHidden,
-      enabled: this.settings.enabled,
-      controllerOpacity: this.settings.controllerOpacity,
-      controllerButtonSize: this.settings.controllerButtonSize,
       blacklist: this.settings.blacklist,
+      controllerButtonSize: this.settings.controllerButtonSize,
+      controllerOpacity: this.settings.controllerOpacity,
+      displayKeyCode: this.settings.displayKeyCode,
+      enabled: this.settings.enabled,
+      forceLastSavedSpeed: this.settings.forceLastSavedSpeed,
+      keyBindings: this.settings.keyBindings,
+      rememberSpeed: this.settings.rememberSpeed,
+      startHidden: this.settings.startHidden,
+      version: this.settings.version,
     });
   }
 
