@@ -262,7 +262,7 @@ class ActionHandler {
     //   video.playbackRate = numericSpeed;
     // }
 
-    video.vsc.setSpeedVal(numericSpeed);
+    video.vsc?.setSpeedVal(numericSpeed);
 
     // MyNote | Don't think I need this; I'm handing things differently.
     // Store per-video speed if rememberSpeed is enabled
