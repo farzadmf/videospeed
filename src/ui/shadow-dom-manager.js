@@ -9,19 +9,24 @@ import { logger } from '../utils/logger.js';
 
 export class ShadowDOMManager {
   /**
-   * Create shadow DOM for video controller
-   * @param {HTMLElement} wrapper - Wrapper element
-   * @param {Object} options - Configuration options
-   * @returns {ShadowRoot} Created shadow root
+   * @param {HTMLMediaElement & { vsc?: VideoController }} target - Video element
    */
-  static createShadowDOM(wrapper, options = {}) {
-    const { top = '50px', left = '0px', speed = '1.0', opacity = 0.3, buttonSize = 14 } = options;
+  constructor(target) {
+    this.target = target;
 
-    const shadow = wrapper.attachShadow({ mode: 'open' });
+    /** @type {HTMLDivElement|null} */
+    this.controllerDiv = null;
 
-    // Create style element with embedded CSS
-    const style = document.createElement('style');
-    style.textContent = `
+    /** @type {ShadowRoot|null} */
+    this.shadow = null;
+  }
+
+  /**
+   * Returns the CSS style text for the shadow DOM
+   * @returns {string} CSS style text
+   */
+  static getCssStyleText() {
+    return `
       * {
         font-family: sans-serif;
         font-size: 13px;
@@ -122,20 +127,35 @@ export class ShadowDOMManager {
         opacity: 0.65;
       }
     `;
-    shadow.appendChild(style);
+  }
+
+  /**
+   * Create shadow DOM for video controller
+   * @param {HTMLElement} wrapper - Wrapper element
+   * @param {Object} options - Configuration options
+   */
+  createShadowDOM(wrapper, options = {}) {
+    const { top = '50px', left = '0px', speed = '1.0', opacity = 0.3, buttonSize = 14 } = options;
+
+    this.shadow = wrapper.attachShadow({ mode: 'open' });
+
+    // Create style element with embedded CSS
+    const style = document.createElement('style');
+    style.textContent = ShadowDOMManager.getCssStyleText();
+    this.shadow.appendChild(style);
 
     // Create controller div
-    const controller = document.createElement('div');
-    controller.id = 'controller';
+    this.controllerDiv = document.createElement('div');
+    this.controllerDiv.id = 'controller';
     // controller.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
-    controller.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
+    this.controllerDiv.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
 
     // Create draggable speed indicator
     const draggable = document.createElement('span');
     draggable.setAttribute('data-action', 'drag');
     draggable.className = 'draggable';
     draggable.style.cssText = `font-size: ${buttonSize}px;`;
-    controller.appendChild(draggable);
+    this.controllerDiv.appendChild(draggable);
 
     const speedIndicator = document.createElement('span');
     speedIndicator.id = 'vsc-speed-val';
@@ -174,62 +194,60 @@ export class ShadowDOMManager {
       controls.appendChild(button);
     });
 
-    controller.appendChild(controls);
-    shadow.appendChild(controller);
+    this.controllerDiv.appendChild(controls);
+    this.shadow.appendChild(this.controllerDiv);
 
     logger.debug('Shadow DOM created for video controller');
-    return shadow;
   }
 
   /**
    * Get controller element from shadow DOM
-   * @param {ShadowRoot} shadow - Shadow root
    * @returns {HTMLElement} Controller element
    */
-  static getController(shadow) {
-    return shadow.querySelector('#controller');
+  getController() {
+    return this.shadow.querySelector('#controller');
   }
 
   /**
    * Get controls container from shadow DOM
-   * @param {ShadowRoot} shadow - Shadow root
    * @returns {HTMLElement} Controls element
    */
-  static getControls(shadow) {
-    return shadow.querySelector('#controls');
+  getControls() {
+    return this.shadow.querySelector('#controls');
   }
 
   /**
    * Get draggable speed indicator from shadow DOM
-   * @param {ShadowRoot} shadow - Shadow root
    * @returns {HTMLElement} Speed indicator element
    */
-  static getSpeedIndicator(shadow) {
-    return shadow.querySelector('span#vsc-speed-val');
+  getSpeedIndicator() {
+    return this.shadow.querySelector('span#vsc-speed-val');
   }
 
-  static getVolumeIndicator(shadow) {
-    return shadow.querySelector('span#vsc-volume-val');
+  /**
+   * Get draggable volume indicator from shadow DOM
+   * @returns {HTMLElement} Speed indicator element
+   */
+  getVolumeIndicator() {
+    return this.shadow.querySelector('span#vsc-volume-val');
   }
 
   /**
    * Get all buttons from shadow DOM
-   * @param {ShadowRoot} shadow - Shadow root
    * @returns {NodeList} Button elements
    */
-  static getButtons(shadow) {
-    return shadow.querySelectorAll('button');
+  getButtons() {
+    return this.shadow.querySelectorAll('button');
   }
 
   /**
    * Update speed display in shadow DOM
-   * @param {ShadowRoot} shadow - Shadow root
    * @param {number} speed - New speed value
    */
-  static updateSpeedDisplay(shadow, speed) {
-    const speedIndicator = this.getSpeedIndicator(shadow);
+  updateSpeedDisplay(speed) {
+    const speedIndicator = this.getSpeedIndicator();
     if (speedIndicator) {
-      speedIndicator.textContent = speed.toFixed(2);
+      speedIndicator.textContent = speed.toFixed(1);
     }
   }
 
@@ -238,13 +256,13 @@ export class ShadowDOMManager {
    * @param {HTMLVideoElement} video - Video element
    * @returns {Object} Position object with top and left properties
    */
-  static calculatePosition(video) {
-    const rect = video.getBoundingClientRect();
+  calculatePosition() {
+    const rect = this.target.getBoundingClientRect();
 
     // getBoundingClientRect is relative to the viewport; style coordinates
     // are relative to offsetParent, so we adjust for that here. offsetParent
     // can be null if the video has `display: none` or is not yet in the DOM.
-    const offsetRect = video.offsetParent?.getBoundingClientRect();
+    const offsetRect = this.target.offsetParent?.getBoundingClientRect();
     const top = `${Math.max(rect.top - (offsetRect?.top || 0), 0)}px`;
     const left = `${Math.max(rect.left - (offsetRect?.left || 0), 0)}px`;
 

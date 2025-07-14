@@ -27,6 +27,7 @@ export class VideoController {
     this.config = config;
     this.actionHandler = actionHandler;
     this.controlsManager = new ControlsManager(actionHandler, config);
+    this.shadowDOMManager = new ShadowDOMManager(target);
 
     // Add to tracked media elements
     config.addMediaElement(target);
@@ -105,7 +106,7 @@ export class VideoController {
 
     const document = this.video.ownerDocument;
     const speed = this.video.playbackRate.toFixed(1);
-    const position = ShadowDOMManager.calculatePosition(this.video);
+    const position = this.shadowDOMManager.calculatePosition();
 
     logger.debug(`Speed variable set to: ${speed}`);
 
@@ -131,7 +132,7 @@ export class VideoController {
     }
 
     // Create shadow DOM
-    const shadow = ShadowDOMManager.createShadowDOM(wrapper, {
+    this.shadowDOMManager.createShadowDOM(wrapper, {
       top: position.top,
       left: position.left,
       speed: speed,
@@ -140,11 +141,11 @@ export class VideoController {
     });
 
     // Set up control events
-    this.controlsManager.setupControlEvents(shadow, this.video);
+    this.controlsManager.setupControlEvents(this.shadowDOMManager.shadow, this.video);
 
     // Store speed indicator reference
-    this.speedIndicator = ShadowDOMManager.getSpeedIndicator(shadow);
-    this.volumeIndicator = ShadowDOMManager.getVolumeIndicator(shadow);
+    this.speedIndicator = this.shadowDOMManager.getSpeedIndicator();
+    this.volumeIndicator = this.shadowDOMManager.getVolumeIndicator();
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
@@ -278,6 +279,26 @@ export class VideoController {
     delete this.video.vsc;
 
     logger.debug('VideoController removed successfully');
+  }
+
+  adjustLocation() {
+    // getBoundingClientRect is relative to the viewport; style coordinates
+    // are relative to offsetParent, so we adjust for that here. offsetParent
+    // can be null if the video has `display: none` or is not yet in the DOM.
+    const offsetRect = this.video.offsetParent?.getBoundingClientRect();
+    const rect = this.video.getBoundingClientRect();
+
+    let top = Math.max(rect.top - (offsetRect?.top || 0), 0);
+    let left = Math.max(rect.left - (offsetRect?.left || 0), 0);
+
+    // Couldn't figure out a proper way, so hacking it!
+    if (location.hostname.match(/totaltypescript.com/)) {
+      top = Math.max(rect.top - (rect?.top || 0), 0);
+      left = Math.max(rect.left - (rect?.left || 0), 0);
+    }
+
+    this.controller.style.left = `${left}px`;
+    this.controller.style.top = `${top}px`;
   }
 
   /**
