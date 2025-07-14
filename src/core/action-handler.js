@@ -238,7 +238,7 @@ class ActionHandler {
       }
     }
 
-    // 2025-07-07 | For some reason, this ends up being undefined sometimes 🤷
+    // MyNote | For some reason, this ends up being undefined sometimes 🤷
     if (speed === undefined) {
       return;
     }
@@ -248,7 +248,7 @@ class ActionHandler {
 
     video.playbackRate = numericSpeed;
 
-    // 2025-07-07 | Doing this creates an infinite loop, so I ignore cooldown
+    // MyNote | Doing this creates an infinite loop, so I ignore cooldown
     //              in event-manager and not do this here either!
     // if (this.config.settings.forceLastSavedSpeed) {
     //   video.dispatchEvent(
@@ -264,7 +264,7 @@ class ActionHandler {
 
     video.vsc.setSpeedVal(numericSpeed);
 
-    // 2025-07-07 | Don't think I need this; I'm handing things differently.
+    // MyNote | Don't think I need this; I'm handing things differently.
     // Store per-video speed if rememberSpeed is enabled
     // if (this.config.settings.rememberSpeed) {
     //   const videoSrc = video.currentSrc || video.src;
