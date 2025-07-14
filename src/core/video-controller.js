@@ -106,6 +106,7 @@ export class VideoController {
 
     const document = this.video.ownerDocument;
     const speed = this.video.playbackRate.toFixed(1);
+    const volume = this.video.volume.toFixed(1);
 
     logger.debug(`Speed variable set to: ${speed}`);
 
@@ -132,9 +133,10 @@ export class VideoController {
 
     // Create shadow DOM
     this.shadowDOMManager.createShadowDOM(wrapper, {
-      speed,
-      opacity: this.config.settings.controllerOpacity,
       buttonSize: this.config.settings.controllerButtonSize,
+      opacity: this.config.settings.controllerOpacity,
+      speed,
+      volume,
     });
 
     // Set up control events
