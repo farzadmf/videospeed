@@ -5,7 +5,9 @@
 
 window.VSC = window.VSC || {};
 
-class AmazonHandler extends window.VSC.BaseSiteHandler {
+import { BaseSiteHandler } from './base-handler.js';
+
+export class AmazonHandler extends BaseSiteHandler {
   /**
    * Check if this handler applies to Amazon
    * @returns {boolean} True if on Amazon

@@ -5,7 +5,9 @@
 
 window.VSC = window.VSC || {};
 
-class ShadowDOMManager {
+import { logger } from '../utils/logger.js';
+
+export class ShadowDOMManager {
   /**
    * Create shadow DOM for video controller
    * @param {HTMLElement} wrapper - Wrapper element
@@ -13,7 +15,7 @@ class ShadowDOMManager {
    * @returns {ShadowRoot} Created shadow root
    */
   static createShadowDOM(wrapper, options = {}) {
-    const { top = '0px', left = '0px', speed = '1.0', opacity = 0.3, buttonSize = 14 } = options;
+    const { top = '50px', left = '0px', speed = '1.0', opacity = 0.3, buttonSize = 14 } = options;
 
     const shadow = wrapper.attachShadow({ mode: 'open' });
 
@@ -23,7 +25,7 @@ class ShadowDOMManager {
       * {
         font-family: sans-serif;
         font-size: 13px;
-        line-height: 1.8em;
+        line-height: 1.4em;
       }
 
       :host(:hover) #controls {
@@ -126,7 +128,7 @@ class ShadowDOMManager {
     const controller = document.createElement('div');
     controller.id = 'controller';
     // controller.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
-    controller.style.cssText = `top:50px; left:${left}; opacity:${opacity};`;
+    controller.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
 
     // Create draggable speed indicator
     const draggable = document.createElement('span');
@@ -145,6 +147,7 @@ class ShadowDOMManager {
     volumeIndicator.textContent = '(vol: <VOL>)';
 
     draggable.appendChild(speedIndicator);
+    draggable.appendChild(document.createTextNode(' '));
     draggable.appendChild(volumeIndicator);
 
     // Create controls span
@@ -174,7 +177,7 @@ class ShadowDOMManager {
     controller.appendChild(controls);
     shadow.appendChild(controller);
 
-    window.VSC.logger.debug('Shadow DOM created for video controller');
+    logger.debug('Shadow DOM created for video controller');
     return shadow;
   }
 

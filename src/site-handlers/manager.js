@@ -5,15 +5,23 @@
 
 window.VSC = window.VSC || {};
 
-class SiteHandlerManager {
+import { logger } from '../utils/logger.js';
+import { AmazonHandler } from './amazon-handler.js';
+import { BaseSiteHandler } from './base-handler.js';
+import { AppleHandler } from './apple-handler.js';
+import { FacebookHandler } from './facebook-handler.js';
+import { NetflixHandler } from './netflix-handler.js';
+import { YouTubeHandler } from './youtube-handler.js';
+
+export class SiteHandlerManager {
   constructor() {
     this.currentHandler = null;
     this.availableHandlers = [
-      window.VSC.NetflixHandler,
-      window.VSC.YouTubeHandler,
-      window.VSC.FacebookHandler,
-      window.VSC.AmazonHandler,
-      window.VSC.AppleHandler,
+      AmazonHandler,
+      AppleHandler,
+      FacebookHandler,
+      NetflixHandler,
+      YouTubeHandler,
     ];
   }
 
@@ -36,13 +44,13 @@ class SiteHandlerManager {
   detectHandler() {
     for (const HandlerClass of this.availableHandlers) {
       if (HandlerClass.matches()) {
-        window.VSC.logger.info(`Using ${HandlerClass.name} for ${location.hostname}`);
+        logger.info(`Using ${HandlerClass.name} for ${location.hostname}`);
         return new HandlerClass();
       }
     }
 
-    window.VSC.logger.debug(`Using BaseSiteHandler for ${location.hostname}`);
-    return new window.VSC.BaseSiteHandler();
+    logger.debug(`Using BaseSiteHandler for ${location.hostname}`);
+    return new BaseSiteHandler();
   }
 
   /**
@@ -123,6 +131,8 @@ class SiteHandlerManager {
     this.currentHandler = null;
   }
 }
+
+export const siteHandlerManager = new SiteHandlerManager();
 
 // Create singleton instance
 window.VSC.siteHandlerManager = new SiteHandlerManager();

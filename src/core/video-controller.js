@@ -7,6 +7,9 @@ window.VSC = window.VSC || {};
 
 import { getBaseURL } from '../utils/url.js';
 import { logger } from '../utils/logger.js';
+import { ControlsManager } from '../ui/controls-manager.js';
+import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
+import { siteHandlerManager } from '../site-handlers/manager.js';
 
 export class VideoController {
   /**
@@ -23,7 +26,7 @@ export class VideoController {
     this.parent = target.parentElement || parent;
     this.config = config;
     this.actionHandler = actionHandler;
-    this.controlsManager = new window.VSC.ControlsManager(actionHandler, config);
+    this.controlsManager = new ControlsManager(actionHandler, config);
 
     // Add to tracked media elements
     config.addMediaElement(target);
@@ -102,7 +105,7 @@ export class VideoController {
 
     const document = this.video.ownerDocument;
     const speed = this.video.playbackRate.toFixed(1);
-    const position = window.VSC.ShadowDOMManager.calculatePosition(this.video);
+    const position = ShadowDOMManager.calculatePosition(this.video);
 
     logger.debug(`Speed variable set to: ${speed}`);
 
@@ -128,7 +131,7 @@ export class VideoController {
     }
 
     // Create shadow DOM
-    const shadow = window.VSC.ShadowDOMManager.createShadowDOM(wrapper, {
+    const shadow = ShadowDOMManager.createShadowDOM(wrapper, {
       top: position.top,
       left: position.left,
       speed: speed,
@@ -140,8 +143,8 @@ export class VideoController {
     this.controlsManager.setupControlEvents(shadow, this.video);
 
     // Store speed indicator reference
-    this.speedIndicator = window.VSC.ShadowDOMManager.getSpeedIndicator(shadow);
-    this.volumeIndicator = window.VSC.ShadowDOMManager.getVolumeIndicator(shadow);
+    this.speedIndicator = ShadowDOMManager.getSpeedIndicator(shadow);
+    this.volumeIndicator = ShadowDOMManager.getVolumeIndicator(shadow);
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
@@ -161,10 +164,7 @@ export class VideoController {
     fragment.appendChild(wrapper);
 
     // Get site-specific positioning information
-    const positioning = window.VSC.siteHandlerManager.getControllerPosition(
-      this.parent,
-      this.video
-    );
+    const positioning = siteHandlerManager.getControllerPosition(this.parent, this.video);
 
     switch (positioning.insertionMethod) {
       case 'beforeParent':

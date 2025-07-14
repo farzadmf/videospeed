@@ -5,7 +5,9 @@
 
 window.VSC = window.VSC || {};
 
-class ControlsManager {
+import { logger } from '../utils/logger.js';
+
+export class ControlsManager {
   constructor(actionHandler, config) {
     this.actionHandler = actionHandler;
     this.config = config;
@@ -103,7 +105,7 @@ class ControlsManager {
           speedIndicator.textContent = newSpeed.toFixed(2);
         }
 
-        window.VSC.logger.debug(`Wheel control: speed changed to ${newSpeed.toFixed(2)}`);
+        logger.debug(`Wheel control: speed changed to ${newSpeed.toFixed(2)}`);
       },
       { passive: false }
     );
