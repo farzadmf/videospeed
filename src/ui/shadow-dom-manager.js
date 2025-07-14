@@ -133,9 +133,13 @@ export class ShadowDOMManager {
    * Create shadow DOM for video controller
    * @param {HTMLElement} wrapper - Wrapper element
    * @param {Object} options - Configuration options
+   * @param {number} [options.buttonSize=14] - Size of control buttons in pixels
+   * @param {number} [options.opacity=0.3] - Controller opacity (0-1)
+   * @param {string} [options.speed='1.0'] - Initial playback speed display value
+   * @param {string} [options.volume='1.0'] - Initial volume display value
    */
   createShadowDOM(wrapper, options = {}) {
-    const { speed = '1.0', opacity = 0.3, buttonSize = 14 } = options;
+    const { buttonSize = 14, opacity = 0.3, speed = '1.0', volume = '1.0' } = options;
 
     const { top = '50px', left = '0px' } = this.calculatePosition();
 
@@ -163,10 +167,11 @@ export class ShadowDOMManager {
     speedIndicator.id = 'vsc-speed-val';
     speedIndicator.setAttribute('data-action', 'drag');
     speedIndicator.textContent = `${speed}x`;
+
     const volumeIndicator = document.createElement('span');
     volumeIndicator.id = 'vsc-volume-val';
     volumeIndicator.setAttribute('data-action', 'drag');
-    volumeIndicator.textContent = '(vol: <VOL>)';
+    volumeIndicator.textContent = `(vol: ${(volume * 100).toFixed(0)})`;
 
     draggable.appendChild(speedIndicator);
     draggable.appendChild(document.createTextNode(' '));
