@@ -5,7 +5,10 @@
 
 window.VSC = window.VSC || {};
 
-class FacebookHandler extends window.VSC.BaseSiteHandler {
+import { logger } from '../utils/logger.js';
+import { BaseSiteHandler } from './base-handler.js';
+
+export class FacebookHandler extends BaseSiteHandler {
   /**
    * Check if this handler applies to Facebook
    * @returns {boolean} True if on Facebook
@@ -30,7 +33,7 @@ class FacebookHandler extends window.VSC.BaseSiteHandler {
         parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement
           .parentElement;
     } catch (e) {
-      window.VSC.logger.warn('Facebook DOM structure changed, using fallback positioning');
+      logger.warn('Facebook DOM structure changed, using fallback positioning');
       targetParent = parent.parentElement;
     }
 
@@ -66,7 +69,7 @@ class FacebookHandler extends window.VSC.BaseSiteHandler {
             if (node.nodeType === Node.ELEMENT_NODE) {
               const videos = node.querySelectorAll && node.querySelectorAll('video');
               if (videos && videos.length > 0) {
-                window.VSC.logger.debug(`Facebook: Found ${videos.length} new videos`);
+                logger.debug(`Facebook: Found ${videos.length} new videos`);
                 // Signal that new videos were found
                 this.onNewVideosDetected(Array.from(videos));
               }
@@ -82,7 +85,7 @@ class FacebookHandler extends window.VSC.BaseSiteHandler {
     });
 
     this.facebookObserver = observer;
-    window.VSC.logger.debug('Facebook dynamic content observer set up');
+    logger.debug('Facebook dynamic content observer set up');
   }
 
   /**
@@ -93,7 +96,7 @@ class FacebookHandler extends window.VSC.BaseSiteHandler {
   onNewVideosDetected(videos) {
     // This could be used to automatically attach controllers to new videos
     // For now, just log the detection
-    window.VSC.logger.debug(`Facebook: ${videos.length} new videos detected`);
+    logger.debug(`Facebook: ${videos.length} new videos detected`);
   }
 
   /**

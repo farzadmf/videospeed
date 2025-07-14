@@ -5,7 +5,9 @@
 
 window.VSC = window.VSC || {};
 
-class AppleHandler extends window.VSC.BaseSiteHandler {
+import { BaseSiteHandler } from './base-handler.js';
+
+export class AppleHandler extends BaseSiteHandler {
   /**
    * Check if this handler applies to Apple TV+
    * @returns {boolean} True if on Apple TV+

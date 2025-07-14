@@ -5,7 +5,10 @@
 
 window.VSC = window.VSC || {};
 
-class NetflixHandler extends window.VSC.BaseSiteHandler {
+import { logger } from '../utils/logger.js';
+import { BaseSiteHandler } from './base-handler.js';
+
+export class NetflixHandler extends BaseSiteHandler {
   /**
    * Check if this handler applies to Netflix
    * @returns {boolean} True if on Netflix
@@ -46,10 +49,10 @@ class NetflixHandler extends window.VSC.BaseSiteHandler {
         'https://www.netflix.com'
       );
 
-      window.VSC.logger.debug(`Netflix seek: ${seekSeconds} seconds`);
+      logger.debug(`Netflix seek: ${seekSeconds} seconds`);
       return true;
     } catch (error) {
-      window.VSC.logger.error(`Netflix seek failed: ${error.message}`);
+      logger.error(`Netflix seek failed: ${error.message}`);
       // Fallback to default seeking
       video.currentTime += seekSeconds;
       return true;
@@ -65,9 +68,7 @@ class NetflixHandler extends window.VSC.BaseSiteHandler {
 
     // Netflix-specific script injection is handled by content script (injector.js)
     // since Chrome APIs are not available in injected page context
-    window.VSC.logger.debug(
-      'Netflix handler initialized - script injection handled by content script'
-    );
+    logger.debug('Netflix handler initialized - script injection handled by content script');
   }
 
   /**

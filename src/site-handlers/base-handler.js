@@ -5,7 +5,9 @@
 
 window.VSC = window.VSC || {};
 
-class BaseSiteHandler {
+import { logger } from '../utils/logger.js';
+
+export class BaseSiteHandler {
   constructor() {
     this.hostname = location.hostname;
   }
@@ -55,14 +57,14 @@ class BaseSiteHandler {
    * @param {Document} document - Document object
    */
   initialize(_document) {
-    window.VSC.logger.debug(`Initializing ${this.constructor.name} for ${this.hostname}`);
+    logger.debug(`Initializing ${this.constructor.name} for ${this.hostname}`);
   }
 
   /**
    * Handle site-specific cleanup
    */
   cleanup() {
-    window.VSC.logger.debug(`Cleaning up ${this.constructor.name}`);
+    logger.debug(`Cleaning up ${this.constructor.name}`);
   }
 
   /**

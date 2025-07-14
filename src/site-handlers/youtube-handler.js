@@ -5,7 +5,10 @@
 
 window.VSC = window.VSC || {};
 
-class YouTubeHandler extends window.VSC.BaseSiteHandler {
+import { logger } from '../utils/logger.js';
+import { BaseSiteHandler } from './base-handler.js';
+
+export class YouTubeHandler extends BaseSiteHandler {
   /**
    * Check if this handler applies to YouTube
    * @returns {boolean} True if on YouTube
@@ -49,7 +52,7 @@ class YouTubeHandler extends window.VSC.BaseSiteHandler {
   setupYouTubeCSS() {
     // YouTube has complex CSS that can hide our controller
     // The inject.css already handles this, but we could add dynamic adjustments here
-    window.VSC.logger.debug('YouTube CSS setup completed');
+    logger.debug('YouTube CSS setup completed');
   }
 
   /**
@@ -96,7 +99,7 @@ class YouTubeHandler extends window.VSC.BaseSiteHandler {
         }
       });
     } catch (e) {
-      window.VSC.logger.debug(`Could not access YouTube iframe videos: ${e.message}`);
+      logger.debug(`Could not access YouTube iframe videos: ${e.message}`);
     }
 
     return videos;
@@ -109,7 +112,7 @@ class YouTubeHandler extends window.VSC.BaseSiteHandler {
   onPlayerStateChange(_video) {
     // YouTube fires custom events we could listen to
     // This could be used for better integration with YouTube's player
-    window.VSC.logger.debug('YouTube player state changed');
+    logger.debug('YouTube player state changed');
   }
 }
 
