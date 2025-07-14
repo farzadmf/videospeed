@@ -135,7 +135,9 @@ export class ShadowDOMManager {
    * @param {Object} options - Configuration options
    */
   createShadowDOM(wrapper, options = {}) {
-    const { top = '50px', left = '0px', speed = '1.0', opacity = 0.3, buttonSize = 14 } = options;
+    const { speed = '1.0', opacity = 0.3, buttonSize = 14 } = options;
+
+    const { top = '50px', left = '0px' } = this.calculatePosition();
 
     this.shadow = wrapper.attachShadow({ mode: 'open' });
 
@@ -267,6 +269,20 @@ export class ShadowDOMManager {
     const left = `${Math.max(rect.left - (offsetRect?.left || 0), 0)}px`;
 
     return { top, left };
+  }
+
+  /**
+   * Adjusts the location of the controller based on the video element's position
+   */
+  adjustLocation() {
+    if (!this.controllerDiv) {
+      return;
+    }
+
+    const { left, top } = this.calculatePosition();
+
+    this.controllerDiv.style.left = left;
+    this.controllerDiv.style.top = top;
   }
 }
 

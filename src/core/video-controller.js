@@ -106,7 +106,6 @@ export class VideoController {
 
     const document = this.video.ownerDocument;
     const speed = this.video.playbackRate.toFixed(1);
-    const position = this.shadowDOMManager.calculatePosition();
 
     logger.debug(`Speed variable set to: ${speed}`);
 
@@ -133,9 +132,7 @@ export class VideoController {
 
     // Create shadow DOM
     this.shadowDOMManager.createShadowDOM(wrapper, {
-      top: position.top,
-      left: position.left,
-      speed: speed,
+      speed,
       opacity: this.config.settings.controllerOpacity,
       buttonSize: this.config.settings.controllerButtonSize,
     });
@@ -149,6 +146,8 @@ export class VideoController {
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
+
+    this.shadowDOMManager.adjustLocation();
 
     logger.debug('initializeControls End');
     return wrapper;
@@ -206,7 +205,7 @@ export class VideoController {
         this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
       } else {
         // logger.debug('Storing lastSpeed into settings (rememberSpeed enabled)');
-        // 2025-07-07 | lastSpeed shouldn't be used in favor of settings.speeds.
+        // MyNote | lastSpeed shouldn't be used in favor of settings.speeds.
         // storedSpeed = this.config.settings.lastSpeed;
       }
 
@@ -238,6 +237,9 @@ export class VideoController {
             controller.classList.add('vsc-nosource');
           } else {
             controller.classList.remove('vsc-nosource');
+
+            this.actionHandler.setSpeed(this.video);
+            this.shadowDOMManager.adjustLocation();
           }
         }
       });

@@ -160,7 +160,7 @@ export class EventManager {
    * @private
    */
   handleRateChange(event) {
-    // 2025-07-07 | I don't think I need this as I disabled CustomEvent in action-handler's
+    // MyNote | I don't think I need this as I disabled CustomEvent in action-handler's
     //              setSpeed (no idea why it's there TBH).
     // if (this.coolDown) {
     //   logger.info('Speed event propagation blocked');
@@ -174,7 +174,7 @@ export class EventManager {
       event.stopImmediatePropagation();
     }
 
-    // 2025-07-07 | Disabled this to match the old behavior I had, and it seems to be
+    // MyNote | Disabled this to match the old behavior I had, and it seems to be
     //              working, so why complicate my life?!
     // Handle forced last saved speed
     // if (this.config.settings.forceLastSavedSpeed) {
@@ -197,7 +197,7 @@ export class EventManager {
    * @param {HTMLMediaElement & { vsc?: VideoController }} video - Video element
    * @private
    */
-  // 2025-07-07 | Well, seems like with all the things I disabled in handleRateChange, this
+  // MyNote | Well, seems like with all the things I disabled in handleRateChange, this
   //              method became redundant, so ...
   // updateSpeedFromEvent(video) {
   //   // Check if video has a controller attached
@@ -215,7 +215,7 @@ export class EventManager {
   //
   //   this.config.syncSpeedValue({ speed, url });
   //
-  //   // 2025-07-07 | why wouldn't this be available?!
+  //   // MyNote | why wouldn't this be available?!
   //   // Save to Chrome storage if available
   //   // if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
   //   //   logger.debug('Syncing chrome settings for lastSpeed');
