@@ -1,4 +1,6 @@
-const _ = window._;
+// This is used both in options page (normal window._) and extension context (being injected
+// through injector.js, preserve/restore underscore etc.).
+const _ = window.VSC?._ || window._;
 
 const fixSpeedsHelper = (min, max) => {
   return _.range(min, max + 1, 0.5).map((val) => {

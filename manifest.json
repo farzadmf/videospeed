@@ -38,6 +38,7 @@
     {
       "resources": [
         "src/assets/pkgs/*.js",
+        "src/shared/*.js",
         "src/styles/inject.css",
         "src/styles/shadow.css",
         "src/module-loader.js",

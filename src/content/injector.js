@@ -36,7 +36,9 @@ async function injectModules() {
     injectCSS();
 
     const modules = [
+      'src/shared/preserve-underscore.js',
       'src/assets/pkgs/lodash-4.7.15.min.js',
+      'src/shared/restore-underscore.js',
       'src/shared/actions.js',
       'src/shared/constants.js',
       'src/shared/defaults.js',
