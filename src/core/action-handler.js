@@ -11,6 +11,9 @@ window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
 import { getBaseURL } from '../utils/url.js';
+import { siteHandlerManager } from '../site-handlers/manager.js';
+import { SPEED_LIMITS } from '../shared/constants.js';
+import { DragHandler } from '../ui/drag-handler.js';
 
 class ActionHandler {
   /**
@@ -109,7 +112,7 @@ class ActionHandler {
         logger.debug('Increase speed');
         const fasterSpeed = Math.min(
           (video.playbackRate < 0.1 ? 0.0 : video.playbackRate) + value,
-          window.VSC.Constants.SPEED_LIMITS.MAX
+          SPEED_LIMITS.MAX
         );
         this.setSpeed(video, fasterSpeed);
         break;
@@ -117,10 +120,7 @@ class ActionHandler {
 
       case 'slower': {
         logger.debug('Decrease speed');
-        const slowerSpeed = Math.max(
-          video.playbackRate - value,
-          window.VSC.Constants.SPEED_LIMITS.MIN
-        );
+        const slowerSpeed = Math.max(video.playbackRate - value, SPEED_LIMITS.MIN);
         this.setSpeed(video, slowerSpeed);
         break;
       }
@@ -150,7 +150,7 @@ class ActionHandler {
         break;
 
       case 'drag':
-        window.VSC.DragHandler.handleDrag(video, event);
+        DragHandler.handleDrag(video, event);
         break;
 
       case 'fast':
@@ -183,11 +183,7 @@ class ActionHandler {
 
       case 'SET_SPEED': {
         const speed = value;
-        if (
-          typeof speed === 'number' &&
-          speed > 0 &&
-          speed <= window.VSC.Constants.SPEED_LIMITS.MAX
-        ) {
+        if (typeof speed === 'number' && speed > 0 && speed <= SPEED_LIMITS.MAX) {
           logger.log('Setting speed to:', speed);
           this.setSpeed(video, speed);
         } else {
@@ -293,7 +289,7 @@ class ActionHandler {
    */
   seek(video, seekSeconds) {
     // Use site-specific seeking (handlers return true if they handle it)
-    window.VSC.siteHandlerManager.handleSeek(video, seekSeconds);
+    siteHandlerManager.handleSeek(video, seekSeconds);
   }
 
   /**
@@ -409,10 +405,7 @@ class ActionHandler {
     const video = this.config.getMediaElements()[0];
     if (video) {
       const currentSpeed = video.playbackRate;
-      const newSpeed = Math.min(
-        Math.max(currentSpeed + delta, window.VSC.Constants.SPEED_LIMITS.MIN),
-        window.VSC.Constants.SPEED_LIMITS.MAX
-      );
+      const newSpeed = Math.min(Math.max(currentSpeed + delta, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
       this.setSpeed(video, newSpeed);
     }
   }
