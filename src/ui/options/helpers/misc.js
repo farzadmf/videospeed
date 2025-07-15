@@ -16,12 +16,5 @@ export const getTcDefaultBinding = (action) => {
 };
 
 export const getActionName = (action) => {
-  const toCompare = typeof action === 'string' ? action : action.name;
-
-  if (!toCompare.includes('fixspeed')) {
-    return toCompare;
-  }
-
-  const speedVal = Number(toCompare.split('-')[1]).toFixed(1);
-  return `fixspeed-${speedVal}`;
+  return typeof action === 'string' ? action : action.name;
 };

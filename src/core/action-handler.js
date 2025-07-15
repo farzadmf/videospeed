@@ -88,7 +88,8 @@ class ActionHandler {
     const step = Math.min(value2 || 5, percent); // Only used for rewind and advance
 
     if (actionName.startsWith('fixspeed')) {
-      const speedValue = Number(actionName.split('-')[1]);
+      const speedStr = actionName.split('_')[1];
+      const speedValue = Number(`${speedStr[0]}.${speedStr[1]}`);
       this.setSpeed(video, speedValue);
       return;
     }
