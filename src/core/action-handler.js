@@ -15,7 +15,7 @@ import { siteHandlerManager } from '../site-handlers/manager.js';
 import { SPEED_LIMITS } from '../shared/constants.js';
 import { DragHandler } from '../ui/drag-handler.js';
 
-class ActionHandler {
+export class ActionHandler {
   /**
    * @param {VideoSpeedConfig} config - Config handler
    * @param {EventManager} eventManager - Event manager

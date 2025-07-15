@@ -173,9 +173,16 @@ export class ShadowDOMManager {
     volumeIndicator.setAttribute('data-action', 'drag');
     volumeIndicator.textContent = `(vol: ${(volume * 100).toFixed(0)})`;
 
+    const progressIndicator = document.createElement('span');
+    progressIndicator.id = 'vsc-progress-val';
+    progressIndicator.setAttribute('data-action', 'drag');
+    progressIndicator.textContent = '---';
+
     draggable.appendChild(speedIndicator);
     draggable.appendChild(document.createTextNode(' '));
     draggable.appendChild(volumeIndicator);
+    draggable.appendChild(document.createTextNode(' - '));
+    draggable.appendChild(progressIndicator);
 
     // Create controls span
     const controls = document.createElement('span');
@@ -237,6 +244,14 @@ export class ShadowDOMManager {
    */
   getVolumeIndicator() {
     return this.shadow.querySelector('span#vsc-volume-val');
+  }
+
+  /**
+   * Get draggable progress indicator from shadow DOM
+   * @returns {HTMLElement} Progress indicator element
+   */
+  getProgressIndicator() {
+    return this.shadow.querySelector('span#vsc-progress-val');
   }
 
   /**

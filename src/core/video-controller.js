@@ -145,6 +145,7 @@ export class VideoController {
     // Store speed indicator reference
     this.speedIndicator = this.shadowDOMManager.getSpeedIndicator();
     this.volumeIndicator = this.shadowDOMManager.getVolumeIndicator();
+    this.progressIndicator = this.shadowDOMManager.getProgressIndicator();
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
@@ -215,11 +216,23 @@ export class VideoController {
       this.actionHandler.setSpeed(event.target, storedSpeed);
     };
 
+    /**
+     * Handle timeupdate to display a progress bar.
+     * @param {Event} event - Time update event
+     */
+    const timeUpdateAction = () => {
+      const progress = this.video.currentTime / this.video.duration;
+
+      this.setProgressVal(progress);
+    };
+
     this.handlePlay = mediaEventAction.bind(this);
     this.handleSeek = mediaEventAction.bind(this);
+    this.handleTimeUpdate = timeUpdateAction.bind(this);
 
     this.video.addEventListener('play', this.handlePlay);
     this.video.addEventListener('seeked', this.handleSeek);
+    this.video.addEventListener('timeupdate', this.handleTimeUpdate);
   }
 
   /**
@@ -321,6 +334,15 @@ export class VideoController {
   setVolumeVal(value) {
     logger.debug(`setVolumeVal: ${value}`);
     this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`;
+  }
+
+  /**
+   * Set progress indicator's text
+   * @param {number|string} value - Progress value
+   */
+  setProgressVal(value) {
+    logger.debug(`setProgressVal: ${value}`);
+    this.progressIndicator.textContent = `${(Number(value) * 100).toFixed(0)} %`;
   }
 }
 
