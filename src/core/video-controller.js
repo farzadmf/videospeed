@@ -342,7 +342,7 @@ export class VideoController {
    */
   setProgressVal(value) {
     logger.debug(`setProgressVal: ${value}`);
-    this.progressIndicator.textContent = `${(Number(value) * 100).toFixed(0)} %`;
+    this.progressIndicator.textContent = `${(Number(value) * 100).toFixed(1)}%`;
   }
 }
 
