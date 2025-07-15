@@ -6,6 +6,8 @@
 import { VideoController } from '../core/video-controller.js';
 import { logger } from '../utils/logger.js';
 import { config } from '../core/config.js';
+import { ActionHandler } from '../core/action-handler.js';
+import { EventManager } from '../utils/event-manager.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -25,8 +27,6 @@ class VideoSpeedExtension {
   async initialize() {
     try {
       // Access global modules
-      this.ActionHandler = window.VSC.ActionHandler;
-      this.EventManager = window.VSC.EventManager;
       this.isBlacklisted = window.VSC.DomUtils.isBlacklisted;
       this.initializeWhenReady = window.VSC.DomUtils.initializeWhenReady;
       this.siteHandlerManager = window.VSC.siteHandlerManager;
@@ -55,8 +55,8 @@ class VideoSpeedExtension {
       this.siteHandlerManager.initialize(document);
 
       // Create action handler and event manager
-      this.eventManager = new this.EventManager(this.config, null);
-      this.actionHandler = new this.ActionHandler(this.config, this.eventManager);
+      this.eventManager = new EventManager(this.config, null);
+      this.actionHandler = new ActionHandler(this.config, this.eventManager);
       this.eventManager.actionHandler = this.actionHandler; // Set circular reference
 
       // Set up observers
