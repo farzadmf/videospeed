@@ -5,7 +5,7 @@
 
 window.VSC = window.VSC || {};
 
-class DragHandler {
+export class DragHandler {
   /**
    * Handle dragging of video controller
    * @param {HTMLVideoElement} video - Video element

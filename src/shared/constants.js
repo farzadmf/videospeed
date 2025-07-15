@@ -19,3 +19,8 @@ export const LOG_LEVELS = {
 
 export const REG_STRIP = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 export const REG_ENDS_WITH_FLAGS = /\/(?!.*(.).*\1)[gimsuy]*$/;
+
+export const SPEED_LIMITS = {
+  MIN: 0.07, // Video min rate per Chromium source
+  MAX: 16, // Maximum playback speed in Chrome per Chromium source
+};
