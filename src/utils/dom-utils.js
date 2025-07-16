@@ -6,22 +6,25 @@
 window.VSC = window.VSC || {};
 window.VSC.DomUtils = {};
 
+import { logger } from '../utils/logger.js';
+
 /**
  * Escape string for use in regular expressions
  * @param {string} str - String to escape
  * @returns {string} Escaped string
  */
-window.VSC.DomUtils.escapeStringRegExp = function (str) {
+export function escapeStringRegExp(str) {
   const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
   return str.replace(matchOperatorsRe, '\\$&');
-};
+}
+window.VSC.DomUtils.escapeStringRegExp = escapeStringRegExp;
 
 /**
  * Check if current page is blacklisted
  * @param {string} blacklist - Blacklist string from settings
  * @returns {boolean} True if page is blacklisted
  */
-window.VSC.DomUtils.isBlacklisted = function (blacklist) {
+export function isBlacklisted(blacklist) {
   let blacklisted = false;
 
   blacklist.split('\n').forEach((match) => {
@@ -57,26 +60,28 @@ window.VSC.DomUtils.isBlacklisted = function (blacklist) {
   });
 
   return blacklisted;
-};
+}
+window.VSC.DomUtils.isBlacklisted = isBlacklisted;
 
 /**
  * Check if we're running in an iframe
  * @returns {boolean} True if in iframe
  */
-window.VSC.DomUtils.inIframe = function () {
+export function inIframe() {
   try {
     return window.self !== window.top;
   } catch (e) {
     return true;
   }
-};
+}
+window.VSC.DomUtils.inIframe = inIframe;
 
 /**
  * Get all elements in shadow DOMs recursively
  * @param {Element} parent - Parent element to search
  * @returns {Array<Element>} Flattened array of all elements
  */
-window.VSC.DomUtils.getShadow = function (parent) {
+export function getShadow(parent) {
   const result = [];
 
   function getChild(parent) {
@@ -95,14 +100,15 @@ window.VSC.DomUtils.getShadow = function (parent) {
 
   getChild(parent);
   return result.flat(Infinity);
-};
+}
+window.VSC.DomUtils.getShadow = getShadow;
 
 /**
  * Find nearest parent of same size as video parent
  * @param {Element} element - Starting element
  * @returns {Element} Parent element
  */
-window.VSC.DomUtils.findVideoParent = function (element) {
+export function findVideoParent(element) {
   let parentElement = element.parentElement || element.getRootNode();
 
   while (
@@ -114,15 +120,16 @@ window.VSC.DomUtils.findVideoParent = function (element) {
   }
 
   return parentElement;
-};
+}
+window.VSC.DomUtils.findVideoParent = findVideoParent;
 
 /**
  * Initialize document when ready
  * @param {Document} document - Document to initialize
  * @param {Function} callback - Callback to run when ready
  */
-window.VSC.DomUtils.initializeWhenReady = function (document, callback) {
-  window.VSC.logger.debug('Begin initializeWhenReady');
+export function initializeWhenReady(document, callback) {
+  logger.debug('Begin initializeWhenReady');
 
   window.onload = () => {
     callback(window.document);
@@ -140,8 +147,9 @@ window.VSC.DomUtils.initializeWhenReady = function (document, callback) {
     }
   }
 
-  window.VSC.logger.debug('End initializeWhenReady');
-};
+  logger.debug('End initializeWhenReady');
+}
+window.VSC.DomUtils.initializeWhenReady = initializeWhenReady;
 
 /**
  * Check if element or its children are video/audio elements
@@ -149,7 +157,7 @@ window.VSC.DomUtils.initializeWhenReady = function (document, callback) {
  * @param {boolean} audioEnabled - Whether to check for audio elements
  * @returns {Array<Element>} Array of media elements found
  */
-window.VSC.DomUtils.findMediaElements = function (node, audioEnabled = false) {
+export function findMediaElements(node, audioEnabled = false) {
   if (!node) {
     return [];
   }
@@ -173,6 +181,7 @@ window.VSC.DomUtils.findMediaElements = function (node, audioEnabled = false) {
   }
 
   return mediaElements;
-};
+}
+window.VSC.DomUtils.findMediaElements = findMediaElements;
 
 // Global variables available for both browser and testing

@@ -9,6 +9,8 @@ window.VSC_MODULES = window.VSC_MODULES || {};
 const moduleRegistry = new Map();
 const modulePromises = new Map();
 
+import { logger } from '../utils/logger.js';
+
 /**
  * Define a module (replaces export)
  */
@@ -69,5 +71,4 @@ window.loadModule = function (name) {
   return modulePromise;
 };
 
-window.VSC.logger.debug('Module loader initialized');
-
+logger.debug('Module loader initialized');

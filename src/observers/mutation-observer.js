@@ -5,6 +5,9 @@
 
 window.VSC = window.VSC || {};
 
+import * as dom from '../utils/dom-utils.js';
+import { logger } from '../utils/logger.js';
+
 class VideoMutationObserver {
   constructor(config, onVideoFound, onVideoRemoved) {
     this.config = config;
@@ -36,7 +39,7 @@ class VideoMutationObserver {
     };
 
     this.observer.observe(document, observerOptions);
-    window.VSC.logger.debug('Video mutation observer started');
+    logger.debug('Video mutation observer started');
   }
 
   /**
@@ -72,7 +75,7 @@ class VideoMutationObserver {
 
       if (node === document.documentElement) {
         // Document was replaced (e.g., watch.sling.com uses document.write)
-        window.VSC.logger.debug('Document was replaced, reinitializing');
+        logger.debug('Document was replaced, reinitializing');
         this.onDocumentReplaced();
         return;
       }
@@ -102,7 +105,7 @@ class VideoMutationObserver {
         mutation.target.attributes['aria-hidden'].value === 'false') ||
       mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER'
     ) {
-      const flattenedNodes = window.VSC.DomUtils.getShadow(document.body);
+      const flattenedNodes = dom.getShadow(document.body);
       const videoNodes = flattenedNodes.filter((x) => x.tagName === 'VIDEO');
 
       for (const node of videoNodes) {
@@ -204,7 +207,7 @@ class VideoMutationObserver {
     shadowObserver.observe(shadowRoot, observerOptions);
     this.shadowObservers.add(shadowRoot);
 
-    window.VSC.logger.debug('Shadow root observer added');
+    logger.debug('Shadow root observer added');
   }
 
   /**
@@ -213,7 +216,7 @@ class VideoMutationObserver {
    */
   onDocumentReplaced() {
     // This callback should trigger reinitialization
-    window.VSC.logger.warn('Document replacement detected - full reinitialization needed');
+    logger.warn('Document replacement detected - full reinitialization needed');
   }
 
   /**
@@ -232,7 +235,7 @@ class VideoMutationObserver {
     });
     this.shadowObservers.clear();
 
-    window.VSC.logger.debug('Video mutation observer stopped');
+    logger.debug('Video mutation observer stopped');
   }
 }
 

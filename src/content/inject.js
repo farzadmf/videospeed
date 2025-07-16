@@ -8,6 +8,7 @@ import { logger } from '../utils/logger.js';
 import { config } from '../core/config.js';
 import { ActionHandler } from '../core/action-handler.js';
 import { EventManager } from '../utils/event-manager.js';
+import * as dom from '../utils/dom-utils.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -27,8 +28,6 @@ class VideoSpeedExtension {
   async initialize() {
     try {
       // Access global modules
-      this.isBlacklisted = window.VSC.DomUtils.isBlacklisted;
-      this.initializeWhenReady = window.VSC.DomUtils.initializeWhenReady;
       this.siteHandlerManager = window.VSC.siteHandlerManager;
       this.VideoMutationObserver = window.VSC.VideoMutationObserver;
       this.MediaElementObserver = window.VSC.MediaElementObserver;
@@ -46,7 +45,7 @@ class VideoSpeedExtension {
       }
 
       // Check if site is blacklisted
-      if (this.isBlacklisted(this.config.settings.blacklist)) {
+      if (dom.isBlacklisted(this.config.settings.blacklist)) {
         logger.info('Site is blacklisted');
         return;
       }
@@ -63,7 +62,7 @@ class VideoSpeedExtension {
       this.setupObservers();
 
       // Initialize when document is ready
-      this.initializeWhenReady(document, (doc) => {
+      dom.initializeWhenReady(document, (doc) => {
         this.initializeDocument(doc);
       });
 
@@ -121,7 +120,7 @@ class VideoSpeedExtension {
         try {
           const iframeDocument = iframe.contentDocument;
           if (iframeDocument) {
-            this.initializeWhenReady(iframeDocument, (doc) => this.scanExistingMedia(doc));
+            dom.initializeWhenReady(iframeDocument, (doc) => this.scanExistingMedia(doc));
           }
         } catch (e) {
           logger.warn(`Could not access iframe content: ${e.message}`);
@@ -351,7 +350,7 @@ window.addEventListener('beforeunload', () => {
 // Auto-initialize - settings loading will wait for injected settings if needed
 extension.initialize().catch((error) => {
   logger.error(`Extension initialization failed: ${error.message}`);
-  window.VSC.logger.error(`Extension initialization failed: ${error.message}`);
+  logger.error(`Extension initialization failed: ${error.message}`);
 });
 
 // Export for testing
