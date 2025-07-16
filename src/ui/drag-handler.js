@@ -5,6 +5,9 @@
 
 window.VSC = window.VSC || {};
 
+import * as dom from '../utils/dom-utils.js';
+import { logger } from '../utils/logger.js';
+
 export class DragHandler {
   /**
    * Handle dragging of video controller
@@ -16,7 +19,7 @@ export class DragHandler {
     const shadowController = controller.shadowRoot.querySelector('#controller');
 
     // Find nearest parent of same size as video parent
-    const parentElement = window.VSC.DomUtils.findVideoParent(controller);
+    const parentElement = dom.findVideoParent(controller);
 
     video.classList.add('vcs-dragging');
     shadowController.classList.add('dragging');
@@ -44,14 +47,14 @@ export class DragHandler {
       shadowController.classList.remove('dragging');
       video.classList.remove('vcs-dragging');
 
-      window.VSC.logger.debug('Drag operation completed');
+      logger.debug('Drag operation completed');
     };
 
     parentElement.addEventListener('mouseup', stopDragging);
     parentElement.addEventListener('mouseleave', stopDragging);
     parentElement.addEventListener('mousemove', startDragging);
 
-    window.VSC.logger.debug('Drag operation started');
+    logger.debug('Drag operation started');
   }
 }
 

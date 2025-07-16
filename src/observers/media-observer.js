@@ -5,6 +5,9 @@
 
 window.VSC = window.VSC || {};
 
+import { logger } from '../utils/logger.js';
+import * as dom from '../utils/dom-utils.js';
+
 class MediaElementObserver {
   constructor(config, siteHandler) {
     this.config = config;
@@ -42,7 +45,7 @@ class MediaElementObserver {
       return !this.siteHandler.shouldIgnoreVideo(media);
     });
 
-    window.VSC.logger.info(
+    logger.info(
       `Found ${filteredMedia.length} media elements (${mediaElements.length} total, ${mediaElements.length - filteredMedia.length} filtered out)`
     );
     return filteredMedia;
@@ -64,10 +67,10 @@ class MediaElementObserver {
         if (childDocument) {
           const iframeMedia = this.scanForMedia(childDocument);
           mediaElements.push(...iframeMedia);
-          window.VSC.logger.debug(`Found ${iframeMedia.length} media elements in iframe`);
+          logger.debug(`Found ${iframeMedia.length} media elements in iframe`);
         }
       } catch (e) {
-        window.VSC.logger.debug(`Cannot access iframe content (cross-origin): ${e.message}`);
+        logger.debug(`Cannot access iframe content (cross-origin): ${e.message}`);
       }
     });
 
@@ -88,11 +91,11 @@ class MediaElementObserver {
       try {
         const containers = document.querySelectorAll(selector);
         containers.forEach((container) => {
-          const containerMedia = window.VSC.DomUtils.findMediaElements(container, audioEnabled);
+          const containerMedia = dom.findMediaElements(container, audioEnabled);
           mediaElements.push(...containerMedia);
         });
       } catch (e) {
-        window.VSC.logger.warn(`Invalid selector "${selector}": ${e.message}`);
+        logger.warn(`Invalid selector "${selector}": ${e.message}`);
       }
     });
 
@@ -122,7 +125,7 @@ class MediaElementObserver {
     // Remove duplicates
     const uniqueMedia = [...new Set(allMedia)];
 
-    window.VSC.logger.info(`Total unique media elements found: ${uniqueMedia.length}`);
+    logger.info(`Total unique media elements found: ${uniqueMedia.length}`);
     return uniqueMedia;
   }
 
@@ -134,24 +137,24 @@ class MediaElementObserver {
   isValidMediaElement(media) {
     // Skip videos that are not in the DOM
     if (!media.isConnected) {
-      window.VSC.logger.debug('Video not in DOM');
+      logger.debug('Video not in DOM');
       return false;
     }
 
     // Check visibility
     const style = window.getComputedStyle(media);
     if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-      window.VSC.logger.debug('Video not visible');
+      logger.debug('Video not visible');
       return false;
     }
 
     // If video hasn't loaded yet, skip size checks but continue with other validation
     if (media.readyState < 2) {
-      window.VSC.logger.debug('Video still loading, skipping size checks');
+      logger.debug('Video still loading, skipping size checks');
 
       // Let site handler decide for loading videos
       if (this.siteHandler.shouldIgnoreVideo(media)) {
-        window.VSC.logger.debug('Video ignored by site handler (during loading)');
+        logger.debug('Video ignored by site handler (during loading)');
         return false;
       }
 
@@ -161,13 +164,13 @@ class MediaElementObserver {
     // Check if the video is reasonably sized
     const rect = media.getBoundingClientRect();
     if (rect.width < 50 || rect.height < 50) {
-      window.VSC.logger.debug(`Video too small: ${rect.width}x${rect.height}`);
+      logger.debug(`Video too small: ${rect.width}x${rect.height}`);
       return false;
     }
 
     // Let site handler have final say
     if (this.siteHandler.shouldIgnoreVideo(media)) {
-      window.VSC.logger.debug('Video ignored by site handler');
+      logger.debug('Video ignored by site handler');
       return false;
     }
 
