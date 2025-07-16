@@ -35,7 +35,7 @@ class VideoController {
 
     this.video = target;
     this.parent = target.parentElement || parent;
-    const storedSpeed = this.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
+    const storedSpeed = this.settings.sources[getBaseURL(target.currentSrc)]?.speed || 1.0;
 
     if (!this.settings.rememberSpeed) {
       setKeyBindings('reset', getKeyBindings('fast')); // resetSpeed = fastSpeed

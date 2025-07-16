@@ -14,7 +14,7 @@ export const setupRateChangeListener = (document: Document) => {
       if (vsc.settings.forceLastSavedSpeed) {
         event.stopImmediatePropagation();
 
-        const speed = vsc.settings.speeds[url]?.speed || 1.0;
+        const speed = vsc.settings.sources[url]?.speed || 1.0;
         setSpeed(video, speed);
       }
     },

@@ -35,7 +35,7 @@ const vscDefaults = {
     { action: ACTIONS['fixspeed-9.0'], force: true, key: 57, predefined: false }, // 9
     { action: ACTIONS['fixspeed-9.5'], force: true, key: 57, predefined: false, shift: true }, // shift+9
     { action: ACTIONS['go-start'], force: false, key: 48, predefined: false }, // 0
-    { action: ACTIONS.pause, force: false, key: 49, predefined: false }, // 1
+    { action: ACTIONS.pause, force: false, key: 190, predefined: false }, // .
     { action: ACTIONS.reset, force: false, key: 82, predefined: true }, // R
     { action: ACTIONS.slower, force: false, key: 222, predefined: true }, // ;
     { action: ACTIONS['vol-down'], force: true, key: 40, predefined: true }, // Down
@@ -45,8 +45,8 @@ const vscDefaults = {
   ],
   lastSpeed: 1.0,
   logLevel: WARNING,
-  rememberSpeed: false,
+  rememberSpeed: true,
   speed: 1.0,
-  speeds: {}, // empty object to hold speed for each source
+  sources: {}, // empty object to hold speed for each source
   startHidden: false,
 };

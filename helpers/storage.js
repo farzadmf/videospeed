@@ -1,23 +1,22 @@
 function syncSpeedValue({ speed, url }) {
   if (!speed || Number(speed) === 1) {
     // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
-    delete vsc.settings.speeds[url];
+    delete vsc.settings.sources[url];
   } else {
     log('Storing lastSpeed in settings for the rememberSpeed feature', DEBUG);
     vsc.settings.lastSpeed = speed;
     log('Syncing chrome settings for lastSpeed', DEBUG);
 
-    vsc.settings.speeds[url] = {
-      speed,
-      updated: new Date().valueOf(),
-    };
+    vsc.settings.sources[url] = vsc.settings.sources[url] || {};
+    vsc.settings.sources[url].speed = speed;
+    vsc.settings.sources[url].updated = new Date().valueOf();
   }
 
   try {
     chrome.storage.sync.set(
       {
         lastSpeed: speed,
-        speeds: vsc.settings.speeds,
+        sources: vsc.settings.sources,
       },
       () => log('Speed (and SPEEDS) setting saved: ' + speed, DEBUG),
     );
@@ -134,7 +133,7 @@ const initLocalStorage = () => {
     vsc.settings.lastSpeed = Number(storage.lastSpeed);
     vsc.settings.logLevel = Number(storage.logLevel);
     vsc.settings.rememberSpeed = Boolean(storage.rememberSpeed);
-    vsc.settings.speeds = storage.speeds;
+    vsc.settings.sources = storage.sources;
     vsc.settings.startHidden = Boolean(storage.startHidden);
     // }}}
 

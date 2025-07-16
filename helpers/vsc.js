@@ -35,7 +35,7 @@ vsc.videoController = function (target, parent) {
 
   this.video = target;
   this.parent = target.parentElement || parent;
-  let storedSpeed = vsc.settings.speeds[getBaseURL(target.currentSrc)]?.speed || 1.0;
+  let storedSpeed = vsc.settings.sources[getBaseURL(target.currentSrc)]?.speed || 1.0;
 
   if (!vsc.settings.rememberSpeed) {
     if (!storedSpeed) {
@@ -54,7 +54,7 @@ vsc.videoController = function (target, parent) {
   this.div = this.initializeControls();
 
   const mediaEventAction = function (event) {
-    storedSpeed = vsc.settings.speeds[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
+    storedSpeed = vsc.settings.sources[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
 
     if (!vsc.settings.rememberSpeed) {
       // resetSpeed isn't really a reset, it's a toggle

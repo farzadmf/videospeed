@@ -1,5 +1,5 @@
 const mediaEventAction = (event) => {
-  const storedSpeed = this.settings.speeds[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
+  const storedSpeed = this.settings.sources[getBaseURL(event.target.currentSrc)]?.speed || 1.0;
 
   if (!this.settings.rememberSpeed) {
     // resetSpeed isn't really a reset, it's a toggle

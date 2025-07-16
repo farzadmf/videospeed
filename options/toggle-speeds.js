@@ -3,16 +3,16 @@ let speeds;
 function loadSpeeds() {
   const speedsDiv = document.querySelector('#speeds');
 
-  chrome.storage.sync.get('speeds', (storage) => {
-    if (!storage.speeds) {
+  chrome.storage.sync.get('sources', (storage) => {
+    if (!storage.sources) {
       return;
     }
 
-    speeds = _.sortBy(_.toPairs(storage.speeds), (s) => s[0]);
+    speeds = _.sortBy(_.toPairs(storage.sources), (s) => s[0]);
 
     speedsDiv.innerHTML = `
 <h3 class="text-center">Remembering a total of ${
-      Object.entries(storage.speeds).length
+      Object.entries(storage.sources).length
     } Website speeds</h3>
 <input class="form-control mb-4" 100%" type="text" id="speeds-filter" placeholder="start typing to filter ..." />
 <div id="speed-items"></div>

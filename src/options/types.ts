@@ -73,7 +73,7 @@ export class Options {
     this.logLevel = logLevel;
     this.rememberSpeed = rememberSpeed;
     this.speed = speed;
-    this.speeds = speeds;
+    this.sources = sources;
     this.startHidden = startHidden;
   }
 

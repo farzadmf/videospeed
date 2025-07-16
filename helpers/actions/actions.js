@@ -73,7 +73,7 @@ function setSpeed(video, speed) {
     const url = getBaseURL(src);
 
     if (vsc.settings.forceLastSavedSpeed) {
-      speed = vsc.settings.speeds[url]?.speed;
+      speed = vsc.settings.sources[url]?.speed;
     }
   }
 
