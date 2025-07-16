@@ -127,7 +127,7 @@ export class VideoController {
     //   position: absolute;
     //   z-index: 9999999;
     // `;
-    wrapper.style.position = 'absolute';
+    // wrapper.style.position = 'absolute';
     // wrapper.style.zIndex = '9999999';
 
     if (!this.video.currentSrc) {
