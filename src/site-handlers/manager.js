@@ -7,10 +7,11 @@ window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
 import { AmazonHandler } from './amazon-handler.js';
-import { BaseSiteHandler } from './base-handler.js';
 import { AppleHandler } from './apple-handler.js';
+import { BaseSiteHandler } from './base-handler.js';
 import { FacebookHandler } from './facebook-handler.js';
 import { NetflixHandler } from './netflix-handler.js';
+import { OldRedditHandler } from './old-reddit-handler.js';
 import { YouTubeHandler } from './youtube-handler.js';
 
 export class SiteHandlerManager {
@@ -21,6 +22,7 @@ export class SiteHandlerManager {
       AppleHandler,
       FacebookHandler,
       NetflixHandler,
+      OldRedditHandler,
       YouTubeHandler,
     ];
   }
