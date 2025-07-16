@@ -41,8 +41,8 @@ export const VSC_DEFAULTS = {
     { action: ACTIONS.pause, force: false, key: 190, predefined: false }, // .
     { action: ACTIONS.reset, force: false, key: 82, predefined: true }, // R
     { action: ACTIONS.slower, force: false, key: 222, predefined: true }, // ;
-    { action: ACTIONS.louder, force: true, key: 40, predefined: true }, // Down
-    { action: ACTIONS.softer, force: true, key: 38, predefined: true }, // Up
+    { action: ACTIONS.vol_down, force: true, key: 40, predefined: true }, // Down
+    { action: ACTIONS.vol_up, force: true, key: 38, predefined: true }, // Up
     { action: ACTIONS.rewind, force: true, key: 37, predefined: true }, // Left
     { action: ACTIONS.advance, force: true, key: 39, predefined: true }, // Right
   ],
@@ -50,6 +50,6 @@ export const VSC_DEFAULTS = {
   logLevel: LOG_LEVELS.WARNING,
   rememberSpeed: true,
   speed: 1.0,
-  speeds: {}, // empty object to hold speed for each source
+  sources: {}, // empty object to hold stored values for each source
   startHidden: false,
 };

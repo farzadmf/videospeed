@@ -29,6 +29,9 @@ export class VideoController {
     this.controlsManager = new ControlsManager(actionHandler, config);
     this.shadowDOMManager = new ShadowDOMManager(target);
 
+    this.speed = 0;
+    this.volume = 0;
+
     // Add to tracked media elements
     config.addMediaElement(target);
 
@@ -59,7 +62,7 @@ export class VideoController {
 
     // Check if we should use per-video stored speeds
     const videoSrc = this.video.currentSrc || this.video.src;
-    const storedVideoSpeed = this.config.settings.speeds[getBaseURL(videoSrc)]?.speed || 1.0;
+    const storedVideoSpeed = this.config.settings.sources[getBaseURL(videoSrc)]?.speed || 1.0;
 
     if (this.config.settings.rememberSpeed) {
       if (storedVideoSpeed) {
@@ -79,6 +82,7 @@ export class VideoController {
       this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
     }
 
+    this.speed = targetSpeed;
     logger.debug(`Setting initial playbackRate to: ${targetSpeed}`);
 
     // Apply the speed immediately if forceLastSavedSpeed is enabled
@@ -203,7 +207,7 @@ export class VideoController {
   setupEventHandlers() {
     const mediaEventAction = (event) => {
       const url = getBaseURL(event.target.currentSrc);
-      let storedSpeed = this.config.settings.speeds[url]?.speed || 1.0;
+      let storedSpeed = this.config.settings.sources[url]?.speed || 1.0;
 
       if (!this.config.settings.rememberSpeed) {
         if (!storedSpeed) {
@@ -214,7 +218,7 @@ export class VideoController {
         this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
       } else {
         // logger.debug('Storing lastSpeed into settings (rememberSpeed enabled)');
-        // MyNote | lastSpeed shouldn't be used in favor of settings.speeds.
+        // MyNote | lastSpeed shouldn't be used in favor of settings.sources.
         // storedSpeed = this.config.settings.lastSpeed;
       }
 
@@ -232,13 +236,25 @@ export class VideoController {
       this.setProgressVal(progress);
     };
 
+    /**
+     * Handle timeupdate to display a progress bar.
+     * @param {Event} event - Time update event
+     */
+    const volumeChangeAction = () => {
+      const volume = this.video.volume;
+
+      this.setVolumeVal(volume);
+    };
+
     this.handlePlay = mediaEventAction.bind(this);
     this.handleSeek = mediaEventAction.bind(this);
     this.handleTimeUpdate = timeUpdateAction.bind(this);
+    this.handleVolumeChange = volumeChangeAction.bind(this);
 
     this.video.addEventListener('play', this.handlePlay);
     this.video.addEventListener('seeked', this.handleSeek);
     this.video.addEventListener('timeupdate', this.handleTimeUpdate);
+    this.video.addEventListener('volumechange', this.handleVolumeChange);
   }
 
   /**
@@ -347,7 +363,7 @@ export class VideoController {
    * @param {number|string} value - Progress value
    */
   setProgressVal(value) {
-    logger.debug(`setProgressVal: ${value}`);
+    logger.verbose(`setProgressVal: ${value}`);
     this.progressIndicator.textContent = `${(Number(value) * 100).toFixed(1)}%`;
   }
 }
