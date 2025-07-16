@@ -32,9 +32,7 @@ export class ActionHandler {
    * @param {Event} e - Event object (optional)
    */
   runAction({ actionItem, event }) {
-    logger.debug(`runAction Begin: ${actionItem}`);
-
-    logger.info('runAction Begin:', this);
+    logger.debug('runAction Begin:', actionItem);
 
     const mediaTags = this.config.getMediaElements();
 
@@ -165,11 +163,11 @@ export class ActionHandler {
         this.muted(video);
         break;
 
-      case 'louder':
+      case 'vol_up':
         this.volumeUp(video, value);
         break;
 
-      case 'softer':
+      case 'vol_down':
         this.volumeDown(video, value);
         break;
 
@@ -231,7 +229,7 @@ export class ActionHandler {
     const url = getBaseURL(src);
     if (speed === undefined) {
       if (this.config.settings.forceLastSavedSpeed) {
-        speed = this.config.settings.speeds[url]?.speed;
+        speed = this.config.settings.sources[url]?.speed;
       }
     }
 

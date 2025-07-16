@@ -51,8 +51,8 @@ export const ACTIONS = {
     value: 5,
   },
   slower: { name: 'slower', description: 'Decrease speed', value: 0.1 },
-  louder: { name: 'louder', description: 'Decrease volume', value: 0.05 },
-  softer: { name: 'softer', description: 'Increase volume', value: 0.05 },
+  vol_down: { name: 'vol_down', description: 'Decrease volume', value: 0.05 },
+  vol_up: { name: 'vol_up', description: 'Increase volume', value: 0.05 },
 };
 
 export const NO_VALUE_ACTIONS = _.keys(_.pickBy(ACTIONS, (value, _) => value.value === undefined));

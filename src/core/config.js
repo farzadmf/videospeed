@@ -34,7 +34,7 @@ export class VideoSpeedConfig {
         await this.initializeDefaultKeyBindings();
       }
 
-      this.settings.speeds = storage.speeds || {};
+      this.settings.sources = storage.sources || {};
 
       // Apply loaded settings
       this.settings.audioBoolean = Boolean(storage.audioBoolean);
@@ -90,18 +90,18 @@ export class VideoSpeedConfig {
 
     if (!speed || Number(speed) === 1) {
       // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
-      delete this.settings.speeds[url];
+      delete this.settings.sources[url];
     } else {
       this.settings.lastSpeed = speed;
-      this.settings.speeds[url] = {
-        speed,
-        updated: new Date().valueOf(),
-      };
+
+      this.settings.sources[url] = this.settings.sources[url] || {};
+      this.settings.sources[url].speed = speed;
+      this.settings.sources[url].updated = new Date().valueOf();
     }
 
     this.save({
       lastSpeed: this.settings.lastSpeed,
-      speeds: this.settings.speeds,
+      sources: this.settings.sources,
     });
   }
 
