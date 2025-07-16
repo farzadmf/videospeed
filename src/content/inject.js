@@ -225,7 +225,7 @@ class VideoSpeedExtension {
       const uniqueMediaElements = [...new Set(mediaElements)];
 
       uniqueMediaElements.forEach((media) => {
-        this.onVideoFound(media, media.parentElement);
+        this.onVideoFound(media, media.parentElement || media.getRootNode?.());
       });
 
       logger.info(`Attached controllers to ${uniqueMediaElements.length} existing media elements`);

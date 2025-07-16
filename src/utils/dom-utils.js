@@ -103,7 +103,7 @@ window.VSC.DomUtils.getShadow = function (parent) {
  * @returns {Element} Parent element
  */
 window.VSC.DomUtils.findVideoParent = function (element) {
-  let parentElement = element.parentElement;
+  let parentElement = element.parentElement || element.getRootNode();
 
   while (
     parentElement.parentNode &&
