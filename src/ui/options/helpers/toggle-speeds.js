@@ -1,7 +1,7 @@
 const _ = window.VSC?._ || window._;
 const luxon = window.luxon;
 
-let speeds;
+let sources;
 
 export function loadSpeeds() {
   const speedsDiv = document.querySelector('#speeds');
@@ -11,7 +11,7 @@ export function loadSpeeds() {
       return;
     }
 
-    speeds = _.sortBy(_.toPairs(storage.sources), (s) => s[0]);
+    sources = _.sortBy(_.toPairs(storage.sources), (s) => s[0]);
 
     speedsDiv.innerHTML = `
 <h3 class="text-center">Remembering a total of ${
@@ -33,7 +33,7 @@ function displaySpeeds() {
   const DateTime = luxon.DateTime;
 
   let out = '';
-  speeds.forEach((value, idx) => {
+  sources.forEach((value, idx) => {
     const [url, { speed, updated }] = value;
 
     out = `
@@ -97,7 +97,7 @@ function setUpForgetButtons() {
 
 function forgetSpeed(event) {
   const url = event.target.getAttribute('data-speed-url');
-  speeds = _.filter(speeds, (s) => s[0] !== url);
+  sources = _.filter(sources, (s) => s[0] !== url);
 
   displaySpeeds();
   filterSpeeds();
@@ -105,7 +105,7 @@ function forgetSpeed(event) {
 }
 
 export function cleanUpSpeeds() {
-  speeds = _.filter(speeds, (s) => !!s[1].speed);
+  sources = _.filter(sources, (s) => !!s[1].speed);
 
   displaySpeeds();
   filterSpeeds();
@@ -113,11 +113,11 @@ export function cleanUpSpeeds() {
 }
 
 function syncSpeeds() {
-  const transformed = _.transform(speeds, (result, value) => (result[value[0]] = value[1]), {});
+  const transformed = _.transform(sources, (result, value) => (result[value[0]] = value[1]), {});
 
   chrome.storage.sync.set(
     {
-      speeds: transformed,
+      sources: transformed,
     },
     () => displaySpeeds()
   );
