@@ -115,10 +115,16 @@ export class VideoController {
     wrapper.classList.add('vsc-controller');
 
     // Set positioning styles but don't force visibility
-    wrapper.style.cssText = `
-      position: absolute !important;
-      z-index: 9999999 !important;
-    `;
+    // MyNote | use "normal" style instead of cssText, remove '!important', AND
+    //          z-index to see what happens (main reason: old.reddit video player
+    //          has some weird styles causing vsc-controller to take over everything,
+    //          preventing interacting with the video.
+    // wrapper.style.cssText = `
+    //   position: absolute;
+    //   z-index: 9999999;
+    // `;
+    wrapper.style.position = 'absolute';
+    // wrapper.style.zIndex = '9999999';
 
     if (!this.video.currentSrc) {
       wrapper.classList.add('vsc-nosource');
