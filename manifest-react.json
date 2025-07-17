@@ -13,7 +13,7 @@
   },
   "permissions": ["storage"],
   "options_ui": {
-    "page": "src/options/index.html",
+    "page": "src-react/options/index.html",
     "open_in_tab": true
   },
   "content_scripts": [
@@ -21,8 +21,12 @@
       "all_frames": true,
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "match_about_blank": true,
-      "exclude_matches": ["https://plus.google.com/hangouts/*", "https://hangouts.google.com/*", "https://meet.google.com/*"],
-      "js": ["src/content/index.tsx"]
+      "exclude_matches": [
+        "https://plus.google.com/hangouts/*",
+        "https://hangouts.google.com/*",
+        "https://meet.google.com/*"
+      ],
+      "js": ["src-react/content/index.tsx"]
     }
   ],
   "action": {
@@ -31,6 +35,6 @@
       "38": "icons/icon-react-38.png",
       "48": "icons/icon-react-48.png"
     },
-    "default_popup": "src/popup/index.html"
+    "default_popup": "src-react/popup/index.html"
   }
 }

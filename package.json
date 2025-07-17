@@ -1,13 +1,24 @@
 {
-  "name": "videospeed",
-  "version": "1.0.0",
-  "description": "- The extension will remember the playspeed per Website (not completely tested, but hopefully that's what's going to happen)",
+  "name": "video-speed-controller",
+  "version": "0.8.0",
+  "description": "Speed up, slow down, advance and rewind HTML5 audio/video with shortcuts",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "build": "npm run lint:fix && npm run format && npm run test",
+    "format": "prettier --write src/**/*.js tests/**/*.js",
+    "lint": "eslint src/**/*.js tests/**/*.js",
+    "lint:fix": "eslint src/**/*.js tests/**/*.js --fix",
+    "react:build": "vite build",
+    "react:dev": "vite",
+    "react:lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "react:preview": "vite preview",
+    "serve": "python3 -m http.server 8000",
+    "test": "node tests/run-tests.js",
+    "test:browser": "echo 'Open tests/fixtures/test-page.html in browser'",
+    "test:e2e": "node tests/e2e/run-e2e.js",
+    "test:integration": "node tests/run-tests.js integration",
+    "test:unit": "node tests/run-tests.js unit",
+    "zip": "rm -rf dist && mkdir -p dist/videospeed && cp -r manifest.json src *.md dist/videospeed/ && cd dist && zip -r videospeed.zip videospeed && cd .. && echo 'Extension packaged at dist/videospeed.zip'"
   },
   "dependencies": {
     "lodash": "^4.0.0",
@@ -17,9 +28,9 @@
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.23",
-    "@eslint/compat": "^1.1.0",
-    "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.5.0",
+    "@eslint/compat": "^1.0.0",
+    "@eslint/eslintrc": "^3.0.0",
+    "@eslint/js": "^9.0.0",
     "@thedutchcoder/postcss-rem-to-px": "^0.0.2",
     "@trivago/prettier-plugin-sort-imports": "*",
     "@types/chrome": "*",
@@ -37,10 +48,13 @@
     "eslint-plugin-react": "*",
     "eslint-plugin-react-hooks": "*",
     "eslint-plugin-react-refresh": "*",
-    "globals": "^15.6.0",
+    "globals": "^15.0.0",
+    "jsdom": "^23.0.0",
     "postcss": "^8.0.0",
     "postcss-prefix-selector": "^1.0.0",
+    "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "*",
+    "puppeteer": "^24.10.2",
     "sass": "^1.0.0",
     "tailwindcss": "^3.0.0",
     "typescript": "^5.0.0",
@@ -52,5 +66,54 @@
     "speed",
     "utils"
   ],
-  "author": "Farzad Majidfayyaz"
+  "author": "Farzad Majidfayyaz",
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2022": true,
+      "node": true,
+      "webextensions": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2022,
+      "sourceType": "module"
+    },
+    "globals": {
+      "chrome": "readonly"
+    },
+    "rules": {
+      "no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_"
+        }
+      ],
+      "no-console": "off",
+      "prefer-const": "error",
+      "no-var": "error",
+      "eqeqeq": "error",
+      "curly": "error",
+      "semi": [
+        "error",
+        "always"
+      ],
+      "quotes": [
+        "error",
+        "single",
+        {
+          "avoidEscape": true
+        }
+      ]
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 100
+  }
 }
