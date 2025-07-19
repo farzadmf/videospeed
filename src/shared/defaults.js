@@ -10,7 +10,7 @@ export const VSC_DEFAULTS = {
     teams.microsoft.com
   `.replace(REG_STRIP, ''),
   controllerButtonSize: 14,
-  controllerOpacity: 0.6,
+  controllerOpacity: 0.8,
   defaultLogLevel: LOG_LEVELS.INFO,
   displayKeyCode: 86, // key: V
   enabled: true,

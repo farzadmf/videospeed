@@ -6,6 +6,11 @@ Progress:
 
 ---
 
+2025-07-17 | new version issues:
+- Completely out of place and not interact-able in https://dbushell.com/notes/2025-07-17T12:36Z/
+
+---
+
 Some URLs for testing videos:
 
 - https://realpython.com/lessons/hello-walrus/
