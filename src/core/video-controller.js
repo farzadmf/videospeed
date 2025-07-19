@@ -27,7 +27,7 @@ export class VideoController {
     this.config = config;
     this.actionHandler = actionHandler;
     this.controlsManager = new ControlsManager(actionHandler, config);
-    this.shadowDOMManager = new ShadowDOMManager(target);
+    this.shadowManager = new ShadowDOMManager(target);
 
     this.speed = 0;
     this.volume = 0;
@@ -138,11 +138,11 @@ export class VideoController {
       wrapper.classList.add('vsc-hidden');
     } else {
       // Ensure controller is visible, especially on YouTube
-      wrapper.classList.add('vcs-show');
+      wrapper.classList.add('vsc-show');
     }
 
     // Create shadow DOM
-    this.shadowDOMManager.createShadowDOM(wrapper, {
+    this.shadowManager.createShadowDOM(wrapper, {
       buttonSize: this.config.settings.controllerButtonSize,
       opacity: this.config.settings.controllerOpacity,
       speed,
@@ -150,17 +150,12 @@ export class VideoController {
     });
 
     // Set up control events
-    this.controlsManager.setupControlEvents(this.shadowDOMManager.shadow, this.video);
-
-    // Store speed indicator reference
-    this.speedIndicator = this.shadowDOMManager.getSpeedIndicator();
-    this.volumeIndicator = this.shadowDOMManager.getVolumeIndicator();
-    this.progressIndicator = this.shadowDOMManager.getProgressIndicator();
+    this.controlsManager.setupControlEvents(this.shadowManager.shadow, this.video);
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
 
-    this.shadowDOMManager.adjustLocation();
+    this.shadowManager.adjustLocation();
 
     logger.debug('initializeControls End');
     return wrapper;
@@ -276,7 +271,7 @@ export class VideoController {
             controller.classList.remove('vsc-nosource');
 
             this.actionHandler.setSpeed(this.video);
-            this.shadowDOMManager.adjustLocation();
+            this.shadowManager.adjustLocation();
           }
         }
       });
@@ -336,8 +331,9 @@ export class VideoController {
       left = Math.max(rect.left - (rect?.left || 0), 0);
     }
 
-    this.controller.style.left = `${left}px`;
-    this.controller.style.top = `${top}px`;
+    // this.controller.style.left = `${left}px`;
+    // this.controller.style.top = `${top}px`;
+    this.div.style.transform = `translate(${left}px, ${top}px)`;
   }
 
   /**
@@ -346,7 +342,7 @@ export class VideoController {
    */
   setSpeedVal(value) {
     logger.debug(`setSpeedVal: ${value}`);
-    this.speedIndicator.textContent = `${Number(value).toFixed(1)}x`;
+    this.shadowManager.speedIndicator.textContent = `${Number(value).toFixed(1)}x`;
   }
 
   /**
@@ -355,7 +351,7 @@ export class VideoController {
    */
   setVolumeVal(value) {
     logger.debug(`setVolumeVal: ${value}`);
-    this.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`;
+    this.shadowManager.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`;
   }
 
   /**
@@ -364,7 +360,11 @@ export class VideoController {
    */
   setProgressVal(value) {
     logger.verbose(`setProgressVal: ${value}`);
-    this.progressIndicator.textContent = `${(Number(value) * 100).toFixed(1)}%`;
+    const percent = (Number(value) * 100).toFixed(1);
+
+    this.shadowManager.progressLineContainer.style.display = 'block';
+    this.shadowManager.progressText.textContent = `${percent}%`;
+    this.shadowManager.progressLine.style.width = `${percent}%`;
   }
 }
 

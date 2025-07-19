@@ -19,6 +19,15 @@ export class ShadowDOMManager {
 
     /** @type {ShadowRoot|null} */
     this.shadow = null;
+
+    this.controller = null;
+    this.controls = null;
+    this.progressLine = null;
+    this.progressLineContainer = null;
+    this.progressText = null;
+    this.speedIndicator = null;
+    this.volumeIndicator = null;
+    this.buttons = [];
   }
 
   /**
@@ -28,6 +37,7 @@ export class ShadowDOMManager {
   static getCssStyleText() {
     return `
       * {
+        box-sizing: border-box;
         font-family: sans-serif;
         font-size: 13px;
         line-height: 1.4em;
@@ -153,41 +163,73 @@ export class ShadowDOMManager {
     // Create controller div
     this.controllerDiv = document.createElement('div');
     this.controllerDiv.id = 'controller';
-    // controller.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
     this.controllerDiv.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
+
+    const topDiv = document.createElement('div');
+    topDiv.style.display = 'inline-block';
+    this.controllerDiv.appendChild(topDiv);
 
     // Create draggable speed indicator
     const draggable = document.createElement('span');
     draggable.setAttribute('data-action', 'drag');
     draggable.className = 'draggable';
     draggable.style.cssText = `font-size: ${buttonSize}px;`;
-    this.controllerDiv.appendChild(draggable);
+    // this.controllerDiv.appendChild(draggable);
+    topDiv.appendChild(draggable);
 
-    const speedIndicator = document.createElement('span');
-    speedIndicator.id = 'vsc-speed-val';
-    speedIndicator.setAttribute('data-action', 'drag');
-    speedIndicator.textContent = `${speed}x`;
+    this.progressLineContainer = document.createElement('div');
+    this.progressLineContainer.setAttribute('id', 'vsc-progress-container');
+    this.progressLineContainer.style.display = 'none';
+    this.progressLineContainer.style.position = 'relative';
+    this.progressLineContainer.style.marginBlockStart = '2px';
+    this.progressLineContainer.style.marginBlockEnd = '10px';
+    topDiv.appendChild(this.progressLineContainer);
 
-    const volumeIndicator = document.createElement('span');
-    volumeIndicator.id = 'vsc-volume-val';
-    volumeIndicator.setAttribute('data-action', 'drag');
-    volumeIndicator.textContent = `(vol: ${(volume * 100).toFixed(0)})`;
+    const progressFull = document.createElement('div');
+    progressFull.setAttribute('id', 'vsc-progress-full');
+    progressFull.style.position = 'absolute';
+    progressFull.style.width = '100%';
+    progressFull.style.border = '4px solid white';
+    progressFull.style.borderRadius = '10px';
 
-    const progressIndicator = document.createElement('span');
-    progressIndicator.id = 'vsc-progress-val';
-    progressIndicator.setAttribute('data-action', 'drag');
-    progressIndicator.textContent = '---';
+    this.progressLine = document.createElement('div');
+    this.progressLine.setAttribute('id', 'vsc-progress-line');
+    this.progressLine.style.position = 'absolute';
+    this.progressLine.style.width = '0%';
+    this.progressLine.style.border = '4px solid red';
+    this.progressLine.style.borderRadius = '10px';
 
-    draggable.appendChild(speedIndicator);
+    this.progressLineContainer.appendChild(progressFull);
+    this.progressLineContainer.appendChild(this.progressLine);
+
+    this.speedIndicator = document.createElement('span');
+    this.speedIndicator.id = 'vsc-speed-val';
+    this.speedIndicator.setAttribute('data-action', 'drag');
+    this.speedIndicator.textContent = `${speed}x`;
+
+    this.volumeIndicator = document.createElement('span');
+    this.volumeIndicator.id = 'vsc-volume-val';
+    this.volumeIndicator.setAttribute('data-action', 'drag');
+    this.volumeIndicator.textContent = `(vol: ${(volume * 100).toFixed(0)})`;
+
+    this.progressText = document.createElement('span');
+    this.progressText.id = 'vsc-progress-val';
+    this.progressText.setAttribute('data-action', 'drag');
+    this.progressText.textContent = '...';
+
+    draggable.appendChild(this.speedIndicator);
     draggable.appendChild(document.createTextNode(' '));
-    draggable.appendChild(volumeIndicator);
+    draggable.appendChild(this.volumeIndicator);
     draggable.appendChild(document.createTextNode(' - '));
-    draggable.appendChild(progressIndicator);
+    draggable.appendChild(this.progressText);
 
     // Create controls span
     const controls = document.createElement('span');
     controls.id = 'controls';
-    controls.style.cssText = `font-size: ${buttonSize}px; line-height: ${buttonSize}px;`;
+    controls.style.fontSize = `${buttonSize}px';`;
+    controls.style.lineHeight = `${buttonSize}px';`;
+    this.controllerDiv.appendChild(document.createTextNode(' '));
+    this.controllerDiv.appendChild(controls);
 
     // Create buttons
     const buttons = [
@@ -208,50 +250,9 @@ export class ShadowDOMManager {
       controls.appendChild(button);
     });
 
-    this.controllerDiv.appendChild(controls);
     this.shadow.appendChild(this.controllerDiv);
 
     logger.debug('Shadow DOM created for video controller');
-  }
-
-  /**
-   * Get controller element from shadow DOM
-   * @returns {HTMLElement} Controller element
-   */
-  getController() {
-    return this.shadow.querySelector('#controller');
-  }
-
-  /**
-   * Get controls container from shadow DOM
-   * @returns {HTMLElement} Controls element
-   */
-  getControls() {
-    return this.shadow.querySelector('#controls');
-  }
-
-  /**
-   * Get draggable speed indicator from shadow DOM
-   * @returns {HTMLElement} Speed indicator element
-   */
-  getSpeedIndicator() {
-    return this.shadow.querySelector('span#vsc-speed-val');
-  }
-
-  /**
-   * Get draggable volume indicator from shadow DOM
-   * @returns {HTMLElement} Speed indicator element
-   */
-  getVolumeIndicator() {
-    return this.shadow.querySelector('span#vsc-volume-val');
-  }
-
-  /**
-   * Get draggable progress indicator from shadow DOM
-   * @returns {HTMLElement} Progress indicator element
-   */
-  getProgressIndicator() {
-    return this.shadow.querySelector('span#vsc-progress-val');
   }
 
   /**
@@ -260,17 +261,6 @@ export class ShadowDOMManager {
    */
   getButtons() {
     return this.shadow.querySelectorAll('button');
-  }
-
-  /**
-   * Update speed display in shadow DOM
-   * @param {number} speed - New speed value
-   */
-  updateSpeedDisplay(speed) {
-    const speedIndicator = this.getSpeedIndicator();
-    if (speedIndicator) {
-      speedIndicator.textContent = speed.toFixed(1);
-    }
   }
 
   /**

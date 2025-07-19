@@ -253,14 +253,14 @@ export class EventManager {
    */
   showController(controller) {
     logger.info('Showing controller');
-    controller.classList.add('vcs-show');
+    controller.classList.add('vsc-show');
 
     if (this.timer) {
       clearTimeout(this.timer);
     }
 
     this.timer = setTimeout(() => {
-      controller.classList.remove('vcs-show');
+      controller.classList.remove('vsc-show');
       this.timer = null;
       logger.debug('Hiding controller');
     }, 2000);
