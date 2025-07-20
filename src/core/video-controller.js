@@ -360,7 +360,7 @@ export class VideoController {
    */
   setProgressVal(value) {
     logger.verbose(`setProgressVal: ${value}`);
-    const percent = (Number(value) || 0 * 100).toFixed(1);
+    const percent = ((Number(value) || 0) * 100).toFixed(1);
 
     this.shadowManager.progressLineContainer.style.display = 'block';
     this.shadowManager.progressText.textContent = `${percent}%`;
