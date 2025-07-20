@@ -18,7 +18,8 @@ class VideoSpeedExtension {
     this.eventManager = null;
     this.mutationObserver = null;
     this.mediaObserver = null;
-    this.shadowHostObserver = null;
+    // MyNote: comment out Gemini's shadow observers
+    // this.shadowHostObserver = null;
     this.initialized = false;
     this.config = config;
   }
@@ -107,10 +108,11 @@ class VideoSpeedExtension {
         logger.debug('Mutation observer started for document');
       }
 
+      // MyNote: comment out Gemini's shadow observers
       // Start the shadow host observer
-      if (this.shadowHostObserver) {
-        this.shadowHostObserver.observe(document, { childList: true, subtree: true });
-      }
+      // if (this.shadowHostObserver) {
+      //   this.shadowHostObserver.observe(document, { childList: true, subtree: true });
+      // }
 
       // Scan for existing media elements
       this.scanExistingMedia(document);
@@ -149,15 +151,16 @@ class VideoSpeedExtension {
       this.mediaObserver
     );
 
-    this.shadowHostObserver = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-          if (node.shadowRoot) {
-            this.scanExistingMedia(node.shadowRoot);
-          }
-        }
-      }
-    });
+    // MyNote: comment out Gemini's shadow observers
+    // this.shadowHostObserver = new MutationObserver((mutations) => {
+    //   for (const mutation of mutations) {
+    //     for (const node of mutation.addedNodes) {
+    //       if (node.shadowRoot) {
+    //         this.scanExistingMedia(node.shadowRoot);
+    //       }
+    //     }
+    //   }
+    // });
   }
 
   /**
@@ -206,33 +209,48 @@ class VideoSpeedExtension {
    */
   scanExistingMedia(document) {
     try {
-      const mediaElements = [];
-      const mediaTagSelector = this.config.settings.audioBoolean ? 'video,audio' : 'video';
+      const mediaElements = this.mediaObserver.scanAll(document);
 
-      const findMediaRecursively = (rootNode) => {
-        const mediaInNode = rootNode.querySelectorAll(mediaTagSelector);
-        mediaInNode.forEach((media) => mediaElements.push(media));
-
-        const allChildren = rootNode.querySelectorAll('*');
-        allChildren.forEach((child) => {
-          if (child.shadowRoot) {
-            findMediaRecursively(child.shadowRoot);
-          }
-        });
-      };
-
-      findMediaRecursively(document);
-
-      const uniqueMediaElements = [...new Set(mediaElements)];
-
-      uniqueMediaElements.forEach((media) => {
+      mediaElements.forEach((media) => {
+        // media.parentElement almost always works. However, if there's a shadow DOM and the
+        // video is in the root, parentElement is undefined.
         this.onVideoFound(media, media.parentElement || media.parentNode);
       });
 
-      logger.info(`Attached controllers to ${uniqueMediaElements.length} existing media elements`);
+      this.logger.info(`Attached controllers to ${mediaElements.length} existing media elements`);
     } catch (error) {
-      logger.error(`Failed to scan existing media: ${error.message}`);
+      this.logger.error(`Failed to scan existing media: ${error.message}`);
     }
+
+    // MyNote: comment out Gemini's shadow observers
+    // try {
+    //   const mediaElements = [];
+    //   const mediaTagSelector = this.config.settings.audioBoolean ? 'video,audio' : 'video';
+    //
+    //   const findMediaRecursively = (rootNode) => {
+    //     const mediaInNode = rootNode.querySelectorAll(mediaTagSelector);
+    //     mediaInNode.forEach((media) => mediaElements.push(media));
+    //
+    //     const allChildren = rootNode.querySelectorAll('*');
+    //     allChildren.forEach((child) => {
+    //       if (child.shadowRoot) {
+    //         findMediaRecursively(child.shadowRoot);
+    //       }
+    //     });
+    //   };
+    //
+    //   findMediaRecursively(document);
+    //
+    //   const uniqueMediaElements = [...new Set(mediaElements)];
+    //
+    //   uniqueMediaElements.forEach((media) => {
+    //     this.onVideoFound(media, media.parentElement || media.parentNode);
+    //   });
+    //
+    //   logger.info(`Attached controllers to ${uniqueMediaElements.length} existing media elements`);
+    // } catch (error) {
+    //   logger.error(`Failed to scan existing media: ${error.message}`);
+    // }
   }
 
   /**
@@ -260,9 +278,10 @@ class VideoSpeedExtension {
         this.mutationObserver.stop();
       }
 
-      if (this.shadowHostObserver) {
-        this.shadowHostObserver.disconnect();
-      }
+      // MyNote: comment out Gemini's shadow observers
+      // if (this.shadowHostObserver) {
+      //   this.shadowHostObserver.disconnect();
+      // }
 
       if (this.eventManager) {
         this.eventManager.cleanup();
