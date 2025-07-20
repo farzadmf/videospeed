@@ -189,14 +189,15 @@ export class ShadowDOMManager {
     progressFull.setAttribute('id', 'vsc-progress-full');
     progressFull.style.position = 'absolute';
     progressFull.style.width = '100%';
-    progressFull.style.border = '4px solid white';
+    progressFull.style.height = '8px';
+    progressFull.style.backgroundColor = 'white';
     progressFull.style.borderRadius = '10px';
 
     this.progressLine = document.createElement('div');
     this.progressLine.setAttribute('id', 'vsc-progress-line');
     this.progressLine.style.position = 'absolute';
-    this.progressLine.style.width = '0%';
-    this.progressLine.style.border = '4px solid red';
+    this.progressLine.style.height = '8px';
+    this.progressLine.style.backgroundColor = 'red';
     this.progressLine.style.borderRadius = '10px';
 
     this.progressLineContainer.appendChild(progressFull);
