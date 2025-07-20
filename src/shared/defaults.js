@@ -4,8 +4,7 @@ import { ACTIONS } from './actions.js';
 export const VSC_DEFAULTS = {
   audioBoolean: false,
   blacklist: `www.instagram.com
-    twitter.com
-    vine.co
+    x.com
     imgur.com
     teams.microsoft.com
   `.replace(REG_STRIP, ''),
