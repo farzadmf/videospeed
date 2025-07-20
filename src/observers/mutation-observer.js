@@ -8,11 +8,13 @@ window.VSC = window.VSC || {};
 import * as dom from '../utils/dom-utils.js';
 import { logger } from '../utils/logger.js';
 
-class VideoMutationObserver {
-  constructor(config, onVideoFound, onVideoRemoved) {
+export class VideoMutationObserver {
+  constructor(config, onVideoFound, onVideoRemoved, mediaObserver) {
     this.config = config;
+    this.mediaObserver = mediaObserver;
     this.onVideoFound = onVideoFound;
     this.onVideoRemoved = onVideoRemoved;
+
     this.observer = null;
     this.shadowObservers = new Set();
   }
@@ -33,7 +35,7 @@ class VideoMutationObserver {
     });
 
     const observerOptions = {
-      attributeFilter: ['aria-hidden', 'data-focus-method'],
+      attributeFilter: ['aria-hidden', 'data-focus-method', 'style', 'class'],
       childList: true,
       subtree: true,
     };
@@ -99,6 +101,11 @@ class VideoMutationObserver {
    * @private
    */
   processAttributeMutation(mutation) {
+    // Handle style and class changes that might affect video visibility
+    if (mutation.attributeName === 'style' || mutation.attributeName === 'class') {
+      this.handleVisibilityChanges(mutation.target);
+    }
+
     // Handle special cases like Apple TV+ player
     if (
       (mutation.target.attributes['aria-hidden'] &&
@@ -119,6 +126,57 @@ class VideoMutationObserver {
         }
 
         this.checkForVideoAndShadowRoot(node, node.parentNode || mutation.target, true);
+      }
+    }
+  }
+
+  /**
+   * Handle visibility changes on elements that might contain videos
+   * @param {Element} element - Element that had style/class changes
+   * @private
+   */
+  handleVisibilityChanges(element) {
+    // If the element itself is a video
+    if (
+      element.tagName === 'VIDEO' ||
+      (element.tagName === 'AUDIO' && this.config.settings.audioBoolean)
+    ) {
+      this.recheckVideoElement(element);
+      return;
+    }
+
+    // Check if element contains videos
+    const audioEnabled = this.config.settings.audioBoolean;
+    const mediaTagSelector = audioEnabled ? 'video,audio' : 'video';
+    const videos = element.querySelectorAll ? element.querySelectorAll(mediaTagSelector) : [];
+
+    videos.forEach((video) => {
+      this.recheckVideoElement(video);
+    });
+  }
+
+  /**
+   * Re-check if a video element should have a controller attached
+   * @param {HTMLMediaElement} video - Video element to recheck
+   * @private
+   */
+  recheckVideoElement(video) {
+    if (!this.mediaObserver) {
+      return;
+    }
+
+    if (video.vsc) {
+      // Video already has controller, check if it should be removed
+      if (!this.mediaObserver.isValidMediaElement(video)) {
+        window.VSC.logger.debug('Video became invalid, removing controller');
+        video.vsc.remove();
+        video.vsc = null;
+      }
+    } else {
+      // Video doesn't have controller, check if it should get one
+      if (this.mediaObserver.isValidMediaElement(video)) {
+        window.VSC.logger.debug('Video became valid, attaching controller');
+        this.onVideoFound(video, video.parentElement || video.parentNode);
       }
     }
   }

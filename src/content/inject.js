@@ -8,6 +8,7 @@ import { logger } from '../utils/logger.js';
 import { config } from '../core/config.js';
 import { ActionHandler } from '../core/action-handler.js';
 import { EventManager } from '../utils/event-manager.js';
+import { VideoMutationObserver } from '../observers/mutation-observer.js';
 import * as dom from '../utils/dom-utils.js';
 
 class VideoSpeedExtension {
@@ -29,7 +30,6 @@ class VideoSpeedExtension {
     try {
       // Access global modules
       this.siteHandlerManager = window.VSC.siteHandlerManager;
-      this.VideoMutationObserver = window.VSC.VideoMutationObserver;
       this.MediaElementObserver = window.VSC.MediaElementObserver;
       this.MESSAGE_TYPES = window.VSC.Constants.MESSAGE_TYPES;
 
@@ -104,6 +104,7 @@ class VideoSpeedExtension {
       // Start mutation observer
       if (this.mutationObserver) {
         this.mutationObserver.start(document);
+        logger.debug('Mutation observer started for document');
       }
 
       // Start the shadow host observer
@@ -141,10 +142,11 @@ class VideoSpeedExtension {
     this.mediaObserver = new this.MediaElementObserver(this.config, this.siteHandlerManager);
 
     // Mutation observer for dynamic content
-    this.mutationObserver = new this.VideoMutationObserver(
+    this.mutationObserver = new VideoMutationObserver(
       this.config,
       (video, parent) => this.onVideoFound(video, parent),
-      (video) => this.onVideoRemoved(video)
+      (video) => this.onVideoRemoved(video),
+      this.mediaObserver
     );
 
     this.shadowHostObserver = new MutationObserver((mutations) => {

@@ -111,6 +111,7 @@ export class VideoController {
     const document = this.video.ownerDocument;
     const speed = this.video.playbackRate.toFixed(1);
     const volume = this.video.volume.toFixed(1);
+    const position = this.shadowManager.calculatePosition(this.video);
 
     logger.debug(`Speed variable set to: ${speed}`);
 
@@ -118,15 +119,17 @@ export class VideoController {
     const wrapper = document.createElement('div');
     wrapper.classList.add('vsc-controller');
 
-    // Set positioning styles but don't force visibility
     // MyNote | use "normal" style instead of cssText, remove '!important', AND
     //          z-index to see what happens (main reason: old.reddit video player
     //          has some weird styles causing vsc-controller to take over everything,
     //          preventing interacting with the video.
-    // wrapper.style.cssText = `
-    //   position: absolute;
-    //   z-index: 9999999;
-    // `;
+    // Set positioning styles with calculated position
+    wrapper.style.cssText = `
+      left: ${position.left} !important;
+      position: absolute;
+      top: ${position.top} !important;
+      z-index: 9999999;
+    `;
     // wrapper.style.position = 'absolute';
     // wrapper.style.zIndex = '9999999';
 
