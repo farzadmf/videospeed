@@ -2,7 +2,7 @@ import { REG_STRIP, LOG_LEVELS } from './constants.js';
 import { ACTIONS } from './actions.js';
 
 export const VSC_DEFAULTS = {
-  audioBoolean: false,
+  audioBoolean: true,
   blacklist: `www.instagram.com
     x.com
     imgur.com
