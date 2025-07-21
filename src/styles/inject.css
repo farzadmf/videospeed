@@ -129,3 +129,11 @@ body.vsc-domain-chatgpt-com .vsc-controller {
   top: 0px !important;
 }
 
+body.vsc-domain-github-com .vsc-controller {
+  left: 0 !important;
+  top: 0 !important;
+}
+
+body.vsc-domain-old-reddit-com .vsc-controller {
+  left: 0 !important;
+}

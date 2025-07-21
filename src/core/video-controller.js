@@ -136,9 +136,9 @@ export class VideoController {
     //          preventing interacting with the video.
     // Set positioning styles with calculated position
     wrapper.style.cssText = `
-      left: ${position.left} !important;
+      left: ${position.left};
       position: absolute;
-      top: ${position.top} !important;
+      top: ${position.top};
       z-index: 9999999;
     `;
     // wrapper.style.position = 'absolute';
