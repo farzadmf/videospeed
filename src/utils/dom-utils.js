@@ -47,7 +47,7 @@ export function isBlacklisted(blacklist) {
           const regex = match;
           regexp = new RegExp(regex, flags);
         }
-      } catch (err) {
+      } catch {
         return;
       }
     } else {
@@ -70,7 +70,7 @@ window.VSC.DomUtils.isBlacklisted = isBlacklisted;
 export function inIframe() {
   try {
     return window.self !== window.top;
-  } catch (e) {
+  } catch {
     return true;
   }
 }
@@ -81,18 +81,36 @@ window.VSC.DomUtils.inIframe = inIframe;
  * @param {Element} parent - Parent element to search
  * @returns {Array<Element>} Flattened array of all elements
  */
-export function getShadow(parent) {
+export function getShadow(parent, maxDepth = 10) {
   const result = [];
+  const visited = new WeakSet(); // Prevent infinite loops
 
-  function getChild(parent) {
-    if (parent.firstElementChild) {
-      let child = parent.firstElementChild;
+  function getChild(element, depth = 0) {
+    // Prevent infinite recursion and excessive depth
+    if (depth > maxDepth || visited.has(element)) {
+      return;
+    }
+
+    visited.add(element);
+
+    if (element.firstElementChild) {
+      let child = element.firstElementChild;
       do {
         result.push(child);
-        getChild(child);
-        if (child.shadowRoot) {
-          result.push(window.VSC.DomUtils.getShadow(child.shadowRoot));
+        getChild(child, depth + 1);
+
+        // Only traverse shadow roots if we haven't exceeded depth limit
+        if (child.shadowRoot && depth < maxDepth - 2) {
+          // Use setTimeout to yield control back to browser for deep shadow roots
+          if (depth > 5) {
+            setTimeout(() => {
+              result.push(...getShadow(child.shadowRoot, maxDepth - depth));
+            }, 0);
+          } else {
+            result.push(...getShadow(child.shadowRoot, maxDepth - depth));
+          }
         }
+
         child = child.nextElementSibling;
       } while (child);
     }
@@ -153,6 +171,7 @@ window.VSC.DomUtils.initializeWhenReady = initializeWhenReady;
 
 /**
  * Check if element or its children are video/audio elements
+ * Recursively searches through nested shadow DOM structures
  * @param {Element} node - Node to check
  * @param {boolean} audioEnabled - Whether to check for audio elements
  * @returns {Array<Element>} Array of media elements found
@@ -175,13 +194,46 @@ export function findMediaElements(node, audioEnabled = false) {
     mediaElements.push(...Array.from(node.querySelectorAll(selector)));
   }
 
-  // Check shadow roots
+  // Recursively check shadow roots
   if (node.shadowRoot) {
-    mediaElements.push(...Array.from(node.shadowRoot.querySelectorAll(selector)));
+    mediaElements.push(...findShadowMedia(node.shadowRoot, selector));
   }
 
   return mediaElements;
 }
 window.VSC.DomUtils.findMediaElements = findMediaElements;
+
+/**
+ * Recursively find media elements in shadow DOM trees
+ * @param {ShadowRoot|Document|Element} root - Root to search from
+ * @param {string} selector - CSS selector for media elements
+ * @returns {Array<Element>} Array of media elements found
+ */
+export function findShadowMedia(root, selector) {
+  const results = [];
+
+  // If root is an element with shadowRoot, search in its shadow first
+  if (root.shadowRoot) {
+    results.push(...findShadowMedia(root.shadowRoot, selector));
+  }
+
+  // Add any matching elements in current root (if it's a shadowRoot/document)
+  if (root.querySelectorAll) {
+    results.push(...Array.from(root.querySelectorAll(selector)));
+  }
+
+  // Recursively check all elements with shadow roots
+  if (root.querySelectorAll) {
+    const allElements = Array.from(root.querySelectorAll('*'));
+    allElements.forEach((element) => {
+      if (element.shadowRoot) {
+        results.push(...findShadowMedia(element.shadowRoot, selector));
+      }
+    });
+  }
+
+  return results;
+}
+window.VSC.DomUtils.findShadowMedia = findShadowMedia;
 
 // Global variables available for both browser and testing

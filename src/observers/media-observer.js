@@ -28,13 +28,22 @@ class MediaElementObserver {
     const regularMedia = Array.from(document.querySelectorAll(mediaTagSelector));
     mediaElements.push(...regularMedia);
 
-    // Find media elements in shadow DOMs
-    document.querySelectorAll('*').forEach((element) => {
-      if (element.shadowRoot) {
-        const shadowMedia = element.shadowRoot.querySelectorAll(mediaTagSelector);
-        mediaElements.push(...shadowMedia);
-      }
-    });
+    // Find media elements in shadow DOMs recursively
+    function findShadowMedia(root, selector) {
+      const results = [];
+      // Add any matching elements in current shadow root
+      results.push(...root.querySelectorAll(selector));
+      // Recursively check all elements with shadow roots
+      root.querySelectorAll('*').forEach((element) => {
+        if (element.shadowRoot) {
+          results.push(...findShadowMedia(element.shadowRoot, selector));
+        }
+      });
+      return results;
+    }
+
+    const shadowMedia = findShadowMedia(document, mediaTagSelector);
+    mediaElements.push(...shadowMedia);
 
     // Find site-specific media elements
     const siteSpecificMedia = this.siteHandler.detectSpecialVideos(document);
@@ -49,6 +58,41 @@ class MediaElementObserver {
       `Found ${filteredMedia.length} media elements (${mediaElements.length} total, ${mediaElements.length - filteredMedia.length} filtered out)`
     );
     return filteredMedia;
+  }
+
+  /**
+   * Lightweight scan that avoids expensive shadow DOM traversal
+   * Used during initial load to avoid blocking page performance
+   * @param {Document} document - Document to scan
+   * @returns {Array<HTMLMediaElement>} Found media elements
+   */
+  scanForMediaLight(document) {
+    const mediaElements = [];
+    const audioEnabled = this.config.settings.audioBoolean;
+    const mediaTagSelector = audioEnabled ? 'video,audio' : 'video';
+
+    try {
+      // Only do basic DOM query, no shadow DOM traversal
+      const regularMedia = Array.from(document.querySelectorAll(mediaTagSelector));
+      mediaElements.push(...regularMedia);
+
+      // Find site-specific media elements (usually lightweight)
+      const siteSpecificMedia = this.siteHandler.detectSpecialVideos(document);
+      mediaElements.push(...siteSpecificMedia);
+
+      // Filter out ignored videos
+      const filteredMedia = mediaElements.filter((media) => {
+        return !this.siteHandler.shouldIgnoreVideo(media);
+      });
+
+      logger.info(
+        `Light scan found ${filteredMedia.length} media elements (${mediaElements.length} total, ${mediaElements.length - filteredMedia.length} filtered out)`
+      );
+      return filteredMedia;
+    } catch (error) {
+      logger.error(`Light media scan failed: ${error.message}`);
+      return [];
+    }
   }
 
   /**
@@ -141,40 +185,60 @@ class MediaElementObserver {
       return false;
     }
 
-    // Check visibility
-    const style = window.getComputedStyle(media);
-    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-      logger.debug('Video not visible');
+    // Skip audio elements when audio support is disabled
+    if (media.tagName === 'AUDIO' && !this.config.settings.audioBoolean) {
+      logger.debug('Audio element rejected - audioBoolean disabled');
       return false;
     }
 
-    // If video hasn't loaded yet, skip size checks but continue with other validation
-    if (media.readyState < 2) {
-      logger.debug('Video still loading, skipping size checks');
-
-      // Let site handler decide for loading videos
-      if (this.siteHandler.shouldIgnoreVideo(media)) {
-        logger.debug('Video ignored by site handler (during loading)');
-        return false;
-      }
-
-      return true;
-    }
-
-    // Check if the video is reasonably sized
-    const rect = media.getBoundingClientRect();
-    if (rect.width < 50 || rect.height < 50) {
-      logger.debug(`Video too small: ${rect.width}x${rect.height}`);
-      return false;
-    }
-
-    // Let site handler have final say
+    // Let site handler have final say on whether to ignore this video
     if (this.siteHandler.shouldIgnoreVideo(media)) {
       logger.debug('Video ignored by site handler');
       return false;
     }
 
+    // Accept all connected media elements that pass site handler validation
+    // Visibility and size will be handled by controller initialization
     return true;
+  }
+
+  /**
+   * Check if media element should start with hidden controller
+   * @param {HTMLMediaElement} media - Media element to check
+   * @returns {boolean} True if controller should start hidden
+   */
+  shouldStartHidden(media) {
+    // For audio elements, only hide controller if audio support is disabled
+    // Audio players are often intentionally invisible but still functional
+    if (media.tagName === 'AUDIO') {
+      if (!this.config.settings.audioBoolean) {
+        logger.debug('Audio controller hidden - audio support disabled');
+        return true;
+      }
+
+      // Audio elements can be functional even when invisible
+      // Only hide if the audio element is explicitly disabled or has no functionality
+      if (media.disabled || media.style.pointerEvents === 'none') {
+        logger.debug('Audio controller hidden - element disabled or no pointer events');
+        return true;
+      }
+
+      // Keep audio controllers visible even for hidden audio elements
+      logger.debug(
+        'Audio controller will start visible (audio elements can be invisible but functional)'
+      );
+      return false;
+    }
+
+    // For video elements, check visibility - only hide controllers for truly invisible media elements
+    const style = window.getComputedStyle(media);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+      logger.debug('Video not visible, controller will start hidden');
+      return true;
+    }
+
+    // All visible media elements get visible controllers regardless of size
+    return false;
   }
 
   /**

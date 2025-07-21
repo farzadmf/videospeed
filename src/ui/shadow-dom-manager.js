@@ -151,7 +151,7 @@ export class ShadowDOMManager {
   createShadowDOM(wrapper, options = {}) {
     const { buttonSize = 14, opacity = 0.3, speed = '1.0', volume = '1.0' } = options;
 
-    const { top = '50px', left = '0px' } = this.calculatePosition();
+    const { top = '0px', left = '0px' } = this.calculatePosition();
 
     this.shadow = wrapper.attachShadow({ mode: 'open' });
 

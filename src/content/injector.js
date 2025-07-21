@@ -39,6 +39,7 @@ async function injectModules() {
       'src/shared/preserve-underscore.js',
       'src/assets/pkgs/lodash-4.7.15.min.js',
       'src/shared/restore-underscore.js',
+      'src/utils/debug-helper.js',
       'src/shared/actions.js',
       'src/shared/constants.js',
       'src/shared/defaults.js',
@@ -66,9 +67,21 @@ async function injectModules() {
       'src/content/inject.js',
     ];
 
-    // Inject modules sequentially to maintain order
-    for (const module of modules) {
+    // Inject modules with yielding to avoid blocking page load
+    for (let i = 0; i < modules.length; i++) {
+      const module = modules[i];
       await injectScript(module);
+
+      // Yield control to browser every few modules to avoid blocking
+      if (i > 0 && i % 5 === 0) {
+        await new Promise((resolve) => {
+          if (window.requestIdleCallback) {
+            requestIdleCallback(resolve, { timeout: 50 });
+          } else {
+            setTimeout(resolve, 5);
+          }
+        });
+      }
     }
 
     // Inject site-specific scripts if needed
@@ -138,6 +151,53 @@ function setupMessageBridge() {
       console.error('[FMVSC] ❌ Failed to save settings to Chrome storage:', error);
     }
   });
+
+  // Listen for controller lifecycle events from injected page context
+  window.addEventListener('VSC_CONTROLLER_CREATED', (event) => {
+    // Forward controller creation to background script for icon management
+    try {
+      if (chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({
+          type: 'VSC_CONTROLLER_CREATED',
+          controllerId: event.detail?.controllerId || 'default',
+          timestamp: Date.now(),
+        });
+      }
+    } catch (error) {
+      // Silently ignore extension context invalidation errors
+      try {
+        if (!error.message?.includes('Extension context invalidated')) {
+          console.warn('Failed to send controller created message:', error);
+        }
+      } catch {
+        // Even accessing error.message can fail when context is invalidated
+        // Silently ignore all errors during extension reloads
+      }
+    }
+  });
+
+  window.addEventListener('VSC_CONTROLLER_REMOVED', (event) => {
+    // Forward controller removal to background script for icon management
+    try {
+      if (chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({
+          type: 'VSC_CONTROLLER_REMOVED',
+          controllerId: event.detail?.controllerId || 'default',
+          timestamp: Date.now(),
+        });
+      }
+    } catch (error) {
+      // Silently ignore extension context invalidation errors
+      try {
+        if (!error.message?.includes('Extension context invalidated')) {
+          console.warn('Failed to send controller removed message:', error);
+        }
+      } catch {
+        // Even accessing error.message can fail when context is invalidated
+        // Silently ignore all errors during extension reloads
+      }
+    }
+  });
 }
 
 // Fetch user settings from Chrome storage and inject into page context
@@ -157,13 +217,34 @@ async function injectUserSettings() {
       })
     );
   } catch (error) {
-    console.error('❌ Failed to inject user settings:', error);
+    console.error('[FMVSC] ❌ Failed to inject user settings:', error);
   }
 }
 
 // Start injection when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', injectModules);
+  // Wait for DOMContentLoaded, then defer injection to avoid blocking page load
+  document.addEventListener('DOMContentLoaded', () => {
+    // Use requestIdleCallback to wait for browser to be less busy
+    if (window.requestIdleCallback) {
+      requestIdleCallback(injectModules, { timeout: 3000 });
+    } else {
+      // Fallback with short delay to let page finish initial rendering
+      setTimeout(injectModules, 100);
+    }
+  });
+} else if (document.readyState === 'interactive') {
+  // Document is still loading, wait a bit more
+  if (window.requestIdleCallback) {
+    requestIdleCallback(injectModules, { timeout: 2000 });
+  } else {
+    setTimeout(injectModules, 50);
+  }
 } else {
-  injectModules();
+  // Document is complete, but still defer to avoid interfering with other scripts
+  if (window.requestIdleCallback) {
+    requestIdleCallback(injectModules, { timeout: 1000 });
+  } else {
+    setTimeout(injectModules, 10);
+  }
 }

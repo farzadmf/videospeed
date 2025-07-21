@@ -30,7 +30,7 @@ export class VideoMutationObserver {
         () => {
           this.processMutations(mutations);
         },
-        { timeout: 500 }
+        { timeout: 2_000 }
       );
     });
 
@@ -168,14 +168,17 @@ export class VideoMutationObserver {
     if (video.vsc) {
       // Video already has controller, check if it should be removed
       if (!this.mediaObserver.isValidMediaElement(video)) {
-        window.VSC.logger.debug('Video became invalid, removing controller');
+        logger.debug('Video became invalid, removing controller');
         video.vsc.remove();
         video.vsc = null;
+      } else {
+        // Video is still valid, update visibility based on current state
+        video.vsc.updateVisibility();
       }
     } else {
       // Video doesn't have controller, check if it should get one
       if (this.mediaObserver.isValidMediaElement(video)) {
-        window.VSC.logger.debug('Video became valid, attaching controller');
+        logger.debug('Video became valid, attaching controller');
         this.onVideoFound(video, video.parentElement || video.parentNode);
       }
     }
@@ -287,7 +290,7 @@ export class VideoMutationObserver {
     }
 
     // Clean up shadow observers
-    this.shadowObservers.forEach((_shadowRoot) => {
+    this.shadowObservers.forEach((/*_shadowRoot*/) => {
       // Note: We can't access the observer directly, but disconnecting the main
       // observer should handle most cases. Shadow observers will be garbage collected.
     });

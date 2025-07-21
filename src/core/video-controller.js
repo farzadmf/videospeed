@@ -16,7 +16,7 @@ export class VideoController {
    * @param {HTMLMediaElement & { vsc?: VideoController }} target - Video element
    * @param {VideoSpeedConfig} config - Config
    */
-  constructor(target, parent, config, actionHandler) {
+  constructor(target, parent, config, actionHandler, shouldStartHidden = false) {
     // Return existing controller if already attached
     if (target.vsc) {
       return target.vsc;
@@ -28,9 +28,13 @@ export class VideoController {
     this.actionHandler = actionHandler;
     this.controlsManager = new ControlsManager(actionHandler, config);
     this.shadowManager = new ShadowDOMManager(target);
+    this.shouldStartHidden = shouldStartHidden;
 
     this.speed = 0;
     this.volume = 0;
+
+    // Generate unique controller ID for badge tracking
+    this.controllerId = this.generateControllerId(target);
 
     // Add to tracked media elements
     config.addMediaElement(target);
@@ -51,6 +55,13 @@ export class VideoController {
     target.vsc = this;
 
     logger.info('VideoController initialized for video element');
+
+    // Dispatch controller created event for badge management
+    this.dispatchControllerEvent('VSC_CONTROLLER_CREATED', {
+      controllerId: this.controllerId,
+      videoSrc: this.video.currentSrc || this.video.src,
+      tagName: this.video.tagName,
+    });
   }
 
   /**
@@ -133,15 +144,20 @@ export class VideoController {
     // wrapper.style.position = 'absolute';
     // wrapper.style.zIndex = '9999999';
 
-    if (!this.video.currentSrc) {
+    // Only hide controller if video has no source AND is not ready/functional
+    // This prevents hiding controllers for live streams or dynamically loaded videos
+    if (!this.video.currentSrc && !this.video.src && this.video.readyState < 2) {
       wrapper.classList.add('vsc-nosource');
     }
 
-    if (this.config.settings.startHidden) {
+    if (this.config.settings.startHidden || this.shouldStartHidden) {
       wrapper.classList.add('vsc-hidden');
+      if (this.shouldStartHidden) {
+        window.VSC.logger.debug('Starting controller hidden due to video visibility/size');
+      }
     } else {
       // Ensure controller is visible, especially on YouTube
-      wrapper.classList.add('vsc-show');
+      wrapper.classList.add('vcs-show');
     }
 
     // Create shadow DOM
@@ -316,6 +332,13 @@ export class VideoController {
     delete this.video.vsc;
 
     logger.debug('VideoController removed successfully');
+
+    // Dispatch controller removed event for badge management
+    this.dispatchControllerEvent('VSC_CONTROLLER_REMOVED', {
+      controllerId: this.controllerId,
+      videoSrc: this.video.currentSrc || this.video.src,
+      tagName: this.video.tagName,
+    });
   }
 
   adjustLocation() {
@@ -337,6 +360,106 @@ export class VideoController {
     // this.controller.style.left = `${left}px`;
     // this.controller.style.top = `${top}px`;
     this.div.style.transform = `translate(${left}px, ${top}px)`;
+  }
+
+  /**
+   * Generate unique controller ID for badge tracking
+   * @param {HTMLElement} target - Video/audio element
+   * @returns {string} Unique controller ID
+   * @private
+   */
+  generateControllerId(target) {
+    const timestamp = Date.now();
+    const src = target.currentSrc || target.src || 'no-src';
+    const tagName = target.tagName.toLowerCase();
+
+    // Create a simple hash from src for uniqueness
+    const srcHash = src.split('').reduce((hash, char) => {
+      hash = (hash << 5) - hash + char.charCodeAt(0);
+      return hash & hash; // Convert to 32-bit integer
+    }, 0);
+
+    return `${tagName}-${Math.abs(srcHash)}-${timestamp}`;
+  }
+
+  /**
+   * Check if the video element is currently visible
+   * @returns {boolean} True if video is visible
+   */
+  isVideoVisible() {
+    // Check if video is still connected to DOM
+    if (!this.video.isConnected) {
+      return false;
+    }
+
+    // Check computed style for visibility
+    const style = window.getComputedStyle(this.video);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+      return false;
+    }
+
+    // Check if video has reasonable dimensions
+    const rect = this.video.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Update controller visibility based on video visibility
+   * Called when video visibility changes
+   */
+  updateVisibility() {
+    const isVisible = this.isVideoVisible();
+    const isCurrentlyHidden = this.div.classList.contains('vsc-hidden');
+
+    // Special handling for audio elements - don't hide controllers for functional audio
+    if (this.video.tagName === 'AUDIO') {
+      // For audio, only hide if manually hidden or if audio support is disabled
+      if (!this.config.settings.audioBoolean && !isCurrentlyHidden) {
+        this.div.classList.add('vsc-hidden');
+        logger.debug('Hiding audio controller - audio support disabled');
+      } else if (
+        this.config.settings.audioBoolean &&
+        isCurrentlyHidden &&
+        !this.div.classList.contains('vsc-manual')
+      ) {
+        // Show audio controller if audio support is enabled and not manually hidden
+        this.div.classList.remove('vsc-hidden');
+        logger.debug('Showing audio controller - audio support enabled');
+      }
+
+      return;
+    }
+
+    // Original logic for video elements
+    if (isVisible && isCurrentlyHidden && !this.div.classList.contains('vsc-manual')) {
+      // Video became visible and controller is hidden (but not manually hidden)
+      this.div.classList.remove('vsc-hidden');
+      logger.debug('Showing controller - video became visible');
+    } else if (!isVisible && !isCurrentlyHidden) {
+      // Video became invisible and controller is visible
+      this.div.classList.add('vsc-hidden');
+      logger.debug('Hiding controller - video became invisible');
+    }
+  }
+
+  /**
+   * Dispatch controller lifecycle events for badge management
+   * @param {string} eventType - Event type (VSC_CONTROLLER_CREATED or VSC_CONTROLLER_REMOVED)
+   * @param {Object} detail - Event detail data
+   * @private
+   */
+  dispatchControllerEvent(eventType, detail) {
+    try {
+      const event = new CustomEvent(eventType, { detail });
+      window.dispatchEvent(event);
+      logger.debug(`Dispatched ${eventType} event for controller ${detail.controllerId}`);
+    } catch (error) {
+      logger.error(`Failed to dispatch ${eventType} event:`, error);
+    }
   }
 
   /**
