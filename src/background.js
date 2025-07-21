@@ -17,17 +17,26 @@ async function updateIcon(tabId, hasActiveControllers) {
     // This makes red icon indicate "activity" which is intuitive
     const suffix = hasActiveControllers ? '' : '_disabled';
 
-    await chrome.action.setIcon({
-      tabId: tabId,
-      path: {
-        19: chrome.runtime.getURL(`src/assets/icons/icon19${suffix}.png`),
-        38: chrome.runtime.getURL(`src/assets/icons/icon38${suffix}.png`),
-        48: chrome.runtime.getURL(`src/assets/icons/icon48${suffix}.png`),
+    chrome.action.setIcon(
+      {
+        tabId,
+        path: {
+          19: chrome.runtime.getURL(`src/assets/icons/icon19${suffix}.png`),
+          38: chrome.runtime.getURL(`src/assets/icons/icon38${suffix}.png`),
+          48: chrome.runtime.getURL(`src/assets/icons/icon48${suffix}.png`),
+        },
       },
-    });
+      function () {
+        if (chrome.runtime.lastError) {
+          // Avoids getting error 'uncheck chrome.runtime.lastError' saying "No tab with id: ..."
+          // Seems like chrome only likes us to "check chrome.runtime.lastError" and doesn't
+          // care what we do with it!?!
+        }
+      }
+    );
 
     console.log(
-      `Icon updated for tab ${tabId}: ${hasActiveControllers ? 'active (red)' : 'inactive (gray)'}`
+      `[FMVSC] Icon updated for tab ${tabId}: ${hasActiveControllers ? 'active (red)' : 'inactive (gray)'}`
     );
   } catch (error) {
     console.error('Failed to update icon:', error);
@@ -51,6 +60,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!sender.tab) return;
 
   const tabId = sender.tab.id;
+  let controllerCount = 0;
 
   switch (message.type) {
     case 'VSC_CONTROLLER_CREATED':
@@ -62,7 +72,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       tabControllers.get(tabId).add(message.controllerId || 'default');
       updateTabIndicators(tabId, true);
 
-      console.log(`Controller created in tab ${tabId}. Total: ${tabControllers.get(tabId).size}`);
+      console.log(
+        `[FMVSC] Controller created in tab ${tabId}. Total: ${tabControllers.get(tabId).size}`
+      );
       break;
 
     case 'VSC_CONTROLLER_REMOVED':
@@ -79,14 +91,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         console.log(
-          `Controller removed from tab ${tabId}. Remaining: ${tabControllers.get(tabId)?.size || 0}`
+          `[FMVSC] Controller removed from tab ${tabId}. Remaining: ${tabControllers.get(tabId)?.size || 0}`
         );
       }
       break;
 
     case 'VSC_QUERY_ACTIVE_CONTROLLERS':
       // Respond with current controller count for this tab
-      const controllerCount = tabControllers.get(tabId)?.size || 0;
+      controllerCount = tabControllers.get(tabId)?.size || 0;
+
       sendResponse({
         hasActiveControllers: controllerCount > 0,
         controllerCount: controllerCount,
@@ -104,7 +117,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (tabControllers.has(tabId)) {
       tabControllers.delete(tabId);
       updateTabIndicators(tabId, false);
-      console.log(`Tab ${tabId} navigated, cleared controller tracking`);
+      console.log(`[FMVSC] Tab ${tabId} navigated, cleared controller tracking`);
     }
   }
 });
@@ -115,7 +128,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   if (tabControllers.has(tabId)) {
     tabControllers.delete(tabId);
-    console.log(`Tab ${tabId} closed, removed from tracking`);
+    console.log(`[FMVSC] Tab ${tabId} closed, removed from tracking`);
   }
 });
 
@@ -131,7 +144,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     // Update the badge for the newly active tab
     await updateTabIndicators(activeInfo.tabId, hasControllers);
 
-    console.log(`Switched to tab ${activeInfo.tabId}, has controllers: ${hasControllers}`);
+    console.log(`[FMVSC] Switched to tab ${activeInfo.tabId}, has controllers: ${hasControllers}`);
   } catch (error) {
     console.error('Error handling tab activation:', error);
   }
@@ -149,7 +162,7 @@ async function setDefaultIconState() {
         48: chrome.runtime.getURL('src/assets/icons/icon48_disabled.png'),
       },
     });
-    console.log('Default icon state set to inactive (gray)');
+    console.log('[FMVSC] Default icon state set to inactive (gray)');
   } catch (error) {
     console.error('Failed to set default icon state:', error);
   }
@@ -159,7 +172,7 @@ async function setDefaultIconState() {
  * Initialize on startup
  */
 chrome.runtime.onStartup.addListener(async () => {
-  console.log('Video Speed Controller background script started');
+  console.log('[FMVSC] Video Speed Controller background script started');
 
   // Clear controller tracking on startup
   tabControllers.clear();
@@ -172,7 +185,7 @@ chrome.runtime.onStartup.addListener(async () => {
  * Initialize on install/update
  */
 chrome.runtime.onInstalled.addListener(async () => {
-  console.log('Video Speed Controller installed/updated');
+  console.log('[FMVSC] Video Speed Controller installed/updated');
 
   // Clear controller tracking on install
   tabControllers.clear();
@@ -181,4 +194,4 @@ chrome.runtime.onInstalled.addListener(async () => {
   await setDefaultIconState();
 });
 
-console.log('Video Speed Controller background script loaded');
+console.log('[FMVSC] Video Speed Controller background script loaded');
