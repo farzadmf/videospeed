@@ -54,27 +54,35 @@ export class ActionHandler {
       targetController = event.target.getRootNode().host;
     }
 
-    mediaTags.forEach((video) => {
+    // Return true (meaning: "we handled it") if the action applied to at least one of our media elements
+    const result = mediaTags.some((video) => {
       const controller = video.vsc?.div;
 
       if (!controller) {
-        return;
+        return false; // We didn't handle it
       }
 
       // Don't change video speed if the video has a different controller
       // Only apply this check for button clicks (when targetController is set)
       if (event && targetController && !(targetController === controller)) {
-        return;
+        return false; // We didn't handle it
+      }
+
+      if (!video.currentSrc || !video.src) {
+        logger.debug('runAction not handling because src is empty', video);
+        return false; // We didn't handle it
       }
 
       this.eventManager.showController(controller);
 
       if (!video.classList.contains('vsc-cancelled')) {
-        this.executeAction({ actionName, value, value2, video, event });
+        return this.executeAction({ actionName, value, value2, video, event });
       }
     });
 
     logger.debug('runAction End');
+
+    return result;
   }
 
   /**
@@ -93,7 +101,7 @@ export class ActionHandler {
       const speedStr = actionName.split('_')[1];
       const speedValue = Number(`${speedStr[0]}.${speedStr[1]}`);
       this.setSpeed(video, speedValue);
-      return;
+      return true;
     }
 
     switch (actionName) {
@@ -105,7 +113,7 @@ export class ActionHandler {
       case 'advance':
         logger.debug('Fast forward');
         this.seek(video, step);
-        break;
+        return true;
 
       case 'faster': {
         logger.debug('Increase speed');
@@ -114,71 +122,72 @@ export class ActionHandler {
           SPEED_LIMITS.MAX
         );
         this.setSpeed(video, fasterSpeed);
-        break;
+        return true;
       }
 
       case 'slower': {
         logger.debug('Decrease speed');
         const slowerSpeed = Math.max(video.playbackRate - value, SPEED_LIMITS.MIN);
         this.setSpeed(video, slowerSpeed);
-        break;
+        return true;
       }
 
       case 'reset':
         logger.debug('Reset speed');
         this.resetSpeed(video, 1.0);
-        break;
+        return true;
 
       case 'display': {
         logger.debug('Display action triggered');
         const controller = video.vsc.div;
 
-        if (!controller) {
-          logger.error('No controller found for video');
-          return;
-        }
+        // MyNote: this is checked in runAction, so do we need it here?!
+        // if (!controller) {
+        //   logger.error('No controller found for video');
+        //   return;
+        // }
 
         controller.classList.add('vsc-manual');
         controller.classList.toggle('vsc-hidden');
-        break;
+        return true;
       }
 
       case 'blink':
         logger.debug('Showing controller momentarily');
         this.blinkController(video.vsc.div, value);
-        break;
+        return true;
 
       case 'drag':
         DragHandler.handleDrag(video, event);
-        break;
+        return true;
 
       case 'fast':
         this.resetSpeed(video, value);
-        break;
+        return true;
 
       case 'pause':
         this.pause(video);
-        break;
+        return true;
 
       case 'muted':
         this.muted(video);
-        break;
+        return true;
 
       case 'vol_up':
         this.volumeUp(video, value);
-        break;
+        return true;
 
       case 'vol_down':
         this.volumeDown(video, value);
-        break;
+        return true;
 
       case 'mark':
         this.setMark(video);
-        break;
+        return true;
 
       case 'jump':
         this.jumpToMark(video);
-        break;
+        return true;
 
       case 'SET_SPEED': {
         const speed = value;
@@ -188,7 +197,7 @@ export class ActionHandler {
         } else {
           logger.warn('Invalid speed value:', speed);
         }
-        break;
+        return true;
       }
 
       case 'ADJUST_SPEED': {
@@ -199,18 +208,19 @@ export class ActionHandler {
         } else {
           logger.warn('Invalid delta value:', delta);
         }
-        break;
+        return true;
       }
 
       case 'RESET_SPEED': {
         logger.log('Resetting speed');
         const preferredSpeed = this.config.getSpeedStep('fast');
         this.setSpeed(video, preferredSpeed);
-        break;
+        return true;
       }
 
       default:
         logger.warn(`Unknown action: ${actionName}`);
+        return false;
     }
   }
 

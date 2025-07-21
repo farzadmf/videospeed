@@ -103,7 +103,10 @@ export class EventManager {
     const actionItem = this.config.getActionByKeyEvent(event);
 
     if (actionItem) {
-      this.actionHandler.runAction({ actionItem, event });
+      const wasHandled = this.actionHandler.runAction({ actionItem, event });
+      if (!wasHandled) {
+        return; // Let it go through normally
+      }
 
       if (actionItem.force) {
         // Disable website's key bindings
