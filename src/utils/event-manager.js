@@ -20,6 +20,9 @@ export class EventManager {
     this.listeners = new Map();
     this.coolDown = false;
     this.timer = null;
+
+    // Event deduplication to prevent duplicate key processing
+    this.lastKeyEventSignature = null;
   }
 
   /**
@@ -42,7 +45,7 @@ export class EventManager {
       if (window.VSC.inIframe()) {
         docs.push(window.top.document);
       }
-    } catch (e) {
+    } catch {
       // Cross-origin iframe - ignore
     }
 
@@ -72,6 +75,15 @@ export class EventManager {
 
     logger.verbose(`Processing keydown event: ${keyCode}`);
 
+    // Event deduplication - prevent same key event from being processed multiple times
+    const eventSignature = `${keyCode}_${event.timeStamp}_${event.type}`;
+
+    if (this.lastKeyEventSignature === eventSignature) {
+      return;
+    }
+
+    this.lastKeyEventSignature = eventSignature;
+
     // Ignore if following modifier is active
     if (this.hasActiveModifier(event)) {
       logger.debug(`Keydown event ignored due to active modifier: ${keyCode}`);
@@ -91,7 +103,7 @@ export class EventManager {
     const actionItem = this.config.getActionByKeyEvent(event);
 
     if (actionItem) {
-      this.actionHandler.runAction({ actionItem });
+      this.actionHandler.runAction({ actionItem, event });
 
       if (actionItem.force) {
         // Disable website's key bindings
