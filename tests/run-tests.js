@@ -46,7 +46,7 @@ global.chrome = {
           startHidden: false,
           controllerOpacity: 0.3,
           controllerButtonSize: 14,
-          blacklist: "www.instagram.com\ntwitter.com",
+          blacklist: "www.instagram.com\nx.com",
           logLevel: 3
         };
         setTimeout(() => callback(mockData), 10);
@@ -132,7 +132,11 @@ async function runTests() {
       'unit/core/settings.test.js',
       'unit/core/action-handler.test.js',
       'unit/core/video-controller.test.js',
-      'unit/observers/mutation-observer.test.js'
+      'unit/core/icon-integration.test.js',
+      'unit/observers/mutation-observer.test.js',
+      'unit/observers/audio-size-handling.test.js',
+      'unit/content/inject.test.js',
+      'unit/utils/recursive-shadow-dom.test.js'
     ];
   } else if (testType === 'integration') {
     testFiles = [
@@ -144,7 +148,11 @@ async function runTests() {
       'unit/core/settings.test.js',
       'unit/core/action-handler.test.js',
       'unit/core/video-controller.test.js',
+      'unit/core/icon-integration.test.js',
       'unit/observers/mutation-observer.test.js',
+      'unit/observers/audio-size-handling.test.js',
+      'unit/content/inject.test.js',
+      'unit/utils/recursive-shadow-dom.test.js',
       'integration/module-integration.test.js'
     ];
   }

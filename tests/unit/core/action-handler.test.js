@@ -5,22 +5,10 @@
 
 import { installChromeMock, cleanupChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
 import { SimpleTestRunner, assert, createMockVideo, createMockDOM } from '../../helpers/test-utils.js';
+import { loadCoreModules } from '../../helpers/module-loader.js';
 
-// Load modules by executing them to populate global variables
-import '../../../src/utils/constants.js';
-import '../../../src/utils/logger.js';
-import '../../../src/utils/dom-utils.js';
-import '../../../src/utils/event-manager.js';
-import '../../../src/core/storage-manager.js';
-import '../../../src/core/settings.js';
-import '../../../src/site-handlers/base-handler.js';
-import '../../../src/site-handlers/netflix-handler.js';
-import '../../../src/site-handlers/youtube-handler.js';
-import '../../../src/site-handlers/facebook-handler.js';
-import '../../../src/site-handlers/amazon-handler.js';
-import '../../../src/site-handlers/apple-handler.js';
-import '../../../src/site-handlers/index.js';
-import '../../../src/core/action-handler.js';
+// Load all required modules
+await loadCoreModules();
 
 const runner = new SimpleTestRunner();
 let mockDOM;
@@ -301,6 +289,57 @@ runner.test('ActionHandler should toggle display visibility', async () => {
   actionHandler.runAction('display', null, null);
   assert.true(controller.classList.contains('vsc-hidden'));
   assert.true(controller.classList.contains('vsc-manual'));
+});
+
+runner.test('ActionHandler should work with videos in nested shadow DOM', async () => {
+  const config = window.VSC.videoSpeedConfig;
+  await config.load();
+
+  const eventManager = new window.VSC.EventManager(config, null);
+  const actionHandler = new window.VSC.ActionHandler(config, eventManager);
+
+  // Create nested shadow DOM structure
+  const host = document.createElement('div');
+  const level1Shadow = host.attachShadow({ mode: 'open' });
+
+  const nestedHost = document.createElement('div');
+  level1Shadow.appendChild(nestedHost);
+  const level2Shadow = nestedHost.attachShadow({ mode: 'open' });
+
+  const mockVideo = createMockVideo({ playbackRate: 1.0 });
+  level2Shadow.appendChild(mockVideo);
+
+  document.body.appendChild(host);
+  config.addMediaElement(mockVideo);
+
+  // Create a proper mock speedIndicator that behaves like a real DOM element
+  const mockSpeedIndicator = {
+    textContent: '1.00',
+    // Add other properties that might be needed
+    nodeType: 1,
+    tagName: 'SPAN'
+  };
+
+  // Mock video controller structure for shadow DOM video
+  mockVideo.vsc = {
+    div: mockDOM.container,
+    speedIndicator: mockSpeedIndicator,
+    // Add remove method to prevent errors during cleanup
+    remove: () => { }
+  };
+
+  // Test speed change on shadow DOM video
+  actionHandler.runAction('faster', 0.2);
+  assert.equal(mockVideo.playbackRate, 1.2);
+
+  // Test slower action
+  actionHandler.runAction('slower', 0.1);
+  assert.equal(mockVideo.playbackRate, 1.1);
+
+  // Test direct speed setting
+  actionHandler.setSpeed(mockVideo, 2.5);
+  assert.equal(mockVideo.playbackRate, 2.5);
+  assert.equal(mockVideo.vsc.speedIndicator.textContent, '2.50');
 });
 
 // Run tests if this file is loaded directly
