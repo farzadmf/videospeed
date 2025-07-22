@@ -21,19 +21,30 @@ function injectScript(src) {
 }
 
 // Inject CSS first
-function injectCSS() {
+async function injectCSS() {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.type = 'text/css';
   link.href = chrome.runtime.getURL('src/styles/inject.css');
   document.head.appendChild(link);
+
+  const shadowCssUrl = chrome.runtime.getURL('src/styles/shadow.css');
+  const response = await fetch(shadowCssUrl);
+  const shadowCss = await response.text();
+
+  // The div used (and removed) in shadow-dom-manager file to get shadow CSS contents.
+  const hiddenDiv = document.createElement('div');
+  hiddenDiv.id = 'vsc-shadow-css-content';
+  hiddenDiv.style.display = 'none';
+  hiddenDiv.textContent = shadowCss;
+  document.body.appendChild(hiddenDiv);
 }
 
 // Inject all our modules in order
 async function injectModules() {
   try {
     // Inject CSS first
-    injectCSS();
+    await injectCSS();
 
     const modules = [
       'src/shared/preserve-underscore.js',

@@ -28,115 +28,11 @@ export class ShadowDOMManager {
     this.speedIndicator = null;
     this.volumeIndicator = null;
     this.buttons = [];
-  }
 
-  /**
-   * Returns the CSS style text for the shadow DOM
-   * @returns {string} CSS style text
-   */
-  static getCssStyleText() {
-    return `
-      * {
-        box-sizing: border-box;
-        font-family: sans-serif;
-        font-size: 13px;
-        line-height: 1.4em;
-      }
+    this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
 
-      :host(:hover) #controls {
-        display: inline-block;
-      }
-
-      #controller {
-        background: black;
-        border-radius: 6px;
-        color: white;
-        cursor: default;
-        left: 0;
-        margin: 10px 10px 10px 15px;
-        padding: 4px;
-        position: absolute;
-        top: 0;
-        white-space: nowrap;
-        z-index: 9999999;
-      }
-
-      #controller:hover {
-        opacity: 0.7;
-      }
-
-      #controller:hover>.draggable {
-        margin-right: 0.8em;
-      }
-
-      #controls {
-        display: none;
-        vertical-align: middle;
-      }
-
-      #controller.dragging {
-        cursor: -webkit-grabbing;
-        opacity: 0.7;
-      }
-
-      #controller.dragging #controls {
-        display: inline-block;
-      }
-
-      .draggable {
-        box-sizing: border-box;
-        cursor: -webkit-grab;
-        text-align: center;
-        vertical-align: middle;
-        width: 100%;
-      }
-
-      .draggable:active {
-        cursor: -webkit-grabbing;
-      }
-
-      button {
-        background: white;
-        border-radius: 5px;
-        border: 0px solid white;
-        color: black;
-        cursor: pointer;
-        font-family: "Lucida Console", Monaco, monospace;
-        font-size: inherit;
-        font-weight: normal;
-        line-height: inherit;
-        margin: 0px 2px 2px 2px;
-        opacity: 1;
-        padding: 1px 5px 3px 5px;
-        transition: background 0.2s, color 0.2s;
-      }
-
-      button:focus {
-        outline: 0;
-      }
-
-      button:hover {
-        background: #2196f3;
-        color: #ffffff;
-        opacity: 1;
-      }
-
-      button:active {
-        background: #2196f3;
-        color: #ffffff;
-        font-weight: bold;
-      }
-
-      button.rw {
-        opacity: 0.65;
-      }
-
-      button.hideButton {
-        margin-left: 8px;
-        margin-right: 2px;
-        opacity: 0.65;
-      }
-    `;
+    // Clean up temporary element
+    setTimeout(() => document.querySelector('#vsc-shadow-css-content').remove(), 500);
   }
 
   /**
@@ -157,7 +53,7 @@ export class ShadowDOMManager {
 
     // Create style element with embedded CSS
     const style = document.createElement('style');
-    style.textContent = ShadowDOMManager.getCssStyleText();
+    style.textContent = this.cssText;
     this.shadow.appendChild(style);
 
     // Create controller div
