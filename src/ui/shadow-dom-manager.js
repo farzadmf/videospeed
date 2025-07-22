@@ -32,7 +32,7 @@ export class ShadowDOMManager {
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
 
     // Clean up temporary element
-    setTimeout(() => document.querySelector('#vsc-shadow-css-content').remove(), 500);
+    setTimeout(() => document.querySelector('#vsc-shadow-css-content')?.remove(), 500);
   }
 
   /**
