@@ -33,11 +33,14 @@ async function injectCSS() {
   const shadowCss = await response.text();
 
   // The div used (and removed) in shadow-dom-manager file to get shadow CSS contents.
-  const hiddenDiv = document.createElement('div');
-  hiddenDiv.id = 'vsc-shadow-css-content';
-  hiddenDiv.style.display = 'none';
-  hiddenDiv.textContent = shadowCss;
-  document.body.appendChild(hiddenDiv);
+  const shadowCssDivId = 'vsc-shadow-css-content';
+  const shadowCssDiv =
+    document.querySelector(`#${shadowCssDivId}`) ?? document.createElement('div');
+
+  shadowCssDiv.id = shadowCssDivId;
+  shadowCssDiv.style.display = 'none';
+  shadowCssDiv.textContent = shadowCss;
+  document.body.appendChild(shadowCssDiv);
 }
 
 // Inject all our modules in order

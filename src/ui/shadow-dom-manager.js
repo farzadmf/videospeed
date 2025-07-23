@@ -16,9 +16,13 @@ export class ShadowDOMManager {
 
     /** @type {HTMLDivElement|null} */
     this.controllerDiv = null;
+    /** @type {HTMLDivElement|null} */
+    this.progressContainerDiv = null;
 
     /** @type {ShadowRoot|null} */
     this.shadow = null;
+    /** @type {ShadowRoot|null} */
+    this.progressShadow = null;
 
     this.controller = null;
     this.controls = null;
@@ -38,63 +42,65 @@ export class ShadowDOMManager {
   /**
    * Create shadow DOM for video controller
    * @param {HTMLElement} wrapper - Wrapper element
+   * @param {HTMLElement} progressWrapper - Progress wrapper element
    * @param {Object} options - Configuration options
    * @param {number} [options.buttonSize=14] - Size of control buttons in pixels
    * @param {number} [options.opacity=0.3] - Controller opacity (0-1)
    * @param {string} [options.speed='1.0'] - Initial playback speed display value
    * @param {string} [options.volume='1.0'] - Initial volume display value
    */
-  createShadowDOM(wrapper, options = {}) {
+  createShadowDOM(wrapper, progressWrapper, options = {}) {
     const { buttonSize = 14, opacity = 0.3, speed = '1.0', volume = '1.0' } = options;
 
     const { top = '0px', left = '0px' } = this.calculatePosition();
 
     this.shadow = wrapper.attachShadow({ mode: 'open' });
+    this.progressShadow = progressWrapper.attachShadow({ mode: 'open' });
 
     // Create style element with embedded CSS
     const style = document.createElement('style');
     style.textContent = this.cssText;
     this.shadow.appendChild(style);
 
+    const progressStyle = document.createElement('style');
+    progressStyle.textContent = this.cssText;
+    this.progressShadow.appendChild(progressStyle);
+
     // Create controller div
     this.controllerDiv = document.createElement('div');
     this.controllerDiv.id = 'controller';
-    this.controllerDiv.style.cssText = `top:${top}; left:${left}; opacity:${opacity};`;
+    this.controllerDiv.style.setProperty('--top', top);
+    this.controllerDiv.style.setProperty('--left', left);
+    this.controllerDiv.style.setProperty('--opacity', opacity);
+    this.shadow.appendChild(this.controllerDiv);
 
-    const topDiv = document.createElement('div');
-    topDiv.style.display = 'inline-block';
-    this.controllerDiv.appendChild(topDiv);
+    this.progressContainerDiv = document.createElement('div');
+    this.progressContainerDiv.id = 'vsc-progress-container';
+    this.progressContainerDiv.style.setProperty('--top', top);
+    this.progressContainerDiv.style.setProperty('--left', left);
+    this.progressContainerDiv.style.setProperty('--opacity', opacity);
+    this.progressShadow.appendChild(this.progressContainerDiv);
+    // const topDiv = document.createElement('div');
+    // topDiv.style.display = 'inline-block';
+    // this.controllerDiv.appendChild(topDiv);
 
     // Create draggable speed indicator
     const draggable = document.createElement('span');
     draggable.setAttribute('data-action', 'drag');
     draggable.className = 'draggable';
     draggable.style.cssText = `font-size: ${buttonSize}px;`;
-    // this.controllerDiv.appendChild(draggable);
-    topDiv.appendChild(draggable);
+    this.controllerDiv.appendChild(draggable);
+    // topDiv.appendChild(draggable);
 
     this.progressLineContainer = document.createElement('div');
-    this.progressLineContainer.setAttribute('id', 'vsc-progress-container');
-    this.progressLineContainer.style.display = 'none';
-    this.progressLineContainer.style.position = 'relative';
-    this.progressLineContainer.style.marginBlockStart = '2px';
-    this.progressLineContainer.style.marginBlockEnd = '10px';
-    topDiv.appendChild(this.progressLineContainer);
+    this.progressLineContainer.setAttribute('id', 'vsc-progress-lines');
+    this.progressContainerDiv.appendChild(this.progressLineContainer);
 
     const progressFull = document.createElement('div');
-    progressFull.setAttribute('id', 'vsc-progress-full');
-    progressFull.style.position = 'absolute';
-    progressFull.style.width = '100%';
-    progressFull.style.height = '8px';
-    progressFull.style.backgroundColor = 'white';
-    progressFull.style.borderRadius = '10px';
+    progressFull.setAttribute('id', 'vsc-progress-line-full');
 
     this.progressLine = document.createElement('div');
-    this.progressLine.setAttribute('id', 'vsc-progress-line');
-    this.progressLine.style.position = 'absolute';
-    this.progressLine.style.height = '8px';
-    this.progressLine.style.backgroundColor = 'red';
-    this.progressLine.style.borderRadius = '10px';
+    this.progressLine.setAttribute('id', 'vsc-progress-line-live');
 
     this.progressLineContainer.appendChild(progressFull);
     this.progressLineContainer.appendChild(this.progressLine);
@@ -109,7 +115,7 @@ export class ShadowDOMManager {
     this.volumeIndicator.setAttribute('data-action', 'drag');
     this.volumeIndicator.textContent = `(vol: ${(volume * 100).toFixed(0)})`;
 
-    this.progressText = document.createElement('span');
+    this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';
     this.progressText.setAttribute('data-action', 'drag');
     this.progressText.textContent = '...';
@@ -117,8 +123,8 @@ export class ShadowDOMManager {
     draggable.appendChild(this.speedIndicator);
     draggable.appendChild(document.createTextNode(' '));
     draggable.appendChild(this.volumeIndicator);
-    draggable.appendChild(document.createTextNode(' - '));
-    draggable.appendChild(this.progressText);
+
+    this.progressContainerDiv.appendChild(this.progressText);
 
     // Create controls span
     const controls = document.createElement('span');
@@ -146,8 +152,6 @@ export class ShadowDOMManager {
       button.textContent = btnConfig.text;
       controls.appendChild(button);
     });
-
-    this.shadow.appendChild(this.controllerDiv);
 
     logger.debug('Shadow DOM created for video controller');
   }

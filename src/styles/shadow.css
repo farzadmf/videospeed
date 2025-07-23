@@ -9,16 +9,55 @@
   display: inline-block;
 }
 
+#vsc-progress-line-full,
+#vsc-progress-line-live {
+  height: 8px;
+  border-radius: 10px;
+}
+#vsc-progress-line-full {
+  background-color: white;
+  width: 100%;
+}
+#vsc-progress-line-live {
+  background-color: red;
+}
+
+#vsc-progress-container {
+  background: black;
+  border-radius: 6px;
+  color: white;
+  cursor: default;
+  display: none;
+  gap: 10px;
+  left: var(--left);
+  margin: 10px 10px 10px 15px;
+  opacity: var(--opacity);
+  position: absolute;
+  /* top: calc(var(--top) + 8px + 1.4em); */
+  white-space: nowrap;
+  width: 200px;
+  z-index: 9999999;
+  align-items: center;
+  padding-inline: 5px;
+}
+
+#vsc-progress-lines {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
 #controller {
   background: black;
   border-radius: 6px;
   color: white;
   cursor: default;
-  left: 0;
+  left: var(--left);
   margin: 10px 10px 10px 15px;
+  opacity: var(--opacity);
   padding: 4px;
   position: absolute;
-  top: 0;
+  top: var(--top);
   white-space: nowrap;
   z-index: 9999999;
 }
@@ -100,4 +139,3 @@ button.hideButton {
   margin-right: 2px;
   opacity: 0.65;
 }
-

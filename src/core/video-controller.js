@@ -126,8 +126,11 @@ export class VideoController {
 
     logger.debug(`Speed variable set to: ${speed}`);
 
-    // Create wrapper element
+    // Create wrapper elements
     const wrapper = document.createElement('div');
+    const progressWrapper = document.createElement('div');
+    const wrappers = [wrapper, progressWrapper];
+
     wrapper.classList.add('vsc-controller');
 
     // MyNote | use "normal" style instead of cssText, remove '!important', AND
@@ -135,12 +138,19 @@ export class VideoController {
     //          has some weird styles causing vsc-controller to take over everything,
     //          preventing interacting with the video.
     // Set positioning styles with calculated position
-    wrapper.style.cssText = `
-      left: ${position.left};
-      position: absolute;
-      top: ${position.top};
-      z-index: 9999999;
-    `;
+    wrappers.forEach((wrapper) => {
+      // wrapper.style.cssText = `
+      //   left: ${position.left};
+      //   position: absolute;
+      //   top: ${position.top};
+      //   z-index: 9999999;
+      // `;
+
+      // wrapper.style.left = position.left;
+      wrapper.style.position = 'absolute';
+      // wrapper.style.top = position.top;
+      wrapper.style.zIndex = 9999999;
+    });
     // wrapper.style.position = 'absolute';
     // wrapper.style.zIndex = '9999999';
 
@@ -151,17 +161,17 @@ export class VideoController {
     }
 
     if (this.config.settings.startHidden || this.shouldStartHidden) {
-      wrapper.classList.add('vsc-hidden');
+      wrappers.forEach((wrapper) => wrapper.classList.add('vsc-hidden'));
       if (this.shouldStartHidden) {
-        window.VSC.logger.debug('Starting controller hidden due to video visibility/size');
+        logger.debug('Starting controller hidden due to video visibility/size');
       }
     } else {
       // Ensure controller is visible, especially on YouTube
-      wrapper.classList.add('vcs-show');
+      wrappers.forEach((wrapper) => wrapper.classList.add('vsc-show'));
     }
 
     // Create shadow DOM
-    this.shadowManager.createShadowDOM(wrapper, {
+    this.shadowManager.createShadowDOM(wrapper, progressWrapper, {
       buttonSize: this.config.settings.controllerButtonSize,
       opacity: this.config.settings.controllerOpacity,
       speed,
@@ -172,7 +182,7 @@ export class VideoController {
     this.controlsManager.setupControlEvents(this.shadowManager.shadow, this.video);
 
     // Insert into DOM based on site-specific rules
-    this.insertIntoDOM(document, wrapper);
+    this.insertIntoDOM(document, wrappers);
 
     this.shadowManager.adjustLocation();
 
@@ -183,35 +193,40 @@ export class VideoController {
   /**
    * Insert controller into DOM with site-specific positioning
    * @param {Document} document - Document object
-   * @param {HTMLElement} wrapper - Wrapper element to insert
+   * @param {HTMLElement[]} wrappers - Wrapper elements to insert
    * @private
    */
-  insertIntoDOM(document, wrapper) {
-    const fragment = document.createDocumentFragment();
-    fragment.appendChild(wrapper);
+  insertIntoDOM(document, wrappers) {
+    wrappers.forEach((wrapper) => {
+      const fragment = document.createDocumentFragment();
+      fragment.appendChild(wrapper);
 
-    // Get site-specific positioning information
-    const positioning = siteHandlerManager.getControllerPosition(this.parent, this.video);
+      // Get site-specific positioning information
+      const positioning = siteHandlerManager.getControllerPosition(this.parent, this.video);
 
-    switch (positioning.insertionMethod) {
-      case 'beforeParent':
-        positioning.insertionPoint.parentElement.insertBefore(fragment, positioning.insertionPoint);
-        break;
+      switch (positioning.insertionMethod) {
+        case 'beforeParent':
+          positioning.insertionPoint.parentElement.insertBefore(
+            fragment,
+            positioning.insertionPoint
+          );
+          break;
 
-      case 'afterParent':
-        positioning.insertionPoint.parentElement.insertBefore(
-          fragment,
-          positioning.insertionPoint.nextSibling
-        );
-        break;
+        case 'afterParent':
+          positioning.insertionPoint.parentElement.insertBefore(
+            fragment,
+            positioning.insertionPoint.nextSibling
+          );
+          break;
 
-      case 'firstChild':
-      default:
-        positioning.insertionPoint.insertBefore(fragment, positioning.insertionPoint.firstChild);
-        break;
-    }
+        case 'firstChild':
+        default:
+          positioning.insertionPoint.insertBefore(fragment, positioning.insertionPoint.firstChild);
+          break;
+      }
 
-    logger.debug(`Controller inserted using ${positioning.insertionMethod} method`);
+      logger.warn(`Controller inserted using ${positioning.insertionMethod} method`, wrapper);
+    });
   }
 
   /**
@@ -488,7 +503,7 @@ export class VideoController {
     logger.verbose(`setProgressVal: ${value}`);
     const percent = ((Number(value) || 0) * 100).toFixed(1);
 
-    this.shadowManager.progressLineContainer.style.display = 'block';
+    this.shadowManager.progressContainerDiv.style.display = 'flex';
     this.shadowManager.progressText.textContent = `${percent}%`;
     this.shadowManager.progressLine.style.width = `${percent}%`;
   }
