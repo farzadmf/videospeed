@@ -38,16 +38,18 @@ export function isBlacklisted(blacklist) {
     if (match.startsWith('/')) {
       try {
         const parts = match.split('/');
-
-        if (REG_ENDS_WITH_FLAGS.test(match)) {
-          const flags = parts.pop();
-          const regex = parts.slice(1).join('/');
-          regexp = new RegExp(regex, flags);
-        } else {
-          const flags = '';
-          const regex = match;
-          regexp = new RegExp(regex, flags);
+        if (parts.length < 3) {
+          return;
         }
+
+        const hasFlags = REG_ENDS_WITH_FLAGS.test(match);
+        const flags = hasFlags ? parts.pop() : '';
+        const regex = parts.slice(1, hasFlags ? undefined : -1).join('/');
+
+        if (!regex) {
+          return;
+        }
+        regexp = new RegExp(regex, flags);
       } catch {
         return;
       }
