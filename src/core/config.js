@@ -38,7 +38,7 @@ export class VideoSpeedConfig {
 
       // Apply loaded settings
       this.settings.audioBoolean = Boolean(storage.audioBoolean);
-      this.settings.blacklist = String(storage.blacklist);
+      this.settings.blacklist = storage.blacklist;
       this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
       this.settings.controllerOpacity = Number(storage.controllerOpacity);
       this.settings.displayKeyCode = Number(storage.displayKeyCode);

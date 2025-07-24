@@ -7,6 +7,7 @@ window.VSC = window.VSC || {};
 window.VSC.DomUtils = {};
 
 import { logger } from '../utils/logger.js';
+import { REG_STRIP, REG_ENDS_WITH_FLAGS } from '../shared/constants.js';
 
 /**
  * Escape string for use in regular expressions
@@ -27,8 +28,8 @@ window.VSC.DomUtils.escapeStringRegExp = escapeStringRegExp;
 export function isBlacklisted(blacklist) {
   let blacklisted = false;
 
-  blacklist.split('\n').forEach((match) => {
-    match = match.replace(window.VSC.Constants.regStrip, '');
+  blacklist.forEach((match) => {
+    match = match.replace(REG_STRIP, '');
     if (match.length === 0) {
       return;
     }
@@ -38,7 +39,7 @@ export function isBlacklisted(blacklist) {
       try {
         const parts = match.split('/');
 
-        if (window.VSC.Constants.regEndsWithFlags.test(match)) {
+        if (REG_ENDS_WITH_FLAGS.test(match)) {
           const flags = parts.pop();
           const regex = parts.slice(1).join('/');
           regexp = new RegExp(regex, flags);
@@ -51,7 +52,7 @@ export function isBlacklisted(blacklist) {
         return;
       }
     } else {
-      regexp = new RegExp(window.VSC.DomUtils.escapeStringRegExp(match));
+      regexp = new RegExp(escapeStringRegExp(match));
     }
 
     if (regexp.test(location.href)) {
@@ -102,7 +103,7 @@ export function getShadow(parent, maxDepth = 10) {
         // Only traverse shadow roots if we haven't exceeded depth limit
         if (child.shadowRoot && depth < maxDepth - 2) {
           // Always handle shadow roots synchronously to maintain function contract
-          result.push(...window.VSC.DomUtils.getShadow(child.shadowRoot, maxDepth - depth));
+          result.push(...getShadow(child.shadowRoot, maxDepth - depth));
         }
 
         child = child.nextElementSibling;

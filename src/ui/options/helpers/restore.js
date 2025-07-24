@@ -14,7 +14,7 @@ export function updateCustomShortcutInputText(inputItem, keyCode) {
 export function restoreOptions() {
   chrome.storage.sync.get(VSC_DEFAULTS, (storage) => {
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
-    document.getElementById('blacklist').value = storage.blacklist;
+    document.getElementById('blacklist').value = storage.blacklist.join('\n');
     document.getElementById('controllerButtonSize').value = storage.controllerButtonSize;
     document.getElementById('controllerOpacity').value = storage.controllerOpacity;
     document.getElementById('logLevel').value = storage.logLevel;

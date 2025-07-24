@@ -10,7 +10,7 @@ export const saveOptions = () => {
   Array.from(document.querySelectorAll('#shortcuts tr')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
 
   const audioBoolean = document.getElementById('audioBoolean').checked;
-  const blacklist = document.getElementById('blacklist').value;
+  const blacklist = document.getElementById('blacklist').value.trim().split('\n');
   const controllerButtonSize = Number(document.getElementById('controllerButtonSize').value);
   const controllerOpacity = Number(document.getElementById('controllerOpacity').value);
   const enabled = document.getElementById('enabled').checked;
@@ -36,7 +36,7 @@ export const saveOptions = () => {
   chrome.storage.sync.set(
     {
       audioBoolean,
-      blacklist: blacklist.replace(REG_STRIP, ''),
+      blacklist: blacklist.map((value) => value.replace(REG_STRIP, '')),
       controllerButtonSize,
       controllerOpacity,
       enabled,
