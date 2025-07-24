@@ -73,7 +73,7 @@ export class EventManager {
   handleKeydown(event) {
     const keyCode = event.keyCode;
 
-    logger.verbose(`Processing keydown event: ${keyCode}`);
+    logger.verbose(`Processing keydown event: key=${event.key}, keyCode=${keyCode}`);
 
     // Event deduplication - prevent same key event from being processed multiple times
     const eventSignature = `${keyCode}_${event.timeStamp}_${event.type}`;
