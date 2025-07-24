@@ -243,7 +243,7 @@ export class VideoController {
           break;
       }
 
-      logger.warn(`Controller inserted using ${positioning.insertionMethod} method`, wrapper);
+      logger.debug(`Controller inserted using ${positioning.insertionMethod} method`, wrapper);
     });
   }
 
