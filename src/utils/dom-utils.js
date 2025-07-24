@@ -55,7 +55,7 @@ export function isBlacklisted(blacklist) {
       regexp = new RegExp(escapeStringRegExp(match));
     }
 
-    if (regexp.test(location.href)) {
+    if (regexp.test(location.hostname)) {
       blacklisted = true;
     }
   });
