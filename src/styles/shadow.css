@@ -11,6 +11,7 @@
 
 #vsc-progress-line-full,
 #vsc-progress-line-live {
+  position: absolute;
   height: 8px;
   border-radius: 10px;
 }
@@ -42,7 +43,6 @@
 }
 
 #vsc-progress-lines {
-  display: flex;
   flex: 1;
   position: relative;
 }
