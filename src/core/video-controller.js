@@ -129,46 +129,61 @@ export class VideoController {
     // Create wrapper elements
     const wrapper = document.createElement('div');
     const progressWrapper = document.createElement('div');
+    progressWrapper.setAttribute('id', 'vsc-progress');
+
     const wrappers = [wrapper, progressWrapper];
 
-    wrapper.classList.add('vsc-controller');
-
-    // MyNote | use "normal" style instead of cssText, remove '!important', AND
-    //          z-index to see what happens (main reason: old.reddit video player
-    //          has some weird styles causing vsc-controller to take over everything,
-    //          preventing interacting with the video.
-    // Set positioning styles with calculated position
-    wrappers.forEach((wrapper) => {
-      // wrapper.style.cssText = `
-      //   left: ${position.left};
-      //   position: absolute;
-      //   top: ${position.top};
-      //   z-index: 9999999;
-      // `;
-
-      // wrapper.style.left = position.left;
-      wrapper.style.position = 'absolute';
-      // wrapper.style.top = position.top;
-      wrapper.style.zIndex = 9999999;
-    });
-    // wrapper.style.position = 'absolute';
-    // wrapper.style.zIndex = '9999999';
+    // Apply all CSS classes at once to prevent race condition flash
+    const cssClasses = ['vsc-controller'];
 
     // Only hide controller if video has no source AND is not ready/functional
     // This prevents hiding controllers for live streams or dynamically loaded videos
     if (!this.video.currentSrc && !this.video.src && this.video.readyState < 2) {
-      wrapper.classList.add('vsc-nosource');
+      cssClasses.push('vsc-nosource');
     }
 
     if (this.config.settings.startHidden || this.shouldStartHidden) {
-      wrappers.forEach((wrapper) => wrapper.classList.add('vsc-hidden'));
+      cssClasses.push('vsc-hidden');
+
       if (this.shouldStartHidden) {
         logger.debug('Starting controller hidden due to video visibility/size');
+      } else {
+        logger.info(
+          `Controller starting hidden due to startHidden setting: ${this.config.settings.startHidden}`
+        );
       }
-    } else {
-      // Ensure controller is visible, especially on YouTube
-      wrappers.forEach((wrapper) => wrapper.classList.add('vsc-show'));
     }
+    // When startHidden=false, use natural visibility (no special class needed)
+
+    // Apply all classes at once to prevent visible flash
+    wrapper.className = cssClasses.join(' ');
+
+    // Set positioning styles with calculated position
+    // Use inline styles without !important so CSS rules can override
+    let styleText = `
+      position: absolute !important;
+      z-index: 9999999 !important;
+      top: ${position.top};
+      left: ${position.left};
+    `;
+    // MyNote: update according to the comment!!! Are top/left necessary?
+    styleText = `
+      position: absolute;
+      z-index: 9999999;
+    `;
+
+    // Add inline fallback styles if controller should start hidden
+    // This prevents FOUC if inject.css hasn't loaded yet
+    if (this.config.settings.startHidden || this.shouldStartHidden) {
+      styleText += `
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+      `;
+      logger.debug('Applied inline fallback styles for hidden controller');
+    }
+
+    wrappers.forEach((wrapper) => (wrapper.style.cssText = styleText));
 
     // Create shadow DOM
     this.shadowManager.createShadowDOM(wrapper, progressWrapper, {
@@ -185,6 +200,9 @@ export class VideoController {
     this.insertIntoDOM(document, wrappers);
 
     this.shadowManager.adjustLocation();
+
+    // Debug: Log final classes on controller
+    logger.info(`Controller classes after creation: ${wrapper.className}`);
 
     logger.debug('initializeControls End');
     return wrapper;
@@ -450,7 +468,12 @@ export class VideoController {
     }
 
     // Original logic for video elements
-    if (isVisible && isCurrentlyHidden && !this.div.classList.contains('vsc-manual')) {
+    if (
+      isVisible &&
+      isCurrentlyHidden &&
+      !this.div.classList.contains('vsc-manual') &&
+      !this.config.settings.startHidden
+    ) {
       // Video became visible and controller is hidden (but not manually hidden)
       this.div.classList.remove('vsc-hidden');
       logger.debug('Showing controller - video became visible');
