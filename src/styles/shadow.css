@@ -12,8 +12,7 @@
 #vsc-progress-line-full,
 #vsc-progress-line-live {
   border-radius: 10px;
-  grid-area: 1 / 1;
-  height: 8px;
+  height: 8px; /* occupies 0-8px */
 }
 #vsc-progress-line-full {
   background-color: white;
@@ -21,6 +20,7 @@
 }
 #vsc-progress-line-live {
   background-color: red;
+  margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
 }
 
 #vsc-progress-container {
@@ -44,7 +44,6 @@
 }
 
 #vsc-progress-lines {
-  display: grid;
   flex: 1;
 }
 

@@ -55,7 +55,7 @@ export const ACTIONS = {
   vol_up: { name: 'vol_up', description: 'Increase volume', value: 0.05 },
 };
 
-export const NO_VALUE_ACTIONS = _.keys(_.pickBy(ACTIONS, (value, _) => value.value === undefined));
+export const NO_VALUE_ACTIONS = _.keys(_.pickBy(ACTIONS, (value) => value.value === undefined));
 
 export const actionByName = (actionName) => _.pick(ACTIONS, [actionName])[actionName];
 
