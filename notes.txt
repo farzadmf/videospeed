@@ -11,6 +11,13 @@ Progress:
 
 ---
 
+2025-07-24 - Upstream comments:
+- 2025-07-24 | ignored https://github.com/igrigorik/videospeed/commit/f573d2be because I'm
+               honestly sure what it's trying to do and whether it applies to me or not!
+               I haven't noticed "keyboard shortcuts not persisting after refresh"
+
+---
+
 Some URLs for testing videos:
 
 - https://realpython.com/lessons/hello-walrus/

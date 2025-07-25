@@ -71,6 +71,12 @@ export class VideoSpeedConfig {
   async save(newSettings = {}) {
     try {
       this.settings = { ...this.settings, ...newSettings };
+
+      // Update logger verbosity if logLevel was changed
+      if (newSettings.logLevel !== undefined) {
+        logger.setVerbosity(newSettings.logLevel);
+      }
+
       await StorageManager.set(this.settings);
       logger.info('Settings saved successfully');
     } catch (error) {
