@@ -5,7 +5,7 @@ import {
   ACTION_OPTIONS,
   NO_VALUE_ACTIONS,
 } from '../../../shared/actions.js';
-import { KEY_CODES } from './key-codes.js';
+import { BLACKLISTED_KEYCODES, KEY_CODES } from './key-codes.js';
 
 export const keyBindings = [];
 
@@ -90,7 +90,7 @@ export function addBinding(item) {
   });
 }
 
-export const createKeyBindings = (item) => {
+export function createKeyBindings(item) {
   // Ignore rows not containing anything!
   if (!item.querySelector('.customDo')) {
     return;
@@ -138,56 +138,82 @@ export const createKeyBindings = (item) => {
   }
 
   keyBindings.push(binding);
-};
+}
 
-export const recordKeyPress = (e) => {
-  if (
-    (e.keyCode >= 48 && e.keyCode <= 57) || // Numbers 0-9
-    (e.keyCode >= 65 && e.keyCode <= 90) || // Letters A-Z
-    KEY_CODES[e.keyCode] // Other character keys
-  ) {
-    console.log(
-      'farzad',
-      'recordKeyPress',
-      'keyCode',
-      e.keyCode,
-      'ctrlKey',
-      e.ctrlKey,
-      'shiftKey',
-      e.shiftKey
-    );
-    e.target.value = KEY_CODES[e.keyCode] || String.fromCharCode(e.keyCode);
-
-    e.target.keyCode = e.keyCode;
-    e.target.shift = e.shiftKey;
-    e.target.ctrl = e.ctrlKey;
-
-    const shift = e.target.nextElementSibling;
-    const ctrl = shift.nextElementSibling.nextElementSibling;
-    shift.checked = e.shiftKey;
-    ctrl.checked = e.ctrlKey;
-
-    e.preventDefault();
-    e.stopPropagation();
-  } else if (e.keyCode === 8) {
+export function recordKeyPress(e) {
+  // Special handling for backspace and escape
+  if (e.keyCode === 8) {
     // Clear input when backspace pressed
     e.target.value = '';
+    e.preventDefault();
+    e.stopPropagation();
+    return;
   } else if (e.keyCode === 27) {
     // When esc clicked, clear input
     e.target.value = 'null';
     e.target.keyCode = null;
+    e.preventDefault();
+    e.stopPropagation();
+    return;
   }
-};
 
-export const inputFilterNumbersOnly = (e) => {
+  // Block blacklisted keys
+  if (BLACKLISTED_KEYCODES.includes(e.keyCode)) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
+  // Accept all other keys
+  // Use friendly name if available, otherwise show "Key {code}"
+  e.target.value =
+    KEY_CODES[e.keyCode] ||
+    (e.keyCode >= 48 && e.keyCode <= 90 ? String.fromCharCode(e.keyCode) : `Key ${e.keyCode}`);
+
+  e.target.keyCode = e.keyCode;
+  e.target.shift = e.shiftKey;
+  e.target.ctrl = e.ctrlKey;
+
+  const shift = e.target.nextElementSibling;
+  const ctrl = shift.nextElementSibling.nextElementSibling;
+  shift.checked = e.shiftKey;
+  ctrl.checked = e.ctrlKey;
+
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+export function inputFilterNumbersOnly(e) {
   const char = String.fromCharCode(e.keyCode);
   if (!/[\d.]$/.test(char) || !/^\d+(\.\d*)?$/.test(e.target.value + char)) {
     e.preventDefault();
     e.stopPropagation();
   }
-};
+}
 
-export const inputFocus = (e) => (e.target.value = '');
+export function inputFocus(e) {
+  return (e.target.value = '');
+}
 
-export const inputBlur = (e) =>
-  (e.target.value = KEY_CODES[e.target.keyCode] || String.fromCharCode(e.target.keyCode));
+export function inputBlur(e) {
+  const keyCode = e.target.keyCode;
+  e.target.value =
+    KEY_CODES[keyCode] ||
+    (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
+}
+
+// MyNote: commented because I didn't have it, and I don't think it's needed.
+// export function updateShortcutInputText(inputId, keyCode) {
+//   const input = document.getElementById(inputId);
+//   input.value =
+//     KEY_CODES[keyCode] ||
+//     (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
+//   input.keyCode = keyCode;
+// }
+
+export function updateCustomShortcutInputText(inputItem, keyCode) {
+  inputItem.value =
+    KEY_CODES[keyCode] ||
+    (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
+  inputItem.keyCode = keyCode;
+}

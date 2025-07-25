@@ -2,6 +2,18 @@
 // - http://gcctech.org/csc/javascript/javascript_keycodes.htm
 // - https://www.toptal.com/developers/keycode (interactive)
 
+// Minimal blacklist - only keys that would interfere with form navigation
+export const BLACKLISTED_KEYCODES = [
+  9, // Tab - needed for keyboard navigation
+  16, // Shift (alone)
+  17, // Ctrl/Control (alone)
+  18, // Alt (alone)
+  91, // Meta/Windows/Command Left
+  92, // Meta/Windows Right
+  93, // Context Menu/Right Command
+  224, // Meta/Command (Firefox)
+];
+
 export const KEY_CODES = {
   0: 'null',
   null: 'null',
@@ -48,6 +60,18 @@ export const KEY_CODES = {
   121: 'F10',
   122: 'F11',
   123: 'F12',
+  124: 'F13',
+  125: 'F14',
+  126: 'F15',
+  127: 'F16',
+  128: 'F17',
+  129: 'F18',
+  130: 'F19',
+  131: 'F20',
+  132: 'F21',
+  133: 'F22',
+  134: 'F23',
+  135: 'F24',
   186: ';',
   188: '<',
   189: '-',

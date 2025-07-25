@@ -1,15 +1,9 @@
 import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 import { ACTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
-import { KEY_CODES } from './key-codes.js';
-import { addBinding } from './bindings.js';
+import { addBinding, updateCustomShortcutInputText } from './bindings.js';
 import { getActionName, getTcDefaultBinding } from './misc.js';
 
 const _ = window._;
-
-export function updateCustomShortcutInputText(inputItem, keyCode) {
-  inputItem.value = KEY_CODES[keyCode] || String.fromCharCode(keyCode);
-  inputItem.keyCode = keyCode;
-}
 
 export function restoreOptions() {
   chrome.storage.sync.get(VSC_DEFAULTS, (storage) => {
