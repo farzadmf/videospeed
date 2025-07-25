@@ -11,9 +11,11 @@
 
 #vsc-progress-line-full,
 #vsc-progress-line-live {
-  position: absolute;
-  height: 8px;
   border-radius: 10px;
+  height: 8px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 #vsc-progress-line-full {
   background-color: white;
@@ -24,8 +26,11 @@
 }
 
 #vsc-progress-container {
+  /* top: calc(var(--top) + 8px + 1.4em); */
+  align-items: center;
   background: black;
   border-radius: 6px;
+  box-shadow: #00ffffa3 0 0 5px 3px;
   color: white;
   cursor: default;
   display: none;
@@ -33,13 +38,11 @@
   left: var(--left);
   margin: 10px 10px 10px 15px;
   opacity: var(--opacity);
+  padding-inline: 5px;
   position: absolute;
-  /* top: calc(var(--top) + 8px + 1.4em); */
   white-space: nowrap;
   width: 200px;
   z-index: 9999999;
-  align-items: center;
-  padding-inline: 5px;
 }
 
 #vsc-progress-lines {
