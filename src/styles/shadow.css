@@ -12,10 +12,8 @@
 #vsc-progress-line-full,
 #vsc-progress-line-live {
   border-radius: 10px;
+  grid-area: 1 / 1;
   height: 8px;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
 }
 #vsc-progress-line-full {
   background-color: white;
@@ -46,8 +44,8 @@
 }
 
 #vsc-progress-lines {
+  display: grid;
   flex: 1;
-  position: relative;
 }
 
 #controller {
