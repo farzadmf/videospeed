@@ -32,6 +32,17 @@ async function updateIcon(tabId, hasActiveControllers) {
           // Seems like chrome only likes us to "check chrome.runtime.lastError" and doesn't
           // care what we do with it!?!
         }
+        if (chrome.runtime.lastError) {
+          if (chrome.runtime.lastError.message?.includes('No tab with id')) {
+            // Clean up stale tab tracking
+            tabControllers.delete(tabId);
+            console.log(`[FMVSC] Cleaned up tracking for closed tab ${tabId}`);
+            return;
+          }
+
+          console.error('[FMVSC] Failed to update icon:', chrome.runtime.lastError.message);
+          return;
+        }
       }
     );
 
