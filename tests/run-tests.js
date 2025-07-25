@@ -133,10 +133,13 @@ async function runTests() {
       'unit/core/action-handler.test.js',
       'unit/core/video-controller.test.js',
       'unit/core/icon-integration.test.js',
+      'unit/core/keyboard-shortcuts-saving.test.js',
+      'unit/core/f-keys.test.js',
       'unit/observers/mutation-observer.test.js',
       'unit/observers/audio-size-handling.test.js',
       'unit/content/inject.test.js',
-      'unit/utils/recursive-shadow-dom.test.js'
+      'unit/utils/recursive-shadow-dom.test.js',
+      'unit/utils/blacklist-regex.test.js'
     ];
   } else if (testType === 'integration') {
     testFiles = [
@@ -149,10 +152,13 @@ async function runTests() {
       'unit/core/action-handler.test.js',
       'unit/core/video-controller.test.js',
       'unit/core/icon-integration.test.js',
+      'unit/core/keyboard-shortcuts-saving.test.js',
+      'unit/core/f-keys.test.js',
       'unit/observers/mutation-observer.test.js',
       'unit/observers/audio-size-handling.test.js',
       'unit/content/inject.test.js',
       'unit/utils/recursive-shadow-dom.test.js',
+      'unit/utils/blacklist-regex.test.js',
       'integration/module-integration.test.js'
     ];
   }
