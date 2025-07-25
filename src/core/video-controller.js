@@ -195,6 +195,7 @@ export class VideoController {
 
     // Set up control events
     this.controlsManager.setupControlEvents(this.shadowManager.shadow, this.video);
+    this.controlsManager.setupDragHandler(this.shadowManager.progressShadow);
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrappers);

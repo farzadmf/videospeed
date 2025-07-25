@@ -9,6 +9,7 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
+import * as dom from '../utils/dom-utils.js';
 
 export class EventManager {
   /**
@@ -42,7 +43,7 @@ export class EventManager {
     const docs = [document];
 
     try {
-      if (window.VSC.inIframe()) {
+      if (dom.inIframe()) {
         docs.push(window.top.document);
       }
     } catch {

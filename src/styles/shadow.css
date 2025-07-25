@@ -84,12 +84,11 @@
   display: inline-block;
 }
 
+#vsc-progress-container.draggable,
 .draggable {
-  box-sizing: border-box;
   cursor: -webkit-grab;
   text-align: center;
   vertical-align: middle;
-  width: 100%;
 }
 
 .draggable:active {

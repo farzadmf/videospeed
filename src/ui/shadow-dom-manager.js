@@ -75,6 +75,8 @@ export class ShadowDOMManager {
     this.shadow.appendChild(this.controllerDiv);
 
     this.progressContainerDiv = document.createElement('div');
+    this.progressContainerDiv.className = 'draggable';
+    this.progressContainerDiv.setAttribute('data-action', 'dragprog');
     this.progressContainerDiv.id = 'vsc-progress-container';
     this.progressContainerDiv.style.setProperty('--top', top);
     this.progressContainerDiv.style.setProperty('--left', left);
@@ -93,13 +95,16 @@ export class ShadowDOMManager {
     // topDiv.appendChild(draggable);
 
     this.progressLineContainer = document.createElement('div');
+    this.progressLineContainer.setAttribute('data-action', 'dragprog');
     this.progressLineContainer.setAttribute('id', 'vsc-progress-lines');
     this.progressContainerDiv.appendChild(this.progressLineContainer);
 
     const progressFull = document.createElement('div');
+    progressFull.setAttribute('data-action', 'dragprog');
     progressFull.setAttribute('id', 'vsc-progress-line-full');
 
     this.progressLine = document.createElement('div');
+    this.progressLine.setAttribute('data-action', 'dragprog');
     this.progressLine.setAttribute('id', 'vsc-progress-line-live');
 
     this.progressLineContainer.appendChild(progressFull);
@@ -117,7 +122,7 @@ export class ShadowDOMManager {
 
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';
-    this.progressText.setAttribute('data-action', 'drag');
+    this.progressText.setAttribute('data-action', 'dragprog');
     this.progressText.textContent = '...';
 
     draggable.appendChild(this.speedIndicator);

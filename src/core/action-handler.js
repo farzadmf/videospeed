@@ -54,6 +54,10 @@ export class ActionHandler {
       targetController = event.target.getRootNode().host;
     }
 
+    if (actionName === 'dragprog') {
+      return this.executeAction({ actionName, value, value2, video: targetController, event });
+    }
+
     // Return true (meaning: "we handled it") if the action applied to at least one of our media elements
     const result = mediaTags.some((video) => {
       const controller = video.vsc?.div;
@@ -167,6 +171,10 @@ export class ActionHandler {
         return true;
 
       case 'drag':
+        DragHandler.handleDrag(video, event);
+        return true;
+
+      case 'dragprog':
         DragHandler.handleDrag(video, event);
         return true;
 
