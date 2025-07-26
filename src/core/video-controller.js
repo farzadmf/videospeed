@@ -10,6 +10,7 @@ import { logger } from '../utils/logger.js';
 import { ControlsManager } from '../ui/controls-manager.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
 import { siteHandlerManager } from '../site-handlers/manager.js';
+import { formatSpeed, formatVolume } from '../shared/constants.js';
 
 export class VideoController {
   /**
@@ -39,6 +40,9 @@ export class VideoController {
     // Add to tracked media elements
     config.addMediaElement(target);
 
+    // Attach controller to video element first (needed for adjustSpeed)
+    target.vsc = this;
+
     // Initialize speed
     this.initializeSpeed();
 
@@ -50,9 +54,6 @@ export class VideoController {
 
     // Set up mutation observer for src changes
     this.setupMutationObserver();
-
-    // Attach controller to video element
-    target.vsc = this;
 
     logger.info('VideoController initialized for video element');
 
@@ -69,46 +70,43 @@ export class VideoController {
    * @private
    */
   initializeSpeed() {
-    let targetSpeed = 1.0; // Default speed
-
-    // Check if we should use per-video stored speeds
-    const videoSrc = this.video.currentSrc || this.video.src;
-    const storedVideoSpeed = this.config.settings.sources[getBaseURL(videoSrc)]?.speed || 1.0;
-
-    if (this.config.settings.rememberSpeed) {
-      if (storedVideoSpeed) {
-        logger.debug(`Using stored speed for video: ${storedVideoSpeed}`);
-        targetSpeed = storedVideoSpeed;
-      } else if (this.config.settings.lastSpeed) {
-        logger.debug(`Using lastSpeed: ${this.config.settings.lastSpeed}`);
-        targetSpeed = this.config.settings.lastSpeed;
-      }
-
-      // Reset speed isn't really a reset, it's a toggle to stored speed
-      this.config.setKeyBinding('reset', targetSpeed);
-    } else {
-      logger.debug('rememberSpeed disabled - using 1.0x speed');
-      targetSpeed = 1.0;
-      // Reset speed toggles to fast speed when rememberSpeed is disabled
-      this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
-    }
-
-    this.speed = targetSpeed;
+    const targetSpeed = this.getTargetSpeed();
     logger.debug(`Setting initial playbackRate to: ${targetSpeed}`);
 
-    // Apply the speed immediately if forceLastSavedSpeed is enabled
-    if (this.config.settings.forceLastSavedSpeed && targetSpeed !== 1.0) {
-      logger.debug('forceLastSavedSpeed enabled - dispatching ratechange event');
-      this.video.dispatchEvent(
-        new CustomEvent('ratechange', {
-          bubbles: true,
-          composed: true,
-          detail: { origin: 'videoSpeed', speed: targetSpeed.toFixed(1) },
-        })
-      );
-    } else {
-      this.video.playbackRate = targetSpeed;
+    this.speed = targetSpeed;
+
+    // Just making sure?!
+    this.video.playbackRate = targetSpeed;
+
+    // Use adjustSpeed for initial speed setting to ensure consistency
+    if (this.actionHandler && targetSpeed !== this.video.playbackRate) {
+      window.VSC.logger.debug('Setting initial speed via adjustSpeed');
+      this.actionHandler.adjustSpeed(this.video, targetSpeed, { source: 'internal' });
     }
+  }
+
+  /**
+   * Get target speed based on rememberSpeed setting and update reset binding
+   * @param {HTMLMediaElement} media - Optional media element (defaults to this.video)
+   * @returns {number} Target speed
+   * @private
+   */
+  getTargetSpeed(media = this.video) {
+    let targetSpeed;
+
+    if (this.config.settings.rememberSpeed) {
+      // Global behavior - use lastSpeed for all videos
+      targetSpeed = this.config.settings.lastSpeed || 1.0;
+      logger.debug(`Global mode: using lastSpeed ${targetSpeed}`);
+    } else {
+      // Per-video behavior - use stored speed for this specific video
+      const videoSrc = media.currentSrc || media.src;
+      const storedSpeed = this.config.settings.sources[getBaseURL(videoSrc)]?.speed;
+      targetSpeed = storedSpeed || 1.0;
+      logger.debug(`Per-video mode: using speed ${targetSpeed} for ${videoSrc}`);
+    }
+
+    return targetSpeed;
   }
 
   /**
@@ -120,8 +118,8 @@ export class VideoController {
     logger.debug('initializeControls Begin');
 
     const document = this.video.ownerDocument;
-    const speed = this.video.playbackRate.toFixed(1);
-    const volume = this.video.volume.toFixed(1);
+    const speed = formatSpeed(this.video.playbackRate);
+    const volume = this.video.volume;
     const position = this.shadowManager.calculatePosition(this.video);
 
     logger.debug(`Speed variable set to: ${speed}`);
@@ -183,7 +181,7 @@ export class VideoController {
       logger.debug('Applied inline fallback styles for hidden controller');
     }
 
-    wrappers.forEach((wrapper) => (wrapper.style.cssText = styleText));
+    // wrappers.forEach((wrapper) => (wrapper.style.cssText = styleText));
 
     // Create shadow DOM
     this.shadowManager.createShadowDOM(wrapper, progressWrapper, {
@@ -195,12 +193,12 @@ export class VideoController {
 
     // Set up control events
     this.controlsManager.setupControlEvents(this.shadowManager.shadow, this.video);
-    this.controlsManager.setupDragHandler(this.shadowManager.progressShadow);
+    // this.controlsManager.setupDragHandler(this.shadowManager.progressShadow);
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrappers);
 
-    this.shadowManager.adjustLocation();
+    // this.shadowManager.adjustLocation();
 
     // Debug: Log final classes on controller
     logger.info(`Controller classes after creation: ${wrapper.className}`);
@@ -254,25 +252,21 @@ export class VideoController {
    */
   setupEventHandlers() {
     const mediaEventAction = (event) => {
-      const url = getBaseURL(event.target.currentSrc);
-      let storedSpeed = this.config.settings.sources[url]?.speed || 1.0;
+      const targetSpeed = this.getTargetSpeed(event.target);
 
-      if (!this.config.settings.rememberSpeed) {
-        if (!storedSpeed) {
-          logger.info('Overwriting stored speed to 1.0 (rememberSpeed not enabled)');
-          storedSpeed = 1.0;
-        }
-        logger.debug('Setting reset keybinding to fast');
-        this.config.setKeyBinding('reset', this.config.getKeyBinding('fast'));
-      } else {
-        // logger.debug('Storing lastSpeed into settings (rememberSpeed enabled)');
-        // MyNote | lastSpeed shouldn't be used in favor of settings.sources.
-        // storedSpeed = this.config.settings.lastSpeed;
-      }
-
-      logger.info(`Explicitly setting playbackRate to: ${storedSpeed}`);
-      this.actionHandler.setSpeed(event.target, storedSpeed);
+      logger.info(`Media event ${event.type}: restoring speed to ${targetSpeed}`);
+      this.actionHandler.adjustSpeed(event.target, targetSpeed, { source: 'internal' });
     };
+
+    this.handlePlay = mediaEventAction.bind(this);
+    this.handleSeek = mediaEventAction.bind(this);
+    this.handleLoadStart = mediaEventAction.bind(this);
+    this.handleCanPlay = mediaEventAction.bind(this);
+
+    this.video.addEventListener('play', this.handlePlay);
+    this.video.addEventListener('seeked', this.handleSeek);
+    this.video.addEventListener('loadstart', this.handleLoadStart);
+    this.video.addEventListener('canplay', this.handleCanPlay);
 
     /**
      * Handle timeupdate to display a progress bar.
@@ -294,15 +288,13 @@ export class VideoController {
       this.setVolumeVal(volume);
     };
 
-    this.handlePlay = mediaEventAction.bind(this);
-    this.handleSeek = mediaEventAction.bind(this);
     this.handleTimeUpdate = timeUpdateAction.bind(this);
     this.handleVolumeChange = volumeChangeAction.bind(this);
 
-    this.video.addEventListener('play', this.handlePlay);
-    this.video.addEventListener('seeked', this.handleSeek);
     this.video.addEventListener('timeupdate', this.handleTimeUpdate);
     this.video.addEventListener('volumechange', this.handleVolumeChange);
+
+    logger.debug('Added comprehensive media event handlers: play, seeked, loadstart, canplay');
   }
 
   /**
@@ -323,7 +315,7 @@ export class VideoController {
           } else {
             controller.classList.remove('vsc-nosource');
 
-            this.actionHandler.setSpeed(this.video);
+            this.actionHandler.adjustSpeed(this.video);
             this.shadowManager.adjustLocation();
           }
         }
@@ -352,6 +344,19 @@ export class VideoController {
     }
     if (this.handleSeek) {
       this.video.removeEventListener('seeked', this.handleSeek);
+    }
+    if (this.handleLoadStart) {
+      this.video.removeEventListener('loadstart', this.handleLoadStart);
+    }
+    if (this.handleCanPlay) {
+      this.video.removeEventListener('canplay', this.handleCanPlay);
+    }
+
+    if (this.handleTimeUpdate) {
+      this.video.removeEventListener('canplay', this.handleTimeUpdate);
+    }
+    if (this.handleVolumeChange) {
+      this.video.removeEventListener('canplay', this.handleVolumeChange);
     }
 
     // Disconnect mutation observer
@@ -507,7 +512,7 @@ export class VideoController {
    */
   setSpeedVal(value) {
     logger.debug(`setSpeedVal: ${value}`);
-    this.shadowManager.speedIndicator.textContent = `${Number(value).toFixed(1)}x`;
+    this.shadowManager.speedIndicator.textContent = `${formatSpeed(value)}x`;
   }
 
   /**
@@ -516,7 +521,7 @@ export class VideoController {
    */
   setVolumeVal(value) {
     logger.debug(`setVolumeVal: ${value}`);
-    this.shadowManager.volumeIndicator.textContent = `(vol: ${(Number(value) * 100).toFixed(0)})`;
+    this.shadowManager.volumeIndicator.textContent = `(vol: ${formatVolume(value)})`;
   }
 
   /**

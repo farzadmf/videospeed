@@ -179,33 +179,36 @@ export class EventManager {
     // MyNote | I don't think I need this as I disabled CustomEvent in action-handler's
     //              setSpeed (no idea why it's there TBH).
     // if (this.coolDown) {
-    //   logger.info('Speed event propagation blocked');
+    //   logger.debug('Rate change event blocked by cooldown');
     //   event.stopImmediatePropagation();
+    //   return;
     // }
 
     // Get the actual video element (handle shadow DOM)
-    const video = event.composedPath()[0];
+    const video = event.composedPath ? event.composedPath()[0] : event.target;
 
-    if (this.config.settings.forceLastSavedSpeed) {
-      event.stopImmediatePropagation();
+    // Skip if no VSC controller attached
+    if (!video.vsc) {
+      return;
     }
 
-    // MyNote | Disabled this to match the old behavior I had, and it seems to be
-    //              working, so why complicate my life?!
-    // Handle forced last saved speed
-    // if (this.config.settings.forceLastSavedSpeed) {
-    //   if (event.detail && event.detail.origin === 'videoSpeed') {
-    //     video.playbackRate = event.detail.speed;
-    //     this.updateSpeedFromEvent(video);
-    //   } else {
-    //     video.playbackRate = this.config.settings.lastSpeed;
-    //   }
-    //   event.stopImmediatePropagation();
-    // } else {
-    //   this.updateSpeedFromEvent(video);
-    // }
+    // Check if this is our own event
+    if (event.detail && event.detail.origin === 'videoSpeed') {
+      // This is our change, don't process it again
+      logger.debug('Ignoring extension-originated rate change');
+      return;
+    }
 
-    this.actionHandler.setSpeed(video);
+    // External change - use adjustSpeed with external source
+    logger.debug('External rate change detected');
+    if (this.actionHandler) {
+      this.actionHandler.adjustSpeed(video, video.playbackRate, {
+        source: 'external',
+      });
+    }
+
+    // Always stop propagation to prevent loops
+    event.stopImmediatePropagation();
   }
 
   /**

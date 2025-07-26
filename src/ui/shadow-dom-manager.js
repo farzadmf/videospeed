@@ -6,6 +6,7 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
+import { formatVolume } from '../shared/constants.js';
 
 export class ShadowDOMManager {
   /**
@@ -118,7 +119,7 @@ export class ShadowDOMManager {
     this.volumeIndicator = document.createElement('span');
     this.volumeIndicator.id = 'vsc-volume-val';
     this.volumeIndicator.setAttribute('data-action', 'drag');
-    this.volumeIndicator.textContent = `(vol: ${(volume * 100).toFixed(0)})`;
+    this.volumeIndicator.textContent = `(vol: ${formatVolume(volume)})`;
 
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';

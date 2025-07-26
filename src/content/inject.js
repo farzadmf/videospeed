@@ -10,6 +10,7 @@ import { ActionHandler } from '../core/action-handler.js';
 import { EventManager } from '../utils/event-manager.js';
 import { VideoMutationObserver } from '../observers/mutation-observer.js';
 import * as dom from '../utils/dom-utils.js';
+import { SPEED_LIMITS } from '../shared/constants.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -423,7 +424,7 @@ window.addEventListener('VSC_MESSAGE', (event) => {
           const targetSpeed = message.payload.speed;
           videos.forEach((video) => {
             if (video.vsc) {
-              extension.actionHandler.setSpeed(video, targetSpeed);
+              extension.actionHandler.adjustSpeed(video, targetSpeed);
             } else {
               video.playbackRate = targetSpeed;
             }
@@ -435,10 +436,14 @@ window.addEventListener('VSC_MESSAGE', (event) => {
         if (message.payload && typeof message.payload.delta === 'number') {
           const delta = message.payload.delta;
           videos.forEach((video) => {
-            const newSpeed = Math.min(Math.max(video.playbackRate + delta, 0.07), 16);
             if (video.vsc) {
-              extension.actionHandler.setSpeed(video, newSpeed);
+              extension.actionHandler.adjustSpeed(video, delta, { relative: true });
             } else {
+              // Fallback for videos without controller
+              const newSpeed = Math.min(
+                Math.max(video.playbackRate + delta, SPEED_LIMITS.MIN),
+                SPEED_LIMITS.MAX
+              );
               video.playbackRate = newSpeed;
             }
           });

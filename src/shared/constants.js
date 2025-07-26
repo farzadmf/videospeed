@@ -24,3 +24,21 @@ export const SPEED_LIMITS = {
   MIN: 0.07, // Video min rate per Chromium source
   MAX: 16, // Maximum playback speed in Chrome per Chromium source
 };
+
+/**
+ * Format speed value to 1 decimal places
+ * @param {number|string} speed - Speed value
+ * @returns {string} Formatted speed
+ */
+export function formatSpeed(speed) {
+  return Number(speed).toFixed(1);
+}
+
+/**
+ * Format volume value to 1 decimal places
+ * @param {number|string} volume - Volume value
+ * @returns {string} Formatted volume
+ */
+export function formatVolume(volume) {
+  return (Number(volume) * 100).toFixed(0);
+}
