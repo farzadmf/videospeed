@@ -19,20 +19,6 @@ export const saveOptions = () => {
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
   const startHidden = document.getElementById('startHidden').checked;
 
-  chrome.storage.sync.remove([
-    'advanceKeyCode',
-    'advanceTime',
-    'defaultLogLevel',
-    'fasterKeyCode',
-    'fastKeyCode',
-    'fastSpeed',
-    'resetKeyCode',
-    'resetSpeed',
-    'rewindKeyCode',
-    'rewindTime',
-    'slowerKeyCode',
-    'speedStep',
-  ]);
   chrome.storage.sync.set(
     {
       audioBoolean,
