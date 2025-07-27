@@ -73,7 +73,7 @@ export class ActionHandler {
         return false; // We didn't handle it
       }
 
-      if (!video.currentSrc || !video.src) {
+      if (!video.currentSrc && !video.src) {
         logger.debug('runAction not handling because src is empty', video);
         return false; // We didn't handle it
       }
