@@ -1,0 +1,123 @@
+* {
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 13px;
+}
+
+#vsc-top-container {
+  background: black;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 10px 10px 10px 15px;
+  opacity: var(--opacity);
+  position: absolute;
+}
+
+#controller,
+#vsc-progress {
+  background: inherit;
+  border-radius: 6px;
+  left: var(--left);
+  padding: 4px;
+  position: absolute;
+  top: var(--top);
+  white-space: nowrap;
+}
+
+#controller {
+  visibility: var(--controller-visibility);
+  opacity: var(--controller-opacity);
+
+  &:hover #controls {
+    display: inline-block;
+  }
+}
+
+#controls {
+  display: none;
+  vertical-align: middle;
+}
+
+#vsc-progress {
+  align-items: center;
+  background: black;
+  box-shadow: #00ffffa3 0 0 5px 3px;
+  color: white;
+  display: flex;
+  gap: 10px;
+  height: var(--height);
+  padding-inline: 5px;
+  width: 250px;
+}
+
+#vsc-progress-lines {
+  flex: 1;
+}
+
+#vsc-progress-line-full,
+#vsc-progress-line-live {
+  border-radius: 10px;
+  height: 8px; /* occupies 0-8px */
+}
+#vsc-progress-line-full {
+  background-color: white;
+  width: 100%;
+}
+#vsc-progress-line-live {
+  background-color: red;
+  margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
+}
+
+.draggable {
+  cursor: -webkit-grab;
+
+  &:active {
+    cursor: -webkit-grabbing;
+  }
+}
+
+button {
+  background: white;
+  border-radius: 5px;
+  border: 0px solid white;
+  color: black;
+  cursor: pointer;
+  font-family: 'Lucida Console', Monaco, monospace;
+  font-size: inherit;
+  font-weight: normal;
+  line-height: inherit;
+  margin: 0px 2px 2px 2px;
+  opacity: 1;
+  padding: 1px 5px 3px 5px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:hover {
+    background: #2196f3;
+    color: #ffffff;
+    opacity: 1;
+  }
+
+  &:active {
+    background: #2196f3;
+    color: #ffffff;
+    font-weight: bold;
+  }
+
+  &.rw {
+    opacity: 0.65;
+  }
+
+  &.hideButton {
+    margin-left: 8px;
+    margin-right: 2px;
+    opacity: 0.65;
+  }
+}

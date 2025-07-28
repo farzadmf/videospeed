@@ -47,7 +47,9 @@ export class VideoController {
     this.initializeSpeed();
 
     // Create UI
-    this.div = this.initializeControls();
+    this.initializeControls();
+    this.controllerDiv = this.shadowManager.controllerDiv;
+    this.progressDiv = this.shadowManager.progressDiv;
 
     // Set up event handlers
     this.setupEventHandlers();
@@ -120,19 +122,16 @@ export class VideoController {
     const document = this.video.ownerDocument;
     const speed = formatSpeed(this.video.playbackRate);
     const volume = this.video.volume;
-    const position = this.shadowManager.calculatePosition(this.video);
 
     logger.debug(`Speed variable set to: ${speed}`);
 
     // Create wrapper elements
     const wrapper = document.createElement('div');
-    const progressWrapper = document.createElement('div');
-    progressWrapper.setAttribute('id', 'vsc-progress');
 
-    const wrappers = [wrapper, progressWrapper];
+    wrapper.style.setProperty('--opacity', this.config.settings.controllerOpacity);
 
     // Apply all CSS classes at once to prevent race condition flash
-    const cssClasses = ['vsc-controller'];
+    const cssClasses = ['vsc-main'];
 
     // Only hide controller if video has no source AND is not ready/functional
     // This prevents hiding controllers for live streams or dynamically loaded videos
@@ -141,7 +140,10 @@ export class VideoController {
     }
 
     if (this.config.settings.startHidden || this.shouldStartHidden) {
-      cssClasses.push('vsc-hidden');
+      // MyNote: using CSS variables instead.
+      // cssClasses.push('vsc-hidden');
+
+      wrapper.style.setProperty('--visibility', 'hidden');
 
       if (this.shouldStartHidden) {
         logger.debug('Starting controller hidden due to video visibility/size');
@@ -156,94 +158,80 @@ export class VideoController {
     // Apply all classes at once to prevent visible flash
     wrapper.className = cssClasses.join(' ');
 
-    // Set positioning styles with calculated position
-    // Use inline styles without !important so CSS rules can override
-    let styleText = `
-      position: absolute !important;
-      z-index: 9999999 !important;
-      top: ${position.top};
-      left: ${position.left};
-    `;
-    // MyNote: update according to the comment!!! Are top/left necessary?
-    styleText = `
-      position: absolute;
-      z-index: 9999999;
-    `;
-
-    // Add inline fallback styles if controller should start hidden
-    // This prevents FOUC if inject.css hasn't loaded yet
-    if (this.config.settings.startHidden || this.shouldStartHidden) {
-      styleText += `
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-      `;
-      logger.debug('Applied inline fallback styles for hidden controller');
-    }
-
-    // wrappers.forEach((wrapper) => (wrapper.style.cssText = styleText));
+    // MyNote: I don't think these apply to me?
+    // // Set positioning styles with calculated position
+    // // Use inline styles without !important so CSS rules can override
+    // let styleText = `
+    //   position: absolute !important;
+    //   z-index: 9999999 !important;
+    //   top: ${position.top};
+    //   left: ${position.left};
+    // `;
+    //
+    // // Add inline fallback styles if controller should start hidden
+    // // This prevents FOUC if inject.css hasn't loaded yet
+    // if (this.config.settings.startHidden || this.shouldStartHidden) {
+    //   styleText += `
+    //     display: none !important;
+    //     visibility: hidden !important;
+    //     opacity: 0 !important;
+    //   `;
+    //   logger.debug('Applied inline fallback styles for hidden controller');
+    // }
+    //
+    // wrapper.style.cssText = styleText;
 
     // Create shadow DOM
-    this.shadowManager.createShadowDOM(wrapper, progressWrapper, {
+    this.shadowManager.createShadowDOM(wrapper, {
       buttonSize: this.config.settings.controllerButtonSize,
-      opacity: this.config.settings.controllerOpacity,
       speed,
       volume,
     });
 
     // Set up control events
     this.controlsManager.setupControlEvents(this.shadowManager.shadow, this.video);
-    // this.controlsManager.setupDragHandler(this.shadowManager.progressShadow);
 
     // Insert into DOM based on site-specific rules
-    this.insertIntoDOM(document, wrappers);
-
-    // this.shadowManager.adjustLocation();
+    this.insertIntoDOM(document, wrapper);
 
     // Debug: Log final classes on controller
     logger.info(`Controller classes after creation: ${wrapper.className}`);
 
     logger.debug('initializeControls End');
-    return wrapper;
   }
 
   /**
    * Insert controller into DOM with site-specific positioning
    * @param {Document} document - Document object
-   * @param {HTMLElement[]} wrappers - Wrapper elements to insert
+   * @param {HTMLElement} wrapper - Wrapper element to insert
    * @private
    */
-  insertIntoDOM(document, wrappers) {
-    wrappers.forEach((wrapper) => {
-      const fragment = document.createDocumentFragment();
-      fragment.appendChild(wrapper);
+  insertIntoDOM(document, wrapper) {
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(wrapper);
 
-      // Get site-specific positioning information
-      const positioning = siteHandlerManager.getControllerPosition(this.parent, this.video);
+    // Get site-specific positioning information
+    const positioning = siteHandlerManager.getControllerPosition(this.parent, this.video);
 
-      switch (positioning.insertionMethod) {
-        case 'beforeParent':
-          positioning.insertionPoint.parentElement.insertBefore(
-            fragment,
-            positioning.insertionPoint
-          );
-          break;
+    switch (positioning.insertionMethod) {
+      case 'beforeParent':
+        positioning.insertionPoint.parentElement.insertBefore(fragment, positioning.insertionPoint);
+        break;
 
-        case 'afterParent':
-          positioning.insertionPoint.parentElement.insertBefore(
-            fragment,
-            positioning.insertionPoint.nextSibling
-          );
-          break;
+      case 'afterParent':
+        positioning.insertionPoint.parentElement.insertBefore(
+          fragment,
+          positioning.insertionPoint.nextSibling
+        );
+        break;
 
-        case 'firstChild':
-        default:
-          positioning.insertionPoint.insertBefore(fragment, positioning.insertionPoint.firstChild);
-          break;
-      }
+      case 'firstChild':
+      default:
+        positioning.insertionPoint.insertBefore(fragment, positioning.insertionPoint.firstChild);
+        break;
+    }
 
-      logger.debug(`Controller inserted using ${positioning.insertionMethod} method`, wrapper);
-    });
+    logger.debug(`Controller inserted using ${positioning.insertionMethod} method`, wrapper);
   }
 
   /**
@@ -309,7 +297,7 @@ export class VideoController {
           (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
         ) {
           logger.debug('mutation of A/V element');
-          const controller = this.div;
+          const controller = this.controllerDiv;
           if (!mutation.target.src && !mutation.target.currentSrc) {
             controller.classList.add('vsc-nosource');
           } else {
@@ -334,8 +322,8 @@ export class VideoController {
     logger.debug('Removing VideoController');
 
     // Remove DOM element
-    if (this.div && this.div.parentNode) {
-      this.div.remove();
+    if (this.controllerDiv && this.controllerDiv.parentNode) {
+      this.controllerDiv.remove();
     }
 
     // Remove event listeners
@@ -378,27 +366,6 @@ export class VideoController {
       videoSrc: this.video.currentSrc || this.video.src,
       tagName: this.video.tagName,
     });
-  }
-
-  adjustLocation() {
-    // getBoundingClientRect is relative to the viewport; style coordinates
-    // are relative to offsetParent, so we adjust for that here. offsetParent
-    // can be null if the video has `display: none` or is not yet in the DOM.
-    const offsetRect = this.video.offsetParent?.getBoundingClientRect();
-    const rect = this.video.getBoundingClientRect();
-
-    let top = Math.max(rect.top - (offsetRect?.top || 0), 0);
-    let left = Math.max(rect.left - (offsetRect?.left || 0), 0);
-
-    // Couldn't figure out a proper way, so hacking it!
-    if (location.hostname.match(/totaltypescript.com/)) {
-      top = Math.max(rect.top - (rect?.top || 0), 0);
-      left = Math.max(rect.left - (rect?.left || 0), 0);
-    }
-
-    // this.controller.style.left = `${left}px`;
-    // this.controller.style.top = `${top}px`;
-    this.div.style.transform = `translate(${left}px, ${top}px)`;
   }
 
   /**
@@ -452,21 +419,21 @@ export class VideoController {
    */
   updateVisibility() {
     const isVisible = this.isVideoVisible();
-    const isCurrentlyHidden = this.div.classList.contains('vsc-hidden');
+    const isCurrentlyHidden = this.controllerDiv.classList.contains('vsc-hidden');
 
     // Special handling for audio elements - don't hide controllers for functional audio
     if (this.video.tagName === 'AUDIO') {
       // For audio, only hide if manually hidden or if audio support is disabled
       if (!this.config.settings.audioBoolean && !isCurrentlyHidden) {
-        this.div.classList.add('vsc-hidden');
+        this.controllerDiv.classList.add('vsc-hidden');
         logger.debug('Hiding audio controller - audio support disabled');
       } else if (
         this.config.settings.audioBoolean &&
         isCurrentlyHidden &&
-        !this.div.classList.contains('vsc-manual')
+        !this.controllerDiv.classList.contains('vsc-manual')
       ) {
         // Show audio controller if audio support is enabled and not manually hidden
-        this.div.classList.remove('vsc-hidden');
+        this.controllerDiv.classList.remove('vsc-hidden');
         logger.debug('Showing audio controller - audio support enabled');
       }
 
@@ -477,15 +444,15 @@ export class VideoController {
     if (
       isVisible &&
       isCurrentlyHidden &&
-      !this.div.classList.contains('vsc-manual') &&
+      !this.controllerDiv.classList.contains('vsc-manual') &&
       !this.config.settings.startHidden
     ) {
       // Video became visible and controller is hidden (but not manually hidden)
-      this.div.classList.remove('vsc-hidden');
+      this.controllerDiv.classList.remove('vsc-hidden');
       logger.debug('Showing controller - video became visible');
     } else if (!isVisible && !isCurrentlyHidden) {
       // Video became invisible and controller is visible
-      this.div.classList.add('vsc-hidden');
+      this.controllerDiv.classList.add('vsc-hidden');
       logger.debug('Hiding controller - video became invisible');
     }
   }
@@ -532,7 +499,7 @@ export class VideoController {
     logger.verbose(`setProgressVal: ${value}`);
     const percent = ((Number(value) || 0) * 100).toFixed(1);
 
-    this.shadowManager.progressContainerDiv.style.display = 'flex';
+    this.shadowManager.progressDiv.style.display = 'flex';
     this.shadowManager.progressText.textContent = `${percent}%`;
     this.shadowManager.progressLine.style.width = `${percent}%`;
   }

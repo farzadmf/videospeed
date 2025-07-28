@@ -31,17 +31,23 @@ export class ControlsManager {
    * @private
    */
   setupDragHandler(shadow) {
-    const draggable = shadow.querySelector('.draggable');
+    const draggables = shadow.querySelectorAll('.draggable');
 
-    draggable.addEventListener(
-      'mousedown',
-      (event) => {
-        this.actionHandler.runAction({ actionItem: event.target.dataset['action'], event });
-        event.stopPropagation();
-        event.preventDefault();
-      },
-      true
-    );
+    draggables.forEach((draggable) => {
+      draggable.addEventListener(
+        'mousedown',
+        (event) => {
+          const draggable = event.target.closest('.draggable');
+          const actionName = draggable.dataset['action'];
+
+          this.actionHandler.runAction({ actionItem: actionName, event });
+
+          event.stopPropagation();
+          event.preventDefault();
+        },
+        true
+      );
+    });
   }
 
   /**

@@ -28,7 +28,7 @@ async function injectCSS() {
   link.href = chrome.runtime.getURL('src/styles/inject.css');
   document.head.appendChild(link);
 
-  const shadowCssUrl = chrome.runtime.getURL('src/styles/shadow.css');
+  const shadowCssUrl = chrome.runtime.getURL('src/styles/shadow_new.css');
   const response = await fetch(shadowCssUrl);
   const shadowCss = await response.text();
 
@@ -61,6 +61,7 @@ async function injectModules() {
       'src/utils/logger.js',
       'src/utils/dom-utils.js',
       'src/utils/event-manager.js',
+      'src/utils/misc.js',
       'src/utils/url.js',
       'src/core/storage-manager.js',
       'src/core/config.js',
@@ -162,7 +163,11 @@ function setupMessageBridge() {
         });
       });
     } catch (error) {
-      console.error('[FMVSC] ❌ Failed to save settings to Chrome storage:', error);
+      // MyNote: tired of getting context invalidated errors. As I don't know/see any issues,
+      //         gonna disable it!
+      if (error.message !== 'Extension context invalidated') {
+        console.error('[FMVSC] ❌ Failed to save settings to Chrome storage:', error, typeof error);
+      }
     }
   });
 

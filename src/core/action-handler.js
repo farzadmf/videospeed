@@ -49,19 +49,21 @@ export class ActionHandler {
       value2 = actionItem.value2 || actionItem.action.value2;
     }
 
+    if (actionName === 'drag') {
+      const draggable = event.target.closest('.draggable');
+      return this.executeAction({ actionName, value, value2, video: draggable, event });
+    }
+
     // Get the controller that was used if called from a button press event
     let targetController = null;
     if (event) {
       targetController = event.target.getRootNode().host;
     }
 
-    if (actionName === 'dragprog') {
-      return this.executeAction({ actionName, value, value2, video: targetController, event });
-    }
-
     // Return true (meaning: "we handled it") if the action applied to at least one of our media elements
     const result = mediaTags.some((video) => {
-      const controller = video.vsc?.div;
+      const controller = video.vsc?.controllerDiv;
+      console.log('FMFOO[4]: action-handler.js:64: controller=', controller);
 
       if (!controller) {
         return false; // We didn't handle it
@@ -138,7 +140,7 @@ export class ActionHandler {
 
       case 'display': {
         logger.debug('Display action triggered');
-        const controller = video.vsc.div;
+        const controller = video.vsc.controllerDiv;
 
         // MyNote: this is checked in runAction, so do we need it here?!
         // if (!controller) {
@@ -162,14 +164,10 @@ export class ActionHandler {
 
       case 'blink':
         logger.debug('Showing controller momentarily');
-        this.blinkController(video.vsc.div, value);
+        this.blinkController(video.vsc.controllerDiv, value);
         return true;
 
       case 'drag':
-        DragHandler.handleDrag(video, event);
-        return true;
-
-      case 'dragprog':
         DragHandler.handleDrag(video, event);
         return true;
 
@@ -538,8 +536,8 @@ export class ActionHandler {
     });
 
     // 6. Show controller briefly if hidden
-    if (video.vsc?.div) {
-      this.blinkController(video.vsc.div);
+    if (video.vsc?.controllerDiv) {
+      this.blinkController(video.vsc.controllerDiv);
     }
 
     // 7. Refresh cooldown to prevent rapid changes

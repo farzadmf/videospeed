@@ -13,7 +13,13 @@
   visibility: visible !important;
 }
 
-.vsc-controller {
+.vsc-main {
+  /* Used in shadow.css to hide controls; this remains always visible, so we're not */
+  /* using the variables here */
+  --opacity: 0.3; /* Will be overridden in video-controller from VSC settings */
+  --controller-opacity: 1; /* Always 1 because parent's opacity is a VSC option */
+  --controller-visibility: visible;
+
   /* Default visible state */
   visibility: visible;
   opacity: 1;
@@ -22,6 +28,8 @@
   white-space: normal;
   /* Disables text selection when the user is dragging the controller around */
   user-select: none;
+  position: absolute;
+  z-index: 999999;
 }
 
 /* Origin specific overrides */
@@ -29,6 +37,12 @@
 .ytp-hide-info-bar .vsc-controller {
   position: relative;
   top: 10px;
+}
+
+.ytp-autohide .vsc-main {
+  /* Used in shadow.css to hide controls */
+  --controller-opacity: 0;
+  --controller-visibility: hidden;
 }
 
 .ytp-autohide .vsc-controller {

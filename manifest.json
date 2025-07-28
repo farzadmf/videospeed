@@ -44,6 +44,7 @@
         "src/shared/*.js",
         "src/styles/inject.css",
         "src/styles/shadow.css",
+        "src/styles/shadow_new.css",
         "src/module-loader.js",
         "src/core/*.js",
         "src/utils/*.js",

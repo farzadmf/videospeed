@@ -7,6 +7,7 @@ window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
 import { formatVolume } from '../shared/constants.js';
+import { toPx } from '../utils/misc.js';
 
 export class ShadowDOMManager {
   /**
@@ -18,12 +19,10 @@ export class ShadowDOMManager {
     /** @type {HTMLDivElement|null} */
     this.controllerDiv = null;
     /** @type {HTMLDivElement|null} */
-    this.progressContainerDiv = null;
+    this.progressDiv = null;
 
     /** @type {ShadowRoot|null} */
     this.shadow = null;
-    /** @type {ShadowRoot|null} */
-    this.progressShadow = null;
 
     this.controller = null;
     this.controls = null;
@@ -34,6 +33,8 @@ export class ShadowDOMManager {
     this.volumeIndicator = null;
     this.buttons = [];
 
+    this.progressDivHeightPx = 20;
+
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
 
     // Clean up temporary element
@@ -43,20 +44,17 @@ export class ShadowDOMManager {
   /**
    * Create shadow DOM for video controller
    * @param {HTMLElement} wrapper - Wrapper element
-   * @param {HTMLElement} progressWrapper - Progress wrapper element
    * @param {Object} options - Configuration options
    * @param {number} [options.buttonSize=14] - Size of control buttons in pixels
-   * @param {number} [options.opacity=0.3] - Controller opacity (0-1)
    * @param {string} [options.speed='1.0'] - Initial playback speed display value
    * @param {string} [options.volume='1.0'] - Initial volume display value
    */
-  createShadowDOM(wrapper, progressWrapper, options = {}) {
-    const { buttonSize = 14, opacity = 0.3, speed = '1.0', volume = '1.0' } = options;
+  createShadowDOM(wrapper, options = {}) {
+    const { buttonSize = 14, speed = '1.0', volume = '1.0' } = options;
 
-    const { top = '0px', left = '0px' } = this.calculatePosition();
+    const { top = 0, left = 0 } = this.calculatePosition();
 
     this.shadow = wrapper.attachShadow({ mode: 'open' });
-    this.progressShadow = progressWrapper.attachShadow({ mode: 'open' });
 
     // Create style element with embedded CSS
     const style = document.createElement('style');
@@ -65,47 +63,45 @@ export class ShadowDOMManager {
 
     const progressStyle = document.createElement('style');
     progressStyle.textContent = this.cssText;
-    this.progressShadow.appendChild(progressStyle);
+
+    const topContainerDiv = document.createElement('div');
+    topContainerDiv.id = 'vsc-top-container';
+    this.shadow.appendChild(topContainerDiv);
+
+    this.progressDiv = document.createElement('div');
+    this.progressDiv.id = 'vsc-progress';
+    this.progressDiv.className = 'draggable';
+    this.progressDiv.setAttribute('data-action', 'drag');
+    this.progressDiv.style.setProperty('--height', toPx(this.progressDivHeightPx));
+    this.progressDiv.style.setProperty('--left', toPx(left));
+    this.progressDiv.style.setProperty('--top', toPx(top));
+    topContainerDiv.appendChild(this.progressDiv);
 
     // Create controller div
     this.controllerDiv = document.createElement('div');
     this.controllerDiv.id = 'controller';
-    this.controllerDiv.style.setProperty('--top', top);
-    this.controllerDiv.style.setProperty('--left', left);
-    this.controllerDiv.style.setProperty('--opacity', opacity);
-    this.shadow.appendChild(this.controllerDiv);
-
-    this.progressContainerDiv = document.createElement('div');
-    this.progressContainerDiv.className = 'draggable';
-    this.progressContainerDiv.setAttribute('data-action', 'dragprog');
-    this.progressContainerDiv.id = 'vsc-progress-container';
-    this.progressContainerDiv.style.setProperty('--top', top);
-    this.progressContainerDiv.style.setProperty('--left', left);
-    this.progressContainerDiv.style.setProperty('--opacity', opacity);
-    this.progressShadow.appendChild(this.progressContainerDiv);
-    // const topDiv = document.createElement('div');
-    // topDiv.style.display = 'inline-block';
-    // this.controllerDiv.appendChild(topDiv);
+    this.controllerDiv.className = 'vsc-controller draggable';
+    this.controllerDiv.setAttribute('data-action', 'drag');
+    this.controllerDiv.style.setProperty('--top', toPx(top));
+    this.controllerDiv.style.setProperty('--left', toPx(left));
+    topContainerDiv.appendChild(this.controllerDiv);
 
     // Create draggable speed indicator
-    const draggable = document.createElement('span');
-    draggable.setAttribute('data-action', 'drag');
-    draggable.className = 'draggable';
-    draggable.style.cssText = `font-size: ${buttonSize}px;`;
-    this.controllerDiv.appendChild(draggable);
+    // const draggable = document.createElement('span');
+    // draggable.setAttribute('data-action', 'drag');
+    // draggable.className = 'draggable';
+    // draggable.style.cssText = `font-size: ${buttonSize}px;`;
+    // this.controllerDiv.appendChild(draggable);
     // topDiv.appendChild(draggable);
 
     this.progressLineContainer = document.createElement('div');
-    this.progressLineContainer.setAttribute('data-action', 'dragprog');
     this.progressLineContainer.setAttribute('id', 'vsc-progress-lines');
-    this.progressContainerDiv.appendChild(this.progressLineContainer);
+    this.progressDiv.appendChild(this.progressLineContainer);
 
     const progressFull = document.createElement('div');
-    progressFull.setAttribute('data-action', 'dragprog');
     progressFull.setAttribute('id', 'vsc-progress-line-full');
 
     this.progressLine = document.createElement('div');
-    this.progressLine.setAttribute('data-action', 'dragprog');
     this.progressLine.setAttribute('id', 'vsc-progress-line-live');
 
     this.progressLineContainer.appendChild(progressFull);
@@ -123,14 +119,16 @@ export class ShadowDOMManager {
 
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';
-    this.progressText.setAttribute('data-action', 'dragprog');
     this.progressText.textContent = '...';
 
-    draggable.appendChild(this.speedIndicator);
-    draggable.appendChild(document.createTextNode(' '));
-    draggable.appendChild(this.volumeIndicator);
+    // draggable.appendChild(this.speedIndicator);
+    // draggable.appendChild(document.createTextNode(' '));
+    // draggable.appendChild(this.volumeIndicator);
+    this.controllerDiv.appendChild(this.speedIndicator);
+    this.controllerDiv.appendChild(document.createTextNode(' '));
+    this.controllerDiv.appendChild(this.volumeIndicator);
 
-    this.progressContainerDiv.appendChild(this.progressText);
+    this.progressDiv.appendChild(this.progressText);
 
     // Create controls span
     const controls = document.createElement('span');
@@ -159,6 +157,10 @@ export class ShadowDOMManager {
       controls.appendChild(button);
     });
 
+    // MyNote: I thought this wouldn't work here as the call to insert into DOM is after
+    //         calling createShadowDOM in video-controller, but I guess it works fine!?
+    this.adjustLocation();
+
     logger.debug('Shadow DOM created for video controller');
   }
 
@@ -182,8 +184,8 @@ export class ShadowDOMManager {
     // are relative to offsetParent, so we adjust for that here. offsetParent
     // can be null if the video has `display: none` or is not yet in the DOM.
     const offsetRect = this.target.offsetParent?.getBoundingClientRect();
-    const top = `${Math.max(rect.top - (offsetRect?.top || 0), 0)}px`;
-    const left = `${Math.max(rect.left - (offsetRect?.left || 0), 0)}px`;
+    const top = Math.max(rect.top - (offsetRect?.top || 0), 0);
+    const left = Math.max(rect.left - (offsetRect?.left || 0), 0);
 
     return { top, left };
   }
@@ -198,8 +200,11 @@ export class ShadowDOMManager {
 
     const { left, top } = this.calculatePosition();
 
-    this.controllerDiv.style.left = left;
-    this.controllerDiv.style.top = top;
+    this.progressDiv.style.left = toPx(left);
+    this.progressDiv.style.top = toPx(top);
+
+    this.controllerDiv.style.left = toPx(left);
+    this.controllerDiv.style.top = toPx(top + this.progressDivHeightPx + 5);
   }
 }
 
