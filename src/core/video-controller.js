@@ -73,7 +73,6 @@ export class VideoController {
    */
   initializeSpeed() {
     const targetSpeed = this.getTargetSpeed();
-    logger.debug(`Setting initial playbackRate to: ${targetSpeed}`);
 
     this.speed = targetSpeed;
 
@@ -96,16 +95,25 @@ export class VideoController {
   getTargetSpeed(media = this.video) {
     let targetSpeed;
 
+    const videoSrc = getBaseURL(media.currentSrc || media.src);
+    const storedSpeed = this.config.settings.sources[videoSrc]?.speed;
+
     if (this.config.settings.rememberSpeed) {
-      // Global behavior - use lastSpeed for all videos
-      targetSpeed = this.config.settings.lastSpeed || 1.0;
-      logger.debug(`Global mode: using lastSpeed ${targetSpeed}`);
+      if (storedSpeed) {
+        logger.debug(`Using stored speed for video: ${storedSpeed}`);
+        targetSpeed = storedSpeed;
+      } else if (this.config.settings.lastSpeed) {
+        // Global behavior - use lastSpeed for all videos
+        // targetSpeed = this.config.settings.lastSpeed || 1.0;
+        targetSpeed = 1.0;
+        logger.debug(`Global mode: using lastSpeed ${targetSpeed}`);
+      }
     } else {
       // Per-video behavior - use stored speed for this specific video
-      const videoSrc = media.currentSrc || media.src;
-      const storedSpeed = this.config.settings.sources[getBaseURL(videoSrc)]?.speed;
-      targetSpeed = storedSpeed || 1.0;
-      logger.debug(`Per-video mode: using speed ${targetSpeed} for ${videoSrc}`);
+      // targetSpeed = storedSpeed || 1.0;
+      targetSpeed = 1.0;
+      // logger.debug(`Per-video mode: using speed ${targetSpeed} for ${videoSrc}`);
+      logger.debug('Remember speed not enabled; using default 1.0 speed');
     }
 
     return targetSpeed;
@@ -193,6 +201,10 @@ export class VideoController {
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, wrapper);
+
+    // Thought about doing this directly in `createShadowDOM`, but I think doing
+    // getBoundingClientRect etc needs the element(s) to already be inserted in DOM.
+    this.shadowManager.adjustLocation();
 
     // Debug: Log final classes on controller
     logger.info(`Controller classes after creation: ${wrapper.className}`);

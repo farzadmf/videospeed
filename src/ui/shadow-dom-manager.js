@@ -157,10 +157,6 @@ export class ShadowDOMManager {
       controls.appendChild(button);
     });
 
-    // MyNote: I thought this wouldn't work here as the call to insert into DOM is after
-    //         calling createShadowDOM in video-controller, but I guess it works fine!?
-    this.adjustLocation();
-
     logger.debug('Shadow DOM created for video controller');
   }
 
