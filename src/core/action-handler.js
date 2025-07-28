@@ -63,7 +63,6 @@ export class ActionHandler {
     // Return true (meaning: "we handled it") if the action applied to at least one of our media elements
     const result = mediaTags.some((video) => {
       const controller = video.vsc?.controllerDiv;
-      console.log('FMFOO[4]: action-handler.js:64: controller=', controller);
 
       if (!controller) {
         return false; // We didn't handle it

@@ -285,6 +285,9 @@ export class EventManager {
     );
     controller.classList.add('vsc-show');
 
+    controller.style.setProperty('--controller-visibility', 'visible');
+    controller.style.setProperty('--controller-opacity', 1);
+
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -292,6 +295,10 @@ export class EventManager {
     this.timer = setTimeout(() => {
       controller.classList.remove('vsc-show');
       this.timer = null;
+
+      controller.style.removeProperty('--controller-visibility');
+      controller.style.removeProperty('--controller-opacity');
+
       logger.debug('Hiding controller');
     }, 2000);
   }
