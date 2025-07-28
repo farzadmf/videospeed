@@ -38,7 +38,7 @@ export class ShadowDOMManager {
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
 
     // Clean up temporary element
-    setTimeout(() => document.querySelector('#vsc-shadow-css-content')?.remove(), 500);
+    // setTimeout(() => document.querySelector('#vsc-shadow-css-content')?.remove(), 500);
   }
 
   /**
@@ -174,15 +174,20 @@ export class ShadowDOMManager {
    * @returns {Object} Position object with top and left properties
    */
   calculatePosition() {
+    logger.debug('[calculatePosition] start ...');
+
     const rect = this.target.getBoundingClientRect();
 
     // getBoundingClientRect is relative to the viewport; style coordinates
     // are relative to offsetParent, so we adjust for that here. offsetParent
     // can be null if the video has `display: none` or is not yet in the DOM.
     const offsetRect = this.target.offsetParent?.getBoundingClientRect();
+    logger.debug('[calculatePosition] offsetRect', offsetRect);
+
     const top = Math.max(rect.top - (offsetRect?.top || 0), 0);
     const left = Math.max(rect.left - (offsetRect?.left || 0), 0);
 
+    logger.debug('[calculatePosition] end ... returning', 'top', top, 'left', left);
     return { top, left };
   }
 
@@ -190,17 +195,23 @@ export class ShadowDOMManager {
    * Adjusts the location of the controller based on the video element's position
    */
   adjustLocation() {
+    logger.debug('[adjustLocation] start ...');
+
     if (!this.controllerDiv) {
+      logger.debug('[adjustLocation] controllerDiv not found; not doing anything');
       return;
     }
 
     const { left, top } = this.calculatePosition();
+    logger.debug('[adjustLocation] top', top, 'left', left);
 
     this.progressDiv.style.left = toPx(left);
     this.progressDiv.style.top = toPx(top);
 
     this.controllerDiv.style.left = toPx(left);
     this.controllerDiv.style.top = toPx(top + this.progressDivHeightPx + 5);
+
+    logger.debug('[adjustLocation] end ...');
   }
 }
 

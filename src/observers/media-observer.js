@@ -88,6 +88,7 @@ class MediaElementObserver {
       logger.info(
         `Light scan found ${filteredMedia.length} media elements (${mediaElements.length} total, ${mediaElements.length - filteredMedia.length} filtered out)`
       );
+      logger.debug('[scanForMediaLight]', 'filteredMedia', filteredMedia);
       return filteredMedia;
     } catch (error) {
       logger.error(`Light media scan failed: ${error.message}`);

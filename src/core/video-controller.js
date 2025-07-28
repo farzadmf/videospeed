@@ -46,8 +46,12 @@ export class VideoController {
     // Initialize speed
     this.initializeSpeed();
 
+    // Create wrapper element (used by initializeControls)
+    this.wrapperDiv = document.createElement('div');
+
     // Create UI
     this.initializeControls();
+
     this.controllerDiv = this.shadowManager.controllerDiv;
     this.progressDiv = this.shadowManager.progressDiv;
 
@@ -96,24 +100,26 @@ export class VideoController {
     let targetSpeed;
 
     const videoSrc = getBaseURL(media.currentSrc || media.src);
+    logger.debug('[getTargetSpeed]', 'videoSrc', videoSrc);
     const storedSpeed = this.config.settings.sources[videoSrc]?.speed;
+    logger.debug('[getTargetSpeed]', 'storedSpeed', storedSpeed);
 
     if (this.config.settings.rememberSpeed) {
       if (storedSpeed) {
-        logger.debug(`Using stored speed for video: ${storedSpeed}`);
+        logger.debug('[getTargetSpeed] Using stored speed for video', storedSpeed);
         targetSpeed = storedSpeed;
       } else if (this.config.settings.lastSpeed) {
         // Global behavior - use lastSpeed for all videos
         // targetSpeed = this.config.settings.lastSpeed || 1.0;
         targetSpeed = 1.0;
-        logger.debug(`Global mode: using lastSpeed ${targetSpeed}`);
+        logger.debug('[getTargetSpeed] Global mode: using lastSpeed', targetSpeed);
       }
     } else {
       // Per-video behavior - use stored speed for this specific video
       // targetSpeed = storedSpeed || 1.0;
       targetSpeed = 1.0;
       // logger.debug(`Per-video mode: using speed ${targetSpeed} for ${videoSrc}`);
-      logger.debug('Remember speed not enabled; using default 1.0 speed');
+      logger.debug('[getTargetSpeed]', 'Remember speed not enabled; using default 1.0 speed');
     }
 
     return targetSpeed;
@@ -133,10 +139,7 @@ export class VideoController {
 
     logger.debug(`Speed variable set to: ${speed}`);
 
-    // Create wrapper elements
-    const wrapper = document.createElement('div');
-
-    wrapper.style.setProperty('--opacity', this.config.settings.controllerOpacity);
+    this.wrapperDiv.style.setProperty('--opacity', this.config.settings.controllerOpacity);
 
     // Apply all CSS classes at once to prevent race condition flash
     const cssClasses = ['vsc-main'];
@@ -151,7 +154,7 @@ export class VideoController {
       // MyNote: using CSS variables instead.
       // cssClasses.push('vsc-hidden');
 
-      wrapper.style.setProperty('--visibility', 'hidden');
+      this.wrapperDiv.style.setProperty('--visibility', 'hidden');
 
       if (this.shouldStartHidden) {
         logger.debug('Starting controller hidden due to video visibility/size');
@@ -164,7 +167,7 @@ export class VideoController {
     // When startHidden=false, use natural visibility (no special class needed)
 
     // Apply all classes at once to prevent visible flash
-    wrapper.className = cssClasses.join(' ');
+    this.wrapperDiv.className = cssClasses.join(' ');
 
     // MyNote: I don't think these apply to me?
     // // Set positioning styles with calculated position
@@ -190,7 +193,7 @@ export class VideoController {
     // wrapper.style.cssText = styleText;
 
     // Create shadow DOM
-    this.shadowManager.createShadowDOM(wrapper, {
+    this.shadowManager.createShadowDOM(this.wrapperDiv, {
       buttonSize: this.config.settings.controllerButtonSize,
       speed,
       volume,
@@ -200,14 +203,14 @@ export class VideoController {
     this.controlsManager.setupControlEvents(this.shadowManager.shadow, this.video);
 
     // Insert into DOM based on site-specific rules
-    this.insertIntoDOM(document, wrapper);
+    this.insertIntoDOM(document, this.wrapperDiv);
 
     // Thought about doing this directly in `createShadowDOM`, but I think doing
     // getBoundingClientRect etc needs the element(s) to already be inserted in DOM.
     this.shadowManager.adjustLocation();
 
     // Debug: Log final classes on controller
-    logger.info(`Controller classes after creation: ${wrapper.className}`);
+    logger.info(`Controller classes after creation: ${this.wrapperDiv.className}`);
 
     logger.debug('initializeControls End');
   }
@@ -309,11 +312,11 @@ export class VideoController {
           (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
         ) {
           logger.debug('mutation of A/V element');
-          const controller = this.controllerDiv;
+          const wrapper = this.wrapperDiv;
           if (!mutation.target.src && !mutation.target.currentSrc) {
-            controller.classList.add('vsc-nosource');
+            wrapper.classList.add('vsc-nosource');
           } else {
-            controller.classList.remove('vsc-nosource');
+            wrapper.classList.remove('vsc-nosource');
 
             this.actionHandler.adjustSpeed(this.video);
             this.shadowManager.adjustLocation();

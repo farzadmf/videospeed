@@ -106,6 +106,7 @@ async function injectModules() {
     setupMessageBridge();
   } catch (error) {
     console.error('[FMVSC] 💥 Module injection failed:', error);
+    console.trace();
   }
 }
 

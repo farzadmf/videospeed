@@ -102,11 +102,12 @@ export class ActionHandler {
   executeAction({ actionName, value, value2, video, event }) {
     const percent = (value * video.duration) / 100;
     const step = Math.min(value2 || 5, percent); // Only used for rewind and advance
+    const source = 'action-handler';
 
     if (actionName.startsWith('fixspeed')) {
       const speedStr = actionName.split('_')[1];
       const speedValue = Number(`${speedStr[0]}.${speedStr[1]}`);
-      this.adjustSpeed(video, speedValue);
+      this.adjustSpeed(video, speedValue, { source });
       return true;
     }
 
@@ -123,12 +124,12 @@ export class ActionHandler {
 
       case 'faster':
         logger.debug('Increase speed');
-        this.adjustSpeed(video, value, { relative: true });
+        this.adjustSpeed(video, value, { relative: true, source });
         return true;
 
       case 'slower': {
         logger.debug('Decrease speed');
-        this.adjustSpeed(video, -value, { relative: true });
+        this.adjustSpeed(video, -value, { relative: true, source });
         return true;
       }
 
@@ -231,9 +232,9 @@ export class ActionHandler {
    * @param {string} options.source - 'internal' (user action) or 'external' (site/other)
    */
   adjustSpeed(video, value, options = {}) {
-    logger.debug(`adjustSpeed started: ${value}`);
+    logger.debug('[adjustSpeed] started', value);
 
-    const { relative = false } = options;
+    const { relative = false, source = '' } = options;
 
     const src = video?.currentSrc || video?.src;
     if (!src) {
@@ -242,32 +243,46 @@ export class ActionHandler {
     }
 
     const url = getBaseURL(src);
+    logger.debug('[adjustSpeed]', 'url', url);
 
     let targetSpeed;
     if (value === undefined) {
-      if (this.config.settings.forceLastSavedSpeed) {
-        targetSpeed = this.config.settings.sources[url]?.speed || 1;
-      }
+      targetSpeed = this.config.settings.sources[url]?.speed || 1;
+      logger.debug('[adjustSpeed]', 'undefined value for speed');
     } else {
       if (relative) {
         const currentSpeed = video.playbackRate < 0.1 ? 0.0 : video.playbackRate;
         targetSpeed = currentSpeed + value;
+        logger.debug('[adjustSpeed]', 'relative value');
       } else {
+        logger.debug('[adjustSpeed]', 'non-relative value');
         targetSpeed = value;
       }
     }
 
     targetSpeed = Math.min(Math.max(targetSpeed, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
     const numericSpeed = Number(targetSpeed.toFixed(1));
+    logger.debug('[adjustSpeed]', 'numericSpeed', numericSpeed);
 
     video.playbackRate = numericSpeed;
 
     video.vsc?.setSpeedVal(numericSpeed);
 
-    this.config.syncSpeedValue({
-      speed: numericSpeed,
-      url,
-    });
+    // Only update speed when we manually change it using an action
+    if (source === 'action-handler') {
+      logger.debug(
+        '[adjustSeped]',
+        'source is action-handler; saving',
+        numericSpeed,
+        'for url',
+        url
+      );
+
+      this.config.syncSpeedValue({
+        speed: numericSpeed,
+        url,
+      });
+    }
 
     logger.debug(`adjustSpeed finished: ${value}`);
   }
