@@ -41,7 +41,6 @@ async function updateIcon(tabId, hasActiveControllers) {
           }
 
           console.error('[FMVSC] Failed to update icon:', chrome.runtime.lastError.message);
-          return;
         }
       }
     );
