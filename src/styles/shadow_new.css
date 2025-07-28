@@ -68,6 +68,7 @@
 #vsc-progress-line-live {
   background-color: red;
   margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
+  width: 0px;
 }
 
 .draggable {
