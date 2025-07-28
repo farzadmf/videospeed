@@ -200,7 +200,11 @@ export class VideoController {
     });
 
     // Set up control events
-    this.controlsManager.setupControlEvents(this.shadowManager.shadow, this.video);
+    this.controlsManager.setupControlEvents({
+      shadow: this.shadowManager.shadow,
+      video: this.video,
+      wrapperDiv: this.wrapperDiv,
+    });
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, this.wrapperDiv);

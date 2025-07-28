@@ -12,22 +12,25 @@ export class DragHandler {
   /**
    * Handle dragging of video controller
    * @param {HTMLVideoElement} video - Video element
-   * @param {MouseEvent} e - Mouse event
+   * @param {MouseEvent} event - Mouse event
    */
-  static handleDrag(video, e) {
+  static handleDrag({ video, event, wrapperDiv }) {
     // const controller = video.vsc?.div || video;
     // const shadowController =
     //   controller.shadowRoot.querySelector('#controller') ||
     //   controller.shadowRoot.querySelector('#vsc-progress-container');
+
+    // MyNote: Using the same names as upstream to help matching logic against it.
+    const controller = wrapperDiv;
     const shadowController = video;
 
     // Find nearest parent of same size as video parent
-    const parentElement = dom.findVideoParent(video);
+    const parentElement = dom.findVideoParent(controller);
 
     video.classList.add('vcs-dragging');
     shadowController.classList.add('dragging');
 
-    const initialMouseXY = [e.clientX, e.clientY];
+    const initialMouseXY = [event.clientX, event.clientY];
     const initialControllerXY = [
       parseInt(shadowController.style.left) || 0,
       parseInt(shadowController.style.top) || 0,

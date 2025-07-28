@@ -30,9 +30,9 @@ export class ActionHandler {
    * Execute an action on media elements
    * @param {string} action - Action to perform
    * @param {*} value - Action value
-   * @param {Event} e - Event object (optional)
+   * @param {Event} event - Event object (optional)
    */
-  runAction({ actionItem, event }) {
+  runAction({ actionItem, event, wrapperDiv }) {
     logger.debug('runAction Begin:', actionItem);
 
     const mediaTags = this.config.getMediaElements();
@@ -50,8 +50,10 @@ export class ActionHandler {
     }
 
     if (actionName === 'drag') {
+      logger.warn('event.target', event.target);
       const draggable = event.target.closest('.draggable');
-      return this.executeAction({ actionName, value, value2, video: draggable, event });
+      logger.warn('draggable', draggable);
+      return this.executeAction({ actionName, value, value2, video: draggable, event, wrapperDiv });
     }
 
     // Get the controller that was used if called from a button press event
@@ -99,7 +101,7 @@ export class ActionHandler {
    * @param {Event} e - Event object (optional)
    * @private
    */
-  executeAction({ actionName, value, value2, video, event }) {
+  executeAction({ actionName, value, value2, video, event, wrapperDiv }) {
     const percent = (value * video.duration) / 100;
     const step = Math.min(value2 || 5, percent); // Only used for rewind and advance
     const source = 'action-handler';
@@ -168,7 +170,7 @@ export class ActionHandler {
         return true;
 
       case 'drag':
-        DragHandler.handleDrag(video, event);
+        DragHandler.handleDrag({ video, event, wrapperDiv });
         return true;
 
       case 'fast':
