@@ -147,7 +147,10 @@ export class EventManager {
    */
   isTypingContext(target) {
     return (
-      target.nodeName === 'INPUT' || target.nodeName === 'TEXTAREA' || target.isContentEditable
+      target.nodeName === 'INPUT' ||
+      target.nodeName === 'TEXTAREA' ||
+      target.isContentEditable ||
+      target.nodeName === 'SHREDDIT-COMPOSER'
     );
   }
 
