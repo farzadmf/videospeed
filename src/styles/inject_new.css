@@ -1,0 +1,40 @@
+.vsc-nosource {
+  display: none !important;
+}
+
+.vsc-hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.vsc-manual:not(.vsc-hidden) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.vsc-main {
+  /* Used in shadow.css to hide controls; this remains always visible, so we're not */
+  /* using the variables here */
+  --opacity: 0.3; /* Will be overridden in video-controller from VSC settings */
+  --controller-opacity: 1; /* Always 1 because parent's opacity is a VSC option */
+  --controller-visibility: visible;
+
+  /* Default visible state */
+  visibility: visible;
+  opacity: 1;
+  display: block;
+  /* In case of pages using `white-space: pre-line` (eg Discord), don't render vsc's whitespace */
+  white-space: normal;
+  /* Disables text selection when the user is dragging the controller around */
+  user-select: none;
+  position: absolute;
+  z-index: 9999;
+}
+
+/* Origin specific overrides */
+/* YouTube player */
+.ytp-hide-info-bar .vsc-controller {
+  position: relative;
+  top: 10px;
+}

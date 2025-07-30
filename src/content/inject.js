@@ -269,12 +269,17 @@ class VideoSpeedExtension {
   onVideoFound(video, parent) {
     try {
       if (!this.mediaObserver.isValidMediaElement(video)) {
-        logger.debug('Video element is not valid for controller attachment');
+        logger.debug('[onVideoFound] Video element is not valid for controller attachment');
         return;
       }
 
       if (video.vsc) {
-        logger.debug('Video already has controller attached');
+        logger.debug('[onVideoFound] Video already has controller attached');
+        return;
+      }
+
+      if (!video.src && !video.currentSrc) {
+        logger.debug('[onVideoFound] Video has no source; not attaching a controller');
         return;
       }
 
@@ -282,7 +287,7 @@ class VideoSpeedExtension {
       const shouldStartHidden = this.mediaObserver?.shouldStartHidden(video) || false;
 
       logger.debug(
-        'Attaching controller to new video element',
+        '[onVideoFound] Attaching controller to new video element',
         shouldStartHidden ? '(starting hidden)' : ''
       );
 
@@ -294,8 +299,8 @@ class VideoSpeedExtension {
         shouldStartHidden
       );
     } catch (error) {
-      logger.error('💥 Failed to attach controller to video:', error);
-      logger.error(`Failed to attach controller to video: ${error.message}`);
+      logger.error('[onVideoFound] 💥 Failed to attach controller to video:', error);
+      logger.error(`[onVideoFound] Failed to attach controller to video: ${error.message}`);
     }
   }
 

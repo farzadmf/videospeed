@@ -29,6 +29,16 @@ export class OldRedditHandler extends BaseSiteHandler {
       targetParent: parent.parentNode,
     };
   }
+
+  /**
+   * Check if video should be ignored on YouTube
+   * @param {HTMLMediaElement} video - Video element
+   * @returns {boolean} True if video should be ignored
+   */
+  shouldIgnoreVideo(video) {
+    // Ignore portrait videos (seems to appear on the timeline?)
+    return video.classList.contains('portrait');
+  }
 }
 
 // Create singleton instance

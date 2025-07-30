@@ -31,6 +31,44 @@ export class VideoController {
     this.shadowManager = new ShadowDOMManager(target);
     this.shouldStartHidden = shouldStartHidden;
 
+    this.targetObserver = null;
+    this.intersectionObserver = null;
+    this.scrollListener = null;
+    this.resizeListener = null;
+
+    this.isVisible = true;
+
+    // Throttled scroll listener for smooth updates
+    this.scrollTicking = false;
+    this.resizeTicking = false;
+
+    this.scrollListener = () => {
+      if (!this.scrollTicking) {
+        requestAnimationFrame(() => {
+          logger.debug('[scrollListener] Video is visible; adjusting location');
+          this.shadowManager.adjustLocation();
+          this.scrollTicking = false;
+        });
+        this.scrollTicking = true;
+      }
+    };
+    this.resizeListener = () => {
+      if (!this.resizeTicking) {
+        requestAnimationFrame(() => {
+          logger.debug('[resizeListener] Video is visible; adjusting location');
+          this.shadowManager.adjustLocation();
+          this.resizeTicking = false;
+        });
+        this.resizeTicking = true;
+      }
+    };
+
+    siteHandlerManager.setup({
+      onShow: () => this.shadowManager.showController(),
+      onHide: () => this.shadowManager.hideController(),
+      video: target,
+    });
+
     this.speed = 0;
     this.volume = 0;
 
@@ -60,6 +98,9 @@ export class VideoController {
 
     // Set up mutation observer for src changes
     this.setupMutationObserver();
+    this.setupIntersectionObserver();
+    // this.startScrollListener();
+    // this.startResizeListener();
 
     logger.info('VideoController initialized for video element');
 
@@ -230,27 +271,36 @@ export class VideoController {
     fragment.appendChild(wrapper);
 
     // Get site-specific positioning information
-    const positioning = siteHandlerManager.getControllerPosition(this.parent, this.video);
+    const { insertionPoint, insertionMethod } = siteHandlerManager.getControllerPosition(
+      this.parent,
+      this.video
+    );
 
-    switch (positioning.insertionMethod) {
-      case 'beforeParent':
-        positioning.insertionPoint.parentElement.insertBefore(fragment, positioning.insertionPoint);
-        break;
+    // if (insertionPoint.classList?.contains('html5-video-player')) {
+    //   wrapper.style.setProperty('--margin-top', '-50px');
+    // }
+    // if (insertionPoint.classList?.contains('ytp-small-mode')) {
+    //   wrapper.style.setProperty('--margin-left', '-250px');
+    // }
 
-      case 'afterParent':
-        positioning.insertionPoint.parentElement.insertBefore(
-          fragment,
-          positioning.insertionPoint.nextSibling
-        );
-        break;
+    document.body.appendChild(fragment);
 
-      case 'firstChild':
-      default:
-        positioning.insertionPoint.insertBefore(fragment, positioning.insertionPoint.firstChild);
-        break;
-    }
+    // switch (insertionMethod) {
+    //   case 'beforeParent':
+    //     insertionPoint.parentElement.insertBefore(fragment, insertionPoint);
+    //     break;
+    //
+    //   case 'afterParent':
+    //     insertionPoint.parentElement.insertBefore(fragment, insertionPoint.nextSibling);
+    //     break;
+    //
+    //   case 'firstChild':
+    //   default:
+    //     insertionPoint.insertBefore(fragment, insertionPoint.firstChild);
+    //     break;
+    // }
 
-    logger.debug(`Controller inserted using ${positioning.insertionMethod} method`, wrapper);
+    logger.debug(`Controller inserted using ${insertionMethod} method`, wrapper);
   }
 
   /**
@@ -334,6 +384,48 @@ export class VideoController {
     });
   }
 
+  setupIntersectionObserver() {
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            logger.debug(
+              '[setupIntersectionObserver] Video is visible; showing and adjusting location'
+            );
+            this.isVisible = true;
+            this.shadowManager.show();
+            this.shadowManager.adjustLocation();
+            this.startScrollListener();
+            this.startResizeListener();
+          } else {
+            logger.debug('[setupIntersectionObserver] Video is not visible; hiding controller');
+            this.isVisible = false;
+            this.shadowManager.hide();
+            this.stopScrollListener();
+            this.stopResizeListener();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    this.intersectionObserver.observe(this.video);
+  }
+
+  startScrollListener() {
+    window.addEventListener('scroll', this.scrollListener);
+  }
+  stopScrollListener() {
+    window.removeEventListener('scroll', this.scrollListener);
+  }
+
+  startResizeListener() {
+    window.addEventListener('resize', this.resizeListener);
+  }
+  stopResizeListener() {
+    window.removeEventListener('resize', this.resizeListener);
+  }
+
   /**
    * Remove controller and clean up
    */
@@ -369,6 +461,15 @@ export class VideoController {
     // Disconnect mutation observer
     if (this.targetObserver) {
       this.targetObserver.disconnect();
+    }
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+    if (this.scrollListener) {
+      window.removeEventListener('scroll', this.scrollListener);
+    }
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
     }
 
     // Remove from tracking

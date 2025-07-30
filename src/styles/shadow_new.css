@@ -20,8 +20,10 @@
   background: inherit;
   border-radius: 6px;
   left: var(--left);
+  margin-left: var(--margin-left);
+  margin-top: var(--margin-top);
   padding: 4px;
-  position: absolute;
+  position: fixed;
   top: var(--top);
   white-space: nowrap;
 }

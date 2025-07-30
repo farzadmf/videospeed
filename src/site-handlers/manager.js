@@ -65,6 +65,14 @@ export class SiteHandlerManager {
   }
 
   /**
+   * Initialize the current site handler
+   */
+  setup({ onShow, onHide, video }) {
+    const handler = this.getCurrentHandler();
+    handler.setup({ onShow, onHide, video });
+  }
+
+  /**
    * Get controller positioning for current site
    * @param {HTMLElement} parent - Parent element
    * @param {HTMLElement} video - Video element

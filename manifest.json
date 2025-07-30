@@ -43,6 +43,7 @@
         "src/assets/pkgs/*.js",
         "src/shared/*.js",
         "src/styles/inject.css",
+        "src/styles/inject_new.css",
         "src/styles/shadow.css",
         "src/styles/shadow_new.css",
         "src/module-loader.js",

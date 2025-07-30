@@ -26,7 +26,7 @@ export class BaseSiteHandler {
    * @param {HTMLElement} video - Video element
    * @returns {Object} Positioning information
    */
-  getControllerPosition(parent, _video) {
+  getControllerPosition(parent) {
     return {
       insertionPoint: parent,
       insertionMethod: 'firstChild', // 'firstChild', 'beforeParent', 'afterParent'
@@ -41,6 +41,8 @@ export class BaseSiteHandler {
    * @returns {boolean} True if handled, false for default behavior
    */
   handleSeek(video, seekSeconds) {
+    logger.warn('[handleSeek]', 'video', video, 'seekSeconds', seekSeconds);
+
     // Default implementation - use standard seeking with bounds checking (original logic)
     if (video.currentTime !== undefined && video.duration) {
       const newTime = Math.max(0, Math.min(video.duration, video.currentTime + seekSeconds));
@@ -56,8 +58,15 @@ export class BaseSiteHandler {
    * Handle site-specific initialization
    * @param {Document} document - Document object
    */
-  initialize(_document) {
+  initialize() {
     logger.debug(`Initializing ${this.constructor.name} for ${this.hostname}`);
+  }
+
+  /**
+   * Handle site-specific setup (observers, event listeners etc.)
+   */
+  setup() {
+    logger.debug(`Setting up ${this.constructor.name} for ${this.hostname}`);
   }
 
   /**
@@ -72,7 +81,7 @@ export class BaseSiteHandler {
    * @param {HTMLMediaElement} video - Video element
    * @returns {boolean} True if video should be ignored
    */
-  shouldIgnoreVideo(_video) {
+  shouldIgnoreVideo() {
     return false;
   }
 
@@ -89,7 +98,7 @@ export class BaseSiteHandler {
    * @param {Document} document - Document object
    * @returns {Array<HTMLMediaElement>} Additional videos found
    */
-  detectSpecialVideos(_document) {
+  detectSpecialVideos() {
     return [];
   }
 }

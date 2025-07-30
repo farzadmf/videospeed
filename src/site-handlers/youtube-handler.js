@@ -23,7 +23,7 @@ export class YouTubeHandler extends BaseSiteHandler {
    * @param {HTMLElement} video - Video element
    * @returns {Object} Positioning information
    */
-  getControllerPosition(parent, _video) {
+  getControllerPosition(parent) {
     // YouTube requires special positioning to ensure controller is on top
     const targetParent = parent.parentElement;
 
@@ -43,6 +43,39 @@ export class YouTubeHandler extends BaseSiteHandler {
 
     // Set up YouTube-specific CSS handling
     this.setupYouTubeCSS();
+  }
+
+  /**
+   * Set up YouTube-specific functionality
+   */
+  setup({ onShow, onHide, video }) {
+    super.setup();
+
+    // Set up YouTube-specific CSS handling
+    this.setupYouTubeCSS();
+
+    const target = video.closest('.html5-video-player');
+
+    this.observer = new MutationObserver(() => {
+      if (target.classList.contains('ytp-autohide')) {
+        logger.warn('HAS autohide');
+        onHide?.();
+      } else {
+        logger.warn('not HAS autohide');
+        onShow?.();
+      }
+    });
+
+    this.observer.observe(target, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /**
+   * Handle site-specific cleanup
+   */
+  cleanup() {
+    super.cleanup();
+
+    this.observer?.disconnect();
   }
 
   /**
@@ -94,7 +127,7 @@ export class YouTubeHandler extends BaseSiteHandler {
             const iframeVideos = iframeDoc.querySelectorAll('video');
             videos.push(...Array.from(iframeVideos));
           }
-        } catch (e) {
+        } catch {
           // Cross-origin iframe, ignore
         }
       });
@@ -109,7 +142,7 @@ export class YouTubeHandler extends BaseSiteHandler {
    * Handle YouTube-specific player state changes
    * @param {HTMLMediaElement} video - Video element
    */
-  onPlayerStateChange(_video) {
+  onPlayerStateChange() {
     // YouTube fires custom events we could listen to
     // This could be used for better integration with YouTube's player
     logger.debug('YouTube player state changed');

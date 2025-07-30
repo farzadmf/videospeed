@@ -50,9 +50,7 @@ export class ActionHandler {
     }
 
     if (actionName === 'drag') {
-      logger.warn('event.target', event.target);
       const draggable = event.target.closest('.draggable');
-      logger.warn('draggable', draggable);
       return this.executeAction({ actionName, value, value2, video: draggable, event, wrapperDiv });
     }
 
@@ -240,7 +238,7 @@ export class ActionHandler {
 
     const src = video?.currentSrc || video?.src;
     if (!src) {
-      logger.warn('adjustSpeed called on video without controller');
+      logger.warn('adjustSpeed called on video without source', video);
       return;
     }
 

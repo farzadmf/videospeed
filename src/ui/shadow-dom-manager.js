@@ -37,6 +37,9 @@ export class ShadowDOMManager {
 
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
 
+    this.top = 0;
+    this.left = 0;
+
     // Clean up temporary element
     // setTimeout(() => document.querySelector('#vsc-shadow-css-content')?.remove(), 500);
   }
@@ -181,11 +184,12 @@ export class ShadowDOMManager {
     // getBoundingClientRect is relative to the viewport; style coordinates
     // are relative to offsetParent, so we adjust for that here. offsetParent
     // can be null if the video has `display: none` or is not yet in the DOM.
-    const offsetRect = this.target.offsetParent?.getBoundingClientRect();
-    logger.debug('[calculatePosition] offsetRect', offsetRect);
-
-    const top = Math.max(rect.top - (offsetRect?.top || 0), 0);
-    const left = Math.max(rect.left - (offsetRect?.left || 0), 0);
+    // const offsetRect = this.target.offsetParent?.getBoundingClientRect();
+    // logger.debug('[calculatePosition] offsetRect', offsetRect);
+    //
+    // const top = Math.max(rect.top - (offsetRect?.top || 0), 0);
+    // const left = Math.max(rect.left - (offsetRect?.left || 0), 0);
+    const { top, left } = rect;
 
     logger.debug('[calculatePosition] end ... returning', 'top', top, 'left', left);
     return { top, left };
@@ -197,21 +201,57 @@ export class ShadowDOMManager {
   adjustLocation() {
     logger.debug('[adjustLocation] start ...');
 
-    if (!this.controllerDiv) {
-      logger.debug('[adjustLocation] controllerDiv not found; not doing anything');
+    // const rect = this.target.getBoundingClientRect();
+    // if (
+    //   rect.bottom < 0 ||
+    //   rect.top > window.innerHeight ||
+    //   rect.right < 0 ||
+    //   rect.left > window.innerWidth
+    // ) {
+    //   this.progressDiv.style.display = 'none';
+    //   this.controllerDiv.style.display = 'none';
+    //   return;
+    // }
+    //
+    // this.progressDiv.style.display = 'block';
+    // this.controllerDiv.style.display = 'block';
+
+    if (!this.controllerDiv || !this.progressDiv) {
+      logger.debug('[adjustLocation] controllerDiv or progressDiv not found; not doing anything');
       return;
     }
 
     const { left, top } = this.calculatePosition();
+    this.top = top;
+    this.left = left;
     logger.debug('[adjustLocation] top', top, 'left', left);
 
-    this.progressDiv.style.left = toPx(left);
-    this.progressDiv.style.top = toPx(top);
+    const padding = 5;
+    const pad = (value) => toPx(value + padding);
 
-    this.controllerDiv.style.left = toPx(left);
-    this.controllerDiv.style.top = toPx(top + this.progressDivHeightPx + 5);
+    this.progressDiv.style.left = pad(left);
+    this.progressDiv.style.top = pad(top);
+
+    this.controllerDiv.style.left = pad(left);
+    this.controllerDiv.style.top = pad(top + this.progressDivHeightPx + 5);
 
     logger.debug('[adjustLocation] end ...');
+  }
+
+  hide() {
+    this.hideController();
+    this.progressDiv.style.display = 'none';
+  }
+  hideController() {
+    this.controllerDiv.style.display = 'none';
+  }
+
+  showController() {
+    this.controllerDiv.style.display = 'block';
+  }
+  show() {
+    this.showController();
+    this.progressDiv.style.display = 'flex';
   }
 }
 
