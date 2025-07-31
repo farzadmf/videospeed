@@ -243,11 +243,11 @@ export class ShadowDOMManager {
     this.progressDiv.style.display = 'none';
   }
   hideController() {
-    this.controllerDiv.style.display = 'none';
+    this.controllerDiv.classList.add('hidden');
   }
 
   showController() {
-    this.controllerDiv.style.display = 'block';
+    this.controllerDiv.classList.remove('hidden');
   }
   show() {
     this.showController();

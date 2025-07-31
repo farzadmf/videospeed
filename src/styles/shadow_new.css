@@ -73,6 +73,12 @@
   width: 0px;
 }
 
+.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
 .draggable {
   cursor: -webkit-grab;
 

@@ -286,23 +286,23 @@ export class EventManager {
     logger.info(
       `Showing controller temporarily (startHidden: ${this.config.settings.startHidden}, manual: ${controller.classList.contains('vsc-manual')})`
     );
-    controller.classList.add('vsc-show');
 
-    controller.style.setProperty('--controller-visibility', 'visible');
-    controller.style.setProperty('--controller-opacity', 1);
+    const wasHidden = controller.classList.contains('hidden');
 
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
+    // controller.classList.add('vsc-show');
+    controller.classList.remove('hidden');
+
+    clearTimeout(this.timer);
 
     this.timer = setTimeout(() => {
-      controller.classList.remove('vsc-show');
       this.timer = null;
 
-      controller.style.removeProperty('--controller-visibility');
-      controller.style.removeProperty('--controller-opacity');
+      if (wasHidden) {
+        // controller.classList.remove('vsc-show');
+        controller.classList.add('hidden');
 
-      logger.debug('Hiding controller');
+        logger.debug('Hiding controller');
+      }
     }, 2000);
   }
 
