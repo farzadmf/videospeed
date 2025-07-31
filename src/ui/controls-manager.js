@@ -19,7 +19,7 @@ export class ControlsManager {
    * @param {HTMLVideoElement} video - Associated video element
    */
   setupControlEvents({ shadow, video, wrapperDiv }) {
-    this.setupDragHandler(shadow, wrapperDiv);
+    this.setupDragHandler({ shadow, wrapperDiv });
     this.setupButtonHandlers(shadow);
     this.setupWheelHandler(shadow, video);
     this.setupClickPrevention(shadow);
@@ -30,7 +30,7 @@ export class ControlsManager {
    * @param {ShadowRoot} shadow - Shadow root
    * @private
    */
-  setupDragHandler(shadow, wrapperDiv) {
+  setupDragHandler({ shadow, wrapperDiv }) {
     const draggables = shadow.querySelectorAll('.draggable');
 
     draggables.forEach((draggable) => {

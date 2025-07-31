@@ -54,19 +54,54 @@ export class YouTubeHandler extends BaseSiteHandler {
     // Set up YouTube-specific CSS handling
     this.setupYouTubeCSS();
 
-    const target = video.closest('.html5-video-player');
+    this.video = video;
+    this.onShow = onShow;
+    this.onHide = onHide;
+    this.target = video.closest('.html5-video-player');
+    this.setupObserver();
+  }
+
+  setupObserver() {
+    this.mouseMoveTimer = null;
+    this.isMouseIn = false;
+
+    // Using mouse movement as an indication to know if it's intended to show VSC.
+    this.mouseMove = () => {
+      clearTimeout(this.mouseMoveTimer);
+      this.isMouseIn = true;
+
+      this.mouseMoveTimer = setTimeout(() => (this.isMouseIn = false), 250);
+    };
+    this.video.addEventListener('mousemove', this.mouseMove);
 
     this.observer = new MutationObserver(() => {
-      if (target.classList.contains('ytp-autohide')) {
-        logger.warn('HAS autohide');
-        onHide?.();
+      if (this.target.classList.contains('ytp-autohide')) {
+        if (!this.isMouseIn) {
+          this.onHide();
+        } else {
+          // This else is basically covering this edge case:
+          // - When we hover over VSC, since it's a different element on top, YT adds
+          //   ytp-autohide, so if we call onHide, while we're hovering over VSC, it will
+          //   disappear on us!
+          // - Because of that, we stop observing at this point and wait for mouseenter
+          //   (which happens when VSC is closed/navigated away) to observe again.
+          this.disconnect();
+          this.video.addEventListener('mouseenter', () => this.observe());
+        }
       } else {
-        logger.warn('not HAS autohide');
-        onShow?.();
+        this.onShow();
       }
     });
 
-    this.observer.observe(target, { attributes: true, attributeFilter: ['class'] });
+    this.observe();
+  }
+
+  observe() {
+    this.observer.observe(this.target, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  disconnect() {
+    this.observer.disconnect();
   }
 
   /**

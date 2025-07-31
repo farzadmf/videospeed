@@ -15,7 +15,7 @@ export const VSC_DEFAULTS = {
   keyBindings: [
     { action: ACTIONS.display, force: false, key: 86, predefined: true }, // V
     { action: ACTIONS.fast, force: false, key: 71, predefined: true }, // G
-    { action: ACTIONS.faster, force: false, key: 186, predefined: true }, // '
+    { action: ACTIONS.faster, force: false, key: 222, predefined: true }, // '
     { action: ACTIONS.fixspeed_10, force: true, key: 49, predefined: false }, // 1
     { action: ACTIONS.fixspeed_15, force: true, key: 49, predefined: false, shift: true }, // shift+1
     { action: ACTIONS.fixspeed_20, force: true, key: 50, predefined: false }, // 2
@@ -37,7 +37,7 @@ export const VSC_DEFAULTS = {
     { action: ACTIONS.go_start, force: false, key: 48, predefined: false }, // 0
     { action: ACTIONS.pause, force: false, key: 190, predefined: false }, // .
     { action: ACTIONS.reset, force: false, key: 82, predefined: true }, // R
-    { action: ACTIONS.slower, force: false, key: 222, predefined: true }, // ;
+    { action: ACTIONS.slower, force: false, key: 186, predefined: true }, // ;
     { action: ACTIONS.vol_down, force: true, key: 40, predefined: true }, // Down
     { action: ACTIONS.vol_up, force: true, key: 38, predefined: true }, // Up
     { action: ACTIONS.rewind, force: true, key: 37, predefined: true }, // Left

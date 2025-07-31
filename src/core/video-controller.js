@@ -45,7 +45,7 @@ export class VideoController {
     this.scrollListener = () => {
       if (!this.scrollTicking) {
         requestAnimationFrame(() => {
-          logger.debug('[scrollListener] Video is visible; adjusting location');
+          logger.verbose('[scrollListener] Video is visible; adjusting location');
           this.shadowManager.adjustLocation();
           this.scrollTicking = false;
         });
@@ -55,7 +55,7 @@ export class VideoController {
     this.resizeListener = () => {
       if (!this.resizeTicking) {
         requestAnimationFrame(() => {
-          logger.debug('[resizeListener] Video is visible; adjusting location');
+          logger.verbose('[resizeListener] Video is visible; adjusting location');
           this.shadowManager.adjustLocation();
           this.resizeTicking = false;
         });
