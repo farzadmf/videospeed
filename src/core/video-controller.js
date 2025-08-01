@@ -23,6 +23,8 @@ export class VideoController {
       return target.vsc;
     }
 
+    this.documentTitle = document.title;
+
     this.video = target;
     this.parent = target.parentElement || parent;
     this.config = config;
@@ -605,6 +607,8 @@ export class VideoController {
   setProgressVal(value) {
     logger.verbose(`setProgressVal: ${value}`);
     const percent = ((Number(value) || 0) * 100).toFixed(1);
+
+    document.title = `(${percent}%) ${this.documentTitle}`;
 
     this.shadowManager.progressDiv.style.display = 'flex';
     this.shadowManager.progressText.textContent = `${percent}%`;
