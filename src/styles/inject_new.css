@@ -38,3 +38,7 @@
   position: relative;
   top: 10px;
 }
+
+.ytp-autohide #vsc-spy {
+  --should-hide: yes;
+}

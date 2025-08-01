@@ -67,9 +67,9 @@ export class SiteHandlerManager {
   /**
    * Initialize the current site handler
    */
-  setup({ onShow, onHide, video }) {
+  setup({ onHide, onShow, signal, spyDiv, video }) {
     const handler = this.getCurrentHandler();
-    handler.setup({ onShow, onHide, video });
+    handler.setup({ onHide, onShow, signal, spyDiv, video });
   }
 
   /**

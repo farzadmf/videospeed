@@ -74,13 +74,19 @@
 }
 
 .hidden {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
+  display: none;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .draggable {
   cursor: -webkit-grab;
+
+  &:hover {
+    display: initial;
+    opacity: initial;
+    visibility: visible;
+  }
 
   &:active {
     cursor: -webkit-grabbing;

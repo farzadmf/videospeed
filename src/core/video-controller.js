@@ -38,6 +38,9 @@ export class VideoController {
 
     this.isVisible = true;
 
+    this.abortController = new AbortController();
+    this.signal = this.abortController.signal;
+
     // Throttled scroll listener for smooth updates
     this.scrollTicking = false;
     this.resizeTicking = false;
@@ -63,9 +66,15 @@ export class VideoController {
       }
     };
 
+    // Adding this to DOM in the same location as upstream VSC to listen for style changes etc.
+    this.spyDiv = document.createElement('div');
+    this.spyDiv.setAttribute('id', 'vsc-spy');
+
     siteHandlerManager.setup({
-      onShow: () => this.shadowManager.showController(),
       onHide: () => this.shadowManager.hideController(),
+      onShow: () => this.shadowManager.showController(),
+      signal: this.signal,
+      spyDiv: this.spyDiv,
       video: target,
     });
 
@@ -270,35 +279,31 @@ export class VideoController {
     const fragment = document.createDocumentFragment();
     fragment.appendChild(wrapper);
 
+    document.body.appendChild(fragment);
+
     // Get site-specific positioning information
     const { insertionPoint, insertionMethod } = siteHandlerManager.getControllerPosition(
       this.parent,
       this.video
     );
 
-    // if (insertionPoint.classList?.contains('html5-video-player')) {
-    //   wrapper.style.setProperty('--margin-top', '-50px');
-    // }
-    // if (insertionPoint.classList?.contains('ytp-small-mode')) {
-    //   wrapper.style.setProperty('--margin-left', '-250px');
-    // }
+    switch (insertionMethod) {
+      case 'beforeParent':
+        // insertionPoint.parentElement.insertBefore(fragment, insertionPoint);
+        insertionPoint.parentElement.insertBefore(this.spyDiv, insertionPoint);
+        break;
 
-    document.body.appendChild(fragment);
+      case 'afterParent':
+        // insertionPoint.parentElement.insertBefore(fragment, insertionPoint.nextSibling);
+        insertionPoint.parentElement.insertBefore(this.spyDiv, insertionPoint.nextSibling);
+        break;
 
-    // switch (insertionMethod) {
-    //   case 'beforeParent':
-    //     insertionPoint.parentElement.insertBefore(fragment, insertionPoint);
-    //     break;
-    //
-    //   case 'afterParent':
-    //     insertionPoint.parentElement.insertBefore(fragment, insertionPoint.nextSibling);
-    //     break;
-    //
-    //   case 'firstChild':
-    //   default:
-    //     insertionPoint.insertBefore(fragment, insertionPoint.firstChild);
-    //     break;
-    // }
+      case 'firstChild':
+      default:
+        // insertionPoint.insertBefore(fragment, insertionPoint.firstChild);
+        insertionPoint.insertBefore(this.spyDiv, insertionPoint.firstChild);
+        break;
+    }
 
     logger.debug(`Controller inserted using ${insertionMethod} method`, wrapper);
   }
@@ -320,10 +325,10 @@ export class VideoController {
     this.handleLoadStart = mediaEventAction.bind(this);
     this.handleCanPlay = mediaEventAction.bind(this);
 
-    this.video.addEventListener('play', this.handlePlay);
-    this.video.addEventListener('seeked', this.handleSeek);
-    this.video.addEventListener('loadstart', this.handleLoadStart);
-    this.video.addEventListener('canplay', this.handleCanPlay);
+    this.video.addEventListener('play', this.handlePlay, { signal: this.signal });
+    this.video.addEventListener('seeked', this.handleSeek, { signal: this.signal });
+    this.video.addEventListener('loadstart', this.handleLoadStart, { signal: this.signal });
+    this.video.addEventListener('canplay', this.handleCanPlay, { signal: this.signal });
 
     /**
      * Handle timeupdate to display a progress bar.
@@ -348,8 +353,8 @@ export class VideoController {
     this.handleTimeUpdate = timeUpdateAction.bind(this);
     this.handleVolumeChange = volumeChangeAction.bind(this);
 
-    this.video.addEventListener('timeupdate', this.handleTimeUpdate);
-    this.video.addEventListener('volumechange', this.handleVolumeChange);
+    this.video.addEventListener('timeupdate', this.handleTimeUpdate, { signal: this.signal });
+    this.video.addEventListener('volumechange', this.handleVolumeChange, { signal: this.signal });
 
     logger.debug('Added comprehensive media event handlers: play, seeked, loadstart, canplay');
   }
@@ -360,6 +365,11 @@ export class VideoController {
    */
   setupMutationObserver() {
     this.targetObserver = new MutationObserver((mutations) => {
+      if (this.signal.aborted) {
+        this.targetObserver.disconnect();
+        return;
+      }
+
       mutations.forEach((mutation) => {
         if (
           mutation.type === 'attributes' &&
@@ -387,6 +397,11 @@ export class VideoController {
   setupIntersectionObserver() {
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
+        if (this.signal.aborted) {
+          this.intersectionObserver.disconnect();
+          return;
+        }
+
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             logger.debug(
@@ -413,14 +428,14 @@ export class VideoController {
   }
 
   startScrollListener() {
-    window.addEventListener('scroll', this.scrollListener);
+    window.addEventListener('scroll', this.scrollListener, { signal: this.signal });
   }
   stopScrollListener() {
     window.removeEventListener('scroll', this.scrollListener);
   }
 
   startResizeListener() {
-    window.addEventListener('resize', this.resizeListener);
+    window.addEventListener('resize', this.resizeListener, { signal: this.signal });
   }
   stopResizeListener() {
     window.removeEventListener('resize', this.resizeListener);
@@ -437,40 +452,12 @@ export class VideoController {
       this.controllerDiv.remove();
     }
 
-    // Remove event listeners
-    if (this.handlePlay) {
-      this.video.removeEventListener('play', this.handlePlay);
-    }
-    if (this.handleSeek) {
-      this.video.removeEventListener('seeked', this.handleSeek);
-    }
-    if (this.handleLoadStart) {
-      this.video.removeEventListener('loadstart', this.handleLoadStart);
-    }
-    if (this.handleCanPlay) {
-      this.video.removeEventListener('canplay', this.handleCanPlay);
-    }
-
-    if (this.handleTimeUpdate) {
-      this.video.removeEventListener('canplay', this.handleTimeUpdate);
-    }
-    if (this.handleVolumeChange) {
-      this.video.removeEventListener('canplay', this.handleVolumeChange);
-    }
+    // Remove event listeners by aborting
+    this.abortController.abort();
 
     // Disconnect mutation observer
-    if (this.targetObserver) {
-      this.targetObserver.disconnect();
-    }
-    if (this.intersectionObserver) {
-      this.intersectionObserver.disconnect();
-    }
-    if (this.scrollListener) {
-      window.removeEventListener('scroll', this.scrollListener);
-    }
-    if (this.resizeListener) {
-      window.removeEventListener('resize', this.resizeListener);
-    }
+    this.targetObserver?.disconnect();
+    this.intersectionObserver?.disconnect();
 
     // Remove from tracking
     this.config.removeMediaElement(this.video);

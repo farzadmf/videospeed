@@ -48,46 +48,33 @@ export class YouTubeHandler extends BaseSiteHandler {
   /**
    * Set up YouTube-specific functionality
    */
-  setup({ onShow, onHide, video }) {
+  setup({ onHide, onShow, signal, spyDiv, video }) {
     super.setup();
 
     // Set up YouTube-specific CSS handling
     this.setupYouTubeCSS();
 
-    this.video = video;
-    this.onShow = onShow;
     this.onHide = onHide;
+    this.onShow = onShow;
+    this.signal = signal;
+    this.spyDiv = spyDiv;
+    this.video = video;
+
     this.target = video.closest('.html5-video-player');
+
     this.setupObserver();
   }
 
   setupObserver() {
-    this.mouseMoveTimer = null;
-    this.isMouseIn = false;
-
-    // Using mouse movement as an indication to know if it's intended to show VSC.
-    this.mouseMove = () => {
-      clearTimeout(this.mouseMoveTimer);
-      this.isMouseIn = true;
-
-      this.mouseMoveTimer = setTimeout(() => (this.isMouseIn = false), 250);
-    };
-    this.video.addEventListener('mousemove', this.mouseMove);
-
     this.observer = new MutationObserver(() => {
-      if (this.target.classList.contains('ytp-autohide')) {
-        if (!this.isMouseIn) {
-          this.onHide();
-        } else {
-          // This else is basically covering this edge case:
-          // - When we hover over VSC, since it's a different element on top, YT adds
-          //   ytp-autohide, so if we call onHide, while we're hovering over VSC, it will
-          //   disappear on us!
-          // - Because of that, we stop observing at this point and wait for mouseenter
-          //   (which happens when VSC is closed/navigated away) to observe again.
-          this.disconnect();
-          this.video.addEventListener('mouseenter', () => this.observe());
-        }
+      if (this.signal.aborted) {
+        this.disconnect();
+        return;
+      }
+
+      const shouldHide = getComputedStyle(this.spyDiv).getPropertyValue('--should-hide');
+      if (shouldHide === 'yes') {
+        this.onHide();
       } else {
         this.onShow();
       }
