@@ -450,9 +450,7 @@ export class VideoController {
     logger.debug('Removing VideoController');
 
     // Remove DOM element
-    if (this.controllerDiv && this.controllerDiv.parentNode) {
-      this.controllerDiv.remove();
-    }
+    this.wrapperDiv?.remove();
 
     // Remove event listeners by aborting
     this.abortController.abort();
@@ -502,23 +500,29 @@ export class VideoController {
    * @returns {boolean} True if video is visible
    */
   isVideoVisible() {
+    logger.debug('[isVideoVisible] start', this.video);
+
     // Check if video is still connected to DOM
     if (!this.video.isConnected) {
+      logger.debug('[isVideoVisible] video is NOT connected');
       return false;
     }
 
     // Check computed style for visibility
     const style = window.getComputedStyle(this.video);
     if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+      logger.debug('[isVideoVisible] video style makes it hidden');
       return false;
     }
 
     // Check if video has reasonable dimensions
     const rect = this.video.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) {
+      logger.debug('[isVideoVisible] video has width or height set to 0');
       return false;
     }
 
+    logger.debug('[isVideoVisible] video IS visible');
     return true;
   }
 

@@ -232,7 +232,7 @@ export class ActionHandler {
    * @param {string} options.source - 'internal' (user action) or 'external' (site/other)
    */
   adjustSpeed(video, value, options = {}) {
-    logger.debug('[adjustSpeed] started', value);
+    logger.debug('[adjustSpeed] started', value, video);
 
     const { relative = false, source = '' } = options;
 

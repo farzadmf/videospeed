@@ -180,24 +180,34 @@ class MediaElementObserver {
    * @returns {boolean} True if valid
    */
   isValidMediaElement(media) {
+    logger.debug('[isValidMediaElement] start', media);
+
     // Skip videos that are not in the DOM
     if (!media.isConnected) {
-      logger.debug('Video not in DOM');
+      logger.debug('[isValidMediaElement] Video not in DOM');
       return false;
     }
 
     // Skip audio elements when audio support is disabled
     if (media.tagName === 'AUDIO' && !this.config.settings.audioBoolean) {
-      logger.debug('Audio element rejected - audioBoolean disabled');
+      logger.debug('[isValidMediaElement] Audio element rejected - audioBoolean disabled');
       return false;
     }
 
     // Let site handler have final say on whether to ignore this video
     if (this.siteHandler.shouldIgnoreVideo(media)) {
-      logger.debug('Video ignored by site handler');
+      logger.debug('[isValidMediaElement] Video ignored by site handler');
       return false;
     }
 
+    // MyNote: why would a video with client rect of all zeros be valid?
+    const { bottom, height, top, width, x, y } = media.getBoundingClientRect();
+    if (x === 0 && y === 0 && width === 0 && height === 0 && top === 0 && bottom === 0) {
+      logger.debug('[isValidMediaElement] Video bounding rect is all zeros!');
+      return false;
+    }
+
+    logger.debug('[isValidMediaElement] media is valid');
     // Accept all connected media elements that pass site handler validation
     // Visibility and size will be handled by controller initialization
     return true;

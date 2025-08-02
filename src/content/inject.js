@@ -267,6 +267,8 @@ class VideoSpeedExtension {
    * @param {HTMLElement} parent - Parent element
    */
   onVideoFound(video, parent) {
+    logger.debug('[onVideoFound] start', 'video', video, 'parent', parent);
+
     try {
       if (!this.mediaObserver.isValidMediaElement(video)) {
         logger.debug('[onVideoFound] Video element is not valid for controller attachment');
