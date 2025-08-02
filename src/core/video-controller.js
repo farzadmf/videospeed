@@ -35,6 +35,8 @@ export class VideoController {
 
     this.targetObserver = null;
     this.intersectionObserver = null;
+    this.videoResizeObserver = null;
+
     this.scrollListener = null;
     this.resizeListener = null;
 
@@ -110,8 +112,7 @@ export class VideoController {
     // Set up mutation observer for src changes
     this.setupMutationObserver();
     this.setupIntersectionObserver();
-    // this.startScrollListener();
-    // this.startResizeListener();
+    this.setupVideoResizeObserver();
 
     logger.info('VideoController initialized for video element');
 
@@ -429,6 +430,12 @@ export class VideoController {
     this.intersectionObserver.observe(this.video);
   }
 
+  setupVideoResizeObserver() {
+    this.videoResizeObserver = new ResizeObserver(() => this.shadowManager.adjustLocation());
+
+    this.videoResizeObserver.observe(this.video);
+  }
+
   startScrollListener() {
     window.addEventListener('scroll', this.scrollListener, { signal: this.signal });
   }
@@ -458,6 +465,7 @@ export class VideoController {
     // Disconnect mutation observer
     this.targetObserver?.disconnect();
     this.intersectionObserver?.disconnect();
+    this.videoResizeObserver?.disconnect();
 
     // Remove from tracking
     this.config.removeMediaElement(this.video);
