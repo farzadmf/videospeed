@@ -22,7 +22,7 @@ export class OldRedditHandler extends BaseSiteHandler {
    * @param {HTMLElement} video - Video element
    * @returns {Object} Positioning information
    */
-  getControllerPosition(parent, _video) {
+  getControllerPosition(parent) {
     return {
       insertionPoint: parent.parentNode.parentNode,
       insertionMethod: 'firstChild',
@@ -37,7 +37,7 @@ export class OldRedditHandler extends BaseSiteHandler {
    */
   shouldIgnoreVideo(video) {
     // Ignore portrait videos (seems to appear on the timeline?)
-    return video.classList.contains('portrait');
+    return video.classList.contains('portrait') || video.classList.contains('landscape');
   }
 }
 

@@ -21,7 +21,7 @@
   --controller-visibility: visible;
 
   /* Default visible state */
-  visibility: visible;
+  visibility: var(--visibility);
   opacity: var(--opacity);
   display: block;
   /* In case of pages using `white-space: pre-line` (eg Discord), don't render vsc's whitespace */

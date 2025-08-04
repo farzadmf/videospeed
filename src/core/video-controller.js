@@ -208,6 +208,7 @@ export class VideoController {
       // cssClasses.push('vsc-hidden');
 
       this.wrapperDiv.style.setProperty('--visibility', 'hidden');
+      this.wrapperDiv.style.setProperty('--controller-visibility', 'hidden');
 
       if (this.shouldStartHidden) {
         logger.debug('Starting controller hidden due to video visibility/size');
