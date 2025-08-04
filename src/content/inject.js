@@ -48,7 +48,7 @@ class VideoSpeedExtension {
 
       // Check if site is blacklisted
       if (dom.isBlacklisted(this.config.settings.blacklist)) {
-        logger.info('Site is blacklisted');
+        logger.info('Site is blacklisted', location.hostname);
         return;
       }
 
