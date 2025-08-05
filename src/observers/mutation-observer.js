@@ -168,7 +168,7 @@ export class VideoMutationObserver {
     if (video.vsc) {
       // Video already has controller, check if it should be removed
       if (!this.mediaObserver.isValidMediaElement(video)) {
-        logger.debug('[recheckVideoElement] Video became invalid, removing controller');
+        logger.debug('[recheckVideoElement] Video became invalid, removing controller', video);
         video.vsc.remove();
         video.vsc = null;
       } else {
@@ -178,7 +178,7 @@ export class VideoMutationObserver {
     } else {
       // Video doesn't have controller, check if it should get one
       if (this.mediaObserver.isValidMediaElement(video)) {
-        logger.debug('[recheckVideoElement] Video became valid, attaching controller');
+        logger.debug('[recheckVideoElement] Video became valid, attaching controller', video);
         this.onVideoFound(video, video.parentElement || video.parentNode);
       }
     }

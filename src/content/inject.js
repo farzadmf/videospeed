@@ -267,21 +267,21 @@ class VideoSpeedExtension {
    * @param {HTMLElement} parent - Parent element
    */
   onVideoFound(video, parent) {
-    logger.debug('[onVideoFound] start', 'video', video, 'parent', parent);
+    logger.verbose('[onVideoFound] start', 'video', video, 'parent', parent);
 
     try {
       if (!this.mediaObserver.isValidMediaElement(video)) {
-        logger.debug('[onVideoFound] Video element is not valid for controller attachment');
+        logger.verbose('[onVideoFound] Video element is not valid for controller attachment');
         return;
       }
 
       if (video.vsc) {
-        logger.debug('[onVideoFound] Video already has controller attached');
+        logger.verbose('[onVideoFound] Video already has controller attached');
         return;
       }
 
       if (!video.src && !video.currentSrc) {
-        logger.debug('[onVideoFound] Video has no source; not attaching a controller');
+        logger.verbose('[onVideoFound] Video has no source; not attaching a controller');
         return;
       }
 
@@ -290,7 +290,8 @@ class VideoSpeedExtension {
 
       logger.debug(
         '[onVideoFound] Attaching controller to new video element',
-        shouldStartHidden ? '(starting hidden)' : ''
+        shouldStartHidden ? '(starting hidden)' : '',
+        video
       );
 
       video.vsc = new VideoController(

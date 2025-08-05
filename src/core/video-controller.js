@@ -103,16 +103,18 @@ export class VideoController {
     // Create UI
     this.initializeControls();
 
+    this.handlePlay = null;
+    this.handleSeek = null;
+    this.handleLoadStart = null;
+    this.handleCanPlay = null;
+
+    this.handleTimeUpdate = null;
+    this.handleVolumeChange = null;
+
+    this.startHandlers();
+
     this.controllerDiv = this.shadowManager.controllerDiv;
     this.progressDiv = this.shadowManager.progressDiv;
-
-    // Set up event handlers
-    this.setupEventHandlers();
-
-    // Set up mutation observer for src changes
-    this.setupMutationObserver();
-    this.setupIntersectionObserver();
-    this.setupVideoResizeObserver();
 
     logger.info('VideoController initialized for video element');
 
@@ -324,15 +326,22 @@ export class VideoController {
       this.actionHandler.adjustSpeed(event.target, targetSpeed, { source: 'internal' });
     };
 
-    this.handlePlay = mediaEventAction.bind(this);
-    this.handleSeek = mediaEventAction.bind(this);
-    this.handleLoadStart = mediaEventAction.bind(this);
-    this.handleCanPlay = mediaEventAction.bind(this);
-
-    this.video.addEventListener('play', this.handlePlay, { signal: this.signal });
-    this.video.addEventListener('seeked', this.handleSeek, { signal: this.signal });
-    this.video.addEventListener('loadstart', this.handleLoadStart, { signal: this.signal });
-    this.video.addEventListener('canplay', this.handleCanPlay, { signal: this.signal });
+    if (!this.handlePlay) {
+      this.handlePlay = mediaEventAction.bind(this);
+      this.video.addEventListener('play', this.handlePlay, { signal: this.signal });
+    }
+    if (!this.handleSeek) {
+      this.handleSeek = mediaEventAction.bind(this);
+      this.video.addEventListener('seeked', this.handleSeek, { signal: this.signal });
+    }
+    if (!this.handleLoadStart) {
+      this.handleLoadStart = mediaEventAction.bind(this);
+      this.video.addEventListener('loadstart', this.handleLoadStart, { signal: this.signal });
+    }
+    if (!this.handleCanPlay) {
+      this.handleCanPlay = mediaEventAction.bind(this);
+      this.video.addEventListener('canplay', this.handleCanPlay, { signal: this.signal });
+    }
 
     /**
      * Handle timeupdate to display a progress bar.
@@ -354,11 +363,14 @@ export class VideoController {
       this.setVolumeVal(volume);
     };
 
-    this.handleTimeUpdate = timeUpdateAction.bind(this);
-    this.handleVolumeChange = volumeChangeAction.bind(this);
-
-    this.video.addEventListener('timeupdate', this.handleTimeUpdate, { signal: this.signal });
-    this.video.addEventListener('volumechange', this.handleVolumeChange, { signal: this.signal });
+    if (!this.handleTimeUpdate) {
+      this.handleTimeUpdate = timeUpdateAction.bind(this);
+      this.video.addEventListener('timeupdate', this.handleTimeUpdate, { signal: this.signal });
+    }
+    if (!this.handleVolumeChange) {
+      this.handleVolumeChange = volumeChangeAction.bind(this);
+      this.video.addEventListener('volumechange', this.handleVolumeChange, { signal: this.signal });
+    }
 
     logger.debug('Added comprehensive media event handlers: play, seeked, loadstart, canplay');
   }
@@ -368,6 +380,8 @@ export class VideoController {
    * @private
    */
   setupMutationObserver() {
+    if (this.targetObserver) return;
+
     this.targetObserver = new MutationObserver((mutations) => {
       if (this.signal.aborted) {
         this.targetObserver.disconnect();
@@ -399,6 +413,8 @@ export class VideoController {
   }
 
   setupIntersectionObserver() {
+    if (this.intersectionObserver) return;
+
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
         if (this.signal.aborted) {
@@ -432,6 +448,8 @@ export class VideoController {
   }
 
   setupVideoResizeObserver() {
+    if (this.videoResizeObserver) return;
+
     this.videoResizeObserver = new ResizeObserver(() => this.shadowManager.adjustLocation());
 
     this.videoResizeObserver.observe(this.video);
@@ -451,6 +469,38 @@ export class VideoController {
     window.removeEventListener('resize', this.resizeListener);
   }
 
+  startHandlers() {
+    // Set up event handlers
+    this.setupEventHandlers();
+
+    // Set up mutation observer for src changes
+    this.setupMutationObserver();
+    this.setupIntersectionObserver();
+    this.setupVideoResizeObserver();
+  }
+
+  stopHandlers() {
+    // Remove event listeners by aborting
+    this.abortController.abort();
+
+    this.handlePlay = null;
+    this.handleSeek = null;
+    this.handleLoadStart = null;
+    this.handleCanPlay = null;
+
+    this.handleTimeUpdate = null;
+    this.handleVolumeChange = null;
+
+    // Disconnect mutation observer
+    this.targetObserver?.disconnect();
+    this.intersectionObserver?.disconnect();
+    this.videoResizeObserver?.disconnect();
+
+    this.targetObserver = null;
+    this.intersectionObserver = null;
+    this.videoResizeObserver = null;
+  }
+
   /**
    * Remove controller and clean up
    */
@@ -460,13 +510,7 @@ export class VideoController {
     // Remove DOM element
     this.wrapperDiv?.remove();
 
-    // Remove event listeners by aborting
-    this.abortController.abort();
-
-    // Disconnect mutation observer
-    this.targetObserver?.disconnect();
-    this.intersectionObserver?.disconnect();
-    this.videoResizeObserver?.disconnect();
+    this.stopHandlers();
 
     // Remove from tracking
     this.config.removeMediaElement(this.video);
@@ -571,10 +615,12 @@ export class VideoController {
     ) {
       // Video became visible and controller is hidden (but not manually hidden)
       this.controllerDiv.classList.remove('vsc-hidden');
+      this.startHandlers();
       logger.debug('Showing controller - video became visible');
     } else if (!isVisible && !isCurrentlyHidden) {
       // Video became invisible and controller is visible
       this.controllerDiv.classList.add('vsc-hidden');
+      this.stopHandlers();
       logger.debug('Hiding controller - video became invisible');
     }
   }
