@@ -39,6 +39,11 @@ async function injectCSS() {
     document.querySelector(`#${shadowCssDivId}`) ?? document.createElement('div');
 
   shadowCssDiv.id = shadowCssDivId;
+  // MyNote: style is sometimes undefined for whatever reason! If that's the case, give up!
+  if (!shadowCssDiv.style) {
+    console.log('[FMVSC] WARNING: could not create shadowCssDiv ...');
+    return;
+  }
   shadowCssDiv.style.display = 'none';
   shadowCssDiv.textContent = shadowCss;
   document.body.appendChild(shadowCssDiv);
@@ -106,8 +111,11 @@ async function injectModules() {
     // Set up message bridge between popup and injected scripts
     setupMessageBridge();
   } catch (error) {
-    console.error('[FMVSC] 💥 Module injection failed:', error);
-    console.trace();
+    // MyNote: Is it a real issue when "context is invalidated"?
+    if (error.message !== 'Extension context invalidated') {
+      console.error('[FMVSC] 💥 Module injection failed:', error);
+      console.trace();
+    }
   }
 }
 
