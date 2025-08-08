@@ -400,7 +400,6 @@ export class VideoController {
           } else {
             wrapper.classList.remove('vsc-nosource');
 
-            this.documentTitle = document.title;
             this.actionHandler.adjustSpeed(this.video);
             this.shadowManager.adjustLocation();
           }
