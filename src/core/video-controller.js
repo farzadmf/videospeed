@@ -36,6 +36,8 @@ export class VideoController {
     this.targetObserver = null;
     this.intersectionObserver = null;
     this.videoResizeObserver = null;
+    this.titleObserver = null;
+    this.isInternalTitleUpdate = false;
 
     this.scrollListener = null;
     this.resizeListener = null;
@@ -455,6 +457,18 @@ export class VideoController {
     this.videoResizeObserver.observe(this.video);
   }
 
+  setupTitleObserver() {
+    if (this.titleObserver) return;
+
+    this.titleObserver = new MutationObserver(() => {
+      if (!this.isInternalTitleUpdate) {
+        this.documentTitle = document.title;
+      }
+    });
+
+    this.titleObserver.observe(document.querySelector('title'), { childList: true });
+  }
+
   startScrollListener() {
     window.addEventListener('scroll', this.scrollListener, { signal: this.signal });
   }
@@ -477,6 +491,7 @@ export class VideoController {
     this.setupMutationObserver();
     this.setupIntersectionObserver();
     this.setupVideoResizeObserver();
+    this.setupTitleObserver();
   }
 
   stopHandlers() {
@@ -495,6 +510,7 @@ export class VideoController {
     this.targetObserver?.disconnect();
     this.intersectionObserver?.disconnect();
     this.videoResizeObserver?.disconnect();
+    this.titleObserver?.disconnect();
 
     this.targetObserver = null;
     this.intersectionObserver = null;
@@ -667,7 +683,9 @@ export class VideoController {
     logger.verbose(`setProgressVal: ${value}`);
     const percent = ((Number(value) || 0) * 100).toFixed(1);
 
+    this.isInternalTitleUpdate = true;
     document.title = `(${percent}%) ${this.documentTitle}`;
+    setTimeout(() => (this.isInternalTitleUpdate = false), 50);
 
     this.shadowManager.progressDiv.style.display = 'flex';
     this.shadowManager.progressText.textContent = `${percent}%`;
