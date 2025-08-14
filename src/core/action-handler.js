@@ -14,6 +14,7 @@ import { siteHandlerManager } from '../site-handlers/manager.js';
 import { SPEED_LIMITS } from '../shared/constants.js';
 import { DragHandler } from '../ui/drag-handler.js';
 import { formatSpeed } from '../shared/constants.js';
+import { stateManager } from '../core/state-manager.js';
 
 export class ActionHandler {
   /**
@@ -34,7 +35,7 @@ export class ActionHandler {
   runAction({ actionItem, event, wrapperDiv }) {
     logger.debug('runAction Begin:', actionItem);
 
-    const mediaTags = this.config.getMediaElements();
+    const mediaTags = stateManager.getControlledElements();
 
     let value, value2;
     let actionName = '';
@@ -419,7 +420,8 @@ export class ActionHandler {
    */
   isAudioController(controller) {
     // Find associated media element
-    const mediaElements = this.config.getMediaElements();
+    const mediaElements = stateManager.getControlledElements();
+
     for (const media of mediaElements) {
       if (media.vsc && media.vsc.div === controller) {
         return media.tagName === 'AUDIO';

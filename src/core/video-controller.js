@@ -10,6 +10,7 @@ import { ControlsManager } from '../ui/controls-manager.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
 import { siteHandlerManager } from '../site-handlers/manager.js';
 import { formatSpeed, formatVolume } from '../shared/constants.js';
+import { stateManager } from './state-manager.js';
 
 export class VideoController {
   /**
@@ -89,9 +90,6 @@ export class VideoController {
     // Generate unique controller ID for badge tracking
     this.controllerId = this.generateControllerId(target);
 
-    // Add to tracked media elements
-    config.addMediaElement(target);
-
     // Attach controller to video element first (needed for adjustSpeed)
     target.vsc = this;
 
@@ -119,12 +117,7 @@ export class VideoController {
 
     logger.info('VideoController initialized for video element');
 
-    // Dispatch controller created event for badge management
-    this.dispatchControllerEvent('VSC_CONTROLLER_CREATED', {
-      controllerId: this.controllerId,
-      videoSrc: this.video.currentSrc || this.video.src,
-      tagName: this.video.tagName,
-    });
+    stateManager.registerController(this);
   }
 
   /**
@@ -527,20 +520,12 @@ export class VideoController {
 
     this.stopHandlers();
 
-    // Remove from tracking
-    this.config.removeMediaElement(this.video);
+    stateManager.removeController(this.controllerId);
 
     // Remove reference from video element
     delete this.video.vsc;
 
     logger.debug('VideoController removed successfully');
-
-    // Dispatch controller removed event for badge management
-    this.dispatchControllerEvent('VSC_CONTROLLER_REMOVED', {
-      controllerId: this.controllerId,
-      videoSrc: this.video.currentSrc || this.video.src,
-      tagName: this.video.tagName,
-    });
   }
 
   /**
@@ -637,22 +622,6 @@ export class VideoController {
       this.controllerDiv.classList.add('vsc-hidden');
       this.stopHandlers();
       logger.debug('Hiding controller - video became invisible');
-    }
-  }
-
-  /**
-   * Dispatch controller lifecycle events for badge management
-   * @param {string} eventType - Event type (VSC_CONTROLLER_CREATED or VSC_CONTROLLER_REMOVED)
-   * @param {Object} detail - Event detail data
-   * @private
-   */
-  dispatchControllerEvent(eventType, detail) {
-    try {
-      const event = new CustomEvent(eventType, { detail });
-      window.dispatchEvent(event);
-      logger.debug(`Dispatched ${eventType} event for controller ${detail.controllerId}`);
-    } catch (error) {
-      logger.error(`Failed to dispatch ${eventType} event:`, error);
     }
   }
 

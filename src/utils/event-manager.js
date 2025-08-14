@@ -9,6 +9,7 @@ window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
 import * as dom from '../utils/dom-utils.js';
+import { stateManager } from '../core/state-manager.js';
 
 export class EventManager {
   /**
@@ -96,7 +97,8 @@ export class EventManager {
     }
 
     // Ignore keydown event if no media elements are present
-    if (!this.config.getMediaElements().length) {
+    const mediaElements = stateManager.getControlledElements();
+    if (!mediaElements.length) {
       return false;
     }
 

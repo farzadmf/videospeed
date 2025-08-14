@@ -11,7 +11,6 @@ import { VSC_DEFAULTS } from '../shared/defaults.js';
 export class VideoSpeedConfig {
   constructor() {
     this.settings = { ...VSC_DEFAULTS };
-    this.mediaElements = [];
   }
 
   /**
@@ -178,35 +177,6 @@ export class VideoSpeedConfig {
         predefined: true,
       });
     }
-  }
-
-  /**
-   * Add a media element to tracking
-   * @param {HTMLMediaElement} element - Media element to track
-   */
-  addMediaElement(element) {
-    if (!this.mediaElements.includes(element)) {
-      this.mediaElements.push(element);
-    }
-  }
-
-  /**
-   * Remove a media element from tracking
-   * @param {HTMLMediaElement} element - Media element to remove
-   */
-  removeMediaElement(element) {
-    const index = this.mediaElements.indexOf(element);
-    if (index !== -1) {
-      this.mediaElements.splice(index, 1);
-    }
-  }
-
-  /**
-   * Get all tracked media elements
-   * @returns {Array<HTMLMediaElement>} Array of media elements
-   */
-  getMediaElements() {
-    return this.mediaElements;
   }
 }
 
