@@ -317,22 +317,28 @@ export class ActionHandler {
    * @param {number} target - Target speed
    */
   resetSpeed(video, target) {
-    if (video.playbackRate === target) {
-      if (video.playbackRate === this.config.getKeyBinding('reset')) {
-        if (target !== 1.0) {
-          logger.info('Resetting playback speed to 1.0');
-          this.adjustSpeed(video, 1.0);
-        } else {
-          logger.info('Toggling playback speed to "fast" speed');
-          this.adjustSpeed(video, this.config.getKeyBinding('fast'));
-        }
+    if (!video.vsc) {
+      logger.warn('resetSpeed called on video without controller');
+      return;
+    }
+
+    const currentSpeed = video.playbackRate;
+
+    if (currentSpeed === target) {
+      // At target speed - restore remembered speed if we have one, otherwise reset to target
+      if (video.vsc.speedBeforeReset !== null) {
+        logger.info(`Restoring remembered speed: ${video.vsc.speedBeforeReset}`);
+        const rememberedSpeed = video.vsc.speedBeforeReset;
+        video.vsc.speedBeforeReset = null; // Clear memory after use
+        this.adjustSpeed(video, rememberedSpeed);
       } else {
-        logger.info('Toggling playback speed to "reset" speed');
-        this.adjustSpeed(video, this.config.getKeyBinding('reset'));
+        logger.info(`Already at reset speed ${target}, no change`);
+        // Already at target and nothing remembered - no action needed
       }
     } else {
-      logger.info('Toggling playback speed to "reset" speed');
-      this.config.setKeyBinding('reset', video.playbackRate);
+      // Not at target speed - remember current and reset to target
+      logger.info(`Remembering speed ${currentSpeed} and resetting to ${target}`);
+      video.vsc.speedBeforeReset = currentSpeed;
       this.adjustSpeed(video, target);
     }
   }
