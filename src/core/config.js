@@ -1,6 +1,5 @@
 /**
  * Settings management for Video Speed Controller
- * Modular architecture using global variables
  */
 
 window.VSC = window.VSC || {};
@@ -16,22 +15,21 @@ export class VideoSpeedConfig {
   }
 
   /**
-   * Load settings from Chrome storage
+   * Load settings from Chrome storage or pre-injected settings
    * @returns {Promise<Object>} Loaded settings
    */
   async load() {
     try {
-      // In injected context, wait for user settings to be available
-      const isInjectedContext = typeof chrome === 'undefined' || !chrome.storage;
-      const storage = isInjectedContext
-        ? await StorageManager.waitForInjectedSettings(VSC_DEFAULTS)
-        : await StorageManager.get(VSC_DEFAULTS);
+      // Use StorageManager which handles both contexts automatically
+      const storage = await StorageManager.get(VSC_DEFAULTS);
 
       // Handle key bindings migration/initialization
-      this.settings.keyBindings = storage.keyBindings || [];
+      this.settings.keyBindings = storage.keyBindings || VSC_DEFAULTS.keyBindings;
+
       if (!storage.keyBindings || storage.keyBindings.length === 0) {
         logger.info('First initialization - setting up default key bindings');
-        await this.initializeDefaultKeyBindings();
+        this.settings.keyBindings = [...VSC_DEFAULTS.keyBindings];
+        await this.save({ keyBindings: this.settings.keyBindings });
       }
 
       this.settings.sources = storage.sources || {};
@@ -166,34 +164,7 @@ export class VideoSpeedConfig {
   }
 
   /**
-   * Initialize default key bindings for first-time setup
-   * @param {Object} storage - Storage object with legacy values
-   * @private
-   */
-  async initializeDefaultKeyBindings() {
-    const keyBindings = VSC_DEFAULTS.keyBindings;
-
-    this.settings.keyBindings = keyBindings;
-    this.settings.version = '0.5.3';
-
-    // Save the migrated settings
-    await StorageManager.set({
-      audioBoolean: this.settings.audioBoolean,
-      blacklist: this.settings.blacklist,
-      controllerButtonSize: this.settings.controllerButtonSize,
-      controllerOpacity: this.settings.controllerOpacity,
-      displayKeyCode: this.settings.displayKeyCode,
-      enabled: this.settings.enabled,
-      forceLastSavedSpeed: this.settings.forceLastSavedSpeed,
-      keyBindings: this.settings.keyBindings,
-      rememberSpeed: this.settings.rememberSpeed,
-      startHidden: this.settings.startHidden,
-      version: this.settings.version,
-    });
-  }
-
-  /**
-   * Ensure display binding exists (for version upgrades)
+   * Ensure display binding exists in key bindings
    * @param {Object} storage - Storage object
    * @private
    */
@@ -242,7 +213,8 @@ export class VideoSpeedConfig {
 // Create singleton instance
 export const config = new VideoSpeedConfig();
 
-// Also export the constructor for testing
-window.VSC.VideoSpeedConfig = VideoSpeedConfig;
+// Create singleton instance
+window.VSC.videoSpeedConfig = new VideoSpeedConfig();
 
-// Global variables available for both browser and testing
+// Export constructor for testing
+window.VSC.VideoSpeedConfig = VideoSpeedConfig;

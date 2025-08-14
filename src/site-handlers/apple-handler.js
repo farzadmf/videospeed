@@ -1,6 +1,5 @@
 /**
  * Apple TV+ handler
- * Modular architecture using global variables
  */
 
 window.VSC = window.VSC || {};
@@ -22,7 +21,7 @@ export class AppleHandler extends BaseSiteHandler {
    * @param {HTMLElement} video - Video element
    * @returns {Object} Positioning information
    */
-  getControllerPosition(parent, _video) {
+  getControllerPosition(parent) {
     // Insert before parent to bypass overlay
     return {
       insertionPoint: parent.parentNode,

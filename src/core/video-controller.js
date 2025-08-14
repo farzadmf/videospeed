@@ -1,6 +1,5 @@
 /**
  * Video Controller class for managing individual video elements
- * Modular architecture using global variables
  */
 
 window.VSC = window.VSC || {};

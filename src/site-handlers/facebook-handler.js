@@ -1,6 +1,5 @@
 /**
  * Facebook-specific handler
- * Modular architecture using global variables
  */
 
 window.VSC = window.VSC || {};
@@ -23,7 +22,7 @@ export class FacebookHandler extends BaseSiteHandler {
    * @param {HTMLElement} video - Video element
    * @returns {Object} Positioning information
    */
-  getControllerPosition(parent, _video) {
+  getControllerPosition(parent) {
     // Facebook requires deep DOM traversal due to complex nesting
     // This is a monstrosity but new FB design does not have semantic handles
     let targetParent = parent;
@@ -32,7 +31,7 @@ export class FacebookHandler extends BaseSiteHandler {
       targetParent =
         parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement
           .parentElement;
-    } catch (e) {
+    } catch {
       logger.warn('Facebook DOM structure changed, using fallback positioning');
       targetParent = parent.parentElement;
     }

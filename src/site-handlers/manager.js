@@ -1,6 +1,5 @@
 /**
  * Site handler factory and manager
- * Modular architecture using global variables
  */
 
 window.VSC = window.VSC || {};
@@ -142,7 +141,6 @@ export class SiteHandlerManager {
   }
 }
 
-export const siteHandlerManager = new SiteHandlerManager();
-
 // Create singleton instance
+export const siteHandlerManager = new SiteHandlerManager();
 window.VSC.siteHandlerManager = new SiteHandlerManager();

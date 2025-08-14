@@ -10,7 +10,6 @@ import { ActionHandler } from '../core/action-handler.js';
 import { EventManager } from '../utils/event-manager.js';
 import { VideoMutationObserver } from '../observers/mutation-observer.js';
 import * as dom from '../utils/dom-utils.js';
-import { SPEED_LIMITS } from '../shared/constants.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -389,114 +388,88 @@ class VideoSpeedExtension {
     document.head.appendChild(link);
     logger.debug('CSS injected into iframe document');
   }
-
-  /**
-   * Clean up resources
-   */
-  cleanup() {
-    try {
-      this.mutationObserver?.stop();
-      this.eventManager?.cleanup();
-      this.siteHandlerManager?.cleanup();
-
-      // MyNote: comment out Gemini's shadow observers
-      // if (this.shadowHostObserver) {
-      //   this.shadowHostObserver.disconnect();
-      // }
-
-      // Clean up all video controllers
-      this.config.getMediaElements().forEach((video) => {
-        video.vsc?.remove();
-      });
-
-      this.initialized = false;
-      logger.info('Video Speed Controller cleaned up');
-    } catch (error) {
-      logger.error(`Failed to cleanup: ${error.message}`);
-    }
-  }
 }
 
-// Message handler for popup communication via bridge
-// Listen for messages from content script bridge
-window.addEventListener('VSC_MESSAGE', (event) => {
-  const message = event.detail;
+// Initialize extension and message handlers in an IIFE to avoid global scope pollution
+(function () {
+  // Create and initialize extension instance
+  const extension = new VideoSpeedExtension();
 
-  // Handle namespaced VSC message types
-  if (typeof message === 'object' && message.type && message.type.startsWith('VSC_')) {
-    const videos = document.querySelectorAll('video, audio');
+  // Message handler for popup communication via bridge
+  // Listen for messages from content script bridge
+  window.addEventListener('VSC_MESSAGE', (event) => {
+    const message = event.detail;
 
-    switch (message.type) {
-      case window.VSC.Constants.MESSAGE_TYPES.SET_SPEED:
-        if (message.payload && typeof message.payload.speed === 'number') {
-          const targetSpeed = message.payload.speed;
-          videos.forEach((video) => {
-            if (video.vsc) {
-              extension.actionHandler.adjustSpeed(video, targetSpeed);
-            } else {
-              video.playbackRate = targetSpeed;
-            }
-          });
-        }
-        break;
+    // Handle namespaced VSC message types
+    if (typeof message === 'object' && message.type && message.type.startsWith('VSC_')) {
+      // Use state manager for complete media element discovery (includes shadow DOM)
+      const videos = window.VSC.stateManager ? window.VSC.stateManager.getAllMediaElements() : [];
 
-      case window.VSC.Constants.MESSAGE_TYPES.ADJUST_SPEED:
-        if (message.payload && typeof message.payload.delta === 'number') {
-          const delta = message.payload.delta;
-          videos.forEach((video) => {
-            if (video.vsc) {
-              extension.actionHandler.adjustSpeed(video, delta, { relative: true });
-            } else {
-              // Fallback for videos without controller
-              const newSpeed = Math.min(
-                Math.max(video.playbackRate + delta, SPEED_LIMITS.MIN),
-                SPEED_LIMITS.MAX
-              );
-              video.playbackRate = newSpeed;
-            }
-          });
-        }
-        break;
+      switch (message.type) {
+        case window.VSC.Constants.MESSAGE_TYPES.SET_SPEED:
+          if (message.payload && typeof message.payload.speed === 'number') {
+            const targetSpeed = message.payload.speed;
+            videos.forEach((video) => {
+              if (video.vsc) {
+                extension.actionHandler.adjustSpeed(video, targetSpeed);
+              } else {
+                video.playbackRate = targetSpeed;
+              }
+            });
 
-      case window.VSC.Constants.MESSAGE_TYPES.RESET_SPEED:
-        videos.forEach((video) => {
-          if (video.vsc) {
-            extension.actionHandler.resetSpeed(video, 1.0);
-          } else {
-            video.playbackRate = 1.0;
+            // Log the successful operation
+            window.VSC.logger?.debug(
+              `Set speed to ${targetSpeed} on ${videos.length} media elements`
+            );
           }
-        });
-        break;
+          break;
 
-      case window.VSC.Constants.MESSAGE_TYPES.TOGGLE_DISPLAY:
-        if (extension.actionHandler) {
-          extension.actionHandler.runAction({ actionItem: 'display' });
-        }
-        break;
+        case window.VSC.Constants.MESSAGE_TYPES.ADJUST_SPEED:
+          if (message.payload && typeof message.payload.delta === 'number') {
+            const delta = message.payload.delta;
+            videos.forEach((video) => {
+              if (video.vsc) {
+                extension.actionHandler.adjustSpeed(video, delta, { relative: true });
+              } else {
+                // Fallback for videos without controller
+                const newSpeed = Math.min(Math.max(video.playbackRate + delta, 0.07), 16);
+                video.playbackRate = newSpeed;
+              }
+            });
+
+            window.VSC.logger?.debug(
+              `Adjusted speed by ${delta} on ${videos.length} media elements`
+            );
+          }
+          break;
+
+        case window.VSC.Constants.MESSAGE_TYPES.RESET_SPEED:
+          videos.forEach((video) => {
+            if (video.vsc) {
+              extension.actionHandler.resetSpeed(video, 1.0);
+            } else {
+              video.playbackRate = 1.0;
+            }
+          });
+
+          window.VSC.logger?.debug(`Reset speed on ${videos.length} media elements`);
+          break;
+
+        case window.VSC.Constants.MESSAGE_TYPES.TOGGLE_DISPLAY:
+          if (extension.actionHandler) {
+            extension.actionHandler.runAction('display', null, null);
+          }
+          break;
+      }
     }
-  }
-});
+  });
 
-// Create and initialize extension instance
-const extension = new VideoSpeedExtension();
+  // Auto-initialize
+  extension.initialize().catch((error) => {
+    console.error(`Extension initialization failed: ${error.message}`);
+    window.VSC.logger.error(`Extension initialization failed: ${error.message}`);
+  });
 
-// Handle page unload
-window.addEventListener('beforeunload', () => {
-  extension.cleanup();
-});
-
-// Auto-initialize - settings loading will wait for injected settings if needed
-extension.initialize().catch((error) => {
-  logger.error(`Extension initialization failed: ${error.message}`);
-  logger.error(`Extension initialization failed: ${error.message}`);
-});
-
-// Export for testing
-window.VideoSpeedExtension = VideoSpeedExtension;
-window.videoSpeedExtension = extension;
-
-// Add test indicator for E2E tests
-const testIndicator = document.createElement('div');
-testIndicator.id = 'vsc-test-indicator';
-testIndicator.style.display = 'none';
-document.head.appendChild(testIndicator);
+  // Export only what's needed with consistent VSC_ prefix
+  window.VSC_controller = extension; // The initialized instance
+})();

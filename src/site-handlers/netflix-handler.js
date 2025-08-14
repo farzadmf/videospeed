@@ -1,6 +1,5 @@
 /**
  * Netflix-specific handler
- * Modular architecture using global variables
  */
 
 window.VSC = window.VSC || {};
@@ -23,7 +22,7 @@ export class NetflixHandler extends BaseSiteHandler {
    * @param {HTMLElement} video - Video element
    * @returns {Object} Positioning information
    */
-  getControllerPosition(parent, _video) {
+  getControllerPosition(parent) {
     // Insert before parent to bypass Netflix's overlay
     return {
       insertionPoint: parent.parentElement,

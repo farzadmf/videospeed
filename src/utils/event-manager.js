@@ -1,6 +1,5 @@
 /**
  * Event management system for Video Speed Controller
- * Modular architecture using global variables
  *
  * @typedef {import('../core/video-controller.js').VideoController} VideoController
  * @typedef {import('../core/config.js').VideoSpeedConfig} VideoSpeedConfig

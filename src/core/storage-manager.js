@@ -1,6 +1,6 @@
 /**
  * Chrome storage management utilities
- * Modular architecture using global variables
+ * Handles storage access in both content script and page contexts
  */
 
 window.VSC = window.VSC || {};
@@ -8,77 +8,56 @@ window.VSC = window.VSC || {};
 import { logger } from '../utils/logger.js';
 
 export class StorageManager {
-  // Cache for user settings injected from content script
-  static _injectedSettings = null;
+  static errorCallback = null;
 
-  // Listen for injected settings from content script
-  static _setupSettingsListener() {
-    if (typeof window !== 'undefined' && !this._listenerSetup) {
-      window.addEventListener('VSC_USER_SETTINGS', (event) => {
-        logger.debug('Received user settings from content script');
-        this._injectedSettings = event.detail;
-      });
-      this._listenerSetup = true;
-    }
-  }
   /**
-   * Get settings from Chrome storage
+   * Register error callback for monitoring storage failures
+   * @param {Function} callback - Callback function for errors
+   */
+  static onError(callback) {
+    this.errorCallback = callback;
+  }
+
+  /**
+   * Get settings from Chrome storage or pre-injected settings
    * @param {Object} defaults - Default values
    * @returns {Promise<Object>} Storage data
    */
   static async get(defaults = {}) {
-    // Set up listener for injected settings
-    this._setupSettingsListener();
-
     // Check if Chrome APIs are available (content script context)
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
       return new Promise((resolve) => {
         chrome.storage.sync.get(defaults, (storage) => {
-          logger.debug('Retrieved settings from storage');
+          logger.debug('Retrieved settings from chrome.storage');
           resolve(storage);
         });
       });
     } else {
-      // Fallback for injected page context - use injected settings if available
-      if (this._injectedSettings) {
-        logger.debug('Using injected user settings');
-        logger.debug('Using injected user settings from content script');
-        // Merge injected settings with defaults
-        return Promise.resolve({ ...defaults, ...this._injectedSettings });
+      // Page context - read settings from DOM bridge (content script can't share JS objects directly)
+      if (!window.VSC_settings) {
+        const settingsElement = document.getElementById('vsc-settings-data');
+        if (settingsElement && settingsElement.textContent) {
+          try {
+            window.VSC_settings = JSON.parse(settingsElement.textContent);
+            logger.debug('Loaded settings from script element');
+            // Clean up the element after reading
+            settingsElement.remove();
+          } catch (e) {
+            logger.error('Failed to parse settings from script element:', e);
+          }
+        }
+      }
+
+      if (window.VSC_settings) {
+        // Use the loaded settings
+        logger.debug('Using VSC_settings');
+        return Promise.resolve({ ...defaults, ...window.VSC_settings });
       } else {
-        logger.debug('Chrome storage not available, using default settings');
+        // Fallback to defaults if no settings available
+        logger.debug('No settings available, using defaults');
         return Promise.resolve(defaults);
       }
     }
-  }
-
-  /**
-   * Wait for injected settings to become available
-   * @param {Object} defaults - Default values
-   * @returns {Promise<Object>} Settings when available
-   */
-  static async waitForInjectedSettings(defaults = {}) {
-    this._setupSettingsListener();
-
-    if (this._injectedSettings) {
-      const merged = { ...defaults, ...this._injectedSettings };
-      logger.debug('Using available injected settings');
-      return Promise.resolve(merged);
-    }
-
-    return new Promise((resolve) => {
-      const checkSettings = () => {
-        if (this._injectedSettings) {
-          const merged = { ...defaults, ...this._injectedSettings };
-          logger.debug('Injected settings now available');
-          resolve(merged);
-        } else {
-          // Check again in next tick
-          setTimeout(checkSettings, 10);
-        }
-      };
-      checkSettings();
-    });
   }
 
   /**
@@ -89,26 +68,40 @@ export class StorageManager {
   static async set(data) {
     // Check if Chrome APIs are available (content script context)
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         chrome.storage.sync.set(data, () => {
-          logger.debug('Settings saved to storage');
+          if (chrome.runtime.lastError) {
+            const error = new Error(`Storage failed: ${chrome.runtime.lastError.message}`);
+            console.error('Chrome storage save failed:', chrome.runtime.lastError);
+
+            // Call error callback if registered (for monitoring/telemetry)
+            if (this.errorCallback) {
+              this.errorCallback(error, data);
+            }
+
+            reject(error);
+            return;
+          }
+          logger.debug('Settings saved to chrome.storage');
           resolve();
         });
       });
     } else {
-      // Fallback for injected page context - send save request to content script
-      logger.debug('Sending save request to content script');
-      logger.debug('Sending settings save request to content script');
+      // Page context - send save request to content script via message bridge
+      logger.debug('Sending storage update to content script');
 
-      // Send data to content script via custom event
-      window.dispatchEvent(
-        new CustomEvent('VSC_SAVE_SETTINGS', {
-          detail: data,
-        })
+      // Post message to content script
+      window.postMessage(
+        {
+          source: 'vsc-page',
+          action: 'storage-update',
+          data: data,
+        },
+        '*'
       );
 
-      // Update injected settings cache
-      this._injectedSettings = { ...this._injectedSettings, ...data };
+      // Update local settings cache
+      window.VSC_settings = { ...window.VSC_settings, ...data };
 
       return Promise.resolve();
     }
@@ -120,12 +113,32 @@ export class StorageManager {
    * @returns {Promise<void>}
    */
   static async remove(keys) {
-    return new Promise((resolve) => {
-      chrome.storage.sync.remove(keys, () => {
-        logger.debug('Keys removed from storage');
-        resolve();
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+      return new Promise((resolve, reject) => {
+        chrome.storage.sync.remove(keys, () => {
+          if (chrome.runtime.lastError) {
+            const error = new Error(`Storage remove failed: ${chrome.runtime.lastError.message}`);
+            console.error('Chrome storage remove failed:', chrome.runtime.lastError);
+
+            // Call error callback if registered (for monitoring/telemetry)
+            if (this.errorCallback) {
+              this.errorCallback(error, { removedKeys: keys });
+            }
+
+            reject(error);
+            return;
+          }
+          logger.debug('Keys removed from storage');
+          resolve();
+        });
       });
-    });
+    } else {
+      // Page context - update local cache
+      if (window.VSC_settings) {
+        keys.forEach((key) => delete window.VSC_settings[key]);
+      }
+      return Promise.resolve();
+    }
   }
 
   /**
@@ -133,12 +146,30 @@ export class StorageManager {
    * @returns {Promise<void>}
    */
   static async clear() {
-    return new Promise((resolve) => {
-      chrome.storage.sync.clear(() => {
-        logger.debug('Storage cleared');
-        resolve();
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+      return new Promise((resolve, reject) => {
+        chrome.storage.sync.clear(() => {
+          if (chrome.runtime.lastError) {
+            const error = new Error(`Storage clear failed: ${chrome.runtime.lastError.message}`);
+            console.error('Chrome storage clear failed:', chrome.runtime.lastError);
+
+            // Call error callback if registered (for monitoring/telemetry)
+            if (this.errorCallback) {
+              this.errorCallback(error, { operation: 'clear' });
+            }
+
+            reject(error);
+            return;
+          }
+          logger.debug('Storage cleared');
+          resolve();
+        });
       });
-    });
+    } else {
+      // Page context - clear local cache
+      window.VSC_settings = {};
+      return Promise.resolve();
+    }
   }
 
   /**
@@ -146,11 +177,27 @@ export class StorageManager {
    * @param {Function} callback - Callback function for changes
    */
   static onChanged(callback) {
-    chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName === 'sync') {
-        callback(changes);
-      }
-    });
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'sync') {
+          callback(changes);
+        }
+      });
+    } else {
+      // Page context - listen for storage changes from content script
+      window.addEventListener('message', (event) => {
+        if (event.data?.source === 'vsc-content' && event.data?.action === 'storage-changed') {
+          // Convert to chrome.storage.onChanged format
+          const changes = {};
+          for (const [key, value] of Object.entries(event.data.data)) {
+            changes[key] = { newValue: value, oldValue: window.VSC_settings?.[key] };
+          }
+          // Update local cache
+          window.VSC_settings = { ...window.VSC_settings, ...event.data.data };
+          callback(changes);
+        }
+      });
+    }
   }
 }
 

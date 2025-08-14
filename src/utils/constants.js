@@ -8,13 +8,6 @@
 window.VSC = window.VSC || {};
 window.VSC.Constants = {};
 
-// Add debug info to DOM for inspection
-const debugDiv = document.createElement('div');
-debugDiv.id = 'vsc-constants-loaded';
-debugDiv.style.display = 'none';
-debugDiv.textContent = `Constants loaded at ${new Date().toISOString()}`;
-document.head.appendChild(debugDiv);
-
 // Define constants directly first for ES6 exports
 const regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 const regEndsWithFlags = /\/(?!.*(.).*\1)[gimsuy]*$/;
@@ -31,34 +24,40 @@ const DEFAULT_SETTINGS = {
   displayKeyCode: 86, // default: V
   rememberSpeed: false, // default: false
   forceLastSavedSpeed: false, //default: false
-  audioBoolean: false, // default: false
+  audioBoolean: true, // default: true (enable audio controller support)
   startHidden: false, // default: false
   controllerOpacity: 0.3, // default: 0.3
   controllerButtonSize: 14,
-  keyBindings: [],
-  blacklist: `
-    www.instagram.com
-    x.com
-    imgur.com
-    teams.microsoft.com
-  `.replace(regStrip, ''),
+  keyBindings: [
+    { action: 'slower', key: 83, value: 0.1, force: false, predefined: true }, // S
+    { action: 'faster', key: 68, value: 0.1, force: false, predefined: true }, // D
+    { action: 'rewind', key: 90, value: 10, force: false, predefined: true }, // Z
+    { action: 'advance', key: 88, value: 10, force: false, predefined: true }, // X
+    { action: 'reset', key: 82, value: 1.0, force: false, predefined: true }, // R
+    { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
+    { action: 'display', key: 86, value: 0, force: false, predefined: true }, // V
+    { action: 'mark', key: 77, value: 0, force: false, predefined: true }, // M
+    { action: 'jump', key: 74, value: 0, force: false, predefined: true }, // J
+  ],
+  blacklist: `www.instagram.com
+x.com
+imgur.com
+teams.microsoft.com
+meet.google.com`.replace(regStrip, ''),
   defaultLogLevel: 4,
   logLevel: 3,
 };
 
 window.VSC.Constants.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
 
-const DEFAULT_KEY_BINDINGS = [
-  { action: 'slower', key: 83, value: 0.1, force: false, predefined: true }, // S
-  { action: 'faster', key: 68, value: 0.1, force: false, predefined: true }, // D
-  { action: 'rewind', key: 90, value: 10, force: false, predefined: true }, // Z
-  { action: 'advance', key: 88, value: 10, force: false, predefined: true }, // X
-  { action: 'reset', key: 82, value: 1.0, force: false, predefined: true }, // R
-  { action: 'fast', key: 71, value: 1.8, force: false, predefined: true }, // G
-  { action: 'display', key: 86, value: 0, force: false, predefined: true }, // V
-  { action: 'mark', key: 77, value: 0, force: false, predefined: true }, // M
-  { action: 'jump', key: 74, value: 0, force: false, predefined: true }, // J
-];
+/**
+ * Format speed value to 2 decimal places
+ * @param {number} speed - Speed value
+ * @returns {string} Formatted speed
+ */
+const formatSpeed = (speed) => speed.toFixed(2);
+
+window.VSC.Constants.formatSpeed = formatSpeed;
 
 const LOG_LEVELS = {
   NONE: 1,
@@ -74,11 +73,6 @@ const MESSAGE_TYPES = {
   ADJUST_SPEED: 'VSC_ADJUST_SPEED',
   RESET_SPEED: 'VSC_RESET_SPEED',
   TOGGLE_DISPLAY: 'VSC_TOGGLE_DISPLAY',
-
-  // Badge management messages
-  CONTROLLER_CREATED: 'VSC_CONTROLLER_CREATED',
-  CONTROLLER_REMOVED: 'VSC_CONTROLLER_REMOVED',
-  QUERY_ACTIVE_CONTROLLERS: 'VSC_QUERY_ACTIVE_CONTROLLERS',
 };
 
 const SPEED_LIMITS = {
@@ -99,11 +93,8 @@ const CONTROLLER_SIZE_LIMITS = {
 const CUSTOM_ACTIONS_NO_VALUES = ['pause', 'muted', 'mark', 'jump', 'display'];
 
 // Assign to global namespace
-window.VSC.Constants.CONTROLLER_SIZE_LIMITS = CONTROLLER_SIZE_LIMITS;
-window.VSC.Constants.CUSTOM_ACTIONS_NO_VALUES = CUSTOM_ACTIONS_NO_VALUES;
-window.VSC.Constants.DEFAULT_KEY_BINDINGS = DEFAULT_KEY_BINDINGS;
 window.VSC.Constants.LOG_LEVELS = LOG_LEVELS;
 window.VSC.Constants.MESSAGE_TYPES = MESSAGE_TYPES;
 window.VSC.Constants.SPEED_LIMITS = SPEED_LIMITS;
-
-// Global variables available for both browser and testing
+window.VSC.Constants.CONTROLLER_SIZE_LIMITS = CONTROLLER_SIZE_LIMITS;
+window.VSC.Constants.CUSTOM_ACTIONS_NO_VALUES = CUSTOM_ACTIONS_NO_VALUES;

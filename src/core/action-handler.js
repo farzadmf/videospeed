@@ -1,6 +1,5 @@
 /**
  * Action handling system for Video Speed Controller
- * Modular architecture using global variables
  *
  * @typedef {import('./video-controller.js').VideoController} VideoController
  * @typedef {import('./config.js').VideoSpeedConfig} VideoSpeedConfig

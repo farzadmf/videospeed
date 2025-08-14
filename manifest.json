@@ -25,7 +25,7 @@
     "default_popup": "src/ui/popup/popup.html"
   },
   "background": {
-    "service_worker": "src/background.js"
+    "service_worker": "dist/background.js"
   },
   "content_scripts": [
     {
@@ -34,26 +34,12 @@
       "match_about_blank": true,
       "exclude_matches": ["https://hangouts.google.com/*", "https://meet.google.com/*"],
       "css": ["src/styles/inject.css"],
-      "js": ["src/content/injector.js"]
+      "js": ["dist/content.js"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "src/assets/pkgs/*.js",
-        "src/shared/*.js",
-        "src/styles/inject.css",
-        "src/styles/inject_new.css",
-        "src/styles/shadow.css",
-        "src/styles/shadow_new.css",
-        "src/module-loader.js",
-        "src/core/*.js",
-        "src/utils/*.js",
-        "src/ui/*.js",
-        "src/observers/*.js",
-        "src/site-handlers/*.js",
-        "src/content/*.js"
-      ],
+      "resources": ["dist/inject.js"],
       "matches": ["http://*/*", "https://*/*", "file:///*"]
     }
   ]

@@ -1,6 +1,5 @@
 /**
  * Logging utility for Video Speed Controller
- * Modular architecture using global variables
  */
 
 window.VSC = window.VSC || {};
