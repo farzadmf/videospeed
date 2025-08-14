@@ -65,25 +65,30 @@ export function setupMessageBridge() {
 
     const { source, action, data } = event.data;
 
-    if (source === 'vsc-page') {
-      // Forward page messages to extension runtime
-      if (action === 'storage-update') {
-        chrome.storage.sync.set(data);
-      } else if (action === 'runtime-message') {
-        chrome.runtime.sendMessage(data);
-      } else if (action === 'get-storage') {
-        // Page script requesting current storage
-        chrome.storage.sync.get(null, (items) => {
-          window.postMessage(
-            {
-              source: 'vsc-content',
-              action: 'storage-data',
-              data: items,
-            },
-            '*'
-          );
-        });
+    try {
+      if (source === 'vsc-page') {
+        // Forward page messages to extension runtime
+        if (action === 'storage-update') {
+          chrome.storage.sync.set(data);
+        } else if (action === 'runtime-message') {
+          chrome.runtime.sendMessage(data);
+        } else if (action === 'get-storage') {
+          // Page script requesting current storage
+          chrome.storage.sync.get(null, (items) => {
+            window.postMessage(
+              {
+                source: 'vsc-content',
+                action: 'storage-data',
+                data: items,
+              },
+              '*'
+            );
+          });
+        }
       }
+    } catch {
+      // MyNote: added try/catch, ignoring error. Seeing 'Extension context invalidated'
+      //         here constantly.
     }
   });
 
