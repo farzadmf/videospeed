@@ -107,8 +107,6 @@ export class VideoController {
 
     this.handlePlay = null;
     this.handleSeek = null;
-    this.handleLoadStart = null;
-    this.handleCanPlay = null;
 
     this.handleTimeUpdate = null;
     this.handleVolumeChange = null;
@@ -331,14 +329,6 @@ export class VideoController {
       this.handleSeek = mediaEventAction.bind(this);
       this.video.addEventListener('seeked', this.handleSeek, { signal: this.signal });
     }
-    if (!this.handleLoadStart) {
-      this.handleLoadStart = mediaEventAction.bind(this);
-      this.video.addEventListener('loadstart', this.handleLoadStart, { signal: this.signal });
-    }
-    if (!this.handleCanPlay) {
-      this.handleCanPlay = mediaEventAction.bind(this);
-      this.video.addEventListener('canplay', this.handleCanPlay, { signal: this.signal });
-    }
 
     /**
      * Handle timeupdate to display a progress bar.
@@ -369,7 +359,7 @@ export class VideoController {
       this.video.addEventListener('volumechange', this.handleVolumeChange, { signal: this.signal });
     }
 
-    logger.debug('Added comprehensive media event handlers: play, seeked, loadstart, canplay');
+    logger.debug('Added essential media event handlers: play, seeked');
   }
 
   /**
@@ -495,8 +485,6 @@ export class VideoController {
 
     this.handlePlay = null;
     this.handleSeek = null;
-    this.handleLoadStart = null;
-    this.handleCanPlay = null;
 
     this.handleTimeUpdate = null;
     this.handleVolumeChange = null;
