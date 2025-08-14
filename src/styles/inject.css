@@ -4,22 +4,22 @@
 
 .vsc-hidden {
   display: none !important;
-  opacity: 0 !important;
   visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+.vsc-show {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
 }
 
 .vsc-manual:not(.vsc-hidden) {
-  opacity: 1 !important;
   visibility: visible !important;
+  opacity: 1 !important;
 }
 
-.vsc-main {
-  /* Used in shadow.css to hide controls; this remains always visible, so we're not */
-  /* using the variables here */
-  --opacity: 0.3; /* Will be overridden in video-controller from VSC settings */
-  --controller-opacity: 1; /* Always 1 because parent's opacity is a VSC option */
-  --controller-visibility: visible;
-
+.vsc-controller {
   /* Default visible state */
   visibility: visible;
   opacity: 1;
@@ -28,8 +28,6 @@
   white-space: normal;
   /* Disables text selection when the user is dragging the controller around */
   user-select: none;
-  position: absolute;
-  z-index: 999;
 }
 
 /* Origin specific overrides */
@@ -39,25 +37,15 @@
   top: 10px;
 }
 
-/* .html5-video-player.ytp-transparent .vsc-main { */
-/*   --margin-top: -50px; */
-/* } */
-
-.ytp-autohide .vsc-main {
-  /* Used in shadow.css to hide controls */
-  --controller-opacity: 0;
-  --controller-visibility: hidden;
-}
-
 .ytp-autohide .vsc-controller {
-  opacity: 0;
-  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   visibility: hidden;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
 }
 
 .ytp-autohide .vsc-show {
-  opacity: 1;
   visibility: visible;
+  opacity: 1;
 }
 
 /* YouTube embedded player */
@@ -141,17 +129,8 @@ section[role='tabpanel'][aria-label='Video Player'] {
 
 /* ChatGPT audio controller positioning */
 /* https://chatgpt.com */
-body.vsc-domain-chatgpt-com .vsc-controller {
-  left: 35px !important;
+:root[style*='--vsc-domain: "chatgpt.com"'] .vsc-controller {
   position: relative !important;
   top: 0px !important;
-}
-
-body.vsc-domain-github-com .vsc-controller {
-  left: 0 !important;
-  top: 0 !important;
-}
-
-body.vsc-domain-old-reddit-com .vsc-controller {
-  left: 0 !important;
+  left: 35px !important;
 }

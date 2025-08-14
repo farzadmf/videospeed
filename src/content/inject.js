@@ -59,9 +59,6 @@ class VideoSpeedExtension {
       // Initialize site handler
       this.siteHandlerManager.initialize(document);
 
-      // Add domain-specific class to body for CSS targeting
-      this.addDomainClass();
-
       // Create action handler and event manager
       this.eventManager = new EventManager(this.config, null);
       this.actionHandler = new ActionHandler(this.config, this.eventManager);
@@ -90,40 +87,20 @@ class VideoSpeedExtension {
    */
   initializeDocument(document) {
     try {
-      // Prevent double initialization
-      if (document.body && document.body.classList.contains('vsc-initialized')) {
+      // MyNote: probably the only place that using window.VSC is "fine"!
+      if (window.VSC.initialized) {
         return;
       }
 
-      if (document.body) {
-        document.body.classList.add('vsc-initialized');
-        logger.debug('vsc-initialized added to document body');
-      }
+      window.VSC.initialized = true;
 
-      // Set up event listeners
+      this.applyDomainStyles(document);
       this.eventManager.setupEventListeners(document);
-
-      // Site-specific script injection is now handled by content script (injector.js)
-
-      // Set up CSS for non-main documents
       if (document !== window.document) {
         this.setupDocumentCSS(document);
       }
 
-      // Defer expensive operations to avoid blocking page load
       this.deferExpensiveOperations(document);
-
-      // MyNote: comment out Gemini's shadow observers
-      // Start the shadow host observer
-      // if (this.shadowHostObserver) {
-      //   this.shadowHostObserver.observe(document, { childList: true, subtree: true });
-      // }
-
-      // MyNote: comment out Gemini's shadow observers
-      //         Function was being called with that code in it.
-      // Scan for existing media elements
-      // this.scanExistingMedia(document);
-
       logger.debug('Document initialization completed');
     } catch (error) {
       logger.error(`Failed to initialize document: ${error.message}`);
@@ -221,20 +198,18 @@ class VideoSpeedExtension {
   }
 
   /**
-   * Add domain-specific class to body for CSS targeting
+   * Apply domain-specific styles using CSS custom properties
+   * Sets CSS custom property on :root to enable CSS-based domain targeting
+   * @param {Document} document - Document to apply styles to
    */
-  addDomainClass() {
+  applyDomainStyles(document) {
     try {
       const hostname = window.location.hostname;
-      // Convert domain to valid CSS class name
-      const domainClass = `vsc-domain-${hostname.replace(/\./g, '-')}`;
-
-      if (document.body) {
-        document.body.classList.add(domainClass);
-        logger.debug(`Added domain class: ${domainClass}`);
+      if (document.documentElement) {
+        document.documentElement.style.setProperty('--vsc-domain', `"${hostname}"`);
       }
     } catch (error) {
-      logger.error(`Failed to add domain class: ${error.message}`);
+      logger.error(`Failed to apply domain styles: ${error.message}`);
     }
   }
 
