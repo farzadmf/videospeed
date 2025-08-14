@@ -24,6 +24,34 @@ export async function injectScript(scriptPath) {
   });
 }
 
+export async function injectCSS() {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  // link.href = chrome.runtime.getURL('src/styles/inject.css');
+  link.href = chrome.runtime.getURL('src/styles/inject_new.css');
+  document.head.appendChild(link);
+
+  const shadowCssUrl = chrome.runtime.getURL('src/styles/shadow_new.css');
+  const response = await fetch(shadowCssUrl);
+  const shadowCss = await response.text();
+
+  // The div used (and removed) in shadow-dom-manager file to get shadow CSS contents.
+  const shadowCssDivId = 'vsc-shadow-css-content';
+  const shadowCssDiv =
+    document.querySelector(`#${shadowCssDivId}`) ?? document.createElement('div');
+
+  shadowCssDiv.id = shadowCssDivId;
+  // MyNote: style is sometimes undefined for whatever reason! If that's the case, give up!
+  if (!shadowCssDiv.style) {
+    console.log('[FMVSC] WARNING: could not create shadowCssDiv ...');
+    return;
+  }
+  shadowCssDiv.style.display = 'none';
+  shadowCssDiv.textContent = shadowCss;
+  document.body.appendChild(shadowCssDiv);
+}
+
 /**
  * Set up message bridge between content script and page context
  * Handles bi-directional communication for popup and settings updates

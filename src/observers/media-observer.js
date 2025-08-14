@@ -7,7 +7,7 @@ window.VSC = window.VSC || {};
 import { logger } from '../utils/logger.js';
 import * as dom from '../utils/dom-utils.js';
 
-class MediaElementObserver {
+export class MediaElementObserver {
   constructor(config, siteHandler) {
     this.config = config;
     this.siteHandler = siteHandler;

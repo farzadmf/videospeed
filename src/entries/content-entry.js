@@ -3,7 +3,7 @@
  * This runs in the content script context with access to chrome.* APIs
  */
 
-import { injectScript, setupMessageBridge } from '../content/injection-bridge.js';
+import { injectScript, injectCSS, setupMessageBridge } from '../content/injection-bridge.js';
 
 async function init() {
   try {
@@ -20,6 +20,7 @@ async function init() {
 
     // Inject the bundled page script containing all VSC modules
     await injectScript('dist/inject.js');
+    await injectCSS();
 
     // Set up bi-directional message bridge for popup ↔ page communication
     setupMessageBridge();

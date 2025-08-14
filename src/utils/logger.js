@@ -67,7 +67,7 @@ class Logger {
    * @param {string} message - Error message
    */
   error(...message) {
-    this.log(window.VSC.Constants.LOG_LEVELS.ERROR, ...message);
+    this.log(LOG_LEVELS.ERROR, ...message);
   }
 
   /**
@@ -75,7 +75,7 @@ class Logger {
    * @param {string} message - Warning message
    */
   warn(...message) {
-    this.log(window.VSC.Constants.LOG_LEVELS.WARNING, ...message);
+    this.log(LOG_LEVELS.WARNING, ...message);
   }
 
   /**
@@ -83,7 +83,7 @@ class Logger {
    * @param {string} message - Info message
    */
   info(...message) {
-    this.log(window.VSC.Constants.LOG_LEVELS.INFO, ...message);
+    this.log(LOG_LEVELS.INFO, ...message);
   }
 
   /**
@@ -91,7 +91,7 @@ class Logger {
    * @param {string} message - Debug message
    */
   debug(...message) {
-    this.log(window.VSC.Constants.LOG_LEVELS.DEBUG, ...message);
+    this.log(LOG_LEVELS.DEBUG, ...message);
   }
 
   /**
@@ -99,7 +99,7 @@ class Logger {
    * @param {string} message - Verbose debug message
    */
   verbose(...message) {
-    this.log(window.VSC.Constants.LOG_LEVELS.VERBOSE, ...message);
+    this.log(LOG_LEVELS.VERBOSE, ...message);
   }
 }
 
@@ -107,5 +107,3 @@ export const logger = new Logger();
 
 // Create singleton instance
 window.VSC.logger = new Logger();
-
-// Global variables available for both browser and testing

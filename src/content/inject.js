@@ -10,6 +10,10 @@ import { ActionHandler } from '../core/action-handler.js';
 import { EventManager } from '../utils/event-manager.js';
 import { VideoMutationObserver } from '../observers/mutation-observer.js';
 import * as dom from '../utils/dom-utils.js';
+import { MESSAGE_TYPES } from '../shared/constants.js';
+import { MediaElementObserver } from '../observers/media-observer.js';
+import { siteHandlerManager } from '../site-handlers/manager.js';
+import { stateManager } from '../core/state-manager.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -30,14 +34,15 @@ class VideoSpeedExtension {
   async initialize() {
     try {
       // Access global modules
-      this.siteHandlerManager = window.VSC.siteHandlerManager;
-      this.MediaElementObserver = window.VSC.MediaElementObserver;
-      this.MESSAGE_TYPES = window.VSC.Constants.MESSAGE_TYPES;
+      this.siteHandlerManager = siteHandlerManager;
+      this.MediaElementObserver = MediaElementObserver;
+      this.MESSAGE_TYPES = MESSAGE_TYPES;
 
       logger.info('Video Speed Controller starting...');
 
       // Load configuration
       await this.config.load();
+      console.log('FMFOO[1]: inject.js:40: this.config=', this.config);
 
       // Check if extension is enabled
       if (!this.config.settings.enabled) {
@@ -399,14 +404,15 @@ class VideoSpeedExtension {
   // Listen for messages from content script bridge
   window.addEventListener('VSC_MESSAGE', (event) => {
     const message = event.detail;
+    console.log('FMFOO[46]: inject.js:401: message=', message);
 
     // Handle namespaced VSC message types
     if (typeof message === 'object' && message.type && message.type.startsWith('VSC_')) {
       // Use state manager for complete media element discovery (includes shadow DOM)
-      const videos = window.VSC.stateManager ? window.VSC.stateManager.getAllMediaElements() : [];
+      const videos = stateManager ? stateManager.getAllMediaElements() : [];
 
       switch (message.type) {
-        case window.VSC.Constants.MESSAGE_TYPES.SET_SPEED:
+        case MESSAGE_TYPES.SET_SPEED:
           if (message.payload && typeof message.payload.speed === 'number') {
             const targetSpeed = message.payload.speed;
             videos.forEach((video) => {
@@ -418,13 +424,11 @@ class VideoSpeedExtension {
             });
 
             // Log the successful operation
-            window.VSC.logger?.debug(
-              `Set speed to ${targetSpeed} on ${videos.length} media elements`
-            );
+            logger.debug(`Set speed to ${targetSpeed} on ${videos.length} media elements`);
           }
           break;
 
-        case window.VSC.Constants.MESSAGE_TYPES.ADJUST_SPEED:
+        case MESSAGE_TYPES.ADJUST_SPEED:
           if (message.payload && typeof message.payload.delta === 'number') {
             const delta = message.payload.delta;
             videos.forEach((video) => {
@@ -437,13 +441,11 @@ class VideoSpeedExtension {
               }
             });
 
-            window.VSC.logger?.debug(
-              `Adjusted speed by ${delta} on ${videos.length} media elements`
-            );
+            logger.debug(`Adjusted speed by ${delta} on ${videos.length} media elements`);
           }
           break;
 
-        case window.VSC.Constants.MESSAGE_TYPES.RESET_SPEED:
+        case MESSAGE_TYPES.RESET_SPEED:
           videos.forEach((video) => {
             if (video.vsc) {
               extension.actionHandler.resetSpeed(video, 1.0);
@@ -452,10 +454,10 @@ class VideoSpeedExtension {
             }
           });
 
-          window.VSC.logger?.debug(`Reset speed on ${videos.length} media elements`);
+          logger.debug(`Reset speed on ${videos.length} media elements`);
           break;
 
-        case window.VSC.Constants.MESSAGE_TYPES.TOGGLE_DISPLAY:
+        case MESSAGE_TYPES.TOGGLE_DISPLAY:
           if (extension.actionHandler) {
             extension.actionHandler.runAction('display', null, null);
           }
@@ -466,8 +468,7 @@ class VideoSpeedExtension {
 
   // Auto-initialize
   extension.initialize().catch((error) => {
-    console.error(`Extension initialization failed: ${error.message}`);
-    window.VSC.logger.error(`Extension initialization failed: ${error.message}`);
+    logger.error(`Extension initialization failed: ${error.message}`);
   });
 
   // Export only what's needed with consistent VSC_ prefix

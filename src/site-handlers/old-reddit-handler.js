@@ -1,6 +1,5 @@
 /**
- * Apple TV+ handler
- * Modular architecture using global variables
+ * Old Reddit handler
  */
 
 window.VSC = window.VSC || {};

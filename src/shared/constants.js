@@ -13,12 +13,19 @@ export const LOG_LEVELS = {
   WARNING: 3,
   INFO: 4,
   DEBUG: 5,
-  TRACE: 6,
+  VERBOSE: 6,
   CUSTOM: 10,
 };
 
 export const REG_STRIP = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 export const REG_ENDS_WITH_FLAGS = /\/(?!.*(.).*\1)[gimsuy]*$/;
+
+export const MESSAGE_TYPES = {
+  SET_SPEED: 'VSC_SET_SPEED',
+  ADJUST_SPEED: 'VSC_ADJUST_SPEED',
+  RESET_SPEED: 'VSC_RESET_SPEED',
+  TOGGLE_DISPLAY: 'VSC_TOGGLE_DISPLAY',
+};
 
 export const SPEED_LIMITS = {
   MIN: 0.07, // Video min rate per Chromium source

@@ -16,6 +16,8 @@
 
 window.VSC = window.VSC || {};
 
+import { logger } from '../utils/logger.js';
+
 export class VSCStateManager {
   constructor() {
     // Map of controllerId → controller metadata
@@ -30,7 +32,7 @@ export class VSCStateManager {
     // Setup communication bridge
     this.setupCommunication();
 
-    window.VSC.logger?.debug('VSCStateManager initialized');
+    logger.debug('VSCStateManager initialized');
   }
 
   /**
@@ -39,7 +41,7 @@ export class VSCStateManager {
    */
   registerController(controller) {
     if (!controller || !controller.controllerId || !controller.video) {
-      window.VSC.logger?.error('Invalid controller registration attempt');
+      logger.error('Invalid controller registration attempt');
       return;
     }
 
@@ -54,7 +56,7 @@ export class VSCStateManager {
 
     this.controllers.set(controller.controllerId, controllerInfo);
 
-    window.VSC.logger?.debug(
+    logger.debug(
       `Registered controller ${controller.controllerId} for ${controllerInfo.tagName} (total: ${this.controllers.size})`
     );
 
@@ -77,9 +79,7 @@ export class VSCStateManager {
     const removed = this.controllers.delete(controllerId);
 
     if (removed) {
-      window.VSC.logger?.debug(
-        `Removed controller ${controllerId} (remaining: ${this.controllers.size})`
-      );
+      logger.debug(`Removed controller ${controllerId} (remaining: ${this.controllers.size})`);
 
       // Immediate notification to background script
       this.notifyBackground();
@@ -113,7 +113,7 @@ export class VSCStateManager {
     // Clean up stale references
     if (staleControllers.length > 0) {
       staleControllers.forEach((id) => this.controllers.delete(id));
-      window.VSC.logger?.debug(`Cleaned up ${staleControllers.length} stale controller references`);
+      logger.debug(`Cleaned up ${staleControllers.length} stale controller references`);
 
       // Notify if state changed
       this.notifyBackground();
@@ -178,7 +178,7 @@ export class VSCStateManager {
       '*'
     );
 
-    window.VSC.logger?.debug(
+    logger.debug(
       `Background notified: ${state.hasActiveControllers ? 'active' : 'inactive'} (${state.controllerCount} controllers)`
     );
   }
@@ -191,7 +191,7 @@ export class VSCStateManager {
   startPeriodicSync() {
     if (this.syncTimer) return;
 
-    window.VSC.logger?.debug('Starting periodic state sync');
+    logger.debug('Starting periodic state sync');
 
     this.syncTimer = setInterval(() => {
       // Trigger cleanup and notification
@@ -208,7 +208,7 @@ export class VSCStateManager {
     if (this.syncTimer) {
       clearInterval(this.syncTimer);
       this.syncTimer = null;
-      window.VSC.logger?.debug('Stopped periodic state sync');
+      logger.debug('Stopped periodic state sync');
     }
   }
 
@@ -222,7 +222,7 @@ export class VSCStateManager {
       const message = event.detail;
 
       if (message && message.type === 'VSC_QUERY_STATE') {
-        window.VSC.logger?.debug('Received state query, responding with current state');
+        logger.debug('Received state query, responding with current state');
         this.notifyBackground();
       }
     });
@@ -237,7 +237,7 @@ export class VSCStateManager {
    * Clean up state manager resources
    */
   destroy() {
-    window.VSC.logger?.debug('VSCStateManager destroying');
+    logger.debug('VSCStateManager destroying');
 
     this.stopPeriodicSync();
     this.controllers.clear();
@@ -274,4 +274,4 @@ window.VSC.StateManager = VSCStateManager;
 export const stateManager = new VSCStateManager();
 window.VSC.stateManager = new VSCStateManager();
 
-window.VSC.logger?.info('State Manager module loaded');
+logger.info('State Manager module loaded');

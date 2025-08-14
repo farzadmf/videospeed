@@ -39,7 +39,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["dist/inject.js"],
+      "resources": ["dist/inject.js", "src/styles/inject_new.css", "src/styles/shadow_new.css"],
       "matches": ["http://*/*", "https://*/*", "file:///*"]
     }
   ]
