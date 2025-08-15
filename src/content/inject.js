@@ -42,7 +42,6 @@ class VideoSpeedExtension {
 
       // Load configuration
       await this.config.load();
-      console.log('FMFOO[1]: inject.js:40: this.config=', this.config);
 
       // Check if extension is enabled
       if (!this.config.settings.enabled) {
@@ -379,7 +378,6 @@ class VideoSpeedExtension {
   // Listen for messages from content script bridge
   window.addEventListener('VSC_MESSAGE', (event) => {
     const message = event.detail;
-    console.log('FMFOO[46]: inject.js:401: message=', message);
 
     // Handle namespaced VSC message types
     if (typeof message === 'object' && message.type && message.type.startsWith('VSC_')) {
