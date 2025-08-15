@@ -230,18 +230,17 @@ export class VideoController {
     //   left: ${position.left};
     // `;
     //
-    // // Add inline fallback styles if controller should start hidden
-    // // This prevents FOUC if inject.css hasn't loaded yet
-    // if (this.config.settings.startHidden || this.shouldStartHidden) {
-    //   styleText += `
-    //     display: none !important;
-    //     visibility: hidden !important;
-    //     opacity: 0 !important;
-    //   `;
-    //   logger.debug('Applied inline fallback styles for hidden controller');
-    // }
-    //
     // wrapper.style.cssText = styleText;
+
+    // MyNote: using my own things instead of this
+    // // Create shadow DOM with relative positioning inside shadow root
+    // const shadow = window.VSC.ShadowDOMManager.createShadowDOM(wrapper, {
+    //   top: '0px', // Position relative to shadow root since wrapper is already positioned
+    //   left: '0px', // Position relative to shadow root since wrapper is already positioned
+    //   speed: speed,
+    //   opacity: this.config.settings.controllerOpacity,
+    //   buttonSize: this.config.settings.controllerButtonSize,
+    // });
 
     // Create shadow DOM
     this.shadowManager.createShadowDOM(this.wrapperDiv, {
