@@ -2,7 +2,7 @@
  * Logging utility for Video Speed Controller
  */
 
-window.VSC = window.VSC || {};
+// window.VSC = window.VSC || {};
 
 import { LOG_LEVELS } from '../shared/constants.js';
 
@@ -106,4 +106,4 @@ class Logger {
 export const logger = new Logger();
 
 // Create singleton instance
-window.VSC.logger = new Logger();
+// window.VSC.logger = new Logger();
