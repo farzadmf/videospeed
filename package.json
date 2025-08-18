@@ -16,7 +16,7 @@
     "lint": "eslint src/**/*.js tests/**/*.js",
     "lint:fix": "eslint src/**/*.js tests/**/*.js --fix",
     "format": "prettier --write src/**/*.js tests/**/*.js",
-    "zip": "npm run build && rm -rf dist/videospeed.zip && mkdir -p dist/videospeed && cp -r manifest.json dist/*.js src/styles src/assets src/ui/popup src/ui/options *.md dist/videospeed/ && cd dist && zip -r videospeed.zip videospeed && cd .. && echo 'Extension packaged at dist/videospeed.zip'"
+    "zip": "npm run build && cd dist && zip -r videospeed.zip . && cd .. && echo 'Extension packaged at dist/videospeed.zip'"
   },
   "dependencies": {
     "lodash": "^4.0.0",
@@ -47,6 +47,7 @@
     "eslint-plugin-react": "*",
     "eslint-plugin-react-hooks": "*",
     "eslint-plugin-react-refresh": "*",
+    "fs-extra": "^11.0.0",
     "globals": "^15.0.0",
     "jsdom": "^23.0.0",
     "postcss": "^8.0.0",

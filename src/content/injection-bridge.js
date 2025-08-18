@@ -29,10 +29,10 @@ export async function injectCSS() {
   link.rel = 'stylesheet';
   link.type = 'text/css';
   // link.href = chrome.runtime.getURL('src/styles/inject.css');
-  link.href = chrome.runtime.getURL('src/styles/inject_new.css');
+  link.href = chrome.runtime.getURL('styles/inject_new.css');
   document.head.appendChild(link);
 
-  const shadowCssUrl = chrome.runtime.getURL('src/styles/shadow_new.css');
+  const shadowCssUrl = chrome.runtime.getURL('styles/shadow_new.css');
   const response = await fetch(shadowCssUrl);
   const shadowCss = await response.text();
 
