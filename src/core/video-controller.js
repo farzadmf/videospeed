@@ -97,6 +97,9 @@ export class VideoController {
     // Attach controller to video element first (needed for adjustSpeed)
     target.vsc = this;
 
+    // Register with state manager immediately after controller is attached
+    stateManager.registerController(this);
+
     // Initialize speed
     this.initializeSpeed();
 
@@ -118,8 +121,6 @@ export class VideoController {
     this.progressDiv = this.shadowManager.progressDiv;
 
     logger.info('VideoController initialized for video element');
-
-    stateManager.registerController(this);
   }
 
   /**
@@ -536,7 +537,8 @@ export class VideoController {
       return hash & hash; // Convert to 32-bit integer
     }, 0);
 
-    return `${tagName}-${Math.abs(srcHash)}-${timestamp}`;
+    const random = Math.floor(Math.random() * 1000);
+    return `${tagName}-${Math.abs(srcHash)}-${timestamp}-${random}`;
   }
 
   /**
