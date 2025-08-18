@@ -40,7 +40,7 @@ export class BaseSiteHandler {
    * @returns {boolean} True if handled, false for default behavior
    */
   handleSeek(video, seekSeconds) {
-    logger.warn('[handleSeek]', 'video', video, 'seekSeconds', seekSeconds);
+    logger.info('[handleSeek]', 'video', video, 'seekSeconds', seekSeconds);
 
     // Default implementation - use standard seeking with bounds checking (original logic)
     if (video.currentTime !== undefined && video.duration) {

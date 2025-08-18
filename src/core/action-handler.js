@@ -115,7 +115,7 @@ export class ActionHandler {
       case 'rewind':
         logger.debug('Rewind');
         this.seek(video, -step);
-        break;
+        return true;
 
       case 'advance':
         logger.debug('Fast forward');
