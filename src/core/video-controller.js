@@ -11,6 +11,7 @@ import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
 import { siteHandlerManager } from '../site-handlers/manager.js';
 import { formatSpeed, formatVolume } from '../shared/constants.js';
 import { stateManager } from './state-manager.js';
+import { VSCControllerElement } from '../ui/element.js';
 
 export class VideoController {
   /**
@@ -99,8 +100,8 @@ export class VideoController {
     // Initialize speed
     this.initializeSpeed();
 
-    // Create wrapper element (used by initializeControls)
-    this.wrapperDiv = document.createElement('div');
+    // Create custom element wrapper to avoid CSS conflicts
+    this.wrapperDiv = new VSCControllerElement();
 
     // Create UI
     this.initializeControls();

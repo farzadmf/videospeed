@@ -14,6 +14,7 @@ import { MESSAGE_TYPES } from '../shared/constants.js';
 import { MediaElementObserver } from '../observers/media-observer.js';
 import { siteHandlerManager } from '../site-handlers/manager.js';
 import { stateManager } from '../core/state-manager.js';
+import { VSCControllerElement } from '../ui/element.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -371,6 +372,9 @@ class VideoSpeedExtension {
 
 // Initialize extension and message handlers in an IIFE to avoid global scope pollution
 (function () {
+  // MyNote: registering here instead of on module being loaded
+  VSCControllerElement.register();
+
   // Create and initialize extension instance
   const extension = new VideoSpeedExtension();
 

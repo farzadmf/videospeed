@@ -13,7 +13,7 @@
   visibility: visible !important;
 }
 
-.vsc-main {
+vsc-controller.vsc-main {
   /* Used in shadow.css to hide controls; this remains always visible, so we're not */
   /* using the variables here */
   --opacity: 0.3; /* Will be overridden in video-controller from VSC settings */
