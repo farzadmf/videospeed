@@ -1,3 +1,5 @@
+import { logger } from './utils/logger.js';
+
 /**
  * Update extension icon based on enabled state
  * @param {boolean} enabled - Whether extension is enabled
@@ -12,9 +14,9 @@ async function updateIcon(enabled) {
         48: `assets/icons/icon48${suffix}.png`,
       },
     });
-    console.log(`Icon updated: ${enabled ? 'enabled' : 'disabled'}`);
+    logger.info(`Icon updated: ${enabled ? 'enabled' : 'disabled'}`);
   } catch (error) {
-    console.error('Failed to update icon:', error);
+    logger.error('Failed to update icon:', error);
   }
 }
 
@@ -26,7 +28,7 @@ async function initializeIcon() {
     const storage = await chrome.storage.sync.get({ enabled: true });
     await updateIcon(storage.enabled);
   } catch (error) {
-    console.error('Failed to initialize icon:', error);
+    logger.error('Failed to initialize icon:', error);
     // Default to enabled if storage read fails
     await updateIcon(true);
   }
@@ -55,7 +57,7 @@ chrome.runtime.onMessage.addListener((message) => {
  * Initialize on install/update
  */
 chrome.runtime.onInstalled.addListener(async () => {
-  console.log('Video Speed Controller installed/updated');
+  logger.info('Video Speed Controller installed/updated');
   await initializeIcon();
 });
 
@@ -63,11 +65,11 @@ chrome.runtime.onInstalled.addListener(async () => {
  * Initialize on startup
  */
 chrome.runtime.onStartup.addListener(async () => {
-  console.log('Video Speed Controller started');
+  logger.info('Video Speed Controller started');
   await initializeIcon();
 });
 
 // Initialize immediately when service worker loads
 initializeIcon();
 
-console.log('Video Speed Controller background script loaded');
+logger.info('Video Speed Controller background script loaded');
