@@ -1,11 +1,6 @@
 import { getTcDefaultBinding } from './misc.js';
-import {
-  actionByName,
-  ALLOWED_ACTION_OPTIONS,
-  ACTION_OPTIONS,
-  NO_VALUE_ACTIONS,
-} from '../../../shared/actions.js';
-import { BLACKLISTED_KEYCODES, KEY_CODES } from './key-codes.js';
+import { actionByName, ALLOWED_ACTION_OPTIONS, ACTION_OPTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
+import { BLACKLISTED_KEYCODES, BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
 
 export const keyBindings = [];
 
@@ -60,7 +55,7 @@ export function addBinding(item) {
     </div>
   </td>
   <td>
-    <input class="customKey w-50 form-control" type="text" value="" placeholder="press a key" />
+    <input class="customKey w-75 form-control" type="text" value="" placeholder="press a key" />
   </td>
   <td>
     ${valueHtml}
@@ -90,97 +85,100 @@ export function addBinding(item) {
   });
 }
 
-export function createKeyBindings(item) {
+export function createKeyBindings(binding) {
   // Ignore rows not containing anything!
-  if (!item.querySelector('.customDo')) {
+  if (!binding.querySelector('.customDo')) {
     return;
   }
 
-  const actionName = item.querySelector('.customDo').value;
+  const actionName = binding.querySelector('.customDo').value;
   const action = actionByName(actionName);
   const tcDefault = getTcDefaultBinding(action);
 
-  const key = item.querySelector('.customKey').keyCode;
+  const customKeyEl = binding.querySelector('.customKey');
+  const { code, ctrl, key, shift } = customKeyEl;
 
-  const shift = item.querySelector('input[name="shift"]').checked;
-  const ctrl = item.querySelector('input[name="ctrl"]').checked;
+  const force = JSON.parse(binding.querySelector('.customForce').value);
+  const predefined = !!binding.querySelector('.predefined');
 
-  const force = JSON.parse(item.querySelector('.customForce').value);
-  const predefined = !!item.querySelector('.predefined');
-
-  let binding = {
+  let newBinding = {
     action,
-    key,
+    code,
     force,
+    key,
     predefined,
   };
 
   if (shift) {
-    binding = { ...binding, shift };
+    newBinding = { ...newBinding, shift };
   }
   if (ctrl) {
-    binding = { ...binding, ctrl };
+    newBinding = { ...newBinding, ctrl };
   }
 
   if (!NO_VALUE_ACTIONS.includes(actionName)) {
-    const value = Number(item.querySelector('.customValue').value);
+    const value = Number(binding.querySelector('.customValue').value);
     if (value !== tcDefault.action.value) {
-      binding = { ...binding, value };
+      newBinding = { ...newBinding, value };
     }
 
-    const value2El = item.querySelector('.customValue2');
+    const value2El = binding.querySelector('.customValue2');
     if (value2El) {
       const value2 = Number(value2El.value);
       if (value2 !== tcDefault.action.value2) {
-        binding = { ...binding, value2 };
+        newBinding = { ...newBinding, value2 };
       }
     }
   }
 
-  keyBindings.push(binding);
+  keyBindings.push(newBinding);
 }
 
-export function recordKeyPress(e) {
+/**
+ * @param {KeyboardEvent} event - Keyboard event
+ */
+export function recordKeyPress(event) {
+  const { code, ctrlKey, key, shiftKey } = event;
+
   // Special handling for backspace and escape
-  if (e.keyCode === 8) {
+  if (key === 'Escape') {
     // Clear input when backspace pressed
-    e.target.value = '';
-    e.preventDefault();
-    e.stopPropagation();
+    event.target.value = '';
+    event.preventDefault();
+    event.stopPropagation();
     return;
-  } else if (e.keyCode === 27) {
+  } else if (key === 'Backspace') {
     // When esc clicked, clear input
-    e.target.value = 'null';
-    e.target.keyCode = null;
-    e.preventDefault();
-    e.stopPropagation();
+    event.target.value = 'null';
+    event.target.keyCode = null;
+    event.preventDefault();
+    event.stopPropagation();
     return;
   }
 
   // Block blacklisted keys
-  if (BLACKLISTED_KEYCODES.includes(e.keyCode)) {
-    e.preventDefault();
-    e.stopPropagation();
+  if (BLACKLISTED_KEYS.includes(key)) {
+    event.preventDefault();
+    event.stopPropagation();
     return;
   }
 
   // Accept all other keys
-  // Use friendly name if available, otherwise show "Key {code}"
-  e.target.value =
-    KEY_CODES[e.keyCode] ||
-    (e.keyCode >= 48 && e.keyCode <= 90 ? String.fromCharCode(e.keyCode) : `Key ${e.keyCode}`);
+  // Use friendly name if available, otherwise show the key itself
+  event.target.value = KEYS[key] || key;
 
-  e.target.keyCode = e.keyCode;
-  e.target.shift = e.shiftKey;
-  e.target.ctrl = e.ctrlKey;
+  event.target.key = key;
+  event.target.code = code;
+  event.target.shift = shiftKey;
+  event.target.ctrl = ctrlKey;
 
-  const shift = e.target.nextElementSibling;
-  const ctrl = shift.nextElementSibling.nextElementSibling;
-  shift.checked = e.shiftKey;
-  ctrl.checked = e.ctrlKey;
+  const shift = event.target.parentElement.previousElementSibling.querySelector('[name="shift"]');
+  const ctrl = event.target.parentElement.previousElementSibling.querySelector('[name="ctrl"]');
+  shift.checked = shiftKey;
+  ctrl.checked = ctrlKey;
 
-  e.preventDefault();
-  e.stopPropagation();
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 export function inputFilterNumbersOnly(e) {
@@ -197,9 +195,7 @@ export function inputFocus(e) {
 
 export function inputBlur(e) {
   const keyCode = e.target.keyCode;
-  e.target.value =
-    KEY_CODES[keyCode] ||
-    (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
+  e.target.value = KEY_CODES[keyCode] || (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
 }
 
 // MyNote: commented because I didn't have it, and I don't think it's needed.
@@ -211,9 +207,12 @@ export function inputBlur(e) {
 //   input.keyCode = keyCode;
 // }
 
-export function updateCustomShortcutInputText(inputItem, keyCode) {
-  inputItem.value =
-    KEY_CODES[keyCode] ||
-    (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
-  inputItem.keyCode = keyCode;
+export function updateCustomShortcutInputText(inputItem, binding) {
+  const { code, ctrl, key, shift } = binding;
+  inputItem.value = KEYS[key] || key;
+
+  inputItem.key = key;
+  inputItem.code = code;
+  inputItem.shift = shift;
+  inputItem.ctrl = ctrl;
 }

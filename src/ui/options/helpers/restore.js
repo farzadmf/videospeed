@@ -17,13 +17,15 @@ export function restoreOptions() {
     document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
     document.getElementById('startHidden').checked = storage.startHidden;
 
-    const keyBindings = _.sortBy(storage.keyBindings, (b) => b.action.description);
+    const keyBindings = _.sortBy(storage.keyBindings, (b) => {
+      return b.action.description;
+    });
 
-    for (const item of keyBindings) {
-      const actionName = getActionName(item.action);
+    for (const binding of keyBindings) {
+      const actionName = getActionName(binding.action);
       const tcDefault = getTcDefaultBinding(actionName);
 
-      addBinding(item);
+      addBinding(binding);
 
       const dom = document.querySelector('#shortcuts tbody tr:last-of-type');
       dom.querySelector('.customDo').value = actionName;
@@ -31,14 +33,14 @@ export function restoreOptions() {
       if (NO_VALUE_ACTIONS.includes(actionName)) {
         dom.querySelector('.customValue').style.display = 'none';
       } else {
-        dom.querySelector('.customValue').value = item.value || tcDefault.action.value;
+        dom.querySelector('.customValue').value = binding.value || tcDefault.action.value;
       }
 
-      updateCustomShortcutInputText(dom.querySelector('.customKey'), item.key);
-      dom.querySelector('input[name="shift"]').checked = !!item.shift;
-      dom.querySelector('input[name="ctrl"]').checked = !!item.ctrl;
+      updateCustomShortcutInputText(dom.querySelector('.customKey'), binding);
+      dom.querySelector('input[name="shift"]').checked = !!binding.shift;
+      dom.querySelector('input[name="ctrl"]').checked = !!binding.ctrl;
 
-      const force = JSON.parse(item.force);
+      const force = JSON.parse(binding.force);
       dom.querySelector('.customForce').value = force;
 
       const colorCls = force ? 'text-warning' : 'text-success';
@@ -46,7 +48,7 @@ export function restoreOptions() {
 
       const customValue2 = dom.querySelector('.customValue2');
       if (customValue2) {
-        customValue2.value = item.value2 || tcDefault.action.value2;
+        customValue2.value = binding.value2 || tcDefault.action.value2;
       }
     }
 

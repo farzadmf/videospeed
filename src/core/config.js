@@ -121,12 +121,12 @@ export class VideoSpeedConfig {
    * @param {KeyboardEvent} event - Keyboard event
    */
   getActionByKeyEvent(event) {
-    const keyCode = event.keyCode;
+    const code = event.code;
     const shift = !!event.shiftKey;
     const ctrl = !!event.ctrlKey;
 
     return this.settings.keyBindings.find(
-      (item) => item.key === keyCode && !!item.shift === shift && !!item.ctrl === ctrl
+      (binding) => binding.code === code && !!binding.shift === shift && !!binding.ctrl === ctrl
     );
   }
 

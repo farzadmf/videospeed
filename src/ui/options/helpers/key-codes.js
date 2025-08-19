@@ -14,6 +14,31 @@ export const BLACKLISTED_KEYCODES = [
   224, // Meta/Command (Firefox)
 ];
 
+export const BLACKLISTED_KEYS = [
+  'Tab',
+  'Shift', // alone
+  'Ctrl', // alone
+  'Alt', // alone
+  'Meta', // alone
+  // 93, // Context Menu/Right Command -> what's the "key" for this?
+];
+
+export const KEYS = {
+  '!': '1',
+  '@': '2',
+  '#': '3',
+  $: '4',
+  '%': '5',
+  '^': '6',
+  '&': '7',
+  '*': '8',
+  '(': '9',
+  ArrowDown: 'Down',
+  ArrowLeft: 'Left',
+  ArrowRight: 'Right',
+  ArrowUp: 'Up',
+};
+
 export const KEY_CODES = {
   0: 'null',
   null: 'null',

@@ -51,8 +51,8 @@ export class EventManager {
     }
 
     docs.forEach((doc) => {
-      const keydownHandler = (event) => this.handleKeydown(event);
-      doc.addEventListener('keydown', keydownHandler, true);
+      const keyDownHandler = (event) => this.handleKeyDown(event);
+      doc.addEventListener('keydown', keyDownHandler, true);
 
       // Store reference for cleanup
       if (!this.listeners.has(doc)) {
@@ -60,7 +60,7 @@ export class EventManager {
       }
       this.listeners.get(doc).push({
         type: 'keydown',
-        handler: keydownHandler,
+        handler: keyDownHandler,
         useCapture: true,
       });
     });
@@ -71,13 +71,13 @@ export class EventManager {
    * @param {KeyboardEvent} event - Keyboard event
    * @private
    */
-  handleKeydown(event) {
-    const keyCode = event.keyCode;
+  handleKeyDown(event) {
+    const { key } = event;
 
-    logger.verbose(`Processing keydown event: key=${event.key}, keyCode=${keyCode}`);
+    logger.verbose(`Processing keydown event: key=${event.key}, code=${event.code}`);
 
     // Event deduplication - prevent same key event from being processed multiple times
-    const eventSignature = `${keyCode}_${event.timeStamp}_${event.type}`;
+    const eventSignature = `${key}_${event.timeStamp}_${event.type}`;
 
     if (this.lastKeyEventSignature === eventSignature) {
       return;
@@ -87,7 +87,7 @@ export class EventManager {
 
     // Ignore if following modifier is active
     if (this.hasActiveModifier(event)) {
-      logger.debug(`Keydown event ignored due to active modifier: ${keyCode}`);
+      logger.debug(`Keydown event ignored due to active modifier: ${key}`);
       return;
     }
 
@@ -116,7 +116,7 @@ export class EventManager {
         event.stopPropagation();
       }
     } else {
-      logger.verbose(`No key binding found for keyCode: ${keyCode}`);
+      logger.verbose(`No key binding found for keyCode: ${key}`);
     }
 
     return false;
