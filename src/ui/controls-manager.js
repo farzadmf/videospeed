@@ -80,7 +80,7 @@ export class ControlsManager {
   }
 
   /**
-   * Set up mouse wheel handler for speed control
+   * Set up mouse wheel handler for speed control (mouse only, touchpad disabled)
    * @param {ShadowRoot} shadow - Shadow root
    * @param {HTMLVideoElement} video - Video element
    * @private
@@ -91,6 +91,12 @@ export class ControlsManager {
     controller.addEventListener(
       'wheel',
       (event) => {
+        // Only respond to discrete mouse wheel events, ignore touchpad pixel-level scrolling
+        if (event.deltaMode === event.DOM_DELTA_PIXEL) {
+          logger.debug('Touchpad scroll detected - ignoring');
+          return;
+        }
+
         event.preventDefault();
 
         const delta = Math.sign(event.deltaY);
@@ -99,7 +105,7 @@ export class ControlsManager {
 
         this.actionHandler.adjustSpeed(video, speedDelta, { relative: true });
 
-        logger.debug(`Wheel control: adjusting speed by ${speedDelta}`);
+        logger.debug(`Mouse wheel control: adjusting speed by ${speedDelta}`);
       },
       { passive: false }
     );
