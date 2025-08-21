@@ -11,7 +11,7 @@
     "48": "assets/icons/icon48.png",
     "128": "assets/icons/icon128.png"
   },
-  "permissions": ["activeTab", "storage", "tabs"],
+  "permissions": ["activeTab", "storage"],
   "options_ui": {
     "page": "ui/options/options.html",
     "open_in_tab": true
