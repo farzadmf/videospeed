@@ -22,6 +22,8 @@ export class EventManager {
     this.coolDown = false;
     this.timer = null;
 
+    this.leaderKeyHeld = false;
+
     // Event deduplication to prevent duplicate key processing
     this.lastKeyEventSignature = null;
   }
@@ -52,7 +54,10 @@ export class EventManager {
 
     docs.forEach((doc) => {
       const keyDownHandler = (event) => this.handleKeyDown(event);
+      const keyUpHandler = (event) => this.handleKeyUp(event);
+
       doc.addEventListener('keydown', keyDownHandler, true);
+      doc.addEventListener('keyup', keyUpHandler, true);
 
       // Store reference for cleanup
       if (!this.listeners.has(doc)) {
@@ -71,8 +76,26 @@ export class EventManager {
    * @param {KeyboardEvent} event - Keyboard event
    * @private
    */
+  handleKeyUp(event) {
+    if (event.key === 'q') {
+      this.leaderKeyHeld = false;
+    }
+  }
+
+  /**
+   * Handle keydown events
+   * @param {KeyboardEvent} event - Keyboard event
+   * @private
+   */
   handleKeyDown(event) {
     const { key } = event;
+
+    // if (event.key !== 'q' && !this.leaderKeyHeld) return;
+    // if (event.key === 'q' && this.leaderKeyHeld) return;
+    //
+    // if (event.key === 'q') {
+    //   this.leaderKeyHeld = true;
+    // }
 
     logger.verbose(`Processing keydown event: key=${event.key}, code=${event.code}`);
 
