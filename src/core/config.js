@@ -11,6 +11,10 @@ import { VSC_DEFAULTS } from '../shared/defaults.js';
 export class VideoSpeedConfig {
   constructor() {
     this.settings = { ...VSC_DEFAULTS };
+
+    this.pendingSave = null;
+    this.saveTimer = null;
+    this.SAVE_DELAY = 1000; // 1 second
   }
 
   /**
@@ -67,14 +71,38 @@ export class VideoSpeedConfig {
    */
   async save(newSettings = {}) {
     try {
+      // Update in-memory settings immediately
       this.settings = { ...this.settings, ...newSettings };
+
+      // MyNote: is there even a thing of only saving speed?!
+      // Check if this is a speed-only update that should be debounced
+      const keys = Object.keys(newSettings);
+      if (keys.length === 1 && keys[0] === 'lastSpeed') {
+        // Debounce speed saves
+        this.pendingSave = newSettings.lastSpeed;
+
+        clearTimeout(this.saveTimer);
+
+        this.saveTimer = setTimeout(async () => {
+          const speedToSave = this.pendingSave;
+          this.pendingSave = null;
+          this.saveTimer = null;
+
+          await StorageManager.set({ ...this.settings, lastSpeed: speedToSave });
+          logger.info('Debounced speed setting saved successfully');
+        }, this.SAVE_DELAY);
+
+        return;
+      }
+
+      // Immediate save for all other settings
+      await StorageManager.set(this.settings);
 
       // Update logger verbosity if logLevel was changed
       if (newSettings.logLevel !== undefined) {
         logger.setVerbosity(newSettings.logLevel);
       }
 
-      await StorageManager.set(this.settings);
       logger.info('Settings saved successfully');
     } catch (error) {
       logger.error(`Failed to save settings: ${error.message}`);
