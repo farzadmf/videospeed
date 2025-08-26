@@ -1,6 +1,6 @@
 import { getTcDefaultBinding } from './misc.js';
 import { actionByName, ALLOWED_ACTION_OPTIONS, ACTION_OPTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
-import { BLACKLISTED_KEYCODES, BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
+import { BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
 
 export const keyBindings = [];
 

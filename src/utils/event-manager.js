@@ -81,6 +81,14 @@ export class EventManager {
     if (event.key === 'q') {
       this.leaderKeyHeld = false;
     }
+
+    const actionItem = this.config.getActionByKeyEvent(event);
+
+    if (actionItem.force) {
+      // Disable website's key bindings
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 
   /**

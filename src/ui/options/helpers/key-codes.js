@@ -24,6 +24,7 @@ export const BLACKLISTED_KEYS = [
 ];
 
 export const KEYS = {
+  ' ': 'Space',
   '!': '1',
   '@': '2',
   '#': '3',
