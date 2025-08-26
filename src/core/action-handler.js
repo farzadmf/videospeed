@@ -32,7 +32,7 @@ export class ActionHandler {
    * @param {*} value - Action value
    * @param {Event} event - Event object (optional)
    */
-  runAction({ actionItem, event, wrapperDiv }) {
+  runAction({ actionItem, event, wrapperDiv = null, isKeyUp = false }) {
     logger.debug('runAction Begin:', actionItem);
 
     const mediaTags = stateManager.getControlledElements();
@@ -82,7 +82,9 @@ export class ActionHandler {
       this.eventManager.showController(controller);
 
       if (!video.classList.contains('vsc-cancelled')) {
-        return this.executeAction({ actionName, value, value2, video, event });
+        // MyNote: for keyup events, I assume that if we reach here, it means that we had an action
+        //         that was handled by keydown, so returning true to indicate that it's a "VSC key".
+        return isKeyUp ? true : this.executeAction({ actionName, value, value2, video, event });
       }
     });
 
@@ -281,13 +283,7 @@ export class ActionHandler {
 
     // Only update speed when we manually change it using an action
     if (source === 'action-handler') {
-      logger.debug(
-        '[adjustSeped]',
-        'source is action-handler; saving',
-        numericSpeed,
-        'for url',
-        url
-      );
+      logger.debug('[adjustSeped]', 'source is action-handler; saving', numericSpeed, 'for url', url);
 
       this.config.syncSpeedValue({
         speed: numericSpeed,
