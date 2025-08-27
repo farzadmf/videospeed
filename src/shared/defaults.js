@@ -13,7 +13,7 @@ export const VSC_DEFAULTS = {
   keyBindings: [
     { action: ACTIONS.display, force: false, code: 'KeyV', key: 'v', predefined: true },
     { action: ACTIONS.fast, force: false, code: 'KeyG', key: 'g', predefined: true },
-    { action: ACTIONS.faster, force: false, code: 'Period', key: '.', predefined: true },
+    { action: ACTIONS.faster, force: true, code: 'Period', key: '.', predefined: true },
     { action: ACTIONS.fixspeed_10, force: true, code: 'Digit1', key: '1', predefined: false },
     { action: ACTIONS.fixspeed_15, force: true, code: 'Digit1', key: '1', predefined: false, shift: true },
     { action: ACTIONS.fixspeed_20, force: true, code: 'Digit2', key: '2', predefined: false },
@@ -35,7 +35,7 @@ export const VSC_DEFAULTS = {
     { action: ACTIONS.go_start, force: false, code: 'Digit0', key: '0', predefined: false },
     { action: ACTIONS.pause, force: true, code: 'Space', key: ' ', predefined: false },
     { action: ACTIONS.reset, force: false, code: 'KeyR', key: 'r', predefined: true },
-    { action: ACTIONS.slower, force: false, code: 'Comma', key: ',', predefined: true },
+    { action: ACTIONS.slower, force: true, code: 'Comma', key: ',', predefined: true },
     { action: ACTIONS.vol_down, force: true, code: 'ArrowDown', key: 'ArrowDown', predefined: true },
     { action: ACTIONS.vol_up, force: true, code: 'ArrowUp', key: 'ArrowUp', predefined: true },
     { action: ACTIONS.rewind, force: true, code: 'ArrowLeft', key: 'ArrowLeft', predefined: true },

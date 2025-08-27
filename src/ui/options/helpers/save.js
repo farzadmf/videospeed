@@ -1,4 +1,4 @@
-import { createKeyBindings, keyBindings } from './bindings.js';
+import { createKeyBinding } from './bindings.js';
 import { validate } from './validate.js';
 import { REG_STRIP } from '../../../shared/constants.js';
 
@@ -7,7 +7,9 @@ export const saveOptions = () => {
     return;
   }
 
-  Array.from(document.querySelectorAll('#shortcuts tr')).forEach((item) => createKeyBindings(item)); // Remove added shortcuts
+  const keyBindings = Array.from(document.querySelectorAll('#shortcuts tr'))
+    .map((item) => createKeyBinding(item))
+    .filter(Boolean);
 
   const audioBoolean = document.getElementById('audioBoolean').checked;
   const blacklist = document.getElementById('blacklist').value.trim().split('\n');

@@ -2,8 +2,6 @@ import { getTcDefaultBinding } from './misc.js';
 import { actionByName, ALLOWED_ACTION_OPTIONS, ACTION_OPTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
 import { BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
 
-export const keyBindings = [];
-
 export function addBinding(item) {
   // When this is called because we click "Add New" in options, 'item' would be a PointerEvent,
   //  so 'action' and 'preddefined' would be undefined.
@@ -85,7 +83,7 @@ export function addBinding(item) {
   });
 }
 
-export function createKeyBindings(binding) {
+export function createKeyBinding(binding) {
   // Ignore rows not containing anything!
   if (!binding.querySelector('.customDo')) {
     return;
@@ -131,7 +129,7 @@ export function createKeyBindings(binding) {
     }
   }
 
-  keyBindings.push(newBinding);
+  return newBinding;
 }
 
 /**
