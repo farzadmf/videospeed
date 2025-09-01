@@ -1,6 +1,6 @@
 import { getTcDefaultBinding } from './misc.js';
 import { actionByName, ALLOWED_ACTION_OPTIONS, ACTION_OPTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
-import { BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
+import { BLACKLISTED_CODES, BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
 
 export function addBinding(item) {
   // When this is called because we click "Add New" in options, 'item' would be a PointerEvent,
@@ -43,6 +43,10 @@ export function addBinding(item) {
     </select>
   </td>
   <td>
+    <div class="form-check">
+      <input type="checkbox" class="form-check-input" name="alt" />
+      <label class="modifier form-check-label">ALT</label>
+    </div>
     <div class="form-check">
       <input type="checkbox" class="form-check-input" name="shift" />
       <label class="modifier form-check-label">SHIFT</label>
@@ -94,7 +98,7 @@ export function createKeyBinding(binding) {
   const tcDefault = getTcDefaultBinding(action);
 
   const customKeyEl = binding.querySelector('.customKey');
-  const { code, ctrl, key, shift } = customKeyEl;
+  const { alt, code, ctrl, key, shift } = customKeyEl;
 
   const force = JSON.parse(binding.querySelector('.customForce').value);
   const predefined = !!binding.querySelector('.predefined');
@@ -108,10 +112,13 @@ export function createKeyBinding(binding) {
   };
 
   if (shift) {
-    newBinding = { ...newBinding, shift };
+    newBinding = { ...newBinding, shift: Boolean(shift) };
+  }
+  if (alt) {
+    newBinding = { ...newBinding, alt: Boolean(alt) };
   }
   if (ctrl) {
-    newBinding = { ...newBinding, ctrl };
+    newBinding = { ...newBinding, ctrl: Boolean(alt) };
   }
 
   if (!NO_VALUE_ACTIONS.includes(actionName)) {
@@ -136,7 +143,7 @@ export function createKeyBinding(binding) {
  * @param {KeyboardEvent} event - Keyboard event
  */
 export function recordKeyPress(event) {
-  const { code, ctrlKey, key, shiftKey } = event;
+  const { altKey, code, ctrlKey, key, shiftKey } = event;
 
   // Special handling for backspace and escape
   if (key === 'Escape') {
@@ -155,7 +162,7 @@ export function recordKeyPress(event) {
   }
 
   // Block blacklisted keys
-  if (BLACKLISTED_KEYS.includes(key)) {
+  if (BLACKLISTED_KEYS.includes(key) || BLACKLISTED_CODES.includes(code)) {
     event.preventDefault();
     event.stopPropagation();
     return;
@@ -163,15 +170,18 @@ export function recordKeyPress(event) {
 
   // Accept all other keys
   // Use friendly name if available, otherwise show the key itself
-  event.target.value = KEYS[key] || key;
+  event.target.value = (KEYS[code] || code).replace(/^(Key|Digit)/, '');
 
+  event.target.alt = altKey;
   event.target.key = key;
   event.target.code = code;
   event.target.shift = shiftKey;
   event.target.ctrl = ctrlKey;
 
+  const alt = event.target.parentElement.previousElementSibling.querySelector('[name="alt"]');
   const shift = event.target.parentElement.previousElementSibling.querySelector('[name="shift"]');
   const ctrl = event.target.parentElement.previousElementSibling.querySelector('[name="ctrl"]');
+  alt.checked = altKey;
   shift.checked = shiftKey;
   ctrl.checked = ctrlKey;
 
@@ -206,11 +216,12 @@ export function inputBlur(e) {
 // }
 
 export function updateCustomShortcutInputText(inputItem, binding) {
-  const { code, ctrl, key, shift } = binding;
-  inputItem.value = KEYS[key] || key;
+  const { alt, code, ctrl, key, shift } = binding;
+  inputItem.value = (KEYS[code] || code).replace(/^(Key|Digit)/, '');
 
   inputItem.key = key;
   inputItem.code = code;
+  inputItem.alt = alt;
   inputItem.shift = shift;
   inputItem.ctrl = ctrl;
 }

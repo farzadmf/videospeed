@@ -1,19 +1,11 @@
 import { NO_VALUE_ACTIONS } from '../../shared/actions.js';
-import {
-  addBinding,
-  inputFilterNumbersOnly,
-  inputFocus,
-  inputBlur,
-  recordKeyPress,
-} from './helpers/bindings.js';
+import { addBinding, inputFilterNumbersOnly, inputFocus, inputBlur, recordKeyPress } from './helpers/bindings.js';
 import { cleanUpSpeeds, loadSpeeds } from './helpers/toggle-speeds.js';
 import { restoreDefaults, restoreOptions } from './helpers/restore.js';
 import { saveOptions } from './helpers/save.js';
 
 function show_experimental() {
-  document
-    .querySelectorAll('.customForce')
-    .forEach((item) => (item.style.display = 'inline-block'));
+  document.querySelectorAll('.customForce').forEach((item) => (item.style.display = 'inline-block'));
 }
 
 function forgetAll() {
@@ -67,8 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.addEventListener('change', (event) => {
     eventCaller(event, 'customDo', () => {
-      const parent = event.target.parentNode;
-      const customValue = parent.querySelector('.customValue');
+      const parentRow = event.target.closest('tr');
+      const customValue = parentRow.querySelector('.customValue');
 
       if (NO_VALUE_ACTIONS.includes(event.target.value)) {
         customValue.style.display = 'none';

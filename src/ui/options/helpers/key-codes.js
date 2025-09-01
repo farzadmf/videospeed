@@ -23,6 +23,19 @@ export const BLACKLISTED_KEYS = [
   // 93, // Context Menu/Right Command -> what's the "key" for this?
 ];
 
+export const BLACKLISTED_CODES = [
+  'Tab',
+  'ShiftLeft', // alone
+  'ShiftRight', // alone
+  'ControlLeft', // alone
+  'ControlRight', // alone
+  'AltLeft', // alone
+  'AltRight', // alone
+  'MetaLeft', // alone
+  'MetaRight', // alone
+  // 93, // Context Menu/Right Command -> what's the "key" for this?
+];
+
 export const KEYS = {
   ' ': 'Space',
   '!': '1',

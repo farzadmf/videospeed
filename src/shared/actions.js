@@ -38,6 +38,7 @@ export const ACTIONS = {
   jump: { name: 'jump', description: 'Jump to mark' },
   mark: { name: 'mark', description: 'Mark location' },
   muted: { name: 'muted', description: 'Mute' },
+  pip_toggle: { name: 'pip_toggle', description: 'Toggle PiP mode' },
   pause: { name: 'pause', description: 'Pause' },
   reset: { name: 'reset', description: 'Reset speed', value: 1.0 },
   rewind: {
@@ -59,21 +60,12 @@ export const NO_VALUE_ACTIONS = _.keys(_.pickBy(ACTIONS, (value) => value.value 
 
 export const actionByName = (actionName) => _.pick(ACTIONS, [actionName])[actionName];
 
-export const ACTION_OPTIONS = _.map(
-  ACTIONS,
-  ({ name, description }) => `<option value="${name}">${description}</option>`
-);
+export const ACTION_OPTIONS = _.map(ACTIONS, ({ name, description }) => `<option value="${name}">${description}</option>`);
 
 export const ALLOWED_ACTION_OPTIONS = () => {
-  const usedOptions = _.map(
-    document.querySelectorAll('#shortcuts td:first-child select'),
-    (s) => s.value
-  );
+  const usedOptions = _.map(document.querySelectorAll('#shortcuts td:first-child select'), (s) => s.value);
 
   const filtered = _.filter(ACTIONS, ({ name }) => usedOptions.indexOf(name) === -1);
 
-  return _.map(
-    filtered,
-    ({ name, description }) => `<option value="${name}">${description}</option>`
-  );
+  return _.map(filtered, ({ name, description }) => `<option value="${name}">${description}</option>`);
 };

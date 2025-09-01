@@ -11,9 +11,9 @@ Progress:
 
 ---
 
-2025-07-24 - Upstream comments:
+2025-07-24 - Upstream commits:
 - 2025-07-24 | ignored https://github.com/igrigorik/videospeed/commit/f573d2be because I'm
-               honestly sure what it's trying to do and whether it applies to me or not!
+               honestly not sure what it's trying to do and whether it applies to me or not!
                I haven't noticed "keyboard shortcuts not persisting after refresh"
 
 ---
@@ -42,6 +42,7 @@ Some URLs for testing videos:
   - https://redd.it/1hveiuk
 
 - Increasing volume beyong 100%: https://stackoverflow.com/a/43794379/3646201
+- PiP (Picture-in-Picture) API: https://developer.mozilla.org/en-US/docs/Web/API/Picture-in-Picture_API
 
 Check https://openai.com/blog/sora-first-impressions to see if we can attach to the videos:
 - When a button is clicked, it loads an iframe inside a div

@@ -212,6 +212,9 @@ export class ActionHandler {
         this.jumpToMark(video);
         return true;
 
+      case 'pip_toggle':
+        return this.togglePip(video);
+
       case 'SET_SPEED':
         logger.info('Setting speed to:', value);
         this.adjustSpeed(video, value);
@@ -394,6 +397,22 @@ export class ActionHandler {
     if (video.vsc.mark && typeof video.vsc.mark === 'number') {
       video.currentTime = video.vsc.mark;
     }
+  }
+
+  /**
+   * Toggle PiP mode
+   * @param {HTMLMediaElement} video - Video element
+   */
+  togglePip(video) {
+    if (video.tagName !== 'VIDEO') return false;
+
+    if (document.pictureInPictureElement) {
+      document.exitPictureInPicture();
+    } else {
+      video.requestPictureInPicture();
+    }
+
+    return true;
   }
 
   /**

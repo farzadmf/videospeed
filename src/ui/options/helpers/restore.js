@@ -37,6 +37,8 @@ export function restoreOptions() {
       }
 
       updateCustomShortcutInputText(dom.querySelector('.customKey'), binding);
+
+      dom.querySelector('input[name="alt"]').checked = !!binding.alt;
       dom.querySelector('input[name="shift"]').checked = !!binding.shift;
       dom.querySelector('input[name="ctrl"]').checked = !!binding.ctrl;
 
@@ -63,8 +65,8 @@ export function restoreOptions() {
 
 export function restoreDefaults() {
   chrome.storage.sync.set(VSC_DEFAULTS, () => {
+    document.querySelector('#shortcuts tbody').replaceChildren();
     restoreOptions();
-    document.querySelectorAll('.removeParent').forEach((button) => button.click()); // Remove added shortcuts
 
     // Update status to let user know options were saved.
     const status = document.getElementById('status');

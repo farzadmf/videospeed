@@ -170,7 +170,6 @@ export class EventManager {
   hasActiveModifier(event) {
     return (
       !event.getModifierState ||
-      event.getModifierState('Alt') ||
       event.getModifierState('Control') ||
       event.getModifierState('Fn') ||
       event.getModifierState('Meta') ||

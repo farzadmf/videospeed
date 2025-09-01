@@ -38,8 +38,7 @@ export async function injectCSS() {
 
   // The div used (and removed) in shadow-dom-manager file to get shadow CSS contents.
   const shadowCssDivId = 'vsc-shadow-css-content';
-  const shadowCssDiv =
-    document.querySelector(`#${shadowCssDivId}`) ?? document.createElement('div');
+  const shadowCssDiv = document.querySelector(`#${shadowCssDivId}`) ?? document.createElement('div');
 
   shadowCssDiv.id = shadowCssDivId;
   // MyNote: style is sometimes undefined for whatever reason! If that's the case, give up!
