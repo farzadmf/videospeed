@@ -32,12 +32,7 @@
         <!-- Key Bindings -->
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button
-              class="accordion-button"
-              data-bs-target="#key-bindings"
-              data-bs-toggle="collapse"
-              type="button"
-            >
+            <button class="accordion-button" data-bs-target="#key-bindings" data-bs-toggle="collapse" type="button">
               Key Bindings
             </button>
           </h2>
@@ -70,20 +65,11 @@
         <!-- Other settings -->
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button
-              class="accordion-button"
-              data-bs-target="#other-settings"
-              data-bs-toggle="collapse"
-              type="button"
-            >
+            <button class="accordion-button" data-bs-target="#other-settings" data-bs-toggle="collapse" type="button">
               Other Settings
             </button>
           </h2>
-          <div
-            id="other-settings"
-            class="accordion-collapse collapse"
-            data-bs-parent="#all-settings"
-          >
+          <div id="other-settings" class="accordion-collapse collapse" data-bs-parent="#all-settings">
             <section class="px-2">
               <h3>Other</h3>
               <div class="form-check mb-2">
@@ -101,9 +87,7 @@
               <div class="form-check mb-2">
                 <label class="form-check-label" for="forceLastSavedSpeed"
                   >Force last saved speed<br />
-                  <em
-                    >Useful for video players that override the speeds set by VideoSpeed</em
-                  ></label
+                  <em>Useful for video players that override the speeds set by VideoSpeed</em></label
                 >
                 <input class="form-check-input" id="forceLastSavedSpeed" type="checkbox" />
               </div>
@@ -116,27 +100,15 @@
                   <label class="form-label" for="controllerOpacity">Controller opacity</label>
                 </div>
                 <div class="col-lg-9">
-                  <input
-                    class="form-control form-control-sm"
-                    id="controllerOpacity"
-                    type="text"
-                    value=""
-                  />
+                  <input class="form-control form-control-sm" id="controllerOpacity" type="text" value="" />
                 </div>
               </div>
               <div class="row mb-2">
                 <div class="col-lg-3">
-                  <label class="form-label" for="controllerButtonSize"
-                    >Controller button size</label
-                  >
+                  <label class="form-label" for="controllerButtonSize">Controller button size</label>
                 </div>
                 <div class="col-lg-9">
-                  <input
-                    class="form-control form-control-sm"
-                    id="controllerButtonSize"
-                    type="text"
-                    value=""
-                  />
+                  <input class="form-control form-control-sm" id="controllerButtonSize" type="text" value="" />
                 </div>
               </div>
               <div class="row mb-2">
@@ -174,15 +146,30 @@
           </div>
         </div>
 
+        <!-- Site specific settings -->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" data-bs-target="#site-specific" data-bs-toggle="collapse" type="button">
+              Site-specific Settings
+            </button>
+          </h2>
+          <div id="site-specific" class="accordion-collapse collapse" data-bs-parent="#all-settings">
+            <section class="px-2">
+              <h3>YouTube</h3>
+              <div class="form-check mb-2">
+                <label class="form-check-label" for="sponsor_block"
+                  >Enable SponsorBlock<br /><em>Call SponsorBlock API to get sponsored sections</em></label
+                >
+                <input class="form-check-input" id="sponsor_block" type="checkbox" />
+              </div>
+            </section>
+          </div>
+        </div>
+
         <!-- Speeds -->
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button
-              class="accordion-button"
-              data-bs-target="#speed-values"
-              data-bs-toggle="collapse"
-              type="button"
-            >
+            <button class="accordion-button" data-bs-target="#speed-values" data-bs-toggle="collapse" type="button">
               Speeds
             </button>
           </h2>
@@ -201,21 +188,14 @@
         <!-- Help & Support -->
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button
-              class="accordion-button"
-              data-bs-target="#help-support"
-              data-bs-toggle="collapse"
-              type="button"
-            >
+            <button class="accordion-button" data-bs-target="#help-support" data-bs-toggle="collapse" type="button">
               Help & Support
             </button>
           </h2>
           <div id="help-support" class="accordion-collapse collapse" data-bs-parent="#all-settings">
             <div class="p-2">
               <div class="container w-25">
-                <button class="btn btn-danger w-100 my-2" id="about">
-                  About Video Speed Controller
-                </button>
+                <button class="btn btn-danger w-100 my-2" id="about">About Video Speed Controller</button>
                 <button class="btn btn-success w-100 my-2" id="feedback">Send Feedback</button>
               </div>
             </div>

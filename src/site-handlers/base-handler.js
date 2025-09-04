@@ -100,6 +100,14 @@ export class BaseSiteHandler {
   detectSpecialVideos() {
     return [];
   }
+
+  /**
+   * Handles sponsored segments from the video that can be skipped
+   */
+  async initSkipSegments() {
+    logger.debug('[initSkipSegments] base-handler is a no-op');
+    return [];
+  }
 }
 
 // Create singleton instance

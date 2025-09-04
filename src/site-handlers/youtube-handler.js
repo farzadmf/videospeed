@@ -2,12 +2,20 @@
  * YouTube-specific handler
  */
 
+const _ = window.VSC?._ || window._;
+
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
 import { BaseSiteHandler } from './base-handler.js';
 
 export class YouTubeHandler extends BaseSiteHandler {
+  constructor() {
+    super();
+
+    this.segments = [];
+  }
+
   /**
    * Check if this handler applies to YouTube
    * @returns {boolean} True if on YouTube
@@ -116,10 +124,7 @@ export class YouTubeHandler extends BaseSiteHandler {
    */
   shouldIgnoreVideo(video) {
     // Ignore thumbnail videos and ads
-    return (
-      video.classList.contains('video-thumbnail') ||
-      video.parentElement?.classList.contains('ytp-ad-player-overlay')
-    );
+    return video.classList.contains('video-thumbnail') || video.parentElement?.classList.contains('ytp-ad-player-overlay');
   }
 
   /**
@@ -167,6 +172,29 @@ export class YouTubeHandler extends BaseSiteHandler {
     // YouTube fires custom events we could listen to
     // This could be used for better integration with YouTube's player
     logger.debug('YouTube player state changed');
+  }
+
+  /**
+   * Handles sponsored segments from the video that can be skipped
+   * @returns {Array<{start: number, end: number}>} Array of segments with start and end times in seconds
+   */
+  async initSkipSegments() {
+    this.segments = [];
+    const videoId = new URL(location.href).searchParams.get('v');
+    logger.debug('[initSkipSegments] videoId', videoId);
+
+    let segments = [];
+    try {
+      const res = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
+      const json = await res.json();
+      segments = _.map(json, (r) => ({ start: Math.floor(r.segment[0]), end: Math.floor(r.segment[1]) }));
+
+      logger.debug('[initSkipSegments] segments', segments);
+    } catch (err) {
+      logger.warn('[initSkipSegments] error', err);
+    }
+
+    return segments;
   }
 }
 

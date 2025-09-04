@@ -171,6 +171,28 @@ export class ShadowDOMManager {
   }
 
   /**
+   * Add skip segments to the progress bar
+   * @param {number} totalDuration - Total duration of the video in seconds
+   * @param {Array<Object>} segments - Array of segment objects
+   * @param {number} segments[].start - Start time of the segment in seconds
+   * @param {number} segments[].end - End time of the segment in seconds
+   */
+  addSkipSegments({ totalDuration, segments }) {
+    segments.forEach((segment) => {
+      const segmentDiv = document.createElement('div');
+      segmentDiv.className = 'vsc-progress-line-segment';
+
+      const leftPercent = (segment.start / totalDuration) * 100;
+      const widthPercent = ((segment.end - segment.start) / totalDuration) * 100;
+
+      segmentDiv.style.left = `${leftPercent}%`;
+      segmentDiv.style.width = `${widthPercent}%`;
+
+      this.progressLineContainer.appendChild(segmentDiv);
+    });
+  }
+
+  /**
    * Calculate position for controller based on video element
    * @param {HTMLVideoElement} video - Video element
    * @returns {Object} Position object with top and left properties

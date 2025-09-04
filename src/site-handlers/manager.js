@@ -139,6 +139,14 @@ export class SiteHandlerManager {
     this.cleanup();
     this.currentHandler = null;
   }
+
+  /**
+   * Handles sponsored segments from the video that can be skipped
+   */
+  async initSkipSegments() {
+    const handler = this.getCurrentHandler();
+    return await handler.initSkipSegments();
+  }
 }
 
 // Create singleton instance

@@ -34,6 +34,10 @@ export class VideoController {
     this.shadowManager = new ShadowDOMManager(target);
     this.shouldStartHidden = shouldStartHidden;
 
+    this.segments = [];
+    this.segmentEls = [];
+    this.initSkipSegments();
+
     this.targetObserver = null;
     this.intersectionObserver = null;
     this.videoResizeObserver = null;
@@ -212,9 +216,7 @@ export class VideoController {
       if (this.shouldStartHidden) {
         logger.debug('Starting controller hidden due to video visibility/size');
       } else {
-        logger.info(
-          `Controller starting hidden due to startHidden setting: ${this.config.settings.startHidden}`
-        );
+        logger.info(`Controller starting hidden due to startHidden setting: ${this.config.settings.startHidden}`);
       }
     }
     // When startHidden=false, use natural visibility (no special class needed)
@@ -284,10 +286,7 @@ export class VideoController {
     document.body.appendChild(fragment);
 
     // Get site-specific positioning information
-    const { insertionPoint, insertionMethod } = siteHandlerManager.getControllerPosition(
-      this.parent,
-      this.video
-    );
+    const { insertionPoint, insertionMethod } = siteHandlerManager.getControllerPosition(this.parent, this.video);
 
     switch (insertionMethod) {
       case 'beforeParent':
@@ -308,6 +307,26 @@ export class VideoController {
     }
 
     logger.debug(`Controller inserted using ${insertionMethod} method`, wrapper);
+  }
+
+  initSkipSegments() {
+    const onInit = async () => {
+      this.segments = await siteHandlerManager.initSkipSegments();
+      this.shadowManager.addSkipSegments({ totalDuration: this.video.duration, segments: this.segments });
+    };
+
+    /*
+    readyState 0 (HAVE_NOTHING) → loadstart
+    readyState 1 (HAVE_METADATA) → loadedmetadata
+    readyState 2 (HAVE_CURRENT_DATA) → loadeddata
+    readyState 3 (HAVE_FUTURE_DATA) → canplay
+    readyState 4 (HAVE_ENOUGH_DATA) → canplaythrough
+    */
+    if (this.video.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
+      (async () => await onInit())(); // IIFE to call async
+    } else {
+      this.video.addEventListener('canplaythrough', onInit, { once: true });
+    }
   }
 
   /**
@@ -377,11 +396,8 @@ export class VideoController {
       }
 
       mutations.forEach((mutation) => {
-        if (
-          mutation.type === 'attributes' &&
-          (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
-        ) {
-          logger.debug('mutation of A/V element');
+        if (mutation.type === 'attributes' && (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')) {
+          logger.warn('mutation of A/V element');
           const wrapper = this.wrapperDiv;
           if (!mutation.target.src && !mutation.target.currentSrc) {
             wrapper.classList.add('vsc-nosource');
@@ -412,9 +428,7 @@ export class VideoController {
 
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            logger.debug(
-              '[setupIntersectionObserver] Video is visible; showing and adjusting location'
-            );
+            logger.debug('[setupIntersectionObserver] Video is visible; showing and adjusting location');
             this.isVisible = true;
             this.shadowManager.show();
             this.shadowManager.adjustLocation();
@@ -586,11 +600,7 @@ export class VideoController {
       if (!this.config.settings.audioBoolean && !isCurrentlyHidden) {
         this.controllerDiv.classList.add('vsc-hidden');
         logger.debug('Hiding audio controller - audio support disabled');
-      } else if (
-        this.config.settings.audioBoolean &&
-        isCurrentlyHidden &&
-        !this.controllerDiv.classList.contains('vsc-manual')
-      ) {
+      } else if (this.config.settings.audioBoolean && isCurrentlyHidden && !this.controllerDiv.classList.contains('vsc-manual')) {
         // Show audio controller if audio support is enabled and not manually hidden
         this.controllerDiv.classList.remove('vsc-hidden');
         logger.debug('Showing audio controller - audio support enabled');

@@ -1,3 +1,12 @@
+Some videos for SponsorBlock:
+- https://www.youtube.com/watch?v=VvI0TtwsqX0
+- https://sponsor.ajay.app/api/skipSegments?videoID=CxVXvFOPIyQ
+- https://www.youtube.com/watch?v=6TMPWvPG5GA
+
+
+
+
+
 Progress:
 - Trying to go through inject.js and bring in functions.
 - Created a class as VideoController (will contain VideoWrapper objects).
