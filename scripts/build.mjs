@@ -25,8 +25,12 @@ async function copyStaticFiles() {
   const outDir = path.resolve(rootDir, 'dist');
 
   try {
-    // Ensure the output directory exists and is clean
-    await fs.emptyDir(outDir);
+    // Ensure the output directory exists (but don't empty it in watch mode)
+    if (!isWatch) {
+      await fs.emptyDir(outDir);
+    } else {
+      await fs.ensureDir(outDir);
+    }
 
     // Paths to copy
     const pathsToCopy = {
@@ -57,7 +61,17 @@ async function copyStaticFiles() {
 
 async function build() {
   try {
-    await copyStaticFiles();
+    // Dynamically find all CSS files in src/styles
+    const stylesDir = path.resolve(__dirname, '..', 'src', 'styles');
+    const styleFiles = await fs.readdir(stylesDir);
+    const cssFiles = styleFiles.filter((file) => file.endsWith('.css'));
+
+    // Create dynamic entry points for CSS files
+    const styleEntryPoints = {};
+    cssFiles.forEach((file) => {
+      const name = path.basename(file, '.css');
+      styleEntryPoints[`styles/${name}`] = `src/styles/${file}`;
+    });
 
     const esbuildConfig = {
       ...common,
@@ -67,8 +81,19 @@ async function build() {
         background: 'src/background.js',
         'ui/popup/popup': 'src/ui/popup/popup.js',
         'ui/options/options': 'src/ui/options/options.js',
+        ...styleEntryPoints,
       },
       outdir: 'dist',
+      plugins: [
+        {
+          name: 'copy-static-files',
+          setup(build) {
+            build.onStart(async () => {
+              await copyStaticFiles();
+            });
+          },
+        },
+      ],
     };
 
     if (isWatch) {
