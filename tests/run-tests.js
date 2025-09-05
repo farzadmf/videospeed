@@ -73,6 +73,7 @@ Object.assign(global, {
   KeyboardEvent: dom.window.KeyboardEvent,
   CustomEvent: dom.window.CustomEvent,
   MutationObserver: dom.window.MutationObserver,
+  customElements: dom.window.customElements,
   requestIdleCallback: (fn) => setTimeout(fn, 0),
   location: { hostname: 'localhost', href: 'http://localhost' }
 });
@@ -138,12 +139,16 @@ async function runTests() {
       'unit/observers/mutation-observer.test.js',
       'unit/observers/audio-size-handling.test.js',
       'unit/content/inject.test.js',
+      'unit/content/hydration-fix.test.js',
       'unit/utils/recursive-shadow-dom.test.js',
-      'unit/utils/blacklist-regex.test.js'
+      'unit/utils/blacklist-regex.test.js',
+      'unit/utils/event-manager.test.js'
     ];
   } else if (testType === 'integration') {
     testFiles = [
-      'integration/module-integration.test.js'
+      'integration/module-integration.test.js',
+      'integration/ui-to-storage-flow.test.js',
+      'integration/state-manager-integration.test.js'
     ];
   } else {
     // Run all tests
@@ -157,9 +162,13 @@ async function runTests() {
       'unit/observers/mutation-observer.test.js',
       'unit/observers/audio-size-handling.test.js',
       'unit/content/inject.test.js',
+      'unit/content/hydration-fix.test.js',
       'unit/utils/recursive-shadow-dom.test.js',
       'unit/utils/blacklist-regex.test.js',
-      'integration/module-integration.test.js'
+      'unit/utils/event-manager.test.js',
+      'integration/module-integration.test.js',
+      'integration/ui-to-storage-flow.test.js',
+      'integration/state-manager-integration.test.js'
     ];
   }
 
