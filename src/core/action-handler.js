@@ -137,7 +137,7 @@ export class ActionHandler {
 
       case 'reset':
         logger.debug('Reset speed');
-        this.resetSpeed(video, 1.0);
+        this.resetSpeed(video, value);
         return true;
 
       case 'display': {
