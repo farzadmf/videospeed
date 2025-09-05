@@ -52,7 +52,7 @@ async function copyStaticFiles() {
       await fs.copy(path.join(rootDir, src), dest);
     }
 
-    const timestamp = new Date().toISOString().replace('T', '@').substring(0, 19);
+    const timestamp = new Date().toLocaleString('sv-SE').replace(' ', '@');
     console.log(`[${timestamp}] ✅ Static files copied`);
   } catch (error) {
     console.error('❌ Error copying static files:', error);
