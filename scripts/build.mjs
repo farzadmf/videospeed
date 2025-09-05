@@ -73,6 +73,12 @@ async function build() {
       styleEntryPoints[`styles/${name}`] = `src/styles/${file}`;
     });
 
+    // Create entry points for HTML files
+    const htmlEntryPoints = {
+      'ui/options/options.html': 'src/ui/options/options.html',
+      'ui/popup/popup.html': 'src/ui/popup/popup.html',
+    };
+
     const esbuildConfig = {
       ...common,
       entryPoints: {
@@ -82,8 +88,12 @@ async function build() {
         'ui/popup/popup': 'src/ui/popup/popup.js',
         'ui/options/options': 'src/ui/options/options.js',
         ...styleEntryPoints,
+        ...htmlEntryPoints,
       },
       outdir: 'dist',
+      loader: {
+        '.html': 'copy',
+      },
       plugins: [
         {
           name: 'copy-static-files',
