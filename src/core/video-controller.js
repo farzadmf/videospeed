@@ -301,7 +301,7 @@ export class VideoController {
 
       case 'firstChild':
       default:
-        // insertionPoint.insertBefore(fragment, insertionPoint.firstChild);
+        // insertionPoint.insertBefore(wrapper, insertionPoint.firstChild);
         insertionPoint.insertBefore(this.spyDiv, insertionPoint.firstChild);
         break;
     }
@@ -419,6 +419,7 @@ export class VideoController {
   }
 
   setupIntersectionObserver() {
+    if (this.video.tagName === 'AUDIO') return;
     if (this.intersectionObserver) return;
 
     this.intersectionObserver = new IntersectionObserver(
@@ -570,6 +571,11 @@ export class VideoController {
       return false;
     }
 
+    if (this.video.tagName === 'AUDIO') {
+      logger.debug('[isVideoVisible] audio element; not checking visibility');
+      return true;
+    }
+
     // Check computed style for visibility
     const style = window.getComputedStyle(this.video);
     if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
@@ -653,7 +659,6 @@ export class VideoController {
    * @param {number|string} value - Progress value
    */
   setProgressVal(value) {
-    logger.verbose(`setProgressVal: ${value}`);
     const percent = ((Number(value) || 0) * 100).toFixed(1);
 
     this.isInternalTitleUpdate = true;

@@ -155,7 +155,7 @@ export class EventManager {
         event.stopPropagation();
       }
     } else {
-      logger.verbose(`No key binding found for keyCode: ${key}`);
+      logger.debug(`No key binding found for keyCode: ${key}`);
     }
 
     return false;

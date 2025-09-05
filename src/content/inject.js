@@ -188,9 +188,7 @@ class VideoSpeedExtension {
           }
         });
 
-        logger.info(
-          `Comprehensive scan found ${comprehensiveMedia.length} additional media elements`
-        );
+        logger.info(`Comprehensive scan found ${comprehensiveMedia.length} additional media elements`);
       } catch (error) {
         logger.error(`Failed comprehensive media scan: ${error.message}`);
       }
@@ -273,13 +271,7 @@ class VideoSpeedExtension {
         video
       );
 
-      video.vsc = new VideoController(
-        video,
-        parent,
-        this.config,
-        this.actionHandler,
-        shouldStartHidden
-      );
+      video.vsc = new VideoController(video, parent, this.config, this.actionHandler, shouldStartHidden);
     } catch (error) {
       logger.error('[onVideoFound] 💥 Failed to attach controller to video:', error);
       logger.error(`[onVideoFound] Failed to attach controller to video: ${error.message}`);
@@ -360,9 +352,7 @@ class VideoSpeedExtension {
   setupDocumentCSS(document) {
     const link = document.createElement('link');
     link.href =
-      typeof chrome !== 'undefined' && chrome.runtime
-        ? chrome.runtime.getURL('src/styles/inject.css')
-        : '/src/styles/inject.css';
+      typeof chrome !== 'undefined' && chrome.runtime ? chrome.runtime.getURL('src/styles/inject.css') : '/src/styles/inject.css';
     link.type = 'text/css';
     link.rel = 'stylesheet';
     document.head.appendChild(link);

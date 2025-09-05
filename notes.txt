@@ -1,11 +1,6 @@
-Some videos for SponsorBlock:
-- https://www.youtube.com/watch?v=VvI0TtwsqX0
-- https://sponsor.ajay.app/api/skipSegments?videoID=CxVXvFOPIyQ
-- https://www.youtube.com/watch?v=6TMPWvPG5GA
-
-
-
-
+2025-09-05 | A case for audio: https://openai.com/index/expanding-economic-opportunity-with-ai/
+- Keeps changing its source, so spy div is being added constantly
+- Location of the controller is off because the element has no [good] dimension
 
 Progress:
 - Trying to go through inject.js and bring in functions.
