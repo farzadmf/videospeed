@@ -191,7 +191,7 @@ export class YouTubeHandler extends BaseSiteHandler {
 
       logger.debug('[initSkipSegments] segments', segments);
     } catch (err) {
-      logger.warn('[initSkipSegments] error', err);
+      logger.info('[initSkipSegments] error', err);
     }
 
     return segments;

@@ -31,6 +31,7 @@ export class ShadowDOMManager {
     this.speedIndicator = null;
     this.volumeIndicator = null;
     this.buttons = [];
+    this.segments = [];
 
     this.progressDivHeightPx = 20;
 
@@ -188,7 +189,15 @@ export class ShadowDOMManager {
       segmentDiv.style.left = `${leftPercent}%`;
       segmentDiv.style.width = `${widthPercent}%`;
 
+      this.segments.push(segmentDiv);
+
       this.progressLineContainer.appendChild(segmentDiv);
+    });
+  }
+
+  clearSkipSegments() {
+    this.segments.forEach((segment) => {
+      this.progressLineContainer.removeChild(segment);
     });
   }
 

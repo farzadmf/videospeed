@@ -312,6 +312,7 @@ export class VideoController {
   initSkipSegments() {
     const onInit = async () => {
       this.segments = await siteHandlerManager.initSkipSegments();
+      this.shadowManager.clearSkipSegments();
       this.shadowManager.addSkipSegments({ totalDuration: this.video.duration, segments: this.segments });
     };
 
@@ -397,7 +398,7 @@ export class VideoController {
 
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')) {
-          logger.warn('mutation of A/V element');
+          logger.debug('mutation of A/V element');
           const wrapper = this.wrapperDiv;
           if (!mutation.target.src && !mutation.target.currentSrc) {
             wrapper.classList.add('vsc-nosource');
@@ -406,6 +407,7 @@ export class VideoController {
 
             this.actionHandler.adjustSpeed(this.video);
             this.shadowManager.adjustLocation();
+            this.initSkipSegments();
           }
         }
       });

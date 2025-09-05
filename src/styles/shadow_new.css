@@ -56,13 +56,14 @@
 
 #vsc-progress-lines {
   flex: 1;
+  position: relative;
 }
 
 .vsc-progress-line-segment {
-  background-color: darkgreen;
+  background-color: #12c712;
   height: 8px; /* occupies 0-8px */
   margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
-  opacity: 0.6;
+  /* opacity: 0.6; */
   position: absolute;
 }
 
