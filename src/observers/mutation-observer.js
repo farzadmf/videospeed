@@ -107,8 +107,7 @@ export class VideoMutationObserver {
 
     // Handle special cases like Apple TV+ player
     if (
-      (mutation.target.attributes['aria-hidden'] &&
-        mutation.target.attributes['aria-hidden'].value === 'false') ||
+      (mutation.target.attributes['aria-hidden'] && mutation.target.attributes['aria-hidden'].value === 'false') ||
       mutation.target.nodeName === 'APPLE-TV-PLUS-PLAYER'
     ) {
       const flattenedNodes = dom.getShadow(document.body);
@@ -136,10 +135,7 @@ export class VideoMutationObserver {
    */
   handleVisibilityChanges(element) {
     // If the element itself is a video
-    if (
-      element.tagName === 'VIDEO' ||
-      (element.tagName === 'AUDIO' && this.config.settings.audioBoolean)
-    ) {
+    if (element.tagName === 'VIDEO' || (element.tagName === 'AUDIO' && this.config.settings.audioBoolean)) {
       this.recheckVideoElement(element);
       return;
     }
@@ -196,10 +192,7 @@ export class VideoMutationObserver {
       return;
     }
 
-    if (
-      node.nodeName === 'VIDEO' ||
-      (node.nodeName === 'AUDIO' && this.config.settings.audioBoolean)
-    ) {
+    if (node.nodeName === 'VIDEO' || (node.nodeName === 'AUDIO' && this.config.settings.audioBoolean)) {
       if (added) {
         this.onVideoFound(node, parent);
       } else {
@@ -230,7 +223,7 @@ export class VideoMutationObserver {
 
     // Handle regular children
     if (node.children) {
-      children = [...children, ...node.children];
+      children = [...children, ...Array.from(node.children)];
     }
 
     // Process all children
