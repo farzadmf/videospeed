@@ -3,6 +3,7 @@ import process from 'process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs-extra';
+import { format } from 'date-fns';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,7 +53,7 @@ async function copyStaticFiles() {
       await fs.copy(path.join(rootDir, src), dest);
     }
 
-    const timestamp = new Date().toLocaleString('sv-SE').replace(' ', '@');
+    const timestamp = format(new Date(), 'yyyy-MM-dd@HH:mm:ss');
     console.log(`[${timestamp}] ✅ Static files copied`);
   } catch (error) {
     console.error('❌ Error copying static files:', error);
@@ -113,7 +114,8 @@ async function build() {
       console.log('🔧 Watching for changes...');
     } else {
       await esbuild.build(esbuildConfig);
-      console.log('✅ Build complete');
+      const timestamp = format(new Date(), 'yyyy-MM-dd@HH:mm:ss');
+      console.log(`[${timestamp}] ✅ Build complete`);
     }
   } catch (error) {
     console.error('❌ Build failed:', error);
