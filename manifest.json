@@ -33,7 +33,7 @@
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "match_about_blank": true,
       "exclude_matches": ["https://hangouts.google.com/*", "https://meet.google.com/*"],
-      "css": ["styles/inject.css"],
+      "css": ["styles/inject_new.css"],
       "js": ["content.js"]
     }
   ],

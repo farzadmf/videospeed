@@ -7,6 +7,8 @@ import { format } from 'date-fns';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const __dist = path.join(__dirname, '..', 'dist');
+const __dist_ui = path.join(__dist, 'ui');
 
 const isWatch = process.argv.includes('--watch');
 
@@ -35,22 +37,20 @@ async function copyStaticFiles() {
 
     // Paths to copy
     const pathsToCopy = {
-      'manifest.json': path.join(outDir, 'manifest.json'),
-      'src/assets': path.join(outDir, 'assets'),
-      'src/ui': path.join(outDir, 'ui'),
-      'src/styles': path.join(outDir, 'styles'),
-      LICENSE: path.join(outDir, 'LICENSE'),
-      'CONTRIBUTING.md': path.join(outDir, 'CONTRIBUTING.md'),
-      'PRIVACY.md': path.join(outDir, 'PRIVACY.md'),
-      'README.md': path.join(outDir, 'README.md'),
+      'manifest.json': [path.join(outDir, 'manifest.json')],
+      'src/assets': [path.join(outDir, 'assets')],
+      LICENSE: [path.join(outDir, 'LICENSE')],
+      'CONTRIBUTING.md': [path.join(outDir, 'CONTRIBUTING.md')],
+      'PRIVACY.md': [path.join(outDir, 'PRIVACY.md')],
+      'README.md': [path.join(outDir, 'README.md')],
     };
 
     // Perform copy operations
-    for (const [src, dest] of Object.entries(pathsToCopy)) {
+    for (const [src, [dest, filter]] of Object.entries(pathsToCopy)) {
       // await fs.copy(path.join(rootDir, src), dest, {
       //   filter: (src) => !path.basename(src).endsWith('.js'),
       // });
-      await fs.copy(path.join(rootDir, src), dest);
+      fs.copy(path.join(rootDir, src), dest, { filter });
     }
 
     const timestamp = format(new Date(), 'yyyy-MM-dd@HH:mm:ss');
@@ -63,36 +63,22 @@ async function copyStaticFiles() {
 
 async function build() {
   try {
-    // Dynamically find all CSS files in src/styles
-    const stylesDir = path.resolve(__dirname, '..', 'src', 'styles');
-    const styleFiles = await fs.readdir(stylesDir);
-    const cssFiles = styleFiles.filter((file) => file.endsWith('.css'));
-
-    // Create dynamic entry points for CSS files
-    const styleEntryPoints = {};
-    cssFiles.forEach((file) => {
-      const name = path.basename(file, '.css');
-      styleEntryPoints[`styles/${name}`] = `src/styles/${file}`;
-    });
-
-    // Create entry points for HTML files
-    const htmlEntryPoints = {
-      'ui/options/options.html': 'src/ui/options/options.html',
-      'ui/popup/popup.html': 'src/ui/popup/popup.html',
-    };
-
     const esbuildConfig = {
       ...common,
       entryPoints: {
+        'styles/inject_new': 'src/styles/inject_new.css',
+        'styles/shadow_new': 'src/styles/shadow_new.css',
+        'ui/options/options': 'src/ui/options/options.js',
+        'ui/options/options-html': 'src/ui/options/options.html',
+        'ui/popup/popup': 'src/ui/popup/popup.js',
+        'ui/popup/popup-css': 'src/ui/popup/popup.css',
+        'ui/popup/popup-html': 'src/ui/popup/popup.html',
+        background: 'src/background.js',
         content: 'src/entries/content-entry.js',
         inject: 'src/entries/inject-entry.js',
-        background: 'src/background.js',
-        'ui/popup/popup': 'src/ui/popup/popup.js',
-        'ui/options/options': 'src/ui/options/options.js',
-        ...styleEntryPoints,
-        ...htmlEntryPoints,
       },
       outdir: 'dist',
+      entryNames: '[dir]/[name]',
       loader: {
         '.html': 'copy',
       },
@@ -102,6 +88,20 @@ async function build() {
           setup(build) {
             build.onStart(async () => {
               await copyStaticFiles();
+            });
+          },
+        },
+        {
+          name: 'rename-files',
+          setup(build) {
+            build.onEnd(async () => {
+              const rename = async (name, ext) => {
+                const dir = path.join(__dist_ui, name);
+                await fs.move(path.join(dir, `${name}-${ext}.${ext}`), path.join(dir, `${name}.${ext}`), { overwrite: true });
+              };
+              await rename('options', 'html');
+              await rename('popup', 'html');
+              await rename('popup', 'css');
             });
           },
         },
