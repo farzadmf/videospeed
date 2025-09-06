@@ -98,7 +98,7 @@ export function createKeyBinding(binding) {
   const tcDefault = getTcDefaultBinding(action);
 
   const customKeyEl = binding.querySelector('.customKey');
-  const { alt, code, ctrl, key, shift } = customKeyEl;
+  const { altKey, code, ctrl, shift } = customKeyEl;
 
   const force = JSON.parse(binding.querySelector('.customForce').value);
   const predefined = !!binding.querySelector('.predefined');
@@ -107,18 +107,17 @@ export function createKeyBinding(binding) {
     action,
     code,
     force,
-    key,
     predefined,
   };
 
   if (shift) {
     newBinding = { ...newBinding, shift: Boolean(shift) };
   }
-  if (alt) {
-    newBinding = { ...newBinding, alt: Boolean(alt) };
+  if (altKey) {
+    newBinding = { ...newBinding, alt: Boolean(altKey) };
   }
   if (ctrl) {
-    newBinding = { ...newBinding, ctrl: Boolean(alt) };
+    newBinding = { ...newBinding, ctrl: Boolean(ctrl) };
   }
 
   if (!NO_VALUE_ACTIONS.includes(actionName)) {
@@ -216,12 +215,11 @@ export function inputBlur(e) {
 // }
 
 export function updateCustomShortcutInputText(inputItem, binding) {
-  const { alt, code, ctrl, key, shift } = binding;
+  const { alt, code, ctrl, shift } = binding;
   inputItem.value = (KEYS[code] || code).replace(/^(Key|Digit)/, '');
 
-  inputItem.key = key;
   inputItem.code = code;
-  inputItem.alt = alt;
+  inputItem.altKey = alt; // `alt` is HTML attribute and applicable on <input>!
   inputItem.shift = shift;
   inputItem.ctrl = ctrl;
 }
