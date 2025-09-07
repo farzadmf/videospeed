@@ -10,6 +10,7 @@ class Logger {
   constructor() {
     this.verbosity = LOG_LEVELS.WARNING;
     this.defaultLevel = LOG_LEVELS.INFO;
+    this.contextStack = []; // Stack for nested contexts
   }
 
   /**
@@ -29,6 +30,75 @@ class Logger {
   }
 
   /**
+   * Generate video/controller context string from context stack
+   * @returns {string} Context string like "[V1]" or ""
+   * @private
+   */
+  _generateContext() {
+    if (this.contextStack.length > 0) {
+      return `[${this.contextStack[this.contextStack.length - 1]}] `;
+    }
+    return '';
+  }
+
+  /**
+   * Format video element identifier using controller ID
+   * @param {HTMLMediaElement} video - Video element
+   * @returns {string} Formatted ID like "V1" or "A1"
+   * @private
+   */
+  _formatVideoId(video) {
+    if (!video) return 'V?';
+
+    const isAudio = video.tagName === 'AUDIO';
+    const prefix = isAudio ? 'A' : 'V';
+
+    // Use controller ID if available (this is what we want!)
+    if (video.vsc?.controllerId) {
+      return `${prefix}${video.vsc.controllerId}`;
+    }
+
+    // Fallback for videos without controllers
+    return `${prefix}?`;
+  }
+
+  /**
+   * Push context onto stack (for nested operations)
+   * @param {string|HTMLMediaElement} context - Context string or video element
+   * @private
+   */
+  _pushContext(context) {
+    if (typeof context === 'string') {
+      this.contextStack.push(context);
+    } else if (context && (context.tagName === 'VIDEO' || context.tagName === 'AUDIO')) {
+      this.contextStack.push(this._formatVideoId(context));
+    }
+  }
+
+  /**
+   * Pop context from stack
+   * @private
+   */
+  _popContext() {
+    this.contextStack.pop();
+  }
+
+  /**
+   * Execute function with context
+   * @param {string|HTMLMediaElement} context - Context string or video element
+   * @param {Function} fn - Function to execute
+   * @returns {*} Function result
+   */
+  withContext(context, fn) {
+    this._pushContext(context);
+    try {
+      return fn();
+    } finally {
+      this._popContext();
+    }
+  }
+
+  /**
    * Log a message with specified level
    * @param {string} message - Message to log
    * @param {number} level - Log level (optional, uses default if not specified)
@@ -37,27 +107,29 @@ class Logger {
     const logLevel = typeof level === 'undefined' ? this.defaultLevel : level;
 
     if (this.verbosity >= logLevel) {
+      const context = this._generateContext();
+
       const trace = new Error().stack;
 
       switch (logLevel) {
         case LOG_LEVELS.ERROR:
-          console.log('%c[FMVSC] ERR |', 'color: red', ...message, trace);
+          console.log('%c[FMVSC] ERR |', 'color: red', context, ...message, trace);
           break;
         case LOG_LEVELS.WARNING:
-          console.log('%c[FMVSC] WRN |', 'color: yellow', ...message);
+          console.log('%c[FMVSC] WRN |', 'color: yellow', context, ...message);
           break;
         case LOG_LEVELS.INFO:
-          console.log('%c[FMVSC] INF |', 'color:  green', ...message);
+          console.log('%c[FMVSC] INF |', 'color:  green', context, ...message);
           break;
         case LOG_LEVELS.DEBUG:
-          console.log('%c[FMVSC] DBG |', 'color: cyan', ...message);
+          console.log('%c[FMVSC] DBG |', 'color: cyan', context, ...message);
           break;
         case LOG_LEVELS.VERBOSE:
-          console.log('%c[FMVSC] VRB |', 'color: magenta', ...message);
+          console.log('%c[FMVSC] VRB |', 'color: magenta', context, ...message);
           console.trace();
           break;
         default:
-          console.log('[FMVSC]', ...message);
+          console.log('[FMVSC]', context, ...message);
       }
     }
   }
