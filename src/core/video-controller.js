@@ -95,7 +95,7 @@ export class VideoController {
     // Generate unique controller ID for badge tracking
     this.controllerId = this.generateControllerId(target);
 
-    // Transient reset memory (not persisted, per-controller)
+    // Transient reset memory (not persisted, instance-specific)
     this.speedBeforeReset = null;
 
     // Attach controller to video element first (needed for adjustSpeed)

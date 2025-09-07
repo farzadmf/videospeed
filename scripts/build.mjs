@@ -54,7 +54,7 @@ async function copyStaticFiles() {
     }
 
     const timestamp = format(new Date(), 'yyyy-MM-dd@HH:mm:ss');
-    console.log(`[${timestamp}] ✅ Static files copied`);
+    console.log(`[${timestamp}] ✅ Files updated ...`);
   } catch (error) {
     console.error('❌ Error copying static files:', error);
     process.exit(1);
