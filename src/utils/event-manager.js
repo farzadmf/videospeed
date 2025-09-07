@@ -258,18 +258,20 @@ export class EventManager {
       return;
     }
 
+    // MyNote: this prevents my speed changes (UI updates but video speed doesn't change),
+    //         so disabling it!
     // Force last saved speed mode - restore authoritative speed for ANY external change
-    if (this.config.settings.forceLastSavedSpeed) {
-      if (event.detail && event.detail.origin === 'videoSpeed') {
-        video.playbackRate = Number(event.detail.speed);
-      } else {
-        const authoritativeSpeed = this.config.settings.lastSpeed || 1.0;
-        logger.info(`Force mode: restoring external ${video.playbackRate} to authoritative ${authoritativeSpeed}`);
-        video.playbackRate = authoritativeSpeed;
-      }
-      event.stopImmediatePropagation();
-      return;
-    }
+    // if (this.config.settings.forceLastSavedSpeed) {
+    //   if (event.detail && event.detail.origin === 'videoSpeed') {
+    //     video.playbackRate = Number(event.detail.speed);
+    //   } else {
+    //     const authoritativeSpeed = this.config.settings.lastSpeed || 1.0;
+    //     logger.info(`Force mode: restoring external ${video.playbackRate} to authoritative ${authoritativeSpeed}`);
+    //     video.playbackRate = authoritativeSpeed;
+    //   }
+    //   event.stopImmediatePropagation();
+    //   return;
+    // }
 
     // Ignore external ratechanges during video initialization
     if (video.readyState < 1) {
