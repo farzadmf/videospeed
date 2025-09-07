@@ -44,6 +44,13 @@ export const VSC_DEFAULTS = {
   lastSpeed: 1.0,
   logLevel: LOG_LEVELS.WARNING,
   rememberSpeed: true,
+  sites: {
+    youtube: {
+      // 'spb' means SponsorBlock
+      spb_enabled: true, // Generally enabled or not
+      spb_skip: true, // Skip enabled or not
+    },
+  },
   speed: 1.0,
   sources: {}, // empty object to hold stored values for each source
   startHidden: false,

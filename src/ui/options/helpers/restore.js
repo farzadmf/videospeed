@@ -16,6 +16,8 @@ export function restoreOptions() {
     document.getElementById('forceLastSavedSpeed').checked = storage.forceLastSavedSpeed;
     document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
     document.getElementById('startHidden').checked = storage.startHidden;
+    document.getElementById('yt_spb').checked = storage.sites?.youtube?.spb_enabled;
+    document.getElementById('yt_spb_skip').checked = storage.sites?.youtube?.spb_skip;
 
     const keyBindings = _.sortBy(storage.keyBindings, (b) => {
       return b.action.description;

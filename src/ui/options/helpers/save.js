@@ -20,6 +20,8 @@ export const saveOptions = () => {
   const logLevel = Number(document.getElementById('logLevel').value);
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
   const startHidden = document.getElementById('startHidden').checked;
+  const yt_spb = document.getElementById('yt_spb').checked;
+  const yt_spb_skip = document.getElementById('yt_spb_skip').checked;
 
   chrome.storage.sync.set(
     {
@@ -33,6 +35,12 @@ export const saveOptions = () => {
       logLevel,
       rememberSpeed,
       startHidden,
+      sites: {
+        youtube: {
+          spb_enabled: yt_spb,
+          spb_skip: yt_spb_skip,
+        },
+      },
     },
     () => {
       // Update status to let user know options were saved.
