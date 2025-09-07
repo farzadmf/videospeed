@@ -42,16 +42,12 @@ export class VideoSpeedConfig {
       this.settings.blacklist = storage.blacklist;
       this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
       this.settings.controllerOpacity = Number(storage.controllerOpacity);
-      this.settings.displayKeyCode = Number(storage.displayKeyCode);
       this.settings.enabled = Boolean(storage.enabled);
       this.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
       this.settings.lastSpeed = Number(storage.lastSpeed);
       this.settings.logLevel = Number(storage.logLevel || VSC_DEFAULTS.logLevel);
       this.settings.rememberSpeed = Boolean(storage.rememberSpeed);
       this.settings.startHidden = Boolean(storage.startHidden);
-
-      // Ensure display binding exists (for upgrades)
-      this.ensureDisplayBinding(storage);
 
       // Update logger verbosity
       logger.setVerbosity(this.settings.logLevel);
@@ -188,23 +184,6 @@ export class VideoSpeedConfig {
       }
     } catch (e) {
       logger.error(`Failed to set key binding for ${action}: ${e.message}`);
-    }
-  }
-
-  /**
-   * Ensure display binding exists in key bindings
-   * @param {Object} storage - Storage object
-   * @private
-   */
-  ensureDisplayBinding(storage) {
-    if (this.settings.keyBindings.filter((x) => x.action === 'display').length === 0) {
-      this.settings.keyBindings.push({
-        action: 'display',
-        key: Number(storage.displayKeyCode) || 86,
-        value: 0,
-        force: false,
-        predefined: true,
-      });
     }
   }
 }

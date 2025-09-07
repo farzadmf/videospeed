@@ -7,7 +7,6 @@ export const VSC_DEFAULTS = {
   controllerButtonSize: 14,
   controllerOpacity: 0.8,
   defaultLogLevel: LOG_LEVELS.INFO,
-  displayKeyCode: 86, // key: V
   enabled: true,
   forceLastSavedSpeed: true,
   keyBindings: [
