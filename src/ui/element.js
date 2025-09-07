@@ -13,12 +13,6 @@ export class VSCControllerElement extends HTMLElement {
   }
 
   connectedCallback() {
-    // Element is now connected to the DOM
-    // Set styles here instead of constructor
-    this.style.display = 'block';
-    this.style.width = 'auto';
-    this.style.height = 'auto';
-
     logger.debug('VSC custom element connected to DOM');
   }
 

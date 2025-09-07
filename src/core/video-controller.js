@@ -11,7 +11,6 @@ import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
 import { siteHandlerManager } from '../site-handlers/manager.js';
 import { formatSpeed, formatVolume } from '../shared/constants.js';
 import { stateManager } from './state-manager.js';
-import { VSCControllerElement } from '../ui/element.js';
 
 export class VideoController {
   /**
@@ -108,7 +107,7 @@ export class VideoController {
     this.initializeSpeed();
 
     // Create custom element wrapper to avoid CSS conflicts
-    this.wrapperDiv = new VSCControllerElement();
+    this.wrapperDiv = document.createElement('vsc-controller');
 
     // Create UI
     this.initializeControls();
@@ -213,11 +212,7 @@ export class VideoController {
       this.wrapperDiv.style.setProperty('--visibility', 'hidden');
       this.wrapperDiv.style.setProperty('--controller-visibility', 'hidden');
 
-      if (this.shouldStartHidden) {
-        logger.debug('Starting controller hidden due to video visibility/size');
-      } else {
-        logger.info(`Controller starting hidden due to startHidden setting: ${this.config.settings.startHidden}`);
-      }
+      logger.debug('Starting controller hidden');
     }
     // When startHidden=false, use natural visibility (no special class needed)
 
