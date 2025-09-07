@@ -218,10 +218,26 @@ export class EventManager {
    * @private
    */
   handleRateChange(event) {
+    logger.warn('FMFOO[5]: event-manager.js:220 (after handleRateChange(event) )');
     // MyNote | I don't think I need this as I disabled CustomEvent in action-handler's
     //              setSpeed (no idea why it's there TBH).
     // if (this.coolDown) {
     //   logger.debug('Rate change event blocked by cooldown');
+    //
+    //   // Get the video element to restore authoritative speed
+    //   const video = event.composedPath ? event.composedPath()[0] : event.target;
+    //
+    //   // RESTORE our authoritative value since external change already happened
+    //   if (video.vsc && this.config.settings.lastSpeed !== undefined) {
+    //     const authoritativeSpeed = this.config.settings.lastSpeed;
+    //     if (Math.abs(video.playbackRate - authoritativeSpeed) > 0.01) {
+    //       logger.info(
+    //         `Restoring speed during cooldown from external ${video.playbackRate} to authoritative ${authoritativeSpeed}`
+    //       );
+    //       video.playbackRate = authoritativeSpeed;
+    //     }
+    //   }
+    //
     //   event.stopImmediatePropagation();
     //   return;
     // }
@@ -231,6 +247,7 @@ export class EventManager {
 
     // Skip if no VSC controller attached
     if (!video.vsc) {
+      logger.debug('Skipping ratechange - no VSC controller attached');
       return;
     }
 
@@ -238,6 +255,19 @@ export class EventManager {
     if (event.detail && event.detail.origin === 'videoSpeed') {
       // This is our change, don't process it again
       logger.debug('Ignoring extension-originated rate change');
+      return;
+    }
+
+    // Force last saved speed mode - restore authoritative speed for ANY external change
+    if (this.config.settings.forceLastSavedSpeed) {
+      if (event.detail && event.detail.origin === 'videoSpeed') {
+        video.playbackRate = Number(event.detail.speed);
+      } else {
+        const authoritativeSpeed = this.config.settings.lastSpeed || 1.0;
+        logger.info(`Force mode: restoring external ${video.playbackRate} to authoritative ${authoritativeSpeed}`);
+        video.playbackRate = authoritativeSpeed;
+      }
+      event.stopImmediatePropagation();
       return;
     }
 
@@ -260,53 +290,13 @@ export class EventManager {
       return;
     }
 
-    if (this.actionHandler) {
-      this.actionHandler.adjustSpeed(video, video.playbackRate, {
-        source: 'external',
-      });
-    }
+    this.actionHandler?.adjustSpeed(video, video.playbackRate, {
+      source: 'external',
+    });
 
     // Always stop propagation to prevent loops
     event.stopImmediatePropagation();
   }
-
-  /**
-   * Update speed indicators and storage when rate changes
-   * @param {HTMLMediaElement & { vsc?: VideoController }} video - Video element
-   * @private
-   */
-  // MyNote | Well, seems like with all the things I disabled in handleRateChange, this
-  //              method became redundant, so ...
-  // updateSpeedFromEvent(video) {
-  //   // Check if video has a controller attached
-  //   if (!video.vsc) {
-  //     return;
-  //   }
-  //
-  //   const src = video.currentSrc;
-  //   const url = getBaseURL(src);
-  //   const speed = Number(video.playbackRate.toFixed(1));
-  //
-  //   logger.info(`Playback rate changed to ${speed}`);
-  //
-  //   video.vsc.setSpeedVal(speed);
-  //
-  //   this.config.syncSpeedValue({ speed, url });
-  //
-  //   // MyNote | why wouldn't this be available?!
-  //   // Save to Chrome storage if available
-  //   // if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-  //   //   logger.debug('Syncing chrome settings for lastSpeed');
-  //   //   chrome.storage.sync.set({ lastSpeed: speed }, () => {
-  //   //     logger.debug(`Speed setting saved: ${speed}`);
-  //   //   });
-  //   // } else {
-  //   //   logger.debug('Chrome storage not available, skipping speed sync');
-  //   // }
-  //
-  //   // Show controller briefly if hidden
-  //   this.actionHandler.runAction({ actionItem: 'blink' });
-  // }
 
   /**
    * Start cooldown period to prevent event spam
@@ -392,7 +382,7 @@ export class EventManager {
 }
 
 // Cooldown duration (ms) for ratechange handling
-EventManager.COOLDOWN_MS = 50;
+EventManager.COOLDOWN_MS = 200;
 
 // Create singleton instance
 window.VSC.EventManager = EventManager;

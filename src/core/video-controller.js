@@ -398,7 +398,7 @@ export class VideoController {
 
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')) {
-          logger.debug('mutation of A/V element');
+          logger.debug('Mutation of A/V element detected');
           const wrapper = this.wrapperDiv;
           if (!mutation.target.src && !mutation.target.currentSrc) {
             wrapper.classList.add('vsc-nosource');

@@ -13,7 +13,6 @@ import { getBaseURL } from '../utils/url.js';
 import { siteHandlerManager } from '../site-handlers/manager.js';
 import { SPEED_LIMITS } from '../shared/constants.js';
 import { DragHandler } from '../ui/drag-handler.js';
-import { formatSpeed } from '../shared/constants.js';
 import { stateManager } from '../core/state-manager.js';
 
 export class ActionHandler {
@@ -249,53 +248,55 @@ export class ActionHandler {
    * @param {string} options.source - 'internal' (user action) or 'external' (site/other)
    */
   adjustSpeed(video, value, options = {}) {
-    logger.debug('[adjustSpeed] started', value, video);
+    logger.withContext(video, () => {
+      logger.debug('[adjustSpeed] started', value, video);
 
-    const { relative = false, source = 'internal' } = options;
+      const { relative = false, source = 'internal' } = options;
 
-    const src = video?.currentSrc || video?.src;
-    if (!src) {
-      logger.warn('adjustSpeed called on video without source', video);
-      return;
-    }
-
-    const url = getBaseURL(src);
-    logger.debug('[adjustSpeed]', 'url', url);
-
-    let targetSpeed;
-    if (value === undefined) {
-      targetSpeed = this.config.settings.sources[url]?.speed || 1;
-      logger.debug('[adjustSpeed]', 'undefined value for speed');
-    } else {
-      if (relative) {
-        const currentSpeed = video.playbackRate < 0.1 ? 0.0 : video.playbackRate;
-        targetSpeed = currentSpeed + value;
-        logger.debug('[adjustSpeed]', 'relative value');
-      } else {
-        logger.debug('[adjustSpeed]', 'non-relative value');
-        targetSpeed = value;
+      const src = video?.currentSrc || video?.src;
+      if (!src) {
+        logger.warn('adjustSpeed called on video without source', video);
+        return;
       }
-    }
 
-    targetSpeed = Math.min(Math.max(targetSpeed, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
-    const numericSpeed = Number(targetSpeed.toFixed(1));
-    logger.debug('[adjustSpeed]', 'numericSpeed', numericSpeed);
+      const url = getBaseURL(src);
+      logger.debug('[adjustSpeed]', 'url', url);
 
-    video.playbackRate = numericSpeed;
+      let targetSpeed;
+      if (value === undefined) {
+        targetSpeed = this.config.settings.sources[url]?.speed || 1;
+        logger.debug('[adjustSpeed]', 'undefined value for speed');
+      } else {
+        if (relative) {
+          const currentSpeed = video.playbackRate < 0.1 ? 0.0 : video.playbackRate;
+          targetSpeed = currentSpeed + value;
+          logger.debug('[adjustSpeed]', 'relative value');
+        } else {
+          logger.debug('[adjustSpeed]', 'non-relative value');
+          targetSpeed = value;
+        }
+      }
 
-    video.vsc?.setSpeedVal(numericSpeed);
+      targetSpeed = Math.min(Math.max(targetSpeed, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
+      const numericSpeed = Number(targetSpeed.toFixed(1));
+      logger.debug('[adjustSpeed]', 'numericSpeed', numericSpeed);
 
-    // Only update speed when we manually change it using an action
-    if (source === 'action-handler') {
-      logger.debug('[adjustSeped]', 'source is action-handler; saving', numericSpeed, 'for url', url);
+      video.playbackRate = numericSpeed;
 
-      this.config.syncSpeedValue({
-        speed: numericSpeed,
-        url,
-      });
-    }
+      video.vsc?.setSpeedVal(numericSpeed);
 
-    logger.debug(`adjustSpeed finished: ${value}`);
+      // Only update speed when we manually change it using an action
+      if (source === 'action-handler') {
+        logger.debug('[adjustSeped]', 'source is action-handler; saving', numericSpeed, 'for url', url);
+
+        this.config.syncSpeedValue({
+          speed: numericSpeed,
+          url,
+        });
+      }
+
+      logger.debug(`adjustSpeed finished: ${value}`);
+    });
   }
 
   /**
@@ -471,6 +472,41 @@ export class ActionHandler {
   }
 
   /**
+   * Adjust video playback speed (absolute or relative)
+   * Simplified to use proven working logic from setSpeed method
+   *
+   * @param {HTMLMediaElement} video - Target video element
+   * @param {number} value - Speed value (absolute) or delta (relative)
+   * @param {Object} options - Configuration options
+   * @param {boolean} options.relative - If true, value is a delta; if false, absolute speed
+   * @param {string} options.source - 'internal' (user action) or 'external' (site/other)
+   */
+  adjustSpeed_upstream(video, value, options = {}) {
+    return window.VSC.logger.withContext(video, () => {
+      const { relative = false, source = 'internal' } = options;
+
+      // DEBUG: Log all adjustSpeed calls to trace the mystery
+      window.VSC.logger.debug(`adjustSpeed called: value=${value}, relative=${relative}, source=${source}`);
+      const stack = new Error().stack;
+      const stackLines = stack.split('\n').slice(1, 8); // First 7 stack frames
+      window.VSC.logger.debug(`adjustSpeed call stack: ${stackLines.join(' -> ')}`);
+
+      // Validate input
+      if (!video || !video.vsc) {
+        window.VSC.logger.warn('adjustSpeed called on video without controller');
+        return;
+      }
+
+      if (typeof value !== 'number' || isNaN(value)) {
+        window.VSC.logger.warn('adjustSpeed called with invalid value:', value);
+        return;
+      }
+
+      return this._adjustSpeedInternal(video, value, options);
+    });
+  }
+
+  /**
    * Internal adjustSpeed implementation (context already set)
    * @private
    */
@@ -496,7 +532,7 @@ export class ActionHandler {
     }
 
     // Clamp to valid range
-    targetSpeed = Math.min(Math.max(targetSpeed, window.VSC.Constants.SPEED_LIMITS.MIN), window.VSC.Constants.SPEED_LIMITS.MAX);
+    targetSpeed = Math.min(Math.max(targetSpeed, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
 
     // Round to 2 decimal places to avoid floating point issues
     targetSpeed = Number(targetSpeed.toFixed(2));
@@ -559,7 +595,7 @@ export class ActionHandler {
     speedIndicator.textContent = numericSpeed.toFixed(2);
 
     // 4. Always update page-scoped speed preference
-    window.VSC.logger.debug(`Updating config.settings.lastSpeed from ${this.config.settings.lastSpeed} to ${numericSpeed}`);
+    logger.debug(`Updating config.settings.lastSpeed from ${this.config.settings.lastSpeed} to ${numericSpeed}`);
     this.config.settings.lastSpeed = numericSpeed;
 
     // 5. Save to storage ONLY if rememberSpeed is enabled for cross-session persistence
