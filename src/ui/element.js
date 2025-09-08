@@ -34,4 +34,4 @@ export class VSCControllerElement extends HTMLElement {
 window.VSC.VSCControllerElement = VSCControllerElement;
 
 // Auto-register when the script loads
-// VSCControllerElement.register();
+VSCControllerElement.register();

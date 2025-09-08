@@ -10,10 +10,11 @@ import { logger } from '../utils/logger.js';
 import { BaseSiteHandler } from './base-handler.js';
 
 export class YouTubeHandler extends BaseSiteHandler {
-  constructor() {
-    super();
+  constructor(settings) {
+    super(settings);
 
     this.segments = [];
+    this.settings = settings;
   }
 
   /**
@@ -180,20 +181,21 @@ export class YouTubeHandler extends BaseSiteHandler {
    */
   async initSkipSegments() {
     this.segments = [];
+    logger.warn('YT handler settings', this.settings);
+
     const videoId = new URL(location.href).searchParams.get('v');
-    logger.debug('[initSkipSegments] videoId', videoId);
+    logger.warn('[initSkipSegments] videoId', videoId);
 
     let segments = [];
     try {
       const res = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
       const json = await res.json();
       segments = _.map(json, (r) => ({ start: Math.floor(r.segment[0]), end: Math.floor(r.segment[1]) }));
-
-      logger.debug('[initSkipSegments] segments', segments);
     } catch (err) {
-      logger.info('[initSkipSegments] error', err);
+      logger.warn('[initSkipSegments] error', err);
     }
 
+    logger.warn('[initSkipSegments] segments', segments);
     return segments;
   }
 }

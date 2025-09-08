@@ -14,7 +14,7 @@ import { OldRedditHandler } from './old-reddit-handler.js';
 import { YouTubeHandler } from './youtube-handler.js';
 
 export class SiteHandlerManager {
-  constructor() {
+  constructor(settings) {
     this.currentHandler = null;
     this.availableHandlers = [
       AmazonHandler,
@@ -24,6 +24,7 @@ export class SiteHandlerManager {
       OldRedditHandler,
       YouTubeHandler,
     ];
+    this.settings = settings;
   }
 
   /**
@@ -46,7 +47,7 @@ export class SiteHandlerManager {
     for (const HandlerClass of this.availableHandlers) {
       if (HandlerClass.matches()) {
         logger.info(`Using ${HandlerClass.name} for ${location.hostname}`);
-        return new HandlerClass();
+        return new HandlerClass(this.settings);
       }
     }
 
@@ -150,5 +151,4 @@ export class SiteHandlerManager {
 }
 
 // Create singleton instance
-export const siteHandlerManager = new SiteHandlerManager();
 window.VSC.siteHandlerManager = new SiteHandlerManager();

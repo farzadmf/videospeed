@@ -8,7 +8,6 @@ import { getBaseURL } from '../utils/url.js';
 import { logger } from '../utils/logger.js';
 import { ControlsManager } from '../ui/controls-manager.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
-import { siteHandlerManager } from '../site-handlers/manager.js';
 import { formatSpeed, formatVolume } from '../shared/constants.js';
 import { stateManager } from './state-manager.js';
 
@@ -17,7 +16,7 @@ export class VideoController {
    * @param {HTMLMediaElement & { vsc?: VideoController }} target - Video element
    * @param {VideoSpeedConfig} config - Config
    */
-  constructor(target, parent, config, actionHandler, shouldStartHidden = false) {
+  constructor({ actionHandler, config, parent, shouldStartHidden = false, siteHandlerManager, target }) {
     // Return existing controller if already attached
     if (target.vsc) {
       return target.vsc;
@@ -32,6 +31,7 @@ export class VideoController {
     this.controlsManager = new ControlsManager(actionHandler, config);
     this.shadowManager = new ShadowDOMManager(target);
     this.shouldStartHidden = shouldStartHidden;
+    this.siteHandlerManager = siteHandlerManager;
 
     this.segments = [];
     this.segmentEls = [];
@@ -80,7 +80,7 @@ export class VideoController {
     this.spyDiv = document.createElement('div');
     this.spyDiv.setAttribute('id', 'vsc-spy');
 
-    siteHandlerManager.setup({
+    this.siteHandlerManager.setup({
       onHide: () => this.shadowManager.hideController(),
       onShow: () => this.shadowManager.showController(),
       signal: this.signal,
@@ -107,6 +107,9 @@ export class VideoController {
     this.initializeSpeed();
 
     // Create custom element wrapper to avoid CSS conflicts
+    // MyNote: this shows an error from 'custom-elements-es5-adapter', which doesn't seem to be a
+    //         "real" error as the element is created. (to avoid, we can go back to using 'new'
+    //         directly on the class instead).
     this.wrapperDiv = document.createElement('vsc-controller');
 
     // Create UI
@@ -281,7 +284,7 @@ export class VideoController {
     document.body.appendChild(fragment);
 
     // Get site-specific positioning information
-    const { insertionPoint, insertionMethod } = siteHandlerManager.getControllerPosition(this.parent, this.video);
+    const { insertionPoint, insertionMethod } = this.siteHandlerManager.getControllerPosition(this.parent, this.video);
 
     switch (insertionMethod) {
       case 'beforeParent':
@@ -306,7 +309,7 @@ export class VideoController {
 
   initSkipSegments() {
     const onInit = async () => {
-      this.segments = await siteHandlerManager.initSkipSegments();
+      this.segments = await this.siteHandlerManager.initSkipSegments();
       this.shadowManager.clearSkipSegments();
       this.shadowManager.addSkipSegments({ totalDuration: this.video.duration, segments: this.segments });
     };

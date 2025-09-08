@@ -218,7 +218,6 @@ export class EventManager {
    * @private
    */
   handleRateChange(event) {
-    logger.warn('FMFOO[5]: event-manager.js:220 (after handleRateChange(event) )');
     // MyNote | I don't think I need this as I disabled CustomEvent in action-handler's
     //              setSpeed (no idea why it's there TBH).
     // if (this.coolDown) {

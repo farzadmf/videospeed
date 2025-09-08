@@ -7,8 +7,9 @@ window.VSC = window.VSC || {};
 import { logger } from '../utils/logger.js';
 
 export class BaseSiteHandler {
-  constructor() {
+  constructor(settings) {
     this.hostname = location.hostname;
+    this.settings = settings;
   }
 
   /**

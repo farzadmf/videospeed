@@ -12,9 +12,8 @@ import { VideoMutationObserver } from '../observers/mutation-observer.js';
 import * as dom from '../utils/dom-utils.js';
 import { MESSAGE_TYPES } from '../shared/constants.js';
 import { MediaElementObserver } from '../observers/media-observer.js';
-import { siteHandlerManager } from '../site-handlers/manager.js';
+import { SiteHandlerManager } from '../site-handlers/manager.js';
 import { stateManager } from '../core/state-manager.js';
-import { VSCControllerElement } from '../ui/element.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -35,7 +34,7 @@ class VideoSpeedExtension {
   async initialize() {
     try {
       // Access global modules
-      this.siteHandlerManager = siteHandlerManager;
+      this.siteHandlerManager = new SiteHandlerManager(this.config.settings);
       this.MediaElementObserver = MediaElementObserver;
       this.MESSAGE_TYPES = MESSAGE_TYPES;
 
@@ -61,7 +60,11 @@ class VideoSpeedExtension {
 
       // Create action handler and event manager
       this.eventManager = new EventManager(this.config, null);
-      this.actionHandler = new ActionHandler(this.config, this.eventManager);
+      this.actionHandler = new ActionHandler({
+        config: this.config,
+        eventManager: this.eventManager,
+        siteHandlerManager: this.siteHandlerManager,
+      });
       this.eventManager.actionHandler = this.actionHandler; // Set circular reference
 
       // Set up observers
@@ -271,7 +274,14 @@ class VideoSpeedExtension {
         video
       );
 
-      video.vsc = new VideoController(video, parent, this.config, this.actionHandler, shouldStartHidden);
+      video.vsc = new VideoController({
+        actionHandler: this.actionHandler,
+        config: this.config,
+        parent,
+        shouldStartHidden,
+        target: video,
+        siteHandlerManager: this.siteHandlerManager,
+      });
     } catch (error) {
       logger.error('[onVideoFound] 💥 Failed to attach controller to video:', error);
       logger.error(`[onVideoFound] Failed to attach controller to video: ${error.message}`);
@@ -362,9 +372,6 @@ class VideoSpeedExtension {
 
 // Initialize extension and message handlers in an IIFE to avoid global scope pollution
 (function () {
-  // MyNote: registering here instead of on module being loaded
-  VSCControllerElement.register();
-
   // Create and initialize extension instance
   const extension = new VideoSpeedExtension();
 
