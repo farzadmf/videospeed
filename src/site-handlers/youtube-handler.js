@@ -13,8 +13,10 @@ export class YouTubeHandler extends BaseSiteHandler {
   constructor(settings) {
     super(settings);
 
-    this.segments = [];
     this.settings = settings;
+
+    this.spb_enabled = this.settings.sites?.youtube?.spb_enabled;
+    this.spb_skip = this.settings.sites?.youtube?.spb_skip;
   }
 
   /**
@@ -180,11 +182,16 @@ export class YouTubeHandler extends BaseSiteHandler {
    * @returns {Array<{start: number, end: number}>} Array of segments with start and end times in seconds
    */
   async initSkipSegments() {
-    this.segments = [];
-    logger.warn('YT handler settings', this.settings);
+    if (!this.spb_enabled) {
+      return [];
+    }
 
     const videoId = new URL(location.href).searchParams.get('v');
-    logger.warn('[initSkipSegments] videoId', videoId);
+    logger.info('[initSkipSegments] videoId', videoId);
+
+    if (!videoId) {
+      return [];
+    }
 
     let segments = [];
     try {
@@ -192,10 +199,10 @@ export class YouTubeHandler extends BaseSiteHandler {
       const json = await res.json();
       segments = _.map(json, (r) => ({ start: Math.floor(r.segment[0]), end: Math.floor(r.segment[1]) }));
     } catch (err) {
-      logger.warn('[initSkipSegments] error', err);
+      logger.info('[initSkipSegments] error', err);
     }
 
-    logger.warn('[initSkipSegments] segments', segments);
+    logger.info('[initSkipSegments] segments', segments);
     return segments;
   }
 }
