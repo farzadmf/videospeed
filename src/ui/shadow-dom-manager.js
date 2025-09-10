@@ -199,6 +199,7 @@ export class ShadowDOMManager {
     this.segments.forEach((segment) => {
       this.progressLineContainer.removeChild(segment);
     });
+    this.segments = [];
   }
 
   /**

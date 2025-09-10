@@ -309,8 +309,8 @@ export class VideoController {
 
   initSkipSegments() {
     const onInit = async () => {
-      this.segments = await this.siteHandlerManager.initSkipSegments();
       this.shadowManager.clearSkipSegments();
+      this.segments = await this.siteHandlerManager.initSkipSegments();
       this.shadowManager.addSkipSegments({ totalDuration: this.video.duration, segments: this.segments });
     };
 
