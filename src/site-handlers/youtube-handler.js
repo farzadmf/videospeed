@@ -197,7 +197,7 @@ export class YouTubeHandler extends BaseSiteHandler {
     try {
       const res = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
       const json = await res.json();
-      segments = _.map(json, (r) => ({ start: Math.floor(r.segment[0]), end: Math.floor(r.segment[1]) }));
+      segments = _.map(json, (r) => ({ start: Math.ceil(r.segment[0]), end: Math.floor(r.segment[1]) }));
     } catch (err) {
       logger.info('[initSkipSegments] error', err);
     }
