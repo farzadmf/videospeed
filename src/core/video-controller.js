@@ -660,7 +660,7 @@ export class VideoController {
     const percent = ((Number(value) || 0) * 100).toFixed(1);
 
     this.isInternalTitleUpdate = true;
-    if (value > 0.0001 && value < 1.0 && this.isVisible) {
+    if (value > 0.0001 && value < 1.0 && this.isVisible && !this.video.loop) {
       document.title = `(${percent}%) ${this.documentTitle}`;
     } else {
       document.title = this.documentTitle;
