@@ -27,7 +27,10 @@ async function init() {
 
     console.debug('[VSC] Content script initialized');
   } catch (error) {
-    console.error('[VSC] Failed to initialize:', error);
+    // MyNote: I don't think these are considered "real" errors.
+    if (error.message !== 'Failed to fetch') {
+      console.error('[FMVSC] Failed to initialize:', error);
+    }
   }
 }
 
