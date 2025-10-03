@@ -360,6 +360,17 @@ export class VideoController {
     };
 
     /**
+     * Handle progress to update the buffer line.
+     * @param {Event} event - Progress event
+     */
+    const progressAction = () => {
+      if (this.video.buffered.length === 0) return;
+
+      const buffered = this.video.buffered.end(0) / this.video.duration;
+      this.setBufferVal(buffered);
+    };
+
+    /**
      * Handle timeupdate to display a progress bar.
      * @param {Event} event - Time update event
      */
@@ -372,6 +383,10 @@ export class VideoController {
     if (!this.handleTimeUpdate) {
       this.handleTimeUpdate = timeUpdateAction.bind(this);
       this.video.addEventListener('timeupdate', this.handleTimeUpdate, { signal: this.signal });
+    }
+    if (!this.handleProgress) {
+      this.handleProgress = progressAction.bind(this);
+      this.video.addEventListener('progress', this.handleProgress, { signal: this.signal });
     }
     if (!this.handleVolumeChange) {
       this.handleVolumeChange = volumeChangeAction.bind(this);
@@ -653,7 +668,19 @@ export class VideoController {
   }
 
   /**
-   * Set progress indicator's text
+   * Set buffer indicator's width
+   * @param {number|string} value - Buffer value
+   */
+  setBufferVal(value) {
+    console.log('FMFOO[25]: video-controller.js:674: value=', value);
+    const percent = ((Number(value) || 0) * 100).toFixed(1);
+    console.log('FMFOO[24]: video-controller.js:675: percent=', percent);
+
+    this.shadowManager.bufferLine.style.width = `${percent}%`;
+  }
+
+  /**
+   * Set progress indicator's text and width
    * @param {number|string} value - Progress value
    */
   setProgressVal(value) {

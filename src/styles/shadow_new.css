@@ -68,13 +68,19 @@
 }
 
 #vsc-progress-line-full,
+#vsc-progress-line-buffer,
 #vsc-progress-line-live {
   border-radius: 10px;
   height: 8px; /* occupies 0-8px */
 }
 #vsc-progress-line-full {
-  background-color: white;
+  background-color: #777474; /* very gray/invisible */
   width: 100%;
+}
+#vsc-progress-line-buffer {
+  background-color: #dddcdc; /* A bit greyer than white! */
+  margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
+  width: 0px;
 }
 #vsc-progress-line-live {
   background-color: red;

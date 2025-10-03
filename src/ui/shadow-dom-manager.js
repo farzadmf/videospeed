@@ -25,6 +25,7 @@ export class ShadowDOMManager {
 
     this.controller = null;
     this.controls = null;
+    this.bufferLine = null;
     this.progressLine = null;
     this.progressLineContainer = null;
     this.progressText = null;
@@ -104,10 +105,14 @@ export class ShadowDOMManager {
     const progressFull = document.createElement('div');
     progressFull.setAttribute('id', 'vsc-progress-line-full');
 
+    this.bufferLine = document.createElement('div');
+    this.bufferLine.setAttribute('id', 'vsc-progress-line-buffer');
+
     this.progressLine = document.createElement('div');
     this.progressLine.setAttribute('id', 'vsc-progress-line-live');
 
     this.progressLineContainer.appendChild(progressFull);
+    this.progressLineContainer.appendChild(this.bufferLine);
     this.progressLineContainer.appendChild(this.progressLine);
 
     this.speedIndicator = document.createElement('span');
