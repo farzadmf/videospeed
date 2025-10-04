@@ -366,7 +366,7 @@ export class VideoController {
     const progressAction = () => {
       if (this.video.buffered.length === 0) return;
 
-      const buffered = this.video.buffered.end(0) / this.video.duration;
+      const buffered = this.video.buffered.end(this.video.buffered.length - 1) / this.video.duration;
       this.setBufferVal(buffered);
     };
 
@@ -672,9 +672,7 @@ export class VideoController {
    * @param {number|string} value - Buffer value
    */
   setBufferVal(value) {
-    console.log('FMFOO[25]: video-controller.js:674: value=', value);
     const percent = ((Number(value) || 0) * 100).toFixed(1);
-    console.log('FMFOO[24]: video-controller.js:675: percent=', percent);
 
     this.shadowManager.bufferLine.style.width = `${percent}%`;
   }
