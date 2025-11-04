@@ -98,7 +98,6 @@ export class ShadowDOMManager {
 
     this.speedIndicator = document.createElement('span');
     this.speedIndicator.id = 'vsc-speed-val';
-    this.speedIndicator.className = 'always-on-text';
     this.speedIndicator.setAttribute('data-action', 'drag');
     this.speedIndicator.textContent = `${speed}x`;
 
@@ -109,7 +108,6 @@ export class ShadowDOMManager {
 
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';
-    this.progressText.className = 'always-on-text';
     this.progressText.textContent = '...';
 
     this.controllerDiv.appendChild(this.progressText);

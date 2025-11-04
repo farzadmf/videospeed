@@ -4,10 +4,6 @@
   font-size: 13px;
 }
 
-.always-on-text {
-  font-weight: bold;
-}
-
 #vsc-top-container {
   background: black;
   color: white;
@@ -53,10 +49,6 @@
 
   &:hover {
     height: 30px;
-
-    .always-on-text {
-      font-weight: normal;
-    }
 
     #controls {
       display: flex;
