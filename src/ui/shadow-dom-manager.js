@@ -17,8 +17,6 @@ export class ShadowDOMManager {
 
     /** @type {HTMLDivElement|null} */
     this.controllerDiv = null;
-    /** @type {HTMLDivElement|null} */
-    this.progressDiv = null;
 
     /** @type {ShadowRoot|null} */
     this.shadow = null;
@@ -34,7 +32,7 @@ export class ShadowDOMManager {
     this.buttons = [];
     this.segments = [];
 
-    this.progressDivHeightPx = 20;
+    this.progressDivHeightPx = 15;
 
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
 
@@ -72,35 +70,18 @@ export class ShadowDOMManager {
     topContainerDiv.id = 'vsc-top-container';
     this.shadow.appendChild(topContainerDiv);
 
-    this.progressDiv = document.createElement('div');
-    this.progressDiv.id = 'vsc-progress';
-    this.progressDiv.className = 'draggable';
-    this.progressDiv.setAttribute('data-action', 'drag');
-    this.progressDiv.style.setProperty('--height', toPx(this.progressDivHeightPx));
-    this.progressDiv.style.setProperty('--left', toPx(left));
-    this.progressDiv.style.setProperty('--top', toPx(top));
-    topContainerDiv.appendChild(this.progressDiv);
-
-    // Create controller div
     this.controllerDiv = document.createElement('div');
-    this.controllerDiv.id = 'controller';
-    this.controllerDiv.className = 'vsc-controller draggable';
+    this.controllerDiv.id = 'vsc-controller';
+    this.controllerDiv.className = 'draggable';
     this.controllerDiv.setAttribute('data-action', 'drag');
-    this.controllerDiv.style.setProperty('--top', toPx(top));
+    this.controllerDiv.style.setProperty('--height', toPx(this.progressDivHeightPx));
     this.controllerDiv.style.setProperty('--left', toPx(left));
+    this.controllerDiv.style.setProperty('--top', toPx(top));
     topContainerDiv.appendChild(this.controllerDiv);
-
-    // Create draggable speed indicator
-    // const draggable = document.createElement('span');
-    // draggable.setAttribute('data-action', 'drag');
-    // draggable.className = 'draggable';
-    // draggable.style.cssText = `font-size: ${buttonSize}px;`;
-    // this.controllerDiv.appendChild(draggable);
-    // topDiv.appendChild(draggable);
 
     this.progressLineContainer = document.createElement('div');
     this.progressLineContainer.setAttribute('id', 'vsc-progress-lines');
-    this.progressDiv.appendChild(this.progressLineContainer);
+    this.controllerDiv.appendChild(this.progressLineContainer);
 
     const progressFull = document.createElement('div');
     progressFull.setAttribute('id', 'vsc-progress-line-full');
@@ -117,6 +98,7 @@ export class ShadowDOMManager {
 
     this.speedIndicator = document.createElement('span');
     this.speedIndicator.id = 'vsc-speed-val';
+    this.speedIndicator.className = 'always-on-text';
     this.speedIndicator.setAttribute('data-action', 'drag');
     this.speedIndicator.textContent = `${speed}x`;
 
@@ -127,22 +109,22 @@ export class ShadowDOMManager {
 
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';
+    this.progressText.className = 'always-on-text';
     this.progressText.textContent = '...';
 
-    // draggable.appendChild(this.speedIndicator);
-    // draggable.appendChild(document.createTextNode(' '));
-    // draggable.appendChild(this.volumeIndicator);
+    this.controllerDiv.appendChild(this.progressText);
     this.controllerDiv.appendChild(this.speedIndicator);
-    this.controllerDiv.appendChild(document.createTextNode(' '));
-    this.controllerDiv.appendChild(this.volumeIndicator);
-
-    this.progressDiv.appendChild(this.progressText);
 
     // Create controls span
     const controls = document.createElement('span');
     controls.id = 'controls';
     controls.style.fontSize = `${buttonSize}px';`;
     controls.style.lineHeight = `${buttonSize}px';`;
+
+    controls.appendChild(document.createTextNode(' '));
+    controls.appendChild(this.volumeIndicator);
+    controls.appendChild(document.createTextNode(' '));
+
     this.controllerDiv.appendChild(document.createTextNode(' '));
     this.controllerDiv.appendChild(controls);
 
@@ -155,6 +137,10 @@ export class ShadowDOMManager {
       { action: 'display', text: '×', class: 'hideButton' },
     ];
 
+    const buttonsSpan = document.createElement('span');
+    buttonsSpan.id = 'buttons';
+    controls.appendChild(buttonsSpan);
+
     buttons.forEach((btnConfig) => {
       const button = document.createElement('button');
       button.setAttribute('data-action', btnConfig.action);
@@ -162,7 +148,7 @@ export class ShadowDOMManager {
         button.className = btnConfig.class;
       }
       button.textContent = btnConfig.text;
-      controls.appendChild(button);
+      buttonsSpan.appendChild(button);
     });
 
     logger.debug('Shadow DOM created for video controller');
@@ -252,8 +238,8 @@ export class ShadowDOMManager {
     // this.progressDiv.style.display = 'block';
     // this.controllerDiv.style.display = 'block';
 
-    if (!this.controllerDiv || !this.progressDiv) {
-      logger.debug('[adjustLocation] controllerDiv or progressDiv not found; not doing anything');
+    if (!this.controllerDiv) {
+      logger.debug('[adjustLocation] progressDiv not found; not doing anything');
       return;
     }
 
@@ -265,29 +251,26 @@ export class ShadowDOMManager {
     const padding = 5;
     const pad = (value) => toPx(value + padding);
 
-    this.progressDiv.style.left = pad(left);
-    this.progressDiv.style.top = pad(top);
-
     this.controllerDiv.style.left = pad(left);
-    this.controllerDiv.style.top = pad(top + this.progressDivHeightPx + 5);
+    this.controllerDiv.style.top = pad(top);
 
     logger.debug('[adjustLocation] end ...');
   }
 
   hide() {
     this.hideController();
-    this.progressDiv.style.display = 'none';
+    this.controllerDiv.style.display = 'none';
   }
   hideController() {
-    this.controllerDiv.classList.add('hidden');
+    // this.controllerDiv.classList.add('hidden');
   }
 
   showController() {
-    this.controllerDiv.classList.remove('hidden');
+    // this.controllerDiv.classList.remove('hidden');
   }
   show() {
     this.showController();
-    this.progressDiv.style.display = 'flex';
+    this.controllerDiv.style.display = 'flex';
   }
 }
 

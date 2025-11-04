@@ -4,6 +4,10 @@
   font-size: 13px;
 }
 
+.always-on-text {
+  font-weight: bold;
+}
+
 #vsc-top-container {
   background: black;
   color: white;
@@ -15,8 +19,7 @@
   position: absolute;
 }
 
-#controller,
-#vsc-progress {
+#vsc-controller {
   background: inherit;
   border-radius: 6px;
   left: var(--left);
@@ -28,35 +31,44 @@
   white-space: nowrap;
 }
 
-#controller {
-  visibility: var(--controller-visibility);
-  opacity: var(--controller-opacity);
-
-  &:hover #controls {
-    display: inline-block;
-  }
-}
-
 #controls {
+  align-items: center;
   display: none;
-  vertical-align: middle;
+  transition: opacity 1s;
+  opacity: 0;
 }
 
-#vsc-progress {
+#vsc-controller {
   align-items: center;
   background: black;
-  box-shadow: #00ffffa3 0 0 5px 3px;
+  box-shadow: #00ffffa3 0 0 5px 2px;
   color: white;
   display: flex;
   gap: 10px;
   height: var(--height);
+  padding-block: 5px;
   padding-inline: 5px;
-  width: 250px;
+  /* width: min(250px, 50%); */
+  transition: height 0.3s;
+
+  &:hover {
+    height: 30px;
+
+    .always-on-text {
+      font-weight: normal;
+    }
+
+    #controls {
+      display: flex;
+      opacity: 1;
+    }
+  }
 }
 
 #vsc-progress-lines {
   flex: 1;
   position: relative;
+  width: 200px;
 }
 
 .vsc-progress-line-segment {
@@ -108,6 +120,15 @@
   }
 }
 
+#buttons {
+  display: flex;
+}
+
+button,
+#vsc-volume-val {
+  margin-inline: 2px;
+}
+
 button {
   background: white;
   border-radius: 5px;
@@ -118,9 +139,9 @@ button {
   font-size: inherit;
   font-weight: normal;
   line-height: inherit;
-  margin: 0px 2px 2px 2px;
+  /* margin: 0px 2px 2px 2px; */
   opacity: 1;
-  padding: 1px 5px 3px 5px;
+  /* padding: 1px 5px 3px 5px; */
   transition:
     background 0.2s,
     color 0.2s;

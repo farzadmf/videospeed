@@ -124,7 +124,6 @@ export class VideoController {
     this.startHandlers();
 
     this.controllerDiv = this.shadowManager.controllerDiv;
-    this.progressDiv = this.shadowManager.progressDiv;
 
     logger.info('VideoController initialized for video element');
   }
@@ -613,17 +612,21 @@ export class VideoController {
    */
   updateVisibility() {
     const isVisible = this.isVideoVisible();
-    const isCurrentlyHidden = this.controllerDiv.classList.contains('vsc-hidden');
+    const isCurrentlyHidden = this.controllerDiv?.classList.contains('vsc-hidden');
 
     // Special handling for audio elements - don't hide controllers for functional audio
     if (this.video.tagName === 'AUDIO') {
       // For audio, only hide if manually hidden or if audio support is disabled
       if (!this.config.settings.audioBoolean && !isCurrentlyHidden) {
-        this.controllerDiv.classList.add('vsc-hidden');
+        this.controllerDiv?.classList.add('vsc-hidden');
         logger.debug('Hiding audio controller - audio support disabled');
-      } else if (this.config.settings.audioBoolean && isCurrentlyHidden && !this.controllerDiv.classList.contains('vsc-manual')) {
+      } else if (
+        this.config.settings.audioBoolean &&
+        isCurrentlyHidden &&
+        !this.controllerDiv?.classList.contains('vsc-manual')
+      ) {
         // Show audio controller if audio support is enabled and not manually hidden
-        this.controllerDiv.classList.remove('vsc-hidden');
+        this.controllerDiv?.classList.remove('vsc-hidden');
         logger.debug('Showing audio controller - audio support enabled');
       }
 
@@ -634,16 +637,16 @@ export class VideoController {
     if (
       isVisible &&
       isCurrentlyHidden &&
-      !this.controllerDiv.classList.contains('vsc-manual') &&
+      !this.controllerDiv?.classList.contains('vsc-manual') &&
       !this.config.settings.startHidden
     ) {
       // Video became visible and controller is hidden (but not manually hidden)
-      this.controllerDiv.classList.remove('vsc-hidden');
+      this.controllerDiv?.classList.remove('vsc-hidden');
       this.startHandlers();
       logger.debug('Showing controller - video became visible');
     } else if (!isVisible && !isCurrentlyHidden) {
       // Video became invisible and controller is visible
-      this.controllerDiv.classList.add('vsc-hidden');
+      this.controllerDiv?.classList.add('vsc-hidden');
       this.stopHandlers();
       logger.debug('Hiding controller - video became invisible');
     }
@@ -692,7 +695,7 @@ export class VideoController {
     }
     setTimeout(() => (this.isInternalTitleUpdate = false), 50);
 
-    this.shadowManager.progressDiv.style.display = 'flex';
+    this.shadowManager.controllerDiv.style.display = 'flex';
     this.shadowManager.progressText.textContent = `${percent}%`;
     this.shadowManager.progressLine.style.width = `${percent}%`;
   }

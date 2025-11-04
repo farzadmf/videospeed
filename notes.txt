@@ -1,3 +1,11 @@
+Title isn't updated, but it should be?
+- https://bun.com/blog/behind-the-scenes-of-bun-install
+
+Video is not recognized?
+- https://www.cnn.com/2025/09/17/media/jimmy-kimmel-charlie-kirk-trump-fcc-brendan-carr
+2025-10-10 - why is it stuck while it should follow "audio"?
+- https://aws.amazon.com/blogs/aws/new-general-purpose-amazon-ec2-m8a-instances-are-now-available/
+
 2025-09-05 | A case for audio: https://openai.com/index/expanding-economic-opportunity-with-ai/
 - Keeps changing its source, so spy div is being added constantly
 - Location of the controller is off because the element has no [good] dimension

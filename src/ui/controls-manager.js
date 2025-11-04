@@ -95,7 +95,7 @@ export class ControlsManager {
    * @private
    */
   setupWheelHandler(shadow, video) {
-    const controller = shadow.querySelector('#controller');
+    const controller = shadow.querySelector('#vsc-controller');
 
     controller.addEventListener(
       'wheel',
@@ -133,7 +133,7 @@ export class ControlsManager {
    * @private
    */
   setupClickPrevention(shadow) {
-    const controller = shadow.querySelector('#controller');
+    const controller = shadow.querySelector('#vsc-controller');
 
     // Prevent clicks from bubbling up to page
     controller.addEventListener('click', (e) => e.stopPropagation(), false);
