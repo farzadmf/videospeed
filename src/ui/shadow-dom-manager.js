@@ -15,6 +15,10 @@ export class ShadowDOMManager {
   constructor(target) {
     this.target = target;
 
+    if (target.tagName === 'AUDIO') {
+      this.target = target.parentElement;
+    }
+
     /** @type {HTMLDivElement|null} */
     this.controllerDiv = null;
 
@@ -199,7 +203,7 @@ export class ShadowDOMManager {
   calculatePosition() {
     logger.debug('[calculatePosition] start ...');
 
-    const rect = this.target.getBoundingClientRect();
+    const rect = this.target?.getBoundingClientRect();
 
     // getBoundingClientRect is relative to the viewport; style coordinates
     // are relative to offsetParent, so we adjust for that here. offsetParent
@@ -237,7 +241,7 @@ export class ShadowDOMManager {
     // this.controllerDiv.style.display = 'block';
 
     if (!this.controllerDiv) {
-      logger.debug('[adjustLocation] progressDiv not found; not doing anything');
+      logger.debug('[adjustLocation] controllerDiv not found; not doing anything');
       return;
     }
 
