@@ -1,6 +1,10 @@
 Title isn't updated, but it should be?
 - https://bun.com/blog/behind-the-scenes-of-bun-install
 
+[NEW!] Websites overriding speed!
+- https://open.spotify.com/episode/4QpgEVNw4z1AfQ6Mjj4ZI9
+- https://www.ted.com/talks/cate_hall_a_practical_guide_to_taking_control_of_your_life
+
 Video is not recognized?
 - https://www.cnn.com/2025/09/17/media/jimmy-kimmel-charlie-kirk-trump-fcc-brendan-carr
 2025-10-10 - why is it stuck while it should follow "audio"?
