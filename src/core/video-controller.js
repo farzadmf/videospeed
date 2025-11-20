@@ -5,6 +5,7 @@
 window.VSC = window.VSC || {};
 
 import { getBaseURL } from '../utils/url.js';
+import { formatDuration } from '../utils/misc.js';
 import { logger } from '../utils/logger.js';
 import { ControlsManager } from '../ui/controls-manager.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
@@ -353,9 +354,7 @@ export class VideoController {
      * @param {Event} event - Time update event
      */
     const timeUpdateAction = () => {
-      const progress = this.video.currentTime / this.video.duration;
-
-      this.setProgressVal(progress);
+      this.setProgressVal();
     };
 
     /**
@@ -682,13 +681,16 @@ export class VideoController {
 
   /**
    * Set progress indicator's text and width
-   * @param {number|string} value - Progress value
    */
-  setProgressVal(value) {
-    const percent = ((Number(value) || 0) * 100).toFixed(1);
+  setProgressVal() {
+    const { currentTime, duration } = this.video;
+    const hourAlwaysVisible = duration >= 3600;
+
+    const progress = currentTime / duration;
+    const percent = ((Number(progress) || 0) * 100).toFixed(1);
 
     this.isInternalTitleUpdate = true;
-    if (value > 0.0001 && value < 1.0 && this.isVisible && !this.video.loop) {
+    if (progress > 0.0001 && progress < 1.0 && this.isVisible && !this.video.loop) {
       document.title = `(${percent}%) ${this.documentTitle}`;
     } else {
       document.title = this.documentTitle;
@@ -696,8 +698,11 @@ export class VideoController {
     setTimeout(() => (this.isInternalTitleUpdate = false), 50);
 
     this.shadowManager.controllerDiv.style.display = 'flex';
-    this.shadowManager.progressText.textContent = `${percent}%`;
+    this.shadowManager.progressText.textContent = `(${percent}%)`;
     this.shadowManager.progressLine.style.width = `${percent}%`;
+
+    this.shadowManager.currentTime.textContent = formatDuration({ secs: currentTime, hourAlwaysVisible });
+    this.shadowManager.totalTime.textContent = formatDuration({ secs: duration, hourAlwaysVisible });
   }
 }
 

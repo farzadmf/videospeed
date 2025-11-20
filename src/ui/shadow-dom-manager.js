@@ -36,6 +36,9 @@ export class ShadowDOMManager {
     this.buttons = [];
     this.segments = [];
 
+    this.totalTime = null;
+    this.currentTime = null;
+
     this.progressDivHeightPx = 15;
 
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
@@ -85,7 +88,6 @@ export class ShadowDOMManager {
 
     this.progressLineContainer = document.createElement('div');
     this.progressLineContainer.setAttribute('id', 'vsc-progress-lines');
-    this.controllerDiv.appendChild(this.progressLineContainer);
 
     const progressFull = document.createElement('div');
     progressFull.setAttribute('id', 'vsc-progress-line-full');
@@ -114,7 +116,18 @@ export class ShadowDOMManager {
     this.progressText.id = 'vsc-progress-val';
     this.progressText.textContent = '...';
 
+    this.totalTime = document.createElement('div');
+    this.totalTime.id = 'vsc-total-time';
+    this.totalTime.textContent = '...';
+
+    this.currentTime = document.createElement('div');
+    this.currentTime.id = 'vsc-current-time';
+    this.currentTime.textContent = '...';
+
+    this.controllerDiv.appendChild(this.currentTime);
     this.controllerDiv.appendChild(this.progressText);
+    this.controllerDiv.appendChild(this.progressLineContainer);
+    this.controllerDiv.appendChild(this.totalTime);
     this.controllerDiv.appendChild(this.speedIndicator);
 
     // Create controls span
