@@ -657,7 +657,7 @@ export class VideoController {
    */
   setSpeedVal(value) {
     logger.debug(`setSpeedVal: ${value}`);
-    this.shadowManager.speedIndicator.textContent = `${formatSpeed(value)}x`;
+    this.shadowManager.speed(value);
   }
 
   /**
@@ -666,7 +666,7 @@ export class VideoController {
    */
   setVolumeVal(value) {
     logger.debug(`setVolumeVal: ${value}`);
-    this.shadowManager.volumeIndicator.textContent = `(vol: ${formatVolume(value)})`;
+    this.shadowManager.volume(value);
   }
 
   /**
@@ -697,12 +697,13 @@ export class VideoController {
     }
     setTimeout(() => (this.isInternalTitleUpdate = false), 50);
 
-    this.shadowManager.controllerDiv.style.display = 'flex';
-    this.shadowManager.progressText.textContent = `(${percent}%)`;
-    this.shadowManager.progressLine.style.width = `${percent}%`;
+    // this.shadowManager.controllerDiv.style.display = 'flex';
+    this.shadowManager.progress(percent);
 
-    this.shadowManager.currentTime.textContent = formatDuration({ secs: currentTime, hourAlwaysVisible });
-    this.shadowManager.totalTime.textContent = formatDuration({ secs: duration, hourAlwaysVisible });
+    const currentStr = formatDuration({ secs: currentTime, hourAlwaysVisible });
+    this.shadowManager.current(currentStr);
+    const totalStr = formatDuration({ secs: duration, hourAlwaysVisible });
+    this.shadowManager.total(totalStr);
   }
 }
 

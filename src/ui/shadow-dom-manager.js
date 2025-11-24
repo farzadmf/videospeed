@@ -5,7 +5,7 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
-import { formatVolume } from '../shared/constants.js';
+import { formatVolume, formatSpeed } from '../shared/constants.js';
 import { toPx } from '../utils/misc.js';
 
 export class ShadowDOMManager {
@@ -25,11 +25,16 @@ export class ShadowDOMManager {
     /** @type {ShadowRoot|null} */
     this.shadow = null;
 
+    this.left = null;
+    this.right = null;
+    this.topContainer = null;
+    this.bottomContainer = null;
+    this.progressLineContainer = null;
+
     this.controller = null;
     this.controls = null;
     this.bufferLine = null;
     this.progressLine = null;
-    this.progressLineContainer = null;
     this.progressText = null;
     this.speedIndicator = null;
     this.volumeIndicator = null;
@@ -81,11 +86,20 @@ export class ShadowDOMManager {
     this.controllerDiv.id = 'vsc-controller';
     this.controllerDiv.className = 'draggable';
     this.controllerDiv.setAttribute('data-action', 'drag');
-    this.controllerDiv.style.setProperty('--height', toPx(this.progressDivHeightPx));
+    // this.controllerDiv.style.setProperty('--height', toPx(this.progressDivHeightPx));
     this.controllerDiv.style.setProperty('--left', toPx(left));
     this.controllerDiv.style.setProperty('--top', toPx(top));
     topContainerDiv.appendChild(this.controllerDiv);
 
+    this.left = document.createElement('div');
+    this.left.setAttribute('id', 'vsc-left');
+    this.right = document.createElement('div');
+    this.right.setAttribute('id', 'vsc-right');
+
+    this.topContainer = document.createElement('div');
+    this.topContainer.setAttribute('id', 'vsc-container-top');
+    this.bottomContainer = document.createElement('div');
+    this.bottomContainer.setAttribute('id', 'vsc-container-bottom');
     this.progressLineContainer = document.createElement('div');
     this.progressLineContainer.setAttribute('id', 'vsc-progress-lines');
 
@@ -105,12 +119,12 @@ export class ShadowDOMManager {
     this.speedIndicator = document.createElement('span');
     this.speedIndicator.id = 'vsc-speed-val';
     this.speedIndicator.setAttribute('data-action', 'drag');
-    this.speedIndicator.textContent = `${speed}x`;
+    this.speed(speed);
 
     this.volumeIndicator = document.createElement('span');
     this.volumeIndicator.id = 'vsc-volume-val';
     this.volumeIndicator.setAttribute('data-action', 'drag');
-    this.volumeIndicator.textContent = `(vol: ${formatVolume(volume)})`;
+    this.volume(volume);
 
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';
@@ -124,11 +138,17 @@ export class ShadowDOMManager {
     this.currentTime.id = 'vsc-current-time';
     this.currentTime.textContent = '...';
 
-    this.controllerDiv.appendChild(this.currentTime);
-    this.controllerDiv.appendChild(this.progressText);
-    this.controllerDiv.appendChild(this.progressLineContainer);
-    this.controllerDiv.appendChild(this.totalTime);
-    this.controllerDiv.appendChild(this.speedIndicator);
+    this.controllerDiv.appendChild(this.left);
+    this.controllerDiv.appendChild(this.right);
+    this.left.appendChild(this.topContainer);
+    this.left.appendChild(this.bottomContainer);
+
+    this.bottomContainer.appendChild(this.progressLineContainer);
+
+    this.topContainer.appendChild(this.currentTime);
+    this.topContainer.appendChild(this.progressText);
+    this.topContainer.appendChild(this.totalTime);
+    this.topContainer.appendChild(this.speedIndicator);
 
     // Create controls span
     const controls = document.createElement('span');
@@ -141,7 +161,7 @@ export class ShadowDOMManager {
     controls.appendChild(document.createTextNode(' '));
 
     this.controllerDiv.appendChild(document.createTextNode(' '));
-    this.controllerDiv.appendChild(controls);
+    this.right.appendChild(controls);
 
     // Create buttons
     const buttons = [
@@ -274,7 +294,7 @@ export class ShadowDOMManager {
 
   hide() {
     this.hideController();
-    this.controllerDiv.style.display = 'none';
+    // this.controllerDiv.style.display = 'none';
   }
   hideController() {
     // this.controllerDiv.classList.add('hidden');
@@ -285,7 +305,24 @@ export class ShadowDOMManager {
   }
   show() {
     this.showController();
-    this.controllerDiv.style.display = 'flex';
+    // this.controllerDiv.style.display = 'flex';
+  }
+
+  progress(percent) {
+    this.progressText.textContent = `📊 ${percent}%`;
+    this.progressLine.style.width = `${percent}%`;
+  }
+  current(value) {
+    this.currentTime.textContent = `⏱️ ${value}`;
+  }
+  total(value) {
+    this.totalTime.textContent = `⌛ ${value}`;
+  }
+  volume(value) {
+    this.volumeIndicator.textContent = `🔊 ${formatVolume(value)}`;
+  }
+  speed(value) {
+    this.speedIndicator.textContent = `⚡ ${formatSpeed(value)}x`;
   }
 }
 

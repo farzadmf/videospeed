@@ -15,18 +15,6 @@
   position: absolute;
 }
 
-#vsc-controller {
-  background: inherit;
-  border-radius: 6px;
-  left: var(--left);
-  margin-left: var(--margin-left);
-  margin-top: var(--margin-top);
-  padding: 4px;
-  position: fixed;
-  top: var(--top);
-  white-space: nowrap;
-}
-
 #controls {
   align-items: center;
   display: none;
@@ -37,18 +25,31 @@
 #vsc-controller {
   align-items: center;
   background: black;
+  border-radius: 6px;
   box-shadow: #00ffffa3 0 0 5px 2px;
   color: white;
   display: flex;
-  gap: 6px;
-  height: var(--height);
-  padding-block: 5px;
-  padding-inline: 5px;
-  /* width: min(250px, 50%); */
+  gap: 3px;
+  /* height: var(--height); */
+  height: 25px;
+  left: var(--left);
+  margin-left: var(--margin-left);
+  margin-top: var(--margin-top);
+  padding-block: 1px;
+  padding-inline: 4px;
+  position: fixed;
+  top: var(--top);
   transition: height 0.3s;
+  /* width: min(250px, 50%); */
+  white-space: nowrap;
+
+  #vsc-container-top {
+    display: flex;
+    gap: 6px;
+  }
 
   &:hover {
-    height: 30px;
+    height: 35px;
 
     #controls {
       display: flex;
@@ -58,9 +59,32 @@
 }
 
 #vsc-progress-lines {
+  --prog-height: 5px;
+
   flex: 1;
   position: relative;
-  width: 150px;
+  width: 250px;
+
+  #vsc-progress-line-full,
+  #vsc-progress-line-buffer,
+  #vsc-progress-line-live {
+    border-radius: 10px;
+    height: var(--prog-height); /* occupies 0-height */
+  }
+  #vsc-progress-line-full {
+    background-color: #777474; /* very gray/invisible */
+    width: 100%;
+  }
+  #vsc-progress-line-buffer {
+    background-color: #dddcdc; /* A bit greyer than white! */
+    margin-top: calc(-1 * var(--prog-height)); /* starts at height; pull it up to occupy 0-height as well */
+    width: 0px;
+  }
+  #vsc-progress-line-live {
+    background-color: red;
+    margin-top: calc(-1 * var(--prog-height)); /* starts at height; pull it up to occupy 0-height as well */
+    width: 0px;
+  }
 }
 
 .vsc-progress-line-segment {
@@ -69,27 +93,6 @@
   margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
   /* opacity: 0.6; */
   position: absolute;
-}
-
-#vsc-progress-line-full,
-#vsc-progress-line-buffer,
-#vsc-progress-line-live {
-  border-radius: 10px;
-  height: 8px; /* occupies 0-8px */
-}
-#vsc-progress-line-full {
-  background-color: #777474; /* very gray/invisible */
-  width: 100%;
-}
-#vsc-progress-line-buffer {
-  background-color: #dddcdc; /* A bit greyer than white! */
-  margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
-  width: 0px;
-}
-#vsc-progress-line-live {
-  background-color: red;
-  margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
-  width: 0px;
 }
 
 .hidden {
