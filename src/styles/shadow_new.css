@@ -92,7 +92,7 @@
   .vsc-progress-line-segment {
     background-color: #12c712;
     height: var(--prog-height); /* occupies 0-height */
-    margin-top: -8px; /* starts at 8px; pull it up to occupy 0-8px as well */
+    margin-top: calc(-1 * var(--prog-height)); /* starts at height; pull it up to occupy 0-height as well */
     /* opacity: 0.6; */
     position: absolute;
   }
