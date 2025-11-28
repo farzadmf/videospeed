@@ -309,20 +309,20 @@ export class ShadowDOMManager {
   }
 
   progress(percent) {
-    this.progressText.textContent = `📊 ${percent}%`;
+    this.progressText.textContent = `📊${percent}%`;
     this.progressLine.style.width = `${percent}%`;
   }
   current(value) {
-    this.currentTime.textContent = `⏱️ ${value}`;
+    this.currentTime.textContent = `⏱️${value}`;
   }
   total(value) {
-    this.totalTime.textContent = `⌛ ${value}`;
+    this.totalTime.textContent = `⌛${value}`;
   }
   volume(value) {
-    this.volumeIndicator.textContent = `🔊 ${formatVolume(value)}`;
+    this.volumeIndicator.textContent = `🔊${formatVolume(value)}`;
   }
   speed(value) {
-    this.speedIndicator.textContent = `⚡ ${formatSpeed(value)}x`;
+    this.speedIndicator.textContent = `⚡${formatSpeed(value)}x`;
   }
 }
 
