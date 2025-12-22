@@ -5,6 +5,7 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
+import { formatDuration } from '../utils/misc.js';
 import { formatVolume, formatSpeed } from '../shared/constants.js';
 import { toPx } from '../utils/misc.js';
 
@@ -37,14 +38,19 @@ export class ShadowDOMManager {
     this.progressLine = null;
     this.progressText = null;
     this.speedIndicator = null;
+    this.speedValue = 1;
     this.volumeIndicator = null;
     this.buttons = [];
     this.segments = [];
 
     this.totalTime = null;
+    this.totalTimeValue = null;
     this.currentTime = null;
+    this.currentTimeValue = null;
+    this.remainingTime = null;
 
     this.progressDivHeightPx = 15;
+    this.hourAlwaysVisible = false;
 
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
 
@@ -126,17 +132,31 @@ export class ShadowDOMManager {
     this.volumeIndicator.setAttribute('data-action', 'drag');
     this.volume(volume);
 
+    const timeWrapper = document.createElement('div');
+    timeWrapper.style.display = 'flex';
+
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';
     this.progressText.textContent = '...';
+
+    this.currentTime = document.createElement('div');
+    this.currentTime.id = 'vsc-current-time';
+    this.currentTime.textContent = '...';
 
     this.totalTime = document.createElement('div');
     this.totalTime.id = 'vsc-total-time';
     this.totalTime.textContent = '...';
 
-    this.currentTime = document.createElement('div');
-    this.currentTime.id = 'vsc-current-time';
-    this.currentTime.textContent = '...';
+    const separator = document.createElement('span');
+    separator.textContent = '/';
+
+    timeWrapper.appendChild(this.currentTime);
+    timeWrapper.appendChild(separator);
+    timeWrapper.appendChild(this.totalTime);
+
+    this.remainingTime = document.createElement('div');
+    this.remainingTime.id = 'vsc-remaining-time';
+    this.remainingTime.textContent = '...';
 
     this.controllerDiv.appendChild(this.left);
     this.controllerDiv.appendChild(this.right);
@@ -145,9 +165,10 @@ export class ShadowDOMManager {
 
     this.bottomContainer.appendChild(this.progressLineContainer);
 
-    this.topContainer.appendChild(this.currentTime);
+    this.topContainer.appendChild(timeWrapper);
+    this.topContainer.appendChild(this.remainingTime);
+
     this.topContainer.appendChild(this.progressText);
-    this.topContainer.appendChild(this.totalTime);
     this.topContainer.appendChild(this.speedIndicator);
 
     // Create controls span
@@ -308,20 +329,31 @@ export class ShadowDOMManager {
     // this.controllerDiv.style.display = 'flex';
   }
 
-  progress(percent) {
+  progress({ percent, hourAlwaysVisible }) {
+    this.hourAlwaysVisible = hourAlwaysVisible;
+
     this.progressText.textContent = `📊${percent}%`;
     this.progressLine.style.width = `${percent}%`;
+
+    const remainingSecs = this.totalTimeValue - this.currentTimeValue;
+    const remaining = formatDuration({ secs: remainingSecs / this.speedValue, hourAlwaysVisible });
+    this.remainingTime.textContent = `⏰${remaining}`;
   }
   current(value) {
-    this.currentTime.textContent = `⏱️${value}`;
+    this.currentTimeValue = value;
+    const currentStr = formatDuration({ secs: value, hourAlwaysVisible: this.hourAlwaysVisible });
+    this.currentTime.textContent = `⌛${currentStr}`;
   }
   total(value) {
-    this.totalTime.textContent = `⌛${value}`;
+    this.totalTimeValue = value;
+    const totalStr = formatDuration({ secs: value, hourAlwaysVisible: this.hourAlwaysVisible });
+    this.totalTime.textContent = totalStr;
   }
   volume(value) {
     this.volumeIndicator.textContent = `🔊${formatVolume(value)}`;
   }
   speed(value) {
+    this.speedValue = value;
     this.speedIndicator.textContent = `⚡${formatSpeed(value)}x`;
   }
 }

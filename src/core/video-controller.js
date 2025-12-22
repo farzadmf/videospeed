@@ -9,7 +9,7 @@ import { formatDuration } from '../utils/misc.js';
 import { logger } from '../utils/logger.js';
 import { ControlsManager } from '../ui/controls-manager.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
-import { formatSpeed, formatVolume } from '../shared/constants.js';
+import { formatSpeed } from '../shared/constants.js';
 import { stateManager } from './state-manager.js';
 
 export class VideoController {
@@ -698,12 +698,10 @@ export class VideoController {
     setTimeout(() => (this.isInternalTitleUpdate = false), 50);
 
     // this.shadowManager.controllerDiv.style.display = 'flex';
-    this.shadowManager.progress(percent);
+    this.shadowManager.progress({ percent, hourAlwaysVisible });
 
-    const currentStr = formatDuration({ secs: currentTime, hourAlwaysVisible });
-    this.shadowManager.current(currentStr);
-    const totalStr = formatDuration({ secs: duration, hourAlwaysVisible });
-    this.shadowManager.total(totalStr);
+    this.shadowManager.current(currentTime);
+    this.shadowManager.total(duration);
   }
 }
 
