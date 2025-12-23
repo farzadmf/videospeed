@@ -133,7 +133,7 @@ export class ShadowDOMManager {
     this.volume(volume);
 
     const timeWrapper = document.createElement('div');
-    timeWrapper.style.display = 'flex';
+    timeWrapper.id = 'vsc-time-wrapper';
 
     this.progressText = document.createElement('div');
     this.progressText.id = 'vsc-progress-val';

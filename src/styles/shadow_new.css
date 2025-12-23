@@ -49,6 +49,11 @@
     line-height: 1.2em;
   }
 
+  #vsc-time-wrapper {
+    display: flex;
+    gap: 2px;
+  }
+
   &:hover {
     height: 35px;
 
