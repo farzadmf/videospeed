@@ -329,15 +329,24 @@ export class ShadowDOMManager {
     // this.controllerDiv.style.display = 'flex';
   }
 
+  _remaining() {
+    if (!this.remainingTime) return;
+
+    const { currentTimeValue, hourAlwaysVisible, speedValue, totalTimeValue } = this;
+
+    const remainingSecs = totalTimeValue - currentTimeValue;
+    const remaining = formatDuration({ secs: remainingSecs / speedValue, hourAlwaysVisible });
+
+    this.remainingTime.textContent = `⏰${remaining}`;
+  }
+
   progress({ percent, hourAlwaysVisible }) {
     this.hourAlwaysVisible = hourAlwaysVisible;
 
     this.progressText.textContent = `📊${percent}%`;
     this.progressLine.style.width = `${percent}%`;
 
-    const remainingSecs = this.totalTimeValue - this.currentTimeValue;
-    const remaining = formatDuration({ secs: remainingSecs / this.speedValue, hourAlwaysVisible });
-    this.remainingTime.textContent = `⏰${remaining}`;
+    this._remaining();
   }
   current(value) {
     this.currentTimeValue = value;
@@ -355,6 +364,8 @@ export class ShadowDOMManager {
   speed(value) {
     this.speedValue = value;
     this.speedIndicator.textContent = `⚡${formatSpeed(value)}x`;
+
+    this._remaining();
   }
 }
 
