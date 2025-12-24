@@ -50,6 +50,7 @@ export class ShadowDOMManager {
     this.remainingTime = null;
 
     this.progressDivHeightPx = 15;
+    this.controllerDivHeightPx = 22;
     this.hourAlwaysVisible = false;
 
     this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
@@ -92,9 +93,9 @@ export class ShadowDOMManager {
     this.controllerDiv.id = 'vsc-controller';
     this.controllerDiv.className = 'draggable';
     this.controllerDiv.setAttribute('data-action', 'drag');
-    // this.controllerDiv.style.setProperty('--height', toPx(this.progressDivHeightPx));
+    this.controllerDiv.style.setProperty('--height', toPx(this.controllerDivHeightPx));
     this.controllerDiv.style.setProperty('--left', toPx(left));
-    this.controllerDiv.style.setProperty('--top', toPx(top));
+    this.controllerDiv.style.setProperty('--top', toPx(top - this.controllerDivHeightPx));
     topContainerDiv.appendChild(this.controllerDiv);
 
     this.left = document.createElement('div');
@@ -308,7 +309,7 @@ export class ShadowDOMManager {
     const pad = (value) => toPx(value + padding);
 
     this.controllerDiv.style.left = pad(left);
-    this.controllerDiv.style.top = pad(top);
+    this.controllerDiv.style.top = pad(top - this.controllerDivHeightPx);
 
     logger.debug('[adjustLocation] end ...');
   }
