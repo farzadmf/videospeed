@@ -5,7 +5,6 @@
 window.VSC = window.VSC || {};
 
 import { getBaseURL } from '../utils/url.js';
-import { formatDuration } from '../utils/misc.js';
 import { logger } from '../utils/logger.js';
 import { ControlsManager } from '../ui/controls-manager.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';

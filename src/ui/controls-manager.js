@@ -4,8 +4,6 @@
 
 window.VSC = window.VSC || {};
 
-import { logger } from '../utils/logger.js';
-
 export class ControlsManager {
   constructor(actionHandler, config) {
     this.actionHandler = actionHandler;

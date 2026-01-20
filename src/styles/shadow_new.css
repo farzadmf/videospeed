@@ -30,8 +30,8 @@
   color: white;
   display: flex;
   gap: 3px;
-  /* height: var(--height); */
-  height: 22px;
+  height: var(--height);
+  /* height: 22px; */
   left: var(--left);
   margin-left: var(--margin-left);
   margin-top: var(--margin-top);

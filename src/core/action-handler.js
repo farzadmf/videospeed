@@ -61,15 +61,15 @@ export class ActionHandler {
 
     // Return true (meaning: "we handled it") if the action applied to at least one of our media elements
     const result = mediaTags.some((video) => {
-      const controller = video.vsc?.controllerDiv;
+      const wrapperDiv = video.vsc?.wrapperDiv;
 
-      if (!controller) {
+      if (!wrapperDiv) {
         return false; // We didn't handle it
       }
 
       // Don't change video speed if the video has a different controller
       // Only apply this check for button clicks (when targetController is set)
-      if (event && targetController && !(targetController === controller)) {
+      if (event && targetController && targetController !== wrapperDiv) {
         return false; // We didn't handle it
       }
 
@@ -78,7 +78,7 @@ export class ActionHandler {
         return false; // We didn't handle it
       }
 
-      this.eventManager.showController(controller);
+      this.eventManager.showController(wrapperDiv);
 
       if (!video.classList.contains('vsc-cancelled')) {
         // MyNote: for keyup events, I assume that if we reach here, it means that we had an action
@@ -141,7 +141,7 @@ export class ActionHandler {
 
       case 'display': {
         logger.debug('Display action triggered');
-        const controller = video.vsc.controllerDiv;
+        const wrapperDiv = video.vsc.wrapperDiv;
 
         // MyNote: this is checked in runAction, so do we need it here?!
         // if (!controller) {
@@ -149,14 +149,14 @@ export class ActionHandler {
         //   return;
         // }
 
-        controller.classList.add('vsc-manual');
-        controller.classList.toggle('vsc-hidden');
+        wrapperDiv.classList.add('vsc-manual');
+        wrapperDiv.classList.toggle('vsc-hidden');
 
         // Clear any pending timers that might interfere with manual toggle
         // This prevents delays when manually hiding/showing the controller
-        if (controller.blinkTimeOut !== undefined) {
-          clearTimeout(controller.blinkTimeOut);
-          controller.blinkTimeOut = undefined;
+        if (wrapperDiv.blinkTimeOut !== undefined) {
+          clearTimeout(wrapperDiv.blinkTimeOut);
+          wrapperDiv.blinkTimeOut = undefined;
         }
 
         // Also clear EventManager timer if it exists
@@ -166,8 +166,8 @@ export class ActionHandler {
         }
 
         // Remove vsc-show class immediately when manually hiding
-        if (controller.classList.contains('vsc-hidden')) {
-          controller.classList.remove('vsc-show');
+        if (wrapperDiv.classList.contains('vsc-hidden')) {
+          wrapperDiv.classList.remove('vsc-show');
           logger.debug('Removed vsc-show class for immediate manual hide');
         }
 
