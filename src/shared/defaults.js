@@ -10,7 +10,7 @@ export const VSC_DEFAULTS = {
   enabled: true,
   forceLastSavedSpeed: true,
   keyBindings: [
-    { action: ACTIONS.display, force: false, code: 'KeyV', predefined: true },
+    { action: ACTIONS.display, force: true, code: 'KeyV', predefined: true, shift: true, ctrl: true },
     { action: ACTIONS.fast, force: false, code: 'KeyG', predefined: true },
     { action: ACTIONS.faster, force: true, code: 'BracketRight', predefined: true, shift: true, alt: true },
     { action: ACTIONS.fixspeed_10, force: true, code: 'Digit1', predefined: false, alt: true },

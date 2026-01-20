@@ -170,9 +170,9 @@ export class EventManager {
   hasActiveModifier(event) {
     return (
       !event.getModifierState ||
-      event.getModifierState('Control') ||
+      // event.getModifierState('Control') ||
       event.getModifierState('Fn') ||
-      event.getModifierState('Meta') ||
+      // event.getModifierState('Meta') ||
       event.getModifierState('Hyper') ||
       event.getModifierState('OS')
     );
