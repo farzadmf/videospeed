@@ -411,6 +411,10 @@ export class ActionHandler {
     if (document.pictureInPictureElement) {
       document.exitPictureInPicture();
     } else {
+      if (video.disablePictureInPicture) {
+        return false;
+      }
+
       video.requestPictureInPicture();
     }
 
