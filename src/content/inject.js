@@ -40,20 +40,7 @@ class VideoSpeedExtension {
 
       logger.info('Video Speed Controller starting...');
 
-      // Load configuration
       await this.config.load();
-
-      // Check if extension is enabled
-      if (!this.config.settings.enabled) {
-        logger.info('Extension is disabled');
-        return;
-      }
-
-      // Check if site is blacklisted
-      if (dom.isBlacklisted(this.config.settings.blacklist)) {
-        logger.info('Site is blacklisted', location.hostname);
-        return;
-      }
 
       // Initialize site handler
       this.siteHandlerManager.initialize(document);
