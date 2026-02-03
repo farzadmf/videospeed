@@ -21,7 +21,6 @@ const DEFAULT_SETTINGS = {
   enabled: true, // default enabled
   speeds: {}, // empty object to hold speed for each source
 
-  displayKeyCode: 86, // default: V
   rememberSpeed: false, // default: false
   forceLastSavedSpeed: false, //default: false
   audioBoolean: true, // default: true (enable audio controller support)
