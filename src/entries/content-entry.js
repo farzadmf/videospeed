@@ -8,6 +8,14 @@ import { isBlacklisted } from '../utils/blacklist.js';
 
 async function init() {
   try {
+    // Guard against double-injection. Chrome can re-run content scripts on
+    // extension update, service worker restart, or in about:blank frames that
+    // share the parent window. Re-injecting would overwrite all window.VSC.*
+    // singletons and silently break the running instance.
+    if (document.getElementById('vsc-settings-data')) {
+      return;
+    }
+
     const settings = await chrome.storage.sync.get(null);
 
     // Early exit if extension is disabled
