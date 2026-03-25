@@ -397,12 +397,25 @@ export class ActionHandler {
   }
 
   /**
-   * Jump to time marker
+   * Jump to time marker, or jump back to previous position if already at marker
    * @param {HTMLMediaElement} video - Video element
    */
   jumpToMark(video) {
-    logger.debug('Recalling marker');
-    if (video.vsc.mark && typeof video.vsc.mark === 'number') {
+    if (video.vsc.mark == null || typeof video.vsc.mark !== 'number') {
+      return;
+    }
+
+    const currentTime = video.currentTime;
+
+    if (video.vsc.positionBeforeJump !== null && Math.abs(currentTime - video.vsc.mark) < 0.05) {
+      // At the marker — toggle back to where we came from
+      logger.debug('Jumping back to pre-marker position');
+      video.currentTime = video.vsc.positionBeforeJump;
+      video.vsc.positionBeforeJump = null;
+    } else {
+      // Jump to marker, remembering current position
+      logger.debug('Jumping to marker');
+      video.vsc.positionBeforeJump = currentTime;
       video.currentTime = video.vsc.mark;
     }
   }
