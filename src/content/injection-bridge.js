@@ -56,26 +56,23 @@ export async function injectCSS() {
  * Handles bi-directional communication for popup and settings updates
  */
 export function setupMessageBridge() {
-  // Listen for messages from the page context (injected script)
-  window.addEventListener('message', (event) => {
+  // Named function so we can remove it on context invalidation
+  function handlePageMessage(event) {
     if (event.source !== window || !event.data?.source?.startsWith('vsc-')) {
       return;
     }
 
     const { source, action, data } = event.data;
 
-    try {
-      if (source === 'vsc-page') {
-        // Forward page messages to extension runtime
+    if (source === 'vsc-page') {
+      try {
         if (action === 'storage-update') {
           chrome.storage.sync.set(data);
         } else if (action === 'runtime-message') {
-          // Forward runtime messages
           if (data.type !== 'VSC_STATE_UPDATE') {
             chrome.runtime.sendMessage(data);
           }
         } else if (action === 'get-storage') {
-          // Page script requesting current storage
           chrome.storage.sync.get(null, (items) => {
             window.postMessage(
               {
@@ -87,12 +84,17 @@ export function setupMessageBridge() {
             );
           });
         }
+      } catch (e) {
+        if (e.message?.includes('Extension context invalidated')) {
+          window.removeEventListener('message', handlePageMessage);
+        } else {
+          // Content script context — no access to logger module
+          console.warn('[VSC] Bridge error:', e.message);
+        }
       }
-    } catch {
-      // MyNote: added try/catch, ignoring error. Seeing 'Extension context invalidated'
-      //         here constantly.
     }
-  });
+  }
+  window.addEventListener('message', handlePageMessage);
 
   // Listen for messages from popup/background
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
