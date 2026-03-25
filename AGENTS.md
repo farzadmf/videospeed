@@ -2,6 +2,12 @@
 
 This project is a heavily modified fork of https://github.com/igrigorik/videospeed, but tries to keep all the existing functionality/fixes of upstream. Some of upstream changes may not be applicable to this project because of the fundamental differences made on purpose.
 
+## Upstream bookmarks
+
+Some upstream commits aren't directly applicable but contain useful insights for future work. These are documented in `docs/upstream-bookmarks/`:
+
+- `ec11ba4-visibility-refactor.md` — Controller visibility system refactor (dual-timer race fix, vsc-manual cleanup, YouTube autohide). Relevant when we revisit our own visibility logic.
+
 ## File structure
 
 Project almost has 1-1 parity with upstream, with these notable differences:
