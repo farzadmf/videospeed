@@ -270,6 +270,12 @@ export class ActionHandler {
         if (relative) {
           const currentSpeed = video.playbackRate < 0.1 ? 0.0 : video.playbackRate;
           targetSpeed = currentSpeed + value;
+
+          // Snap to 1.0x when crossing the 1.0 boundary
+          if ((currentSpeed > 1.0 && targetSpeed < 1.0) || (currentSpeed < 1.0 && targetSpeed > 1.0)) {
+            targetSpeed = 1.0;
+          }
+
           logger.debug('[adjustSpeed]', 'relative value');
         } else {
           logger.debug('[adjustSpeed]', 'non-relative value');
