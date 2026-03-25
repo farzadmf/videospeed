@@ -7,6 +7,7 @@ This project is a heavily modified fork of https://github.com/igrigorik/videospe
 Some upstream commits aren't directly applicable but contain useful insights for future work. These are documented in `docs/upstream-bookmarks/`:
 
 - `ec11ba4-visibility-refactor.md` — Controller visibility system refactor (dual-timer race fix, vsc-manual cleanup, YouTube autohide). Relevant when we revisit our own visibility logic.
+- `10e7de2-positioning-model.md` — Two-layer CSS positioning model (wrapper=CSS, inner=computed). Relevant if we want to replace our scroll-based JS positioning with a CSS-only approach.
 
 ## File structure
 
