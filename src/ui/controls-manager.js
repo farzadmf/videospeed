@@ -47,10 +47,12 @@ export class ControlsManager {
         true
       );
 
-      // Double-click / double-tap to reset speed
+      // Double-click / double-tap to reset speed (only on the main controller area, not buttons)
       draggable.addEventListener(
         'dblclick',
         (event) => {
+          if (event.target.closest('button')) return;
+
           const resetBinding = this.config.getActionByName('reset');
           const resetValue = resetBinding?.value || resetBinding?.action?.value || 1.0;
           this.actionHandler.runAction({
