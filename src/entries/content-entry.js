@@ -12,14 +12,12 @@ async function init() {
 
     // Early exit if extension is disabled
     if (settings.enabled === false) {
-      console.debug('[VSC] Extension disabled');
       return;
     }
 
     // Early exit if site is blacklisted
     // MyNote: I think I had an issue with location.href, so doing hostname as I had before
     if (isBlacklisted(settings.blacklist, location.hostname)) {
-      console.debug('[VSC] Site blacklisted');
       return;
     }
 
@@ -40,8 +38,6 @@ async function init() {
 
     // Set up bi-directional message bridge for popup ↔ page communication
     setupMessageBridge();
-
-    console.debug('[VSC] Content script initialized');
   } catch (error) {
     // MyNote: I don't think these are considered "real" errors.
     if (error.message !== 'Failed to fetch') {

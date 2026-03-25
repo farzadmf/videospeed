@@ -11,14 +11,25 @@ class Logger {
     this.verbosity = LOG_LEVELS.WARNING;
     this.defaultLevel = LOG_LEVELS.INFO;
     this.contextStack = []; // Stack for nested contexts
+    this._buffer = []; // Holds messages logged before verbosity is configured
+    this._ready = false; // True once setVerbosity() has been called with user prefs
   }
 
   /**
-   * Set logging verbosity level
+   * Set logging verbosity level and flush any buffered messages.
+   * Called once config.load() has the user's logLevel preference.
    * @param {number} level - Log level from LOG_LEVELS constants
    */
   setVerbosity(level) {
     this.verbosity = level;
+    if (!this._ready) {
+      this._ready = true;
+      const pending = this._buffer;
+      this._buffer = [];
+      for (const entry of pending) {
+        this.log(entry.level, ...entry.message);
+      }
+    }
   }
 
   /**
@@ -105,6 +116,11 @@ class Logger {
    */
   log(level, ...message) {
     const logLevel = typeof level === 'undefined' ? this.defaultLevel : level;
+
+    if (!this._ready) {
+      this._buffer.push({ level: logLevel, message });
+      return;
+    }
 
     if (this.verbosity >= logLevel) {
       const context = this._generateContext();

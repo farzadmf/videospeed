@@ -72,7 +72,7 @@ export class StorageManager {
         chrome.storage.sync.set(data, () => {
           if (chrome.runtime.lastError) {
             const error = new Error(`Storage failed: ${chrome.runtime.lastError.message}`);
-            console.error('Chrome storage save failed:', chrome.runtime.lastError);
+              logger.error(`Chrome storage save failed: ${chrome.runtime.lastError.message}`);
 
             // Call error callback if registered (for monitoring/telemetry)
             if (this.errorCallback) {
@@ -118,7 +118,7 @@ export class StorageManager {
         chrome.storage.sync.remove(keys, () => {
           if (chrome.runtime.lastError) {
             const error = new Error(`Storage remove failed: ${chrome.runtime.lastError.message}`);
-            console.error('Chrome storage remove failed:', chrome.runtime.lastError);
+            logger.error(`Chrome storage remove failed: ${chrome.runtime.lastError.message}`);
 
             // Call error callback if registered (for monitoring/telemetry)
             if (this.errorCallback) {
@@ -151,7 +151,7 @@ export class StorageManager {
         chrome.storage.sync.clear(() => {
           if (chrome.runtime.lastError) {
             const error = new Error(`Storage clear failed: ${chrome.runtime.lastError.message}`);
-            console.error('Chrome storage clear failed:', chrome.runtime.lastError);
+            logger.error(`Chrome storage clear failed: ${chrome.runtime.lastError.message}`);
 
             // Call error callback if registered (for monitoring/telemetry)
             if (this.errorCallback) {
