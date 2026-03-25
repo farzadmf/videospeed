@@ -24,6 +24,8 @@ The BIG difference in our project is to provide a lot more control over the vide
 - Properly remembering speed for Websites.
 - Provide a richer UI with a lot more information (admittedly, it does look more bloated, but we need to lose something to gain something)
 - Instead of relying solely on CSS to position the video speed controller, our project listens on scroll events to make sure controller follows the video position.
+- Our speed saving/syncing may be quite different than upstream, and upstream changes have may break our logic, so extra attention and care should be put on that.
+- Since we're using ES imports, we can use the `logger` almost anywhere in the code, so we strive to use that as much as possible and avoid `console` calls unless they happen in a context where we cannot import that `logger` module.
 - And ... other differences.
 
 ## Tests
@@ -52,3 +54,14 @@ As a result of what mentioned above, when we're planning to sync upstream change
 - If we confirm and decide that a commit is not applicable at all, not even partially, we can do an empty commit with proper title and including small notes on why we decided that it's not applicable.
 - NOTE: empty commits ARE required for non-dependency-only commits/changes.
 - If an upstream commit is _only_ about dependency version upgrade, we can ignore it (NOTE: if dependencies are added/removed, we need to see how to proceed).
+
+In a nutshell, THE MOST important thing when applying upstream changes:
+
+- We MUST COMPLETELY understand our logic AND COMPLETELY understand upstream change.
+- We MUST make sure our logic won't break - bug fixes and new features are fine, but we MUST pay extra attention to existing code flow.
+
+After applying the changes, we MUST re-read all the changes to:
+
+- Make sure they're sane and applicable to our code.
+- Make sure we didn't mess up any existing in the process.
+- Compare with upstream for a second time to make sure we got everything that's applicable to our code.
