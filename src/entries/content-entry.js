@@ -37,7 +37,32 @@ async function init() {
     await injectCSS();
 
     // Set up bi-directional message bridge for popup ↔ page communication
-    setupMessageBridge();
+    const bridge = setupMessageBridge();
+
+    // Lifecycle watcher: tear down or reinit when blacklist/enabled changes.
+    // The content script is the lifecycle owner — it gates initialization above,
+    // and it gates teardown/reinit here via the same bridge the popup uses.
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (namespace !== 'sync') return;
+
+      const disabled = 'enabled' in changes && changes.enabled.newValue === false;
+      // MyNote: using location.hostname consistently with our blacklist check above
+      const blacklisted = 'blacklist' in changes &&
+        isBlacklisted(changes.blacklist.newValue, location.hostname);
+
+      if (disabled || blacklisted) {
+        bridge.sendCommand('VSC_TEARDOWN');
+        return;
+      }
+
+      const reEnabled = 'enabled' in changes && changes.enabled.newValue === true;
+      const unblacklisted = 'blacklist' in changes &&
+        !isBlacklisted(changes.blacklist.newValue, location.hostname);
+
+      if (reEnabled || unblacklisted) {
+        bridge.sendCommand('VSC_REINIT');
+      }
+    });
   } catch (error) {
     // MyNote: I don't think these are considered "real" errors.
     if (error.message !== 'Failed to fetch') {

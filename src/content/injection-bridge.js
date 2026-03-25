@@ -136,10 +136,17 @@ export function setupMessageBridge() {
   }
   chrome.storage.onChanged.addListener(handleStorageChanged);
 
-  // Return cleanup function for teardown (tests, extension unload)
-  return () => {
-    window.removeEventListener('message', handlePageMessage);
-    chrome.runtime.onMessage.removeListener?.(handleRuntimeMessage);
-    chrome.storage.onChanged.removeListener?.(handleStorageChanged);
+  return {
+    /** Send a command to the page context via the same channel popup messages use. */
+    sendCommand(type, payload) {
+      window.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type, payload } }));
+    },
+
+    /** Remove all listeners (tests, extension unload). */
+    cleanup() {
+      window.removeEventListener('message', handlePageMessage);
+      chrome.runtime.onMessage.removeListener?.(handleRuntimeMessage);
+      chrome.storage.onChanged.removeListener?.(handleStorageChanged);
+    },
   };
 }
