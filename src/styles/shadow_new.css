@@ -111,6 +111,7 @@
 
 .draggable {
   cursor: -webkit-grab;
+  touch-action: none;
 
   &:hover {
     display: initial;

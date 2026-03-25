@@ -23,7 +23,8 @@ export class ControlsManager {
   }
 
   /**
-   * Set up drag handler for speed indicator
+   * Set up drag and double-click-to-reset handlers for speed indicator
+   * Uses pointer events for unified mouse + touch support
    * @param {ShadowRoot} shadow - Shadow root
    * @private
    */
@@ -31,14 +32,32 @@ export class ControlsManager {
     const draggables = shadow.querySelectorAll('.draggable');
 
     draggables.forEach((draggable) => {
+      // Pointer-based drag (unified mouse + touch)
       draggable.addEventListener(
-        'mousedown',
+        'pointerdown',
         (event) => {
           const draggable = event.target.closest('.draggable');
           const actionName = draggable.dataset['action'];
 
           this.actionHandler.runAction({ actionItem: actionName, event, wrapperDiv });
 
+          event.stopPropagation();
+          event.preventDefault();
+        },
+        true
+      );
+
+      // Double-click / double-tap to reset speed
+      draggable.addEventListener(
+        'dblclick',
+        (event) => {
+          const resetBinding = this.config.getActionByName('reset');
+          const resetValue = resetBinding?.value || resetBinding?.action?.value || 1.0;
+          this.actionHandler.runAction({
+            actionItem: { action: { name: 'reset' }, value: resetValue },
+            event,
+            wrapperDiv,
+          });
           event.stopPropagation();
           event.preventDefault();
         },
