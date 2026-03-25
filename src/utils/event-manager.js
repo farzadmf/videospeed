@@ -113,6 +113,11 @@ export class EventManager {
     //   this.leaderKeyHeld = true;
     // }
 
+    // Ignore IME composition events (CJK text input)
+    if (event.isComposing || event.keyCode === 229 || event.key === 'Process') {
+      return;
+    }
+
     logger.verbose(`Processing keydown event: key=${event.key}, code=${event.code}`);
 
     // Event deduplication - prevent same key event from being processed multiple times
@@ -123,12 +128,6 @@ export class EventManager {
     }
 
     this.lastKeyEventSignature = eventSignature;
-
-    // Ignore if following modifier is active
-    if (this.hasActiveModifier(event)) {
-      logger.debug(`Keydown event ignored due to active modifier: ${key}`);
-      return;
-    }
 
     // Ignore keydown event if typing in an input box
     if (this.isTypingContext(event.target)) {
@@ -159,23 +158,6 @@ export class EventManager {
     }
 
     return false;
-  }
-
-  /**
-   * Check if any modifier keys are active
-   * @param {KeyboardEvent} event - Keyboard event
-   * @returns {boolean} True if modifiers are active
-   * @private
-   */
-  hasActiveModifier(event) {
-    return (
-      !event.getModifierState ||
-      // event.getModifierState('Control') ||
-      event.getModifierState('Fn') ||
-      // event.getModifierState('Meta') ||
-      event.getModifierState('Hyper') ||
-      event.getModifierState('OS')
-    );
   }
 
   /**
