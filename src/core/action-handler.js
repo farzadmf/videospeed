@@ -134,10 +134,12 @@ export class ActionHandler {
         return true;
       }
 
-      case 'reset':
+      case 'reset': {
         logger.debug('Reset speed');
-        this.resetSpeed(video, value);
+        const fastBinding = this.config.getActionByName('fast');
+        this.resetSpeed(video, value, fastBinding?.value || fastBinding?.action?.value);
         return true;
+      }
 
       case 'display': {
         logger.debug('Display action triggered');
@@ -183,9 +185,12 @@ export class ActionHandler {
         DragHandler.handleDrag({ video, event, wrapperDiv });
         return true;
 
-      case 'fast':
-        this.resetSpeed(video, value);
+      case 'fast': {
+        logger.debug('Preferred speed');
+        const resetBinding = this.config.getActionByName('reset');
+        this.resetSpeed(video, value, resetBinding?.value || resetBinding?.action?.value);
         return true;
+      }
 
       case 'pause':
         this.pause(video);
@@ -331,10 +336,20 @@ export class ActionHandler {
 
   /**
    * Reset speed with toggle functionality
+  /**
+   * Reset speed with memory toggle functionality.
+   *
+   * Behavior:
+   *   - Not at target → remember current speed, jump to target.
+   *   - At target with memory → restore remembered speed, clear memory.
+   *   - At target without memory → cross-toggle to the other action's speed
+   *     (e.g. reset at 1.0x jumps to preferred speed, preferred at 1.8x jumps to reset speed).
+   *
    * @param {HTMLMediaElement} video - Video element
-   * @param {number} target - Target speed
+   * @param {number} target - Target speed for this action
+   * @param {number} [crossTarget] - Target speed of the paired action (for cross-toggle)
    */
-  resetSpeed(video, target) {
+  resetSpeed(video, target, crossTarget) {
     if (!video.vsc) {
       logger.warn('resetSpeed called on video without controller');
       return;
@@ -343,18 +358,20 @@ export class ActionHandler {
     const currentSpeed = video.playbackRate;
 
     if (currentSpeed === target) {
-      // At target speed - restore remembered speed if we have one, otherwise reset to target
       if (video.vsc.speedBeforeReset !== null) {
+        // Restore remembered speed
         logger.info(`Restoring remembered speed: ${video.vsc.speedBeforeReset}`);
         const rememberedSpeed = video.vsc.speedBeforeReset;
-        video.vsc.speedBeforeReset = null; // Clear memory after use
+        video.vsc.speedBeforeReset = null;
         this.adjustSpeed(video, rememberedSpeed);
-      } else {
-        logger.info(`Already at reset speed ${target}, no change`);
-        // Already at target and nothing remembered - no action needed
+      } else if (crossTarget && crossTarget !== target) {
+        // Cross-toggle: jump to the paired action's target
+        logger.info(`Cross-toggle from ${target} to ${crossTarget}`);
+        video.vsc.speedBeforeReset = currentSpeed;
+        this.adjustSpeed(video, crossTarget);
       }
     } else {
-      // Not at target speed - remember current and reset to target
+      // Remember current speed and jump to target
       logger.info(`Remembering speed ${currentSpeed} and resetting to ${target}`);
       video.vsc.speedBeforeReset = currentSpeed;
       this.adjustSpeed(video, target);
