@@ -363,18 +363,20 @@ export class ActionHandler {
         logger.info(`Restoring remembered speed: ${video.vsc.speedBeforeReset}`);
         const rememberedSpeed = video.vsc.speedBeforeReset;
         video.vsc.speedBeforeReset = null;
-        this.adjustSpeed(video, rememberedSpeed);
+        // MyNote: upstream doesn't pass source here, but we need 'action-handler'
+        // so the speed change persists to our per-URL storage.
+        this.adjustSpeed(video, rememberedSpeed, { source: 'action-handler' });
       } else if (crossTarget && crossTarget !== target) {
         // Cross-toggle: jump to the paired action's target
         logger.info(`Cross-toggle from ${target} to ${crossTarget}`);
         video.vsc.speedBeforeReset = currentSpeed;
-        this.adjustSpeed(video, crossTarget);
+        this.adjustSpeed(video, crossTarget, { source: 'action-handler' });
       }
     } else {
       // Remember current speed and jump to target
       logger.info(`Remembering speed ${currentSpeed} and resetting to ${target}`);
       video.vsc.speedBeforeReset = currentSpeed;
-      this.adjustSpeed(video, target);
+      this.adjustSpeed(video, target, { source: 'action-handler' });
     }
   }
 
