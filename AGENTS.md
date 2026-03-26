@@ -61,6 +61,7 @@ As a result of what mentioned above, when we're planning to sync upstream change
 - If we confirm and decide that a commit is not applicable at all, not even partially, we can do an empty commit with proper title and including small notes on why we decided that it's not applicable.
 - NOTE: empty commits ARE required for non-dependency-only commits/changes.
 - If an upstream commit is _only_ about dependency version upgrade, we can ignore it (NOTE: if dependencies are added/removed, we need to see how to proceed).
+- For merge commits, we need to make sure that we've processed individual commits instead and can skip that merge commit itself. If a merge commit has more than one commit, let's combine those commits into one on our side, mentioning in the commit description that we've combined (so we're basically doing a squash commit on our side).
 
 In a nutshell, THE MOST important thing when applying upstream changes:
 
