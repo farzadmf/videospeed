@@ -46,7 +46,7 @@ ${out}
     <div>${url}</div>
   </td>
   <td>
-    <div>${speed}</div>
+    <input class="form-control form-control-sm speed-edit" type="number" step="0.1" min="0.1" max="16" data-speed-url="${url}" value="${speed}" />
   </td>
   <td>
     <div>${DateTime.fromMillis(updated).toFormat('yyyy-MM-dd HH:mm:ss')}</div>
@@ -63,7 +63,17 @@ ${out}
   <tr>
     <th class="url">Index</th>
     <th class="url">URL</th>
-    <th class="speed">SPEED</th>
+    <th class="speed">
+      SPEED
+      <span id="speedEditActions" class="ms-1" style="visibility: hidden;">
+        <button class="btn btn-sm btn-success" id="saveSpeedEdits" title="Save changes">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>
+        </button>
+        <button class="btn btn-sm btn-secondary" id="resetSpeedEdits" title="Discard changes">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466"/></svg>
+        </button>
+      </span>
+    </th>
     <th class="updated">LAST UPDATED</th>
     <th class="action">ACTION</th>
   </tr>
@@ -72,6 +82,36 @@ ${out}
 `;
 
   setUpForgetButtons();
+  setUpSpeedEditing();
+}
+
+function setUpSpeedEditing() {
+  document.querySelectorAll('.speed-edit').forEach((input) => {
+    input.addEventListener('change', (event) => {
+      const url = event.target.getAttribute('data-speed-url');
+      const newSpeed = parseFloat(event.target.value);
+      if (isNaN(newSpeed) || newSpeed <= 0) return;
+
+      const entry = sources.find((s) => s[0] === url);
+      if (entry) {
+        entry[1].speed = newSpeed;
+        showSpeedEditActions(true);
+      }
+    });
+  });
+
+  document.getElementById('saveSpeedEdits').addEventListener('click', () => {
+    syncSpeeds();
+    showSpeedEditActions(false);
+  });
+
+  document.getElementById('resetSpeedEdits').addEventListener('click', () => {
+    loadSpeeds();
+  });
+}
+
+function showSpeedEditActions(visible) {
+  document.getElementById('speedEditActions').style.visibility = visible ? 'visible' : 'hidden';
 }
 
 function filterSpeeds() {
