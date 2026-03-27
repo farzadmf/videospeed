@@ -64,6 +64,7 @@ As a result of what mentioned above, when we're planning to sync upstream change
 - If an upstream commit is _only_ about dependency version upgrade, we can ignore it (NOTE: if dependencies are added/removed, we need to see how to proceed).
 - For merge commits, we need to make sure that we've processed individual commits instead and can skip that merge commit itself. If a merge commit has more than one commit, let's combine those commits into one on our side, mentioning in the commit description that we've combined (so we're basically doing a squash commit on our side).
 - Upstream may have changes to take care of settings migration etc, but we do not want that, and we can simply delete all settings and start from scratch (but you need to say that a change may need deleting settings).
+- If the upstream change has an associated design doc, make sure to read and understand it to know what the underlying issue/motivation is for the change.
 
 But, before applying a change (or parts of it), you need to:
 
