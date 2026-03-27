@@ -89,6 +89,7 @@ export class VideoSpeedConfig {
       this.settings.audioBoolean = Boolean(storage.audioBoolean);
       this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
       this.settings.controllerOpacity = Number(storage.controllerOpacity);
+      this.settings.exclusiveKeys = Boolean(storage.exclusiveKeys);
       this.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
       this.settings.lastSpeed = Number(storage.lastSpeed);
       this.settings.logLevel = Number(storage.logLevel || VSC_DEFAULTS.logLevel);

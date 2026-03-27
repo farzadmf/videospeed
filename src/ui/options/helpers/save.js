@@ -16,6 +16,7 @@ export const saveOptions = () => {
   const controllerButtonSize = Number(document.getElementById('controllerButtonSize').value);
   const controllerOpacity = Number(document.getElementById('controllerOpacity').value);
   const enabled = document.getElementById('enabled').checked;
+  const exclusiveKeys = document.getElementById('exclusiveKeys').checked;
   const forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
   const logLevel = Number(document.getElementById('logLevel').value);
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
@@ -30,6 +31,7 @@ export const saveOptions = () => {
       controllerButtonSize,
       controllerOpacity,
       enabled,
+      exclusiveKeys,
       forceLastSavedSpeed,
       keyBindings,
       logLevel,

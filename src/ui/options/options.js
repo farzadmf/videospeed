@@ -5,7 +5,8 @@ import { restoreDefaults, restoreOptions } from './helpers/restore.js';
 import { saveOptions } from './helpers/save.js';
 
 function show_experimental() {
-  document.querySelectorAll('.customForce').forEach((item) => (item.style.display = 'inline-block'));
+  // MyNote: upstream removed per-binding force dropdowns; this was showing them.
+  // Kept as no-op in case other experimental features are added later.
 }
 
 function forgetAll() {

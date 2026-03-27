@@ -90,8 +90,7 @@ export class EventManager {
         return; // Let it go through normally
       }
 
-      if (actionItem.force) {
-        // Disable website's key bindings
+      if (this.config.settings.exclusiveKeys) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -148,8 +147,7 @@ export class EventManager {
         return; // Let it go through normally
       }
 
-      if (actionItem.force) {
-        // Disable website's key bindings
+      if (this.config.settings.exclusiveKeys) {
         event.preventDefault();
         event.stopPropagation();
       }

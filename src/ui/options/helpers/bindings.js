@@ -62,29 +62,12 @@ export function addBinding(item) {
   <td>
     ${valueHtml}
   </td>
-  <td>
-    <select class="customForce form-select">
-      <option value="false">Do not disable website key bindings</option>
-      <option value="true">Disable website key bindings</option>
-    </select>
-  </td>
   <td>${removeBtn}</td>
 </tr>
 `;
   const shortcuts = document.querySelector('#shortcuts tbody');
   shortcuts.insertAdjacentHTML('beforeend', html);
 
-  const forceSelect = shortcuts.querySelector('tr:last-of-type .customForce');
-  forceSelect.addEventListener('change', (event) => {
-    const target = event.target;
-    const value = JSON.parse(target.value);
-
-    target.classList.remove('text-warning');
-    target.classList.remove('text-success');
-
-    const colorCls = value ? 'text-warning' : 'text-success';
-    target.classList.add(colorCls);
-  });
 }
 
 export function createKeyBinding(binding) {
@@ -100,13 +83,11 @@ export function createKeyBinding(binding) {
   const customKeyEl = binding.querySelector('.customKey');
   const { altKey, code, ctrl, shift } = customKeyEl;
 
-  const force = JSON.parse(binding.querySelector('.customForce').value);
   const predefined = !!binding.querySelector('.predefined');
 
   let newBinding = {
     action,
     code,
-    force,
     predefined,
   };
 

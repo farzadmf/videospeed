@@ -13,6 +13,7 @@ export function restoreOptions() {
     document.getElementById('controllerOpacity').value = storage.controllerOpacity;
     document.getElementById('logLevel').value = storage.logLevel;
     document.getElementById('enabled').checked = storage.enabled;
+    document.getElementById('exclusiveKeys').checked = storage.exclusiveKeys;
     document.getElementById('forceLastSavedSpeed').checked = storage.forceLastSavedSpeed;
     document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
     document.getElementById('startHidden').checked = storage.startHidden;
@@ -43,12 +44,6 @@ export function restoreOptions() {
       dom.querySelector('input[name="alt"]').checked = !!binding.alt;
       dom.querySelector('input[name="shift"]').checked = !!binding.shift;
       dom.querySelector('input[name="ctrl"]').checked = !!binding.ctrl;
-
-      const force = JSON.parse(binding.force);
-      dom.querySelector('.customForce').value = force;
-
-      const colorCls = force ? 'text-warning' : 'text-success';
-      dom.querySelector('.customForce').classList.add(colorCls);
 
       const customValue2 = dom.querySelector('.customValue2');
       if (customValue2) {
