@@ -16,13 +16,20 @@
       </header>
 
       <div class="row my-4 sticky-top">
-        <div class="col-4 d-grid">
+        <div class="col-3 d-grid">
           <button class="btn btn-success" id="save">Save Settings</button>
         </div>
-        <div class="col-4 d-grid">
+        <div class="col-3 d-grid">
           <button class="btn btn-secondary" id="experimental">Show Experimental Features</button>
         </div>
-        <div class="col-4 d-grid">
+        <div class="col-2 d-grid">
+          <button class="btn btn-outline-primary" id="export">Export</button>
+        </div>
+        <div class="col-2 d-grid">
+          <button class="btn btn-outline-primary" id="import">Import</button>
+          <input type="file" id="importFile" accept=".json" hidden />
+        </div>
+        <div class="col-2 d-grid">
           <button class="btn btn-primary" id="restore">Restore Defaults</button>
         </div>
         <div id="status"></div>

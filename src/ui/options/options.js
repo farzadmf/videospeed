@@ -9,6 +9,70 @@ function show_experimental() {
   // Kept as no-op in case other experimental features are added later.
 }
 
+function exportSettings() {
+  const status = document.getElementById('status');
+  chrome.storage.sync.get(null, (settings) => {
+    try {
+      const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'videospeed-settings.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      status.textContent = 'Settings exported';
+      setTimeout(() => { status.textContent = ''; }, 2000);
+    } catch (error) {
+      status.textContent = 'Error exporting settings: ' + error.message;
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  });
+}
+
+function importSettings() {
+  document.getElementById('importFile').click();
+}
+
+async function handleImportFile(event) {
+  const status = document.getElementById('status');
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Reset so the same file can be re-selected
+  event.target.value = '';
+
+  try {
+    const text = await file.text();
+    let imported;
+    try {
+      imported = JSON.parse(text);
+    } catch {
+      throw new Error('File is not valid JSON');
+    }
+
+    if (!imported || typeof imported !== 'object' || !Array.isArray(imported.keyBindings)) {
+      throw new Error('File does not look like a Video Speed Controller settings file');
+    }
+
+    // Clear existing storage and write imported settings
+    await new Promise((resolve) => chrome.storage.sync.clear(resolve));
+    await new Promise((resolve) => chrome.storage.sync.set(imported, resolve));
+
+    // Reload UI
+    document.querySelector('#shortcuts tbody').replaceChildren();
+    restoreOptions();
+
+    status.textContent = 'Settings imported successfully';
+    setTimeout(() => { status.textContent = ''; }, 2000);
+  } catch (error) {
+    status.textContent = 'Import failed: ' + error.message;
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  }
+}
+
 function forgetAll() {
   chrome.storage.sync.remove(['sources']);
   const forgetStatus = document.querySelector('#forgetStatus');
@@ -23,6 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#save').addEventListener('click', saveOptions);
   document.querySelector('#add').addEventListener('click', addBinding);
   document.querySelector('#restore').addEventListener('click', restoreDefaults);
+  document.querySelector('#export').addEventListener('click', exportSettings);
+  document.querySelector('#import').addEventListener('click', importSettings);
+  document.querySelector('#importFile').addEventListener('change', handleImportFile);
   document.querySelector('#experimental').addEventListener('click', show_experimental);
   document.querySelector('#forgetAll').addEventListener('click', forgetAll);
   document.querySelector('#cleanUp').addEventListener('click', cleanUpSpeeds);
