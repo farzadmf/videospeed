@@ -65,6 +65,13 @@ As a result of what mentioned above, when we're planning to sync upstream change
 - For merge commits, we need to make sure that we've processed individual commits instead and can skip that merge commit itself. If a merge commit has more than one commit, let's combine those commits into one on our side, mentioning in the commit description that we've combined (so we're basically doing a squash commit on our side).
 - Upstream may have changes to take care of settings migration etc, but we do not want that, and we can simply delete all settings and start from scratch (but you need to say that a change may need deleting settings).
 
+But, before applying a change (or parts of it), you need to:
+
+- Clearly explain what the change is about.
+- Clearly explain what/how it applies to our code base; what parts are not applicable, etc.
+- Discuss and confirm and only appl
+- NEVER decide by yourself that a commit is "small enough" and "no need to discuss this; I know what to do"
+
 In a nutshell, THE MOST important thing when applying upstream changes:
 
 - We MUST COMPLETELY understand our logic AND COMPLETELY understand upstream change.
