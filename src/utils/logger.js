@@ -59,7 +59,9 @@ class Logger {
    * @private
    */
   _formatVideoId(video) {
-    if (!video) return 'V?';
+    if (!video) {
+      return 'V?';
+    }
 
     const isAudio = video.tagName === 'AUDIO';
     const prefix = isAudio ? 'A' : 'V';

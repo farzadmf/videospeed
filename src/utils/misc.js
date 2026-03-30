@@ -19,6 +19,8 @@ export function formatDuration({ secs, hourAlwaysVisible = false }) {
   const minutes = pad(Math.floor((secs % 3600) / 60));
   const seconds = pad(Math.floor(secs % 60));
 
-  if (hours > 0 || hourAlwaysVisible) return `${hours}:${minutes}:${seconds}`;
+  if (hours > 0 || hourAlwaysVisible) {
+    return `${hours}:${minutes}:${seconds}`;
+  }
   return `${minutes}:${seconds}`;
 }

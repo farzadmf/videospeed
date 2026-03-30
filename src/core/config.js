@@ -33,14 +33,17 @@ export class VideoSpeedConfig {
     try {
       StorageManager.onChanged((changes) => {
         for (const [key, change] of Object.entries(changes)) {
-          if (!(key in this.settings) || change.newValue === undefined) continue;
+          if (!(key in this.settings) || change.newValue === undefined) {
+            continue;
+          }
 
           // Self-echo guard: skip our own debounced speed write echoing back.
           if (key === 'lastSpeed') {
-            const isSelfEcho = this._lastWrittenSpeed !== null
-                && change.newValue === this._lastWrittenSpeed;
+            const isSelfEcho = this._lastWrittenSpeed !== null && change.newValue === this._lastWrittenSpeed;
             this._lastWrittenSpeed = null;
-            if (isSelfEcho) continue;
+            if (isSelfEcho) {
+              continue;
+            }
           }
 
           this.settings[key] = change.newValue;
@@ -120,7 +123,9 @@ export class VideoSpeedConfig {
    */
   async save(newSettings = {}) {
     const keys = Object.keys(newSettings);
-    if (keys.length === 0) return true;
+    if (keys.length === 0) {
+      return true;
+    }
 
     // Guard: refuse to write before load() has read from storage.
     if (!this._loaded) {

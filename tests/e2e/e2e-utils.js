@@ -138,12 +138,7 @@ export async function waitForExtension(page, timeout = 15000) {
         const hasVideoController = !!document.querySelector('video')?.vsc;
 
         // Debug logging in browser
-        if (
-          hasVSC ||
-          hasVSCController ||
-          hasController ||
-          hasVideoController
-        ) {
+        if (hasVSC || hasVSCController || hasController || hasVideoController) {
           console.log('Extension detected:', {
             hasVSC,
             hasVSCController,
@@ -152,12 +147,7 @@ export async function waitForExtension(page, timeout = 15000) {
           });
         }
 
-        return (
-          hasVSC ||
-          hasVSCController ||
-          hasController ||
-          hasVideoController
-        );
+        return hasVSC || hasVSCController || hasController || hasVideoController;
       },
       { timeout, polling: 1000 }
     );
@@ -238,9 +228,7 @@ export async function waitForController(page, timeout = 10000) {
     // Also check if the shadow DOM content is available
     const hasController = await page.evaluate(() => {
       const controller = document.querySelector('.vsc-controller');
-      return (
-        controller && controller.shadowRoot && controller.shadowRoot.querySelector('#controller')
-      );
+      return controller && controller.shadowRoot && controller.shadowRoot.querySelector('#controller');
     });
 
     if (hasController) {

@@ -6,12 +6,12 @@ const MessageTypes = {
   TOGGLE_DISPLAY: 'VSC_TOGGLE_DISPLAY',
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   // Load settings and initialize speed controls
   loadSettingsAndInitialize();
 
   // Settings button event listener
-  document.querySelector('#config').addEventListener('click', function () {
+  document.querySelector('#config').addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
   });
 
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Initialize enabled state
-  chrome.storage.sync.get({ enabled: true }, function (storage) {
+  chrome.storage.sync.get({ enabled: true }, (storage) => {
     toggleEnabledUI(storage.enabled);
   });
 
@@ -32,9 +32,9 @@ document.addEventListener('DOMContentLoaded', function () {
       {
         enabled: enabled,
       },
-      function () {
+      () => {
         toggleEnabledUI(enabled);
-        if (callback) callback(enabled);
+        if (callback) {callback(enabled);}
       }
     );
   }
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Load settings and initialize UI
   function loadSettingsAndInitialize() {
-    chrome.storage.sync.get(null, function (storage) {
+    chrome.storage.sync.get(null, (storage) => {
       // Find the step values from keyBindings
       let slowerStep = 0.1;
       let fasterStep = 0.1;
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
       updateSpeedControlsUI(slowerStep, fasterStep, resetSpeed);
 
       // Initialize event listeners
-      initializeSpeedControls(slowerStep, fasterStep);
+      initializeSpeedControls();
     });
   }
 
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Speed Control Functions
-  function initializeSpeedControls(slowerStep, fasterStep) {
+  function initializeSpeedControls() {
     // Set up speed control button listeners
     document.querySelector('#speed-decrease').addEventListener('click', function () {
       const delta = parseFloat(this.dataset.delta);
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function setSpeed(speed) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: MessageTypes.SET_SPEED,
@@ -163,21 +163,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function adjustSpeed(delta) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: MessageTypes.ADJUST_SPEED,
           payload: { delta: delta },
-        });
-      }
-    });
-  }
-
-  function resetSpeed() {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: MessageTypes.RESET_SPEED,
         });
       }
     });

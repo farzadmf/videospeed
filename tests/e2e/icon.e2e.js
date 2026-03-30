@@ -19,11 +19,7 @@ async function testUltraSimplified() {
 
   const browser = await puppeteer.launch({
     headless: false,
-    args: [
-      `--disable-extensions-except=${extensionPath}`,
-      `--load-extension=${extensionPath}`,
-      '--no-sandbox'
-    ]
+    args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`, '--no-sandbox'],
   });
 
   try {
@@ -74,7 +70,6 @@ async function testUltraSimplified() {
     console.log('✅ Icon always reflects extension enabled state');
     console.log('✅ ~70 lines of background.js (down from 200+)');
     console.log('✅ Zero maintenance burden');
-
   } catch (error) {
     console.error('❌ Test failed:', error.message);
     process.exit(1);

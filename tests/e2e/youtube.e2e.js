@@ -110,9 +110,7 @@ export default async function runYouTubeE2ETests() {
       const slowerSpeed = await getVideoSpeed(page, 'video.html5-main-video');
       assert.true(slowerSpeed < fasterSpeed, 'S key should work on YouTube');
 
-      console.log(
-        `   ⌨️  Keyboard shortcuts working: ${initialSpeed} → ${fasterSpeed} → ${slowerSpeed}`
-      );
+      console.log(`   ⌨️  Keyboard shortcuts working: ${initialSpeed} → ${fasterSpeed} → ${slowerSpeed}`);
     });
 
     await runTest('Extension should handle YouTube player interactions', async () => {
@@ -127,11 +125,7 @@ export default async function runYouTubeE2ETests() {
       await sleep(1000);
 
       const speedAfterPlay = await getVideoSpeed(page, 'video.html5-main-video');
-      assert.equal(
-        speedBeforePause,
-        speedAfterPlay,
-        'Speed should be maintained across play/pause'
-      );
+      assert.equal(speedBeforePause, speedAfterPlay, 'Speed should be maintained across play/pause');
     });
 
     await runTest('Extension should handle YouTube page navigation', async () => {
@@ -179,14 +173,8 @@ export default async function runYouTubeE2ETests() {
       const finalSpeed = await getVideoSpeed(page, 'video.html5-main-video');
       console.log(`   🔍 Final speed after 3rd faster: ${finalSpeed}`);
 
-      assert.true(
-        finalSpeed > 1.25,
-        `Multiple speed increases should accumulate (expected > 1.25, got ${finalSpeed})`
-      );
-      assert.true(
-        finalSpeed < 1.35,
-        `Speed should not increase too much (expected < 1.35, got ${finalSpeed})`
-      );
+      assert.true(finalSpeed > 1.25, `Multiple speed increases should accumulate (expected > 1.25, got ${finalSpeed})`);
+      assert.true(finalSpeed < 1.35, `Speed should not increase too much (expected < 1.35, got ${finalSpeed})`);
 
       console.log(`   🔄 Final speed after multiple changes: ${finalSpeed}`);
     });

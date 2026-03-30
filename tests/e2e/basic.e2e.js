@@ -139,10 +139,7 @@ export default async function runBasicE2ETests() {
       await sleep(200); // Give time for reset to process
       const resetSpeed = await getVideoSpeed(page);
       console.log(`   🔍 Speed before R key: ${speedBeforeReset}, after R key: ${resetSpeed}`);
-      assert.true(
-        resetSpeed !== speedBeforeReset,
-        `R key should change speed from ${speedBeforeReset}, got ${resetSpeed}`
-      );
+      assert.true(resetSpeed !== speedBeforeReset, `R key should change speed from ${speedBeforeReset}, got ${resetSpeed}`);
     });
 
     // Take a screenshot for verification

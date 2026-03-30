@@ -13,19 +13,15 @@ export class DragHandler {
    * @param {HTMLVideoElement} video - Video element
    * @param {PointerEvent|MouseEvent} event - Pointer/mouse event
    */
-  static handleDrag({ video, event, wrapperDiv }) {
+  static handleDrag({ video, event }) {
     // MyNote: Using the same names as upstream to help matching logic against it.
-    const controller = wrapperDiv;
     const shadowController = video;
 
     video.classList.add('vcs-dragging');
     shadowController.classList.add('dragging');
 
     const initialXY = [event.clientX, event.clientY];
-    const initialControllerXY = [
-      parseInt(shadowController.style.left) || 0,
-      parseInt(shadowController.style.top) || 0,
-    ];
+    const initialControllerXY = [parseInt(shadowController.style.left) || 0, parseInt(shadowController.style.top) || 0];
 
     const draggable = event.target;
 

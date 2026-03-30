@@ -5,9 +5,8 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
-import { formatDuration } from '../utils/misc.js';
+import { formatDuration, toPx } from '../utils/misc.js';
 import { formatVolume, formatSpeed } from '../shared/constants.js';
-import { toPx } from '../utils/misc.js';
 
 export class ShadowDOMManager {
   /**
@@ -331,7 +330,9 @@ export class ShadowDOMManager {
   }
 
   _remaining() {
-    if (!this.remainingTime) return;
+    if (!this.remainingTime) {
+      return;
+    }
 
     const { currentTimeValue, hourAlwaysVisible, speedValue, totalTimeValue } = this;
 

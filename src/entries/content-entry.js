@@ -51,12 +51,13 @@ async function init() {
     // The content script is the lifecycle owner — it gates initialization above,
     // and it gates teardown/reinit here via the same bridge the popup uses.
     chrome.storage.onChanged.addListener((changes, namespace) => {
-      if (namespace !== 'sync') return;
+      if (namespace !== 'sync') {
+        return;
+      }
 
       const disabled = 'enabled' in changes && changes.enabled.newValue === false;
       // MyNote: using location.hostname consistently with our blacklist check above
-      const blacklisted = 'blacklist' in changes &&
-        isBlacklisted(changes.blacklist.newValue, location.hostname);
+      const blacklisted = 'blacklist' in changes && isBlacklisted(changes.blacklist.newValue, location.hostname);
 
       if (disabled || blacklisted) {
         bridge.sendCommand('VSC_TEARDOWN');
@@ -64,8 +65,7 @@ async function init() {
       }
 
       const reEnabled = 'enabled' in changes && changes.enabled.newValue === true;
-      const unblacklisted = 'blacklist' in changes &&
-        !isBlacklisted(changes.blacklist.newValue, location.hostname);
+      const unblacklisted = 'blacklist' in changes && !isBlacklisted(changes.blacklist.newValue, location.hostname);
 
       if (reEnabled || unblacklisted) {
         bridge.sendCommand('VSC_REINIT');

@@ -10,7 +10,9 @@
  * @returns {boolean} Whether URL is blacklisted
  */
 export function isBlacklisted(blacklist, href) {
-  if (!blacklist) return false;
+  if (!blacklist) {
+    return false;
+  }
 
   const regStrip = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
   const regEndsWithFlags = /\/(?!.*(.).*\1)[gimsuy]*$/;
@@ -19,19 +21,25 @@ export function isBlacklisted(blacklist, href) {
 
   for (const rawMatch of blacklist) {
     const match = rawMatch.replace(regStrip, '');
-    if (match.length === 0) continue;
+    if (match.length === 0) {
+      continue;
+    }
 
     let regexp;
     if (match.startsWith('/')) {
       try {
         const parts = match.split('/');
-        if (parts.length < 3) continue;
+        if (parts.length < 3) {
+          continue;
+        }
 
         const hasFlags = regEndsWithFlags.test(match);
         const flags = hasFlags ? parts.pop() : '';
         const regex = parts.slice(1, hasFlags ? undefined : -1).join('/');
 
-        if (!regex) continue;
+        if (!regex) {
+          continue;
+        }
         regexp = new RegExp(regex, flags);
       } catch {
         continue;

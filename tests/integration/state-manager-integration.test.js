@@ -38,7 +38,9 @@ function setupPostMessageMock() {
 
   return {
     messages,
-    restore: () => { window.postMessage = originalPostMessage; }
+    restore: () => {
+      window.postMessage = originalPostMessage;
+    },
   };
 }
 
@@ -147,7 +149,10 @@ runner.test('StateManager getAllMediaElements includes all tracked videos', asyn
   // Test: getControlledElements returns only videos with controllers
   const controlledMedia = window.VSC.stateManager.getControlledElements();
   assert.equal(controlledMedia.length, 2, 'Should return all controlled elements');
-  assert.true(controlledMedia.every(v => v.vsc), 'All returned elements should have vsc property');
+  assert.true(
+    controlledMedia.every((v) => v.vsc),
+    'All returned elements should have vsc property'
+  );
 
   // Cleanup
   controller1.remove();
@@ -222,7 +227,7 @@ runner.test('StateManager throttles background notifications', async () => {
   assert.equal(finalMessage.controllerCount, 5, 'Final message should reflect all controllers');
 
   // Cleanup
-  videos.forEach(video => {
+  videos.forEach((video) => {
     video.vsc?.remove();
     document.body.removeChild(video);
   });

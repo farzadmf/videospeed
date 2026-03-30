@@ -420,6 +420,7 @@ export class ActionHandler {
    * @param {HTMLMediaElement} video - Video element
    */
   jumpToMark(video) {
+    // eslint-disable-next-line eqeqeq -- intentional: catches both null and undefined
     if (video.vsc.mark == null || typeof video.vsc.mark !== 'number') {
       return;
     }
@@ -444,7 +445,9 @@ export class ActionHandler {
    * @param {HTMLMediaElement} video - Video element
    */
   togglePip(video) {
-    if (video.tagName !== 'VIDEO') return false;
+    if (video.tagName !== 'VIDEO') {
+      return false;
+    }
 
     if (document.pictureInPictureElement) {
       document.exitPictureInPicture();

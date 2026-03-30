@@ -72,7 +72,7 @@ export class StorageManager {
         chrome.storage.sync.set(data, () => {
           if (chrome.runtime.lastError) {
             const error = new Error(`Storage failed: ${chrome.runtime.lastError.message}`);
-              logger.error(`Chrome storage save failed: ${chrome.runtime.lastError.message}`);
+            logger.error(`Chrome storage save failed: ${chrome.runtime.lastError.message}`);
 
             // Call error callback if registered (for monitoring/telemetry)
             if (this.errorCallback) {

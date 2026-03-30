@@ -20,7 +20,7 @@ export const validate = () => {
         const regex = parts.slice(1).join('/');
 
         new RegExp(regex, flags);
-      } catch (err) {
+      } catch {
         status.textContent = `Error: Invalid blacklist regex: "${match}". Unable to save. Try wrapping it in foward slashes.`;
         valid = false;
       }

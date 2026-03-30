@@ -90,7 +90,7 @@ function setUpSpeedEditing() {
     input.addEventListener('change', (event) => {
       const url = event.target.getAttribute('data-speed-url');
       const newSpeed = parseFloat(event.target.value);
-      if (isNaN(newSpeed) || newSpeed <= 0) return;
+      if (isNaN(newSpeed) || newSpeed <= 0) {return;}
 
       const entry = sources.find((s) => s[0] === url);
       if (entry) {

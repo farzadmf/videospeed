@@ -167,58 +167,55 @@ runner.test('Full flow: mouse wheel → relative change → storage → UI', asy
   assert.equal(savedData[0].lastSpeed, 1.6); // Correct relative result saved
 });
 
-runner.test(
-  'Full flow: multiple videos → different speeds → correct storage behavior',
-  async () => {
-    const config = window.VSC.videoSpeedConfig;
-    await config.load();
-    config.settings.rememberSpeed = false; // Per-video mode
+runner.test('Full flow: multiple videos → different speeds → correct storage behavior', async () => {
+  const config = window.VSC.videoSpeedConfig;
+  await config.load();
+  config.settings.rememberSpeed = false; // Per-video mode
 
-    const eventManager = new window.VSC.EventManager(config, null);
-    const actionHandler = new window.VSC.ActionHandler(config, eventManager);
+  const eventManager = new window.VSC.EventManager(config, null);
+  const actionHandler = new window.VSC.ActionHandler(config, eventManager);
 
-    // Create multiple videos
-    const video1 = createMockVideo({ currentSrc: 'https://site1.com/video1.mp4' });
-    const video2 = createMockVideo({ currentSrc: 'https://site2.com/video2.mp4' });
+  // Create multiple videos
+  const video1 = createMockVideo({ currentSrc: 'https://site1.com/video1.mp4' });
+  const video2 = createMockVideo({ currentSrc: 'https://site2.com/video2.mp4' });
 
-    mockDOM.container.appendChild(video1);
-    mockDOM.container.appendChild(video2);
+  mockDOM.container.appendChild(video1);
+  mockDOM.container.appendChild(video2);
 
-    const controller1 = new window.VSC.VideoController(video1, null, config, actionHandler);
-    const controller2 = new window.VSC.VideoController(video2, null, config, actionHandler);
+  const controller1 = new window.VSC.VideoController(video1, null, config, actionHandler);
+  const controller2 = new window.VSC.VideoController(video2, null, config, actionHandler);
 
-    // Track storage saves
-    const savedData = [];
-    const originalSave = config.save;
-    config.save = async function (data) {
-      savedData.push({ ...data });
-      return originalSave.call(this, data);
-    };
+  // Track storage saves
+  const savedData = [];
+  const originalSave = config.save;
+  config.save = async function (data) {
+    savedData.push({ ...data });
+    return originalSave.call(this, data);
+  };
 
-    // Change speeds on different videos
-    actionHandler.adjustSpeed(video1, 1.25);
-    actionHandler.adjustSpeed(video2, 1.75);
+  // Change speeds on different videos
+  actionHandler.adjustSpeed(video1, 1.25);
+  actionHandler.adjustSpeed(video2, 1.75);
 
-    // Verify each video has correct state
-    assert.equal(video1.playbackRate, 1.25);
-    assert.equal(video2.playbackRate, 1.75);
-    assert.equal(controller1.speedIndicator.textContent, '1.25');
-    assert.equal(controller2.speedIndicator.textContent, '1.75');
+  // Verify each video has correct state
+  assert.equal(video1.playbackRate, 1.25);
+  assert.equal(video2.playbackRate, 1.75);
+  assert.equal(controller1.speedIndicator.textContent, '1.25');
+  assert.equal(controller2.speedIndicator.textContent, '1.75');
 
-    // Verify memory storage
-    assert.equal(config.settings.speeds['https://site1.com/video1.mp4'], 1.25);
-    assert.equal(config.settings.speeds['https://site2.com/video2.mp4'], 1.75);
+  // Verify memory storage
+  assert.equal(config.settings.speeds['https://site1.com/video1.mp4'], 1.25);
+  assert.equal(config.settings.speeds['https://site2.com/video2.mp4'], 1.75);
 
-    // Verify only global speeds saved to storage (not per-video)
-    assert.true(savedData.length >= 2);
-    savedData.forEach((save) => {
-      assert.deepEqual(Object.keys(save), ['lastSpeed']);
-      assert.equal(save.speeds, undefined);
-    });
-    const lastSave = savedData[savedData.length - 1];
-    assert.equal(lastSave.lastSpeed, 1.75); // Last change
-  }
-);
+  // Verify only global speeds saved to storage (not per-video)
+  assert.true(savedData.length >= 2);
+  savedData.forEach((save) => {
+    assert.deepEqual(Object.keys(save), ['lastSpeed']);
+    assert.equal(save.speeds, undefined);
+  });
+  const lastSave = savedData[savedData.length - 1];
+  assert.equal(lastSave.lastSpeed, 1.75); // Last change
+});
 
 runner.test('Full flow: speed limits enforcement → clamping → correct storage', async () => {
   const config = window.VSC.videoSpeedConfig;

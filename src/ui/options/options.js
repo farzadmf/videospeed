@@ -26,7 +26,7 @@ function exportSettings() {
       status.textContent = 'Settings exported';
       setTimeout(() => { status.textContent = ''; }, 2000);
     } catch (error) {
-      status.textContent = 'Error exporting settings: ' + error.message;
+      status.textContent = `Error exporting settings: ${  error.message}`;
       setTimeout(() => { status.textContent = ''; }, 3000);
     }
   });
@@ -39,7 +39,7 @@ function importSettings() {
 async function handleImportFile(event) {
   const status = document.getElementById('status');
   const file = event.target.files[0];
-  if (!file) return;
+  if (!file) {return;}
 
   // Reset so the same file can be re-selected
   event.target.value = '';
@@ -68,7 +68,7 @@ async function handleImportFile(event) {
     status.textContent = 'Settings imported successfully';
     setTimeout(() => { status.textContent = ''; }, 2000);
   } catch (error) {
-    status.textContent = 'Import failed: ' + error.message;
+    status.textContent = `Import failed: ${  error.message}`;
     setTimeout(() => { status.textContent = ''; }, 4000);
   }
 }

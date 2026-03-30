@@ -58,22 +58,15 @@ function validateExtension() {
     const manifest = JSON.parse(readFileSync(join(extensionRoot, 'manifest.json'), 'utf8'));
 
     test('Manifest version is 3', manifest.manifest_version === 3);
+    test('Content scripts defined', manifest.content_scripts && manifest.content_scripts.length > 0);
     test(
-      'Content scripts defined',
-      manifest.content_scripts && manifest.content_scripts.length > 0
+      'Content script uses bundled file',
+      manifest.content_scripts[0].js && manifest.content_scripts[0].js[0] === 'dist/content.js'
     );
-    test('Content script uses bundled file',
-      manifest.content_scripts[0].js &&
-      manifest.content_scripts[0].js[0] === 'dist/content.js'
-    );
-    test(
-      'Required permissions present',
-      manifest.permissions && manifest.permissions.includes('storage')
-    );
+    test('Required permissions present', manifest.permissions && manifest.permissions.includes('storage'));
     test(
       'Content script matches all sites',
-      manifest.content_scripts[0].matches &&
-      manifest.content_scripts[0].matches.includes('https://*/*')
+      manifest.content_scripts[0].matches && manifest.content_scripts[0].matches.includes('https://*/*')
     );
   } catch (error) {
     test('Manifest.json is valid JSON', false, error.message);

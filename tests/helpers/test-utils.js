@@ -28,8 +28,7 @@ export function createMockVideo(options = {}) {
       configurable: true,
     },
     currentSrc: {
-      value:
-        options.currentSrc !== undefined ? options.currentSrc : 'https://example.com/video.mp4',
+      value: options.currentSrc !== undefined ? options.currentSrc : 'https://example.com/video.mp4',
       writable: true,
       configurable: true,
     },

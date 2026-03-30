@@ -77,10 +77,7 @@ export class NetflixHandler extends BaseSiteHandler {
    */
   shouldIgnoreVideo(video) {
     // Ignore preview videos or thumbnails
-    return (
-      video.classList.contains('preview-video') ||
-      video.parentElement?.classList.contains('billboard-row')
-    );
+    return video.classList.contains('preview-video') || video.parentElement?.classList.contains('billboard-row');
   }
 
   /**

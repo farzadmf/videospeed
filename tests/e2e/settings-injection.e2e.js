@@ -145,9 +145,7 @@ export default async function runSettingsInjectionE2ETests() {
 
       // The reset should change the speed (toggle behavior)
       if (resetSpeed === speedBeforeReset) {
-        throw new Error(
-          `Reset key should change speed from ${speedBeforeReset}, but it stayed the same`
-        );
+        throw new Error(`Reset key should change speed from ${speedBeforeReset}, but it stayed the same`);
       }
     });
 
@@ -166,9 +164,7 @@ export default async function runSettingsInjectionE2ETests() {
       });
 
       if (reloadedSettings !== 0.2) {
-        throw new Error(
-          `Settings not persistent after reload: expected 0.2, got ${reloadedSettings}`
-        );
+        throw new Error(`Settings not persistent after reload: expected 0.2, got ${reloadedSettings}`);
       }
     });
   } catch (error) {

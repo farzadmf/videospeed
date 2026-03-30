@@ -362,7 +362,9 @@ export class VideoController {
      * @param {Event} event - Progress event
      */
     const progressAction = () => {
-      if (this.video.buffered.length === 0) return;
+      if (this.video.buffered.length === 0) {
+        return;
+      }
 
       const buffered = this.video.buffered.end(this.video.buffered.length - 1) / this.video.duration;
       this.setBufferVal(buffered);
@@ -399,7 +401,9 @@ export class VideoController {
    * @private
    */
   setupMutationObserver() {
-    if (this.targetObserver) return;
+    if (this.targetObserver) {
+      return;
+    }
 
     this.targetObserver = new MutationObserver((mutations) => {
       if (this.signal.aborted) {
@@ -430,8 +434,12 @@ export class VideoController {
   }
 
   setupIntersectionObserver() {
-    if (this.video.tagName === 'AUDIO') return;
-    if (this.intersectionObserver) return;
+    if (this.video.tagName === 'AUDIO') {
+      return;
+    }
+    if (this.intersectionObserver) {
+      return;
+    }
 
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
@@ -464,7 +472,9 @@ export class VideoController {
   }
 
   setupVideoResizeObserver() {
-    if (this.videoResizeObserver) return;
+    if (this.videoResizeObserver) {
+      return;
+    }
 
     this.videoResizeObserver = new ResizeObserver(() => this.shadowManager.adjustLocation());
 
@@ -472,7 +482,9 @@ export class VideoController {
   }
 
   setupTitleObserver() {
-    if (this.titleObserver) return;
+    if (this.titleObserver) {
+      return;
+    }
 
     this.titleObserver = new MutationObserver(() => {
       if (!this.isInternalTitleUpdate) {

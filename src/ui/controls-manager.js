@@ -2,6 +2,8 @@
  * Control button interactions and event handling
  */
 
+import { logger } from '../utils/logger.js';
+
 window.VSC = window.VSC || {};
 
 export class ControlsManager {
@@ -51,7 +53,9 @@ export class ControlsManager {
       draggable.addEventListener(
         'dblclick',
         (event) => {
-          if (event.target.closest('button')) return;
+          if (event.target.closest('button')) {
+            return;
+          }
 
           const resetBinding = this.config.getActionByName('reset');
           const resetValue = resetBinding?.value || resetBinding?.action?.value || 1.0;

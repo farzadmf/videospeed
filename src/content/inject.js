@@ -233,13 +233,17 @@ class VideoSpeedExtension {
    * Counterpart to initialize() — leaves the page as if VSC was never active.
    */
   teardown() {
-    if (!this.initialized) return;
+    if (!this.initialized) {
+      return;
+    }
 
     logger.info('Tearing down Video Speed Controller');
 
     const videos = stateManager ? stateManager.getAllMediaElements() : [];
     for (const video of videos) {
-      if (video.vsc) video.vsc.remove();
+      if (video.vsc) {
+        video.vsc.remove();
+      }
     }
 
     if (this.mutationObserver) {
