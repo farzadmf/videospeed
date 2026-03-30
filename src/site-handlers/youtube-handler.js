@@ -181,16 +181,6 @@ export class YouTubeHandler extends BaseSiteHandler {
   }
 
   /**
-   * Handle YouTube-specific player state changes
-   * @param {HTMLMediaElement} video - Video element
-   */
-  onPlayerStateChange() {
-    // YouTube fires custom events we could listen to
-    // This could be used for better integration with YouTube's player
-    logger.debug('YouTube player state changed');
-  }
-
-  /**
    * Handles sponsored segments from the video that can be skipped
    * @returns {Array<{start: number, end: number}>} Array of segments with start and end times in seconds
    */

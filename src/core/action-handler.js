@@ -292,7 +292,7 @@ export class ActionHandler {
       const numericSpeed = Number(targetSpeed.toFixed(1));
       logger.debug('[adjustSpeed]', 'numericSpeed', numericSpeed);
 
-      video.playbackRate = numericSpeed;
+      this.siteHandlerManager.handleSpeedChange(video, numericSpeed);
 
       video.vsc?.setSpeedVal(numericSpeed);
 
@@ -614,8 +614,8 @@ export class ActionHandler {
     const speedValue = speed.toFixed(2);
     const numericSpeed = Number(speedValue);
 
-    // 1. Set the actual playback rate
-    video.playbackRate = numericSpeed;
+    // 1. Set the actual playback rate via site handler
+    this.siteHandlerManager.handleSpeedChange(video, numericSpeed);
 
     // 2. Always dispatch synthetic event with source tracking
     // This allows EventManager to distinguish our changes from external ones
