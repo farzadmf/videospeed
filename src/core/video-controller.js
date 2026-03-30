@@ -107,10 +107,6 @@ export class VideoController {
     // Initialize speed
     this.initializeSpeed();
 
-    // Create custom element wrapper to avoid CSS conflicts
-    // MyNote: this shows an error from 'custom-elements-es5-adapter', which doesn't seem to be a
-    //         "real" error as the element is created. (to avoid, we can go back to using 'new'
-    //         directly on the class instead).
     this.wrapperDiv = document.createElement('vsc-controller');
 
     // Create UI
