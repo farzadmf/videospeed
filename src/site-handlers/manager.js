@@ -8,6 +8,7 @@ import { logger } from '../utils/logger.js';
 import { AmazonHandler } from './amazon-handler.js';
 import { AppleHandler } from './apple-handler.js';
 import { BaseSiteHandler } from './base-handler.js';
+import { DailymotionHandler } from './dailymotion-handler.js';
 import { FacebookHandler } from './facebook-handler.js';
 import { NetflixHandler } from './netflix-handler.js';
 import { YouTubeHandler } from './youtube-handler.js';
@@ -15,7 +16,7 @@ import { YouTubeHandler } from './youtube-handler.js';
 export class SiteHandlerManager {
   constructor(settings) {
     this.currentHandler = null;
-    this.availableHandlers = [AmazonHandler, AppleHandler, FacebookHandler, NetflixHandler, YouTubeHandler];
+    this.availableHandlers = [AmazonHandler, AppleHandler, DailymotionHandler, FacebookHandler, NetflixHandler, YouTubeHandler];
     this.settings = settings;
   }
 
