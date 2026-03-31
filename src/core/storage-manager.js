@@ -66,10 +66,13 @@ export class StorageManager {
    * @returns {Promise<void>}
    */
   static async set(data) {
+    // sourceUrl is bridge metadata, not a storage key — extract before writing
+    const { sourceUrl, ...storageData } = data;
+
     // Check if Chrome APIs are available (content script context)
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
       return new Promise((resolve, reject) => {
-        chrome.storage.sync.set(data, () => {
+        chrome.storage.sync.set(storageData, () => {
           if (chrome.runtime.lastError) {
             const error = new Error(`Storage failed: ${chrome.runtime.lastError.message}`);
             logger.error(`Chrome storage save failed: ${chrome.runtime.lastError.message}`);
@@ -87,21 +90,25 @@ export class StorageManager {
         });
       });
     } else {
-      // Page context - send save request to content script via message bridge
-      logger.debug('Sending storage update to content script');
-
-      // Post message to content script
-      window.postMessage(
-        {
+      // Page context — only speed updates are bridged to the content script.
+      // All other settings writes go through extension contexts with direct
+      // chrome.storage access (options page, popup, background).
+      if (typeof storageData.lastSpeed === 'number' && Number.isFinite(storageData.lastSpeed)) {
+        const message = {
           source: 'vsc-page',
-          action: 'storage-update',
-          data: data,
-        },
-        '*'
-      );
+          action: 'set-speed',
+          data: { speed: storageData.lastSpeed },
+        };
+        if (sourceUrl) {
+          message.data.url = sourceUrl;
+        }
+        window.postMessage(message, '*');
+      } else {
+        logger.warn('StorageManager.set: only lastSpeed can be bridged from page context');
+      }
 
-      // Update local settings cache
-      window.VSC_settings = { ...window.VSC_settings, ...data };
+      // Update local settings cache regardless (keeps in-memory state current)
+      window.VSC_settings = { ...window.VSC_settings, ...storageData };
 
       return Promise.resolve();
     }

@@ -83,7 +83,6 @@ export class VideoSpeedConfig {
       if (!storage.keyBindings || storage.keyBindings.length === 0) {
         logger.info('First initialization - setting up default key bindings');
         this.settings.keyBindings = [...VSC_DEFAULTS.keyBindings];
-        await this.save({ keyBindings: this.settings.keyBindings });
       }
 
       this.settings.sources = storage.sources || {};
@@ -199,7 +198,7 @@ export class VideoSpeedConfig {
 
     this.save({
       lastSpeed: this.settings.lastSpeed,
-      sources: this.settings.sources,
+      sourceUrl: url,
     });
   }
 
