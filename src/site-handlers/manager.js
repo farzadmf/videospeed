@@ -103,7 +103,20 @@ export class SiteHandlerManager {
    */
   shouldIgnoreVideo(video) {
     const handler = this.getCurrentHandler();
-    return handler.shouldIgnoreVideo(video);
+    if (handler.shouldIgnoreVideo(video)) {
+      return true;
+    }
+
+    // Detect gif-like videos: muted looping videos with no native controls.
+    // Sites like Telegram, X, Imgur serve animated stickers/GIFs as <video
+    // autoplay loop muted> elements. Showing a speed overlay on these is
+    // visually noisy and not useful.
+    if (video.tagName === 'VIDEO' && video.loop && video.muted && !video.controls) {
+      logger.debug('Video ignored: gif-video pattern (loop + muted + no controls)');
+      return true;
+    }
+
+    return false;
   }
 
   /**
