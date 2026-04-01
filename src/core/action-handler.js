@@ -527,23 +527,23 @@ export class ActionHandler {
    * @param {string} options.source - 'internal' (user action) or 'external' (site/other)
    */
   adjustSpeed_upstream(video, value, options = {}) {
-    return window.VSC.logger.withContext(video, () => {
+    return logger.withContext(video, () => {
       const { relative = false, source = 'internal' } = options;
 
       // DEBUG: Log all adjustSpeed calls to trace the mystery
-      window.VSC.logger.debug(`adjustSpeed called: value=${value}, relative=${relative}, source=${source}`);
+      logger.debug(`adjustSpeed called: value=${value}, relative=${relative}, source=${source}`);
       const stack = new Error().stack;
       const stackLines = stack.split('\n').slice(1, 8); // First 7 stack frames
-      window.VSC.logger.debug(`adjustSpeed call stack: ${stackLines.join(' -> ')}`);
+      logger.debug(`adjustSpeed call stack: ${stackLines.join(' -> ')}`);
 
       // Validate input
       if (!video || !video.vsc) {
-        window.VSC.logger.warn('adjustSpeed called on video without controller');
+        logger.warn('adjustSpeed called on video without controller');
         return;
       }
 
       if (typeof value !== 'number' || isNaN(value)) {
-        window.VSC.logger.warn('adjustSpeed called with invalid value:', value);
+        logger.warn('adjustSpeed called with invalid value:', value);
         return;
       }
 

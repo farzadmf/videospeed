@@ -148,7 +148,7 @@ export class ControlsManager {
           // Chrome/Safari/Edge: Use magnitude to distinguish mouse wheel (>50px) from touchpad (<50px)
           const TOUCHPAD_THRESHOLD = 50;
           if (Math.abs(event.deltaY) < TOUCHPAD_THRESHOLD) {
-            window.VSC.logger.debug(`Touchpad scroll detected (deltaY: ${event.deltaY}) - ignoring`);
+            logger.debug(`Touchpad scroll detected (deltaY: ${event.deltaY}) - ignoring`);
             return;
           }
         }
@@ -162,9 +162,7 @@ export class ControlsManager {
 
         this.actionHandler.adjustSpeed(video, speedDelta, { relative: true });
 
-        window.VSC.logger.debug(
-          `Wheel control: adjusting speed by ${speedDelta} (deltaMode: ${event.deltaMode}, deltaY: ${event.deltaY})`
-        );
+        logger.debug(`Wheel control: adjusting speed by ${speedDelta} (deltaMode: ${event.deltaMode}, deltaY: ${event.deltaY})`);
       },
       { passive: false }
     );

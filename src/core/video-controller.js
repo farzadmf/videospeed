@@ -139,7 +139,7 @@ export class VideoController {
 
     // Use adjustSpeed for initial speed setting to ensure consistency
     if (this.actionHandler && targetSpeed !== this.video.playbackRate) {
-      window.VSC.logger.debug('Setting initial speed via adjustSpeed');
+      logger.debug('Setting initial speed via adjustSpeed');
       this.actionHandler.adjustSpeed(this.video, targetSpeed, { source: 'internal' });
     }
   }
