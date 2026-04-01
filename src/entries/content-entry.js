@@ -6,8 +6,30 @@
 import { injectScript, injectCSS, setupMessageBridge } from '../content/injection-bridge.js';
 import { isBlacklisted } from '../utils/blacklist.js';
 
+// MyNote: upstream has these imports for controllerCSS and domain CSS preprocessing.
+// We don't use controllerCSS or inline <style> injection, so these are not needed.
+// import { matchSiteRule } from '../utils/site-pattern.js';
+// import { DEFAULT_CONTROLLER_CSS } from '../styles/controller-css-defaults.js';
+
+/**
+ * MyNote: upstream resolves domain-based CSS selectors at injection time so it
+ * never touches <html>. We inject CSS via <link> tags (not inline <style>), and
+ * our inject_new.css has no --vsc-domain rules, so this is not needed.
+ */
+// function preprocessDomainCSS(cssText, hostname) {
+//   return cssText.replace(/\[style\*='--vsc-domain:\s*"([^"]+)"'\]/g, (_match, domain) =>
+//     domain === hostname ? '' : '[data-vsc-never]'
+//   );
+// }
+
 async function init() {
   try {
+    // Skip about:blank frames — they share the parent window and our injection
+    // would either double-inject or break the parent's running instance.
+    if (location.href === 'about:blank') {
+      return;
+    }
+
     // Guard against double-injection. Chrome can re-run content scripts on
     // extension update, service worker restart, or in about:blank frames that
     // share the parent window. Re-injecting would overwrite all window.VSC.*

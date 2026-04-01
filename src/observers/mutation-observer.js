@@ -24,13 +24,12 @@ export class VideoMutationObserver {
    */
   start(document) {
     this.observer = new MutationObserver((mutations) => {
-      // Process DOM nodes with reasonable delay
-      requestIdleCallback(
-        () => {
-          this.processMutations(mutations);
-        },
-        { timeout: 2_000 }
-      );
+      // Process mutations when the browser is genuinely idle — no forced timeout.
+      // Sites do async post-load init that's sensitive to DOM insertions; a
+      // forced timeout can fire during that window.
+      requestIdleCallback(() => {
+        this.processMutations(mutations);
+      });
     });
 
     const observerOptions = {
@@ -243,12 +242,9 @@ export class VideoMutationObserver {
     }
 
     const shadowObserver = new MutationObserver((mutations) => {
-      requestIdleCallback(
-        () => {
-          this.processMutations(mutations);
-        },
-        { timeout: 500 }
-      );
+      requestIdleCallback(() => {
+        this.processMutations(mutations);
+      });
     });
 
     const observerOptions = {

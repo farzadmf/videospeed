@@ -619,8 +619,10 @@ export class ActionHandler {
     // native ratechange fires synchronously and the cooldown handler reads lastSpeed
     // as the "authoritative" speed. With the old ordering, lastSpeed is stale when
     // the handler fires, causing it to undo our own change.
-    // Also: only update lastSpeed for non-external sources.
-    // if (source !== 'external') {
+    // Also: only update lastSpeed for non-external and non-init sources.
+    // 'init' source: skip — don't arm fight-back with the initialization
+    // default; let the first real user/site action establish authority.
+    // if (source !== 'external' && source !== 'init') {
     //   this.config.settings.lastSpeed = numericSpeed;
     // }
 

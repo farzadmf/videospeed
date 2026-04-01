@@ -126,7 +126,11 @@ export class VideoController {
   }
 
   /**
-   * Initialize video speed based on settings
+   * Initialize video speed based on settings.
+   *
+   * Defers until metadata is loaded when readyState < 1 — setting
+   * playbackRate before the player has initialized can race with the
+   * site's own init sequence.
    * @private
    */
   initializeSpeed() {
@@ -137,8 +141,20 @@ export class VideoController {
     // Just making sure?!
     this.video.playbackRate = targetSpeed;
 
-    // Use adjustSpeed for initial speed setting to ensure consistency
-    if (this.actionHandler && targetSpeed !== this.video.playbackRate) {
+    if (!this.actionHandler || targetSpeed === this.video.playbackRate) {
+      return;
+    }
+
+    if (this.video.readyState < 1) {
+      logger.debug('Deferring initializeSpeed until loadedmetadata');
+      const handler = () => {
+        this.video.removeEventListener('loadedmetadata', handler);
+        if (targetSpeed !== this.video.playbackRate) {
+          this.actionHandler.adjustSpeed(this.video, targetSpeed, { source: 'internal' });
+        }
+      };
+      this.video.addEventListener('loadedmetadata', handler);
+    } else {
       logger.debug('Setting initial speed via adjustSpeed');
       this.actionHandler.adjustSpeed(this.video, targetSpeed, { source: 'internal' });
     }
@@ -341,7 +357,14 @@ export class VideoController {
       this.video.addEventListener('play', this.handlePlay, { signal: this.signal });
     }
     if (!this.handleSeek) {
-      this.handleSeek = mediaEventAction.bind(this);
+      // Don't restore speed on seeked if the video hasn't loaded data yet —
+      // the player may still be initializing.
+      this.handleSeek = (event) => {
+        if (event.target.readyState < 2) {
+          return;
+        }
+        mediaEventAction.call(this, event);
+      };
       this.video.addEventListener('seeked', this.handleSeek, { signal: this.signal });
     }
 

@@ -84,11 +84,11 @@ class VideoSpeedExtension {
 
       window.VSC.initialized = true;
 
-      this.applyDomainStyles(document);
+      // MyNote: upstream replaced applyDomainStyles (which mutated <html> style) with
+      // preprocessDomainCSS() that does string replacement at injection time. We don't
+      // need either — our inject_new.css has no --vsc-domain rules, and the manifest
+      // already injects inject_new.css into all frames (all_frames: true).
       this.eventManager.setupEventListeners(document);
-      if (document !== window.document) {
-        this.setupDocumentCSS(document);
-      }
 
       this.deferExpensiveOperations(document);
       logger.debug('Document initialization completed');
@@ -102,10 +102,9 @@ class VideoSpeedExtension {
    * @param {Document} document - Document to defer operations for
    */
   deferExpensiveOperations(document) {
-    // Use requestIdleCallback with a longer timeout to avoid blocking critical page load
     const callback = () => {
       try {
-        // Start mutation observer after page load is complete
+        // Start mutation observer — catches dynamically added media elements
         if (this.mutationObserver) {
           this.mutationObserver.start(document);
           logger.debug('Mutation observer started for document');
@@ -118,11 +117,9 @@ class VideoSpeedExtension {
       }
     };
 
-    // Use requestIdleCallback if available, with reasonable timeout
     if (window.requestIdleCallback) {
-      requestIdleCallback(callback, { timeout: 2000 });
+      requestIdleCallback(callback);
     } else {
-      // Fallback for browsers without requestIdleCallback
       setTimeout(callback, 100);
     }
   }
@@ -153,9 +150,8 @@ class VideoSpeedExtension {
       }
     };
 
-    // Use requestIdleCallback for the scan as well
     if (window.requestIdleCallback) {
-      requestIdleCallback(performChunkedScan, { timeout: 3000 });
+      requestIdleCallback(performChunkedScan);
     } else {
       setTimeout(performChunkedScan, 200);
     }
@@ -186,20 +182,32 @@ class VideoSpeedExtension {
   }
 
   /**
-   * Apply domain-specific styles using CSS custom properties
-   * Sets CSS custom property on :root to enable CSS-based domain targeting
-   * @param {Document} document - Document to apply styles to
+   * Resolve domain-based CSS selectors for the current hostname.
+   * Matching domains: selector stripped (rule applies). Non-matching: [data-vsc-never].
+   *
+   * MyNote: upstream uses this to preprocess inline <style> CSS text at injection time,
+   * avoiding <html> style mutation. We inject CSS via <link> tags so we can't preprocess,
+   * and our inject_new.css has no --vsc-domain rules, so this is not needed.
    */
-  applyDomainStyles(document) {
-    try {
-      const hostname = window.location.hostname;
-      if (document.documentElement) {
-        document.documentElement.style.setProperty('--vsc-domain', `"${hostname}"`);
-      }
-    } catch (error) {
-      logger.error(`Failed to apply domain styles: ${error.message}`);
-    }
-  }
+  // preprocessDomainCSS(css) {
+  //   const hostname = location.hostname.replace(/^www\./, '');
+  //   return css.replace(/\[style\*='--vsc-domain:\s*"([^"]+)"'\]/g, (_match, domain) =>
+  //     domain === hostname ? '' : '[data-vsc-never]'
+  //   );
+  // }
+
+  // MyNote: removed — mutating <html> style triggers framework MutationObservers.
+  // Upstream replaced this with preprocessDomainCSS() above.
+  // applyDomainStyles(document) {
+  //   try {
+  //     const hostname = window.location.hostname;
+  //     if (document.documentElement) {
+  //       document.documentElement.style.setProperty('--vsc-domain', `"${hostname}"`);
+  //     }
+  //   } catch (error) {
+  //     logger.error(`Failed to apply domain styles: ${error.message}`);
+  //   }
+  // }
 
   /**
    * Set up observers for DOM changes and video detection
@@ -287,6 +295,18 @@ class VideoSpeedExtension {
 
       if (!video.src && !video.currentSrc) {
         logger.verbose('[onVideoFound] Video has no source; not attaching a controller');
+        return;
+      }
+
+      // Defer controller creation until the video has enough data.
+      // Inserting <vsc-controller> into a player container while the site's
+      // framework is still initializing can trigger internal MutationObservers.
+      // readyState >= 2 (HAVE_CURRENT_DATA) signals the player has settled.
+      if (video.readyState < 2 && (video.src || video.currentSrc)) {
+        logger.debug('[onVideoFound] Deferring controller until loadeddata (readyState=%d)', video.readyState);
+        video.addEventListener('loadeddata', () => this.onVideoFound(video, parent), {
+          once: true,
+        });
         return;
       }
 
@@ -380,19 +400,17 @@ class VideoSpeedExtension {
   //   // }
   // }
 
-  /**
-   * Set up CSS for iframe documents
-   * @param {Document} document - Document to set up CSS for
-   */
-  setupDocumentCSS(document) {
-    const link = document.createElement('link');
-    link.href =
-      typeof chrome !== 'undefined' && chrome.runtime ? chrome.runtime.getURL('src/styles/inject.css') : '/src/styles/inject.css';
-    link.type = 'text/css';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-    logger.debug('CSS injected into iframe document');
-  }
+  // MyNote: removed — our manifest injects inject_new.css into all frames
+  // (all_frames: true), so manual iframe CSS injection is redundant.
+  // setupDocumentCSS(document) {
+  //   const link = document.createElement('link');
+  //   link.href =
+  //     typeof chrome !== 'undefined' && chrome.runtime ? chrome.runtime.getURL('src/styles/inject.css') : '/src/styles/inject.css';
+  //   link.type = 'text/css';
+  //   link.rel = 'stylesheet';
+  //   document.head.appendChild(link);
+  //   logger.debug('CSS injected into iframe document');
+  // }
 }
 
 // Initialize extension and message handlers in an IIFE to avoid global scope pollution
