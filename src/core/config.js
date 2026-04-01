@@ -96,6 +96,14 @@ export class VideoSpeedConfig {
       this.settings.lastSpeed = Number(storage.lastSpeed);
       this.settings.logLevel = Number(storage.logLevel || VSC_DEFAULTS.logLevel);
       this.settings.rememberSpeed = Boolean(storage.rememberSpeed);
+
+      // When rememberSpeed is OFF, discard the stored lastSpeed so that
+      // per-site baselines (sources) win on fresh page loads instead of
+      // a stale speed from a previous session.
+      if (!this.settings.rememberSpeed) {
+        this.settings.lastSpeed = 1.0;
+      }
+
       this.settings.startHidden = Boolean(storage.startHidden);
 
       // Update logger verbosity

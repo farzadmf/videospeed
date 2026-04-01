@@ -614,6 +614,16 @@ export class ActionHandler {
     const speedValue = speed.toFixed(2);
     const numericSpeed = Number(speedValue);
 
+    // MyNote | UPSTREAM ordering fix (disabled — our main path uses adjustSpeed, not setSpeed):
+    // Upstream moves lastSpeed update BEFORE playbackRate assignment because the
+    // native ratechange fires synchronously and the cooldown handler reads lastSpeed
+    // as the "authoritative" speed. With the old ordering, lastSpeed is stale when
+    // the handler fires, causing it to undo our own change.
+    // Also: only update lastSpeed for non-external sources.
+    // if (source !== 'external') {
+    //   this.config.settings.lastSpeed = numericSpeed;
+    // }
+
     // 1. Set the actual playback rate via site handler
     this.siteHandlerManager.handleSpeedChange(video, numericSpeed);
 
