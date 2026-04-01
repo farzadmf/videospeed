@@ -5,88 +5,86 @@
 
 ---
 
-# The science of accelerated playback
+<details>
+<summary>Upstream README</summary>
 
-**TL;DR: faster playback translates to better engagement and retention.**
+# [Install from Chrome Web Store][chrome-web-store-link]
 
-The average adult reads prose text at
-[250 to 300 words per minute](http://www.paperbecause.com/PIOP/files/f7/f7bb6bc5-2c4a-466f-9ae7-b483a2c0dca4.pdf)
-(wpm). By contrast, the average rate of speech for English speakers is ~150 wpm,
-with slide presentations often closer to 100 wpm. As a result, when given the
-choice, many viewers
-[speed up video playback to ~1.3\~1.5 its recorded rate](http://research.microsoft.com/en-us/um/redmond/groups/coet/compression/chi99/paper.pdf)
-to compensate for the difference.
+[![Chrome Web Store][chrome-web-store-version]][chrome-web-store-link] [![Chrome Web Store Users][chrome-web-store-users-badge]][chrome-web-store-link] [![Chrome Web Store Users][chrome-web-store-stars]][chrome-web-store-link]  
 
-Many viewers report that
-[accelerated viewing keeps their attention longer](http://www.enounce.com/docs/BYUPaper020319.pdf):
-faster delivery keeps the viewer more engaged with the content. In fact, with a
-little training many end up watching videos at 2x+ the recorded speed. Some
-studies report that after being exposed to accelerated playback,
-[listeners become uncomfortable](http://alumni.media.mit.edu/~barons/html/avios92.html#beasleyalteredspeech)
-if they are forced to return to normal rate of presentation.
+**Video Speed Controller** gives you fine-grained control over any HTML5 video
+or audio element, on any site.
 
-## Faster HTML5 Video
+## The science of accelerated playback
 
-HTML5 video provides a native API to accelerate playback of any video. The
-problem is many players either hide or limit this functionality. For the best
-results, playback speed adjustments should be easy and frequent to match the pace
-and content being covered: we don't read at a fixed speed, and similarly, we
-need an easy way to accelerate the video, slow it down, and quickly rewind the
-last point to listen to it a few more times.
+**TL;DR** -- faster playback translates to better engagement and retention.
 
-![Player](https://cloud.githubusercontent.com/assets/2400185/24076745/5723e6ae-0c41-11e7-820c-1d8e814a2888.png)
+The average adult reads at [250-300 words per minute][wpm-study] (wpm). Speech
+averages ~150 wpm; slide presentations often closer to 100 wpm. Given the
+choice, most viewers [speed up playback to ~1.3-1.5x][ms-study] to close the
+gap. Accelerated viewing [keeps attention longer][byu-study] -- faster delivery
+means higher engagement. With practice, many settle at 2x or above and find it
+[uncomfortable to return to 1x][mit-study].
 
-### _[Install Chrome Extension](https://chrome.google.com/webstore/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk)_
+[wpm-study]: http://www.paperbecause.com/PIOP/files/f7/f7bb6bc5-2c4a-466f-9ae7-b483a2c0dca4.pdf
+[ms-study]: http://research.microsoft.com/en-us/um/redmond/groups/coet/compression/chi99/paper.pdf
+[byu-study]: http://www.enounce.com/docs/BYUPaper020319.pdf
+[mit-study]: http://alumni.media.mit.edu/~barons/html/avios92.html#beasleyalteredspeech
 
-\*\* Once the extension is installed simply navigate to any page that offers
-HTML5 video ([example](http://www.youtube.com/watch?v=E9FxNzv1Tr8)), and you'll
-see a speed indicator in top left corner. Hover over the indicator to reveal the
-controls to accelerate, slowdown, and quickly rewind or advance the video. Or,
-even better, simply use your keyboard:
+HTML5 media elements expose a native playback rate API, but most players hide
+or artificially limit it. Speed adjustments should be effortless and frequent:
+we don't read at a fixed pace, and we shouldn't watch at one either.
 
-- **S** - decrease playback speed.
-- **D** - increase playback speed.
-- **R** - reset playback speed to 1.0x.
-- **Z** - rewind video by 10 seconds.
-- **X** - advance video by 10 seconds.
-- **G** - toggle between current and user configurable preferred speed.
-- **V** - show/hide the controller.
 
-You can customize and reassign the default shortcut keys in the extensions
-settings page as well as add additional shortcut keys to match your
-preferences. As an example, you can assign multiple "preferred speed" shortcuts with different values, allowing you to quickly toggle between your most frequently used speeds. To add a new shortcut, open extension settings
-and click "Add New".
+## Features
 
-![settings Add New shortcut](https://user-images.githubusercontent.com/121805/50726471-50242200-1172-11e9-902f-0e5958387617.jpg)
+- **Universal** - works on any site with HTML5 media: YouTube, Netflix,
+  Coursera, podcasts, local files, etc.
+- **Video and audio** - controls both `<video>` and `<audio>` elements.
+- **Fine-grained speed** - 0.07x to 16x in configurable increments.
+- **Per-site speed rules** - set a default playback speed for specific domains
+  (e.g., always 2x on lecture sites).
+- **Per-site disable** - turn off the controller on sites where you don't
+  want it.
+- **Remember speed** - optionally persist your last speed across sessions
+  and tabs.
+- **Speed fightback** - automatically re-applies your chosen speed when a
+  site's player tries to reset it.
+- **Draggable overlay** - reposition the on-video speed indicator anywhere
+  you like.
+- **Fully customizable shortcuts** - remap every key, add modifier combos
+  (Ctrl, Shift, Alt), create multiple preferred-speed toggles.
+- **Custom controller CSS** - style or reposition the overlay with your own
+  CSS rules.
 
-Unfortunately, some sites may assign other functionality to one of the shortcut keys - this is inevitable. As a workaround, the extension
-listens both for lower and upper case values (i.e. you can use
-`Shift-<shortcut>`) if there is other functionality assigned to the lowercase
-key. This is not a perfect solution since some sites may listen to both, but it works
-most of the time.
+## Default keyboard shortcuts
 
-### FAQ
+- **S** - decrease playback speed
+- **D** - increase playback speed
+- **R** - reset playback speed to 1.0x
+- **Z** - rewind video by 10 seconds
+- **X** - advance video by 10 seconds
+- **G** - toggle between current and preferred speed
+- **V** - show/hide the controller
+- **M** - set a marker at current position
+- **J** - jump back to the previously set marker
 
-**The video controls are not showing up?** This extension is only compatible
-with HTML5 video. If you don't see the controls showing up, chances are you are
-viewing a Flash video. If you want to confirm, try right-clicking on the video
-and inspect the menu: if it mentions flash, then that's the issue. That said,
-most sites will fallback to HTML5 if they detect that Flash it not available.
-You can try manually disabling Flash plugin in Chrome:
+All shortcuts are fully customizable in the extension's settings page. You can
+reassign keys, add modifier combinations, and define multiple preferred-speed
+shortcuts with different values for quick toggling. Click **Add New** in
+settings to create additional bindings. Refresh the page after making changes
+for them to take effect.
 
-- In a new tab, navigate to `chrome://settings/content/flash`
-- Disable "Allow sites to run Flash"
-- Restart your browser and try playing your video again
-
-**The speed controls are not showing up for local videos?** To enable playback
-of local media (e.g. File > Open File), you need to grant additional permissions
-to the extension.
-
-- In a new tab, navigate to `chrome://extensions`
-- Find "Video Speed Controller" extension in the list and enable "Allow access
-  to file URLs"
-- Open a new tab and try opening a local file; the controls should show up.
-
-### License
+## License
 
 (MIT License) - Copyright (c) 2014 Ilya Grigorik
+
+[chrome-web-store-version]: https://img.shields.io/chrome-web-store/v/nffaoalbilbmmfgbnbgppjihopabppdk?label=Chrome%20Web%20Store
+[chrome-web-store-users-badge]: https://img.shields.io/chrome-web-store/users/nffaoalbilbmmfgbnbgppjihopabppdk
+[chrome-web-store-stars]: https://img.shields.io/chrome-web-store/stars/nffaoalbilbmmfgbnbgppjihopabppdk
+[github-release-badge]: https://img.shields.io/github/v/release/igrigorik/videospeed
+
+[chrome-web-store-link]: https://chromewebstore.google.com/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk
+[github-release-link]: https://github.com/igrigorik/videospeed/releases
+
+</details>
