@@ -47,14 +47,19 @@ async function copyStaticFiles() {
 
     // Perform copy operations
     for (const [src, [dest, filter]] of Object.entries(pathsToCopy)) {
-      // await fs.copy(path.join(rootDir, src), dest, {
-      //   filter: (src) => !path.basename(src).endsWith('.js'),
-      // });
-      fs.copy(path.join(rootDir, src), dest, { filter });
+      await fs.copy(path.join(rootDir, src), dest, { filter });
     }
 
     const timestamp = format(new Date(), 'yyyy-MM-dd@HH:mm:ss');
     console.log(`[${timestamp}] ✅ Files updated ...`);
+
+    // Inject version from package.json into dist/manifest.json
+    const pkg = await fs.readJson(path.join(rootDir, 'package.json'));
+    const manifestPath = path.join(outDir, 'manifest.json');
+    const manifest = await fs.readJson(manifestPath);
+    manifest.version = pkg.version;
+    await fs.writeJson(manifestPath, manifest, { spaces: 2 });
+    console.log(`[${timestamp}] ✅ Manifest version set to ${pkg.version}`);
   } catch (error) {
     console.error('❌ Error copying static files:', error);
     process.exit(1);
