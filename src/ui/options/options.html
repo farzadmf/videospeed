@@ -224,6 +224,72 @@
           </div>
         </div>
 
+        <!-- FAQ -->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" data-bs-target="#faq" data-bs-toggle="collapse" type="button">
+              FAQ
+            </button>
+          </h2>
+          <div id="faq" class="accordion-collapse collapse" data-bs-parent="#all-settings">
+            <div class="p-3">
+              <h5>Local files / Incognito</h5>
+              <p>
+                To enable playback of local media (File &gt; Open File) or Incognito mode,
+                grant additional permissions:
+              </p>
+              <ul>
+                <li>Navigate to <code>chrome://extensions</code></li>
+                <li>Find "Video Speed Controller" and click Details</li>
+                <li>Enable "Allow access to file URLs" and/or "Allow in Incognito"</li>
+              </ul>
+
+              <h5>Disable on a site</h5>
+              <p>
+                Add the site's domain to the blacklist in Other Settings
+                (e.g. <code>example.com</code>). Regex is supported
+                (e.g. <code>/\.edu$/i</code>).
+              </p>
+
+              <h5>Per-site speed</h5>
+              <p>
+                This fork automatically remembers speed per website when
+                "Remember playback speed" is enabled. Speeds are stored per
+                video source URL and restored on revisit.
+              </p>
+
+              <h5>Shortcut conflicts</h5>
+              <p>
+                If a site captures one of your shortcut keys, try
+                <code>Shift+&lt;key&gt;</code> — the extension listens for
+                both cases. You can also remap keys in Key Bindings above.
+              </p>
+
+              <h5>Controller not showing</h5>
+              <p>
+                The extension only works with HTML5 video/audio. If you don't
+                see controls, the site may be using a non-standard player.
+                Try reloading the page. For very small or zero-size videos,
+                the controller is hidden automatically.
+              </p>
+
+              <h5>Speed resets on navigation</h5>
+              <p>
+                Single-page apps (YouTube, Netflix) may reset speed when
+                navigating between videos. With "Remember playback speed"
+                enabled, the extension will re-apply your saved speed.
+              </p>
+
+              <h5>Audio support</h5>
+              <p>
+                Enable "Also control audio elements" in Other Settings to
+                show speed controls on <code>&lt;audio&gt;</code> elements
+                (podcasts, music players, etc.).
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Help & Support -->
         <div class="accordion-item">
           <h2 class="accordion-header">
