@@ -45,12 +45,7 @@ export const saveOptions = () => {
       },
     },
     () => {
-      // Update status to let user know options were saved.
-      const status = document.getElementById('status');
-      status.textContent = 'Options saved';
-      setTimeout(() => {
-        status.textContent = '';
-      }, 1000);
+      // Feedback is now handled by the save button's dirty-state classes
     }
   );
 };

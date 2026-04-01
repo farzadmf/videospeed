@@ -6,6 +6,20 @@
     <script src="../../assets/pkgs/lodash-4.7.15.min.js"></script>
     <script src="../../assets/pkgs/luxon.min.js"></script>
     <script src="options.js" type="module"></script>
+    <style>
+      #save {
+        transition: all 0.25s ease;
+      }
+      #save.has-changes {
+        background-color: var(--bs-success) !important;
+        border-color: var(--bs-success) !important;
+        color: #fff !important;
+      }
+      #save.saved {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    </style>
   </head>
 
   <body>
@@ -16,8 +30,9 @@
       </header>
 
       <div class="row my-4 sticky-top">
-        <div class="col-3 d-grid">
-          <button class="btn btn-success" id="save">Save Settings</button>
+        <div class="col-3 d-grid gap-1" style="grid-template-columns: 1fr auto">
+          <button class="btn btn-outline-success" id="save" disabled>Save Settings</button>
+          <button class="btn btn-outline-danger d-none" id="discard">Discard</button>
         </div>
         <div class="col-3 d-grid">
           <button class="btn btn-secondary" id="experimental">Show Experimental Features</button>

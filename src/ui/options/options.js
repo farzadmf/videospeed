@@ -84,9 +84,46 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreOptions();
   loadSpeeds();
 
-  document.querySelector('#save').addEventListener('click', saveOptions);
-  document.querySelector('#add').addEventListener('click', addBinding);
-  document.querySelector('#restore').addEventListener('click', restoreDefaults);
+  const saveBtn = document.querySelector('#save');
+  const discardBtn = document.querySelector('#discard');
+
+  function markDirty() {
+    saveBtn.classList.add('has-changes');
+    saveBtn.classList.remove('saved');
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Settings *';
+    discardBtn.classList.remove('d-none');
+  }
+  function markClean() {
+    saveBtn.classList.remove('has-changes');
+    saveBtn.classList.add('saved');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Save Settings';
+    discardBtn.classList.add('d-none');
+    setTimeout(() => saveBtn.classList.remove('saved'), 1500);
+  }
+
+  // Catch all form changes via delegation (covers dynamic rows too)
+  document.body.addEventListener('input', markDirty);
+  document.body.addEventListener('change', markDirty);
+
+  saveBtn.addEventListener('click', () => {
+    saveOptions();
+    markClean();
+  });
+  discardBtn.addEventListener('click', () => {
+    document.querySelector('#shortcuts tbody').replaceChildren();
+    restoreOptions();
+    markClean();
+  });
+  document.querySelector('#add').addEventListener('click', () => {
+    addBinding();
+    markDirty();
+  });
+  document.querySelector('#restore').addEventListener('click', () => {
+    restoreDefaults();
+    markDirty();
+  });
   document.querySelector('#export').addEventListener('click', exportSettings);
   document.querySelector('#import').addEventListener('click', importSettings);
   document.querySelector('#importFile').addEventListener('change', handleImportFile);
@@ -123,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (event) => {
     eventCaller(event, 'removeParent', () => {
       event.target.parentNode.parentNode.remove();
+      markDirty();
     });
   });
   document.addEventListener('change', (event) => {
