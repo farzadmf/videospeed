@@ -8,7 +8,7 @@ export const VSC_DEFAULTS = {
   controllerOpacity: 0.8,
   defaultLogLevel: LOG_LEVELS.INFO,
   enabled: true,
-  exclusiveKeys: false,
+  exclusiveKeys: true,
   forceLastSavedSpeed: true,
   keyBindings: [
     { action: ACTIONS.display, code: 'KeyV', predefined: true, shift: true, ctrl: true },
