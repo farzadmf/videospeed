@@ -1,5 +1,5 @@
-const _ = window.VSC?._ || window._;
-const luxon = window.luxon;
+import { filter, sortBy, toPairs, transform } from 'lodash-es';
+import { DateTime } from 'luxon';
 
 let sources;
 
@@ -11,7 +11,7 @@ export function loadSpeeds() {
       return;
     }
 
-    sources = _.sortBy(_.toPairs(storage.sources), (s) => s[0]);
+    sources = sortBy(toPairs(storage.sources), (s) => s[0]);
 
     speedsDiv.innerHTML = `
 <h3 class="text-center">Remembering a total of ${
@@ -30,8 +30,6 @@ export function loadSpeeds() {
 }
 
 function displaySpeeds() {
-  const DateTime = luxon.DateTime;
-
   let out = '';
   sources.forEach((value, idx) => {
     const [url, { speed, updated }] = value;
@@ -137,7 +135,7 @@ function setUpForgetButtons() {
 
 function forgetSpeed(event) {
   const url = event.target.getAttribute('data-speed-url');
-  sources = _.filter(sources, (s) => s[0] !== url);
+  sources = filter(sources, (s) => s[0] !== url);
 
   displaySpeeds();
   filterSpeeds();
@@ -145,7 +143,7 @@ function forgetSpeed(event) {
 }
 
 export function cleanUpSpeeds() {
-  sources = _.filter(sources, (s) => !!s[1].speed);
+  sources = filter(sources, (s) => !!s[1].speed);
 
   displaySpeeds();
   filterSpeeds();
@@ -153,7 +151,7 @@ export function cleanUpSpeeds() {
 }
 
 function syncSpeeds() {
-  const transformed = _.transform(sources, (result, value) => (result[value[0]] = value[1]), {});
+  const transformed = transform(sources, (result, value) => (result[value[0]] = value[1]), {});
 
   chrome.storage.sync.set(
     {

@@ -1,3 +1,6 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
+
 import { NO_VALUE_ACTIONS } from '../../shared/actions.js';
 import { addBinding, inputFilterNumbersOnly, inputFocus, inputBlur, recordKeyPress } from './helpers/bindings.js';
 import { cleanUpSpeeds, loadSpeeds } from './helpers/toggle-speeds.js';

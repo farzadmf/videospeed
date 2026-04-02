@@ -1,11 +1,11 @@
-import { VSC_DEFAULTS } from '../../../shared/defaults.js';
+import { find } from 'lodash-es';
 
-const _ = window._;
+import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 
 export const getTcDefaultBinding = (action) => {
   const toCompare = typeof action === 'string' ? action : action.name;
 
-  return _.find(VSC_DEFAULTS.keyBindings, (b) => {
+  return find(VSC_DEFAULTS.keyBindings, (b) => {
     if (!toCompare.includes('fixspeed')) {
       return b.action.name === toCompare;
     }

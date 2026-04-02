@@ -1,9 +1,9 @@
+import { keys, sortBy } from 'lodash-es';
+
 import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 import { ACTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
 import { addBinding, updateCustomShortcutInputText } from './bindings.js';
 import { getActionName, getTcDefaultBinding } from './misc.js';
-
-const _ = window._;
 
 export function restoreOptions() {
   chrome.storage.sync.get(VSC_DEFAULTS, (storage) => {
@@ -20,7 +20,7 @@ export function restoreOptions() {
     document.getElementById('yt_spb').checked = storage.sites?.youtube?.spb_enabled;
     document.getElementById('yt_spb_skip').checked = storage.sites?.youtube?.spb_skip;
 
-    const keyBindings = _.sortBy(storage.keyBindings, (b) => {
+    const keyBindings = sortBy(storage.keyBindings, (b) => {
       return b.action.description;
     });
 
@@ -51,7 +51,7 @@ export function restoreOptions() {
       }
     }
 
-    const total = _.keys(ACTIONS).length;
+    const total = keys(ACTIONS).length;
     const used = document.querySelectorAll('#shortcuts tbody tr').length;
 
     if (used < total) {

@@ -1,6 +1,4 @@
-// This is used both in options page (normal window._) and extension context (being injected
-// through injector.js, preserve/restore underscore etc.).
-const _ = window.VSC?._ || window._;
+import { filter, keys, map, pick, pickBy } from 'lodash-es';
 
 export const ACTIONS = {
   fixspeed_10: { name: 'fixspeed_10', description: '1.0x speed' },
@@ -56,16 +54,16 @@ export const ACTIONS = {
   vol_up: { name: 'vol_up', description: 'Increase volume', value: 0.05 },
 };
 
-export const NO_VALUE_ACTIONS = _.keys(_.pickBy(ACTIONS, (value) => value.value === undefined));
+export const NO_VALUE_ACTIONS = keys(pickBy(ACTIONS, (value) => value.value === undefined));
 
-export const actionByName = (actionName) => _.pick(ACTIONS, [actionName])[actionName];
+export const actionByName = (actionName) => pick(ACTIONS, [actionName])[actionName];
 
-export const ACTION_OPTIONS = _.map(ACTIONS, ({ name, description }) => `<option value="${name}">${description}</option>`);
+export const ACTION_OPTIONS = map(ACTIONS, ({ name, description }) => `<option value="${name}">${description}</option>`);
 
 export const ALLOWED_ACTION_OPTIONS = () => {
-  const usedOptions = _.map(document.querySelectorAll('#shortcuts td:first-child select'), (s) => s.value);
+  const usedOptions = map(document.querySelectorAll('#shortcuts td:first-child select'), (s) => s.value);
 
-  const filtered = _.filter(ACTIONS, ({ name }) => usedOptions.indexOf(name) === -1);
+  const filtered = filter(ACTIONS, ({ name }) => usedOptions.indexOf(name) === -1);
 
-  return _.map(filtered, ({ name, description }) => `<option value="${name}">${description}</option>`);
+  return map(filtered, ({ name, description }) => `<option value="${name}">${description}</option>`);
 };
