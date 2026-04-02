@@ -73,6 +73,13 @@ export class VideoSpeedConfig {
     try {
       // Use StorageManager which handles both contexts automatically
       const storage = await StorageManager.get(VSC_DEFAULTS);
+
+      // null = bridge signaled abort (site disabled/blacklisted)
+      if (storage === null) {
+        this.settings._abort = true;
+        return;
+      }
+
       // Storage read complete — save() is now safe (we have real data, not defaults).
       // Set before keyBindings init below, which calls save() internally.
       this._loaded = true;
@@ -206,7 +213,7 @@ export class VideoSpeedConfig {
 
     this.save({
       lastSpeed: this.settings.lastSpeed,
-      sourceUrl: url,
+      sources: this.settings.sources,
     });
   }
 

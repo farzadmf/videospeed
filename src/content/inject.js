@@ -10,7 +10,7 @@ import { ActionHandler } from '../core/action-handler.js';
 import { EventManager } from '../utils/event-manager.js';
 import { VideoMutationObserver } from '../observers/mutation-observer.js';
 import * as dom from '../utils/dom-utils.js';
-import { MESSAGE_TYPES } from '../shared/constants.js';
+import { MESSAGE_TYPES, SPEED_LIMITS } from '../shared/constants.js';
 import { MediaElementObserver } from '../observers/media-observer.js';
 import { SiteHandlerManager } from '../site-handlers/manager.js';
 import { stateManager } from '../core/state-manager.js';
@@ -42,28 +42,14 @@ class VideoSpeedExtension {
 
       await this.config.load();
 
-      // Initialize site handler
-      this.siteHandlerManager.initialize(document);
+      if (this.config.settings._abort) {
+        logger.debug('Extension disabled on this site — aborting init');
+        return;
+      }
 
-      // Create action handler and event manager
-      this.eventManager = new EventManager(this.config, null);
-      this.actionHandler = new ActionHandler({
-        config: this.config,
-        eventManager: this.eventManager,
-        siteHandlerManager: this.siteHandlerManager,
-      });
-      this.eventManager.actionHandler = this.actionHandler; // Set circular reference
-
-      // Set up observers
-      this.setupObservers();
-
-      // Initialize when document is ready
-      dom.initializeWhenReady(document, (doc) => {
-        this.initializeDocument(doc);
-      });
-
-      logger.info('Video Speed Controller initialized successfully');
-      this.initialized = true;
+      // Defer DOM work so the page's framework (e.g. YouTube's Polymer)
+      // finishes init before we touch anything.
+      this.deferDOMWork(document);
     } catch (error) {
       logger.error(`❌ Failed to initialize Video Speed Controller: ${error.message}`);
       logger.error('📋 Full error details:', error);
@@ -94,6 +80,43 @@ class VideoSpeedExtension {
       logger.debug('Document initialization completed');
     } catch (error) {
       logger.error(`Failed to initialize document: ${error.message}`);
+    }
+  }
+
+  /**
+   * Defer DOM work via requestIdleCallback to yield to site frameworks
+   * before injecting CSS, controllers, and observers.
+   */
+  deferDOMWork(document) {
+    const doWork = () => {
+      // MyNote: upstream injects controller CSS via adoptedStyleSheets here
+      // (injectControllerCSS + setupCSSLiveUpdates). We use <link> tags via
+      // manifest content_scripts.css, so no CSS injection needed.
+
+      this.siteHandlerManager.initialize(document);
+
+      this.eventManager = new EventManager(this.config, null);
+      this.actionHandler = new ActionHandler({
+        config: this.config,
+        eventManager: this.eventManager,
+        siteHandlerManager: this.siteHandlerManager,
+      });
+      this.eventManager.actionHandler = this.actionHandler;
+
+      this.setupObservers();
+
+      dom.initializeWhenReady(document, (doc) => {
+        this.initializeDocument(doc);
+      });
+
+      logger.info('Video Speed Controller initialized successfully');
+      this.initialized = true;
+    };
+
+    if (window.requestIdleCallback) {
+      requestIdleCallback(doWork);
+    } else {
+      setTimeout(doWork, 0);
     }
   }
 
@@ -418,9 +441,8 @@ class VideoSpeedExtension {
   // Create and initialize extension instance
   const extension = new VideoSpeedExtension();
 
-  // Message handler for popup communication via bridge
-  // Listen for messages from content script bridge
-  window.addEventListener('VSC_MESSAGE', (event) => {
+  // Lifecycle commands from bridge (popup, background, storage changes)
+  document.documentElement.addEventListener('VSC_MESSAGE', (event) => {
     const message = event.detail;
 
     // Handle namespaced VSC message types
@@ -431,7 +453,7 @@ class VideoSpeedExtension {
       switch (message.type) {
         case MESSAGE_TYPES.SET_SPEED:
           if (message.payload && typeof message.payload.speed === 'number') {
-            const targetSpeed = message.payload.speed;
+            const targetSpeed = Math.min(Math.max(message.payload.speed, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
             videos.forEach((video) => {
               if (video.vsc) {
                 extension.actionHandler.adjustSpeed(video, targetSpeed);
@@ -453,7 +475,7 @@ class VideoSpeedExtension {
                 extension.actionHandler.adjustSpeed(video, delta, { relative: true });
               } else {
                 // Fallback for videos without controller
-                const newSpeed = Math.min(Math.max(video.playbackRate + delta, 0.07), 16);
+                const newSpeed = Math.min(Math.max(video.playbackRate + delta, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
                 video.playbackRate = newSpeed;
               }
             });

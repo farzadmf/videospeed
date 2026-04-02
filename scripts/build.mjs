@@ -79,7 +79,7 @@ async function build() {
         'ui/popup/popup-css': 'src/ui/popup/popup.css',
         'ui/popup/popup-html': 'src/ui/popup/popup.html',
         background: 'src/background.js',
-        content: 'src/entries/content-entry.js',
+        'content-bridge': 'src/entries/content-bridge.js',
         inject: 'src/entries/inject-entry.js',
       },
       outdir: 'dist',

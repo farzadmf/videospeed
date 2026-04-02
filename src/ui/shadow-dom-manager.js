@@ -52,13 +52,14 @@ export class ShadowDOMManager {
     this.controllerDivHeightPx = 22;
     this.hourAlwaysVisible = false;
 
-    this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
+    this.cssText = window.VSC._shadowCSS || '';
+
+    // MyNote: previously read from a hidden DOM element injected by injection-bridge.js:
+    // this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
+    // Now the bridge passes shadow CSS via the settings CustomEvent payload.
 
     this.top = 0;
     this.left = 0;
-
-    // Clean up temporary element
-    // setTimeout(() => document.querySelector('#vsc-shadow-css-content')?.remove(), 500);
   }
 
   /**
