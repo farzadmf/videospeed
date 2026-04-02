@@ -131,10 +131,12 @@ class Logger {
 
       switch (logLevel) {
         case LOG_LEVELS.ERROR:
-          console.error('%c[FMVSC] ERR |', 'color: red', context, ...message, trace);
+          console.log('%c[FMVSC] ERR |', 'color: red', context, ...message, trace);
+          console.error('[FMVSC] ERR |', context, ...message, trace);
           break;
         case LOG_LEVELS.WARNING:
-          console.warn('%c[FMVSC] WRN |', 'color: yellow', context, ...message);
+          console.log('%c[FMVSC] WRN |', 'color: yellow', context, ...message);
+          console.warn('[FMVSC] WRN |', context, ...message);
           break;
         case LOG_LEVELS.INFO:
           console.log('%c[FMVSC] INF |', 'color:  green', context, ...message);
