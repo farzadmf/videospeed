@@ -1,3 +1,9 @@
+/* Override sites (e.g. Reddit) that hide undefined custom elements.
+   Only apply when we haven't explicitly set --visibility to hidden. */
+vsc-controller:not(:defined) {
+  visibility: var(--visibility, visible) !important;
+}
+
 .vsc-nosource {
   display: none !important;
 }

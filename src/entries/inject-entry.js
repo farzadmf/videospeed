@@ -5,7 +5,6 @@
  */
 
 import '../utils/debug-helper.js';
-import '../ui/element.js';
 
 // Main initialization - must be last
 import '../content/inject.js';
