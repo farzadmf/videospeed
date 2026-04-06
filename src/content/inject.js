@@ -33,6 +33,12 @@ class VideoSpeedExtension {
    */
   async initialize() {
     try {
+      // Skip about:blank frames — the bridge doesn't run there,
+      // so VSC_REQUEST_SETTINGS would always time out.
+      if (location.href === 'about:blank') {
+        return;
+      }
+
       // Access global modules
       this.siteHandlerManager = new SiteHandlerManager(this.config.settings);
       this.MediaElementObserver = MediaElementObserver;

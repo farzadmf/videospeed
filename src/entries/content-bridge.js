@@ -57,6 +57,13 @@ function init() {
 }
 
 async function preparePayload() {
+  // chrome.runtime.id becomes undefined when the extension context is
+  // invalidated (extension reload, update, or disable). All chrome.*
+  // API calls would throw after that, so bail early.
+  if (!chrome.runtime?.id) {
+    return { abort: true };
+  }
+
   const [settings, shadowCSS] = await Promise.all([chrome.storage.sync.get(null), fetchShadowCSS()]);
 
   const disabled = settings.enabled === false;
@@ -76,6 +83,10 @@ async function preparePayload() {
 
 async function fetchShadowCSS() {
   try {
+    // See preparePayload() for why we check this
+    if (!chrome.runtime?.id) {
+      return '';
+    }
     const url = chrome.runtime.getURL('styles/shadow_new.css');
     const response = await fetch(url);
     return await response.text();
