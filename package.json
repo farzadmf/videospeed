@@ -1,6 +1,6 @@
 {
   "name": "video-speed-controller",
-  "version": "0.9.5",
+  "version": "0.10.0",
   "description": "Speed up, slow down, advance and rewind HTML5 audio/video with shortcuts",
   "type": "module",
   "scripts": {
@@ -42,7 +42,7 @@
     "@types/react-dom": "^19.1.9",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/parser": "*",
-    "@vitejs/plugin-react": "*",
+    "@vitejs/plugin-react": "^5.2.0",
     "autoprefixer": "^10.4.21",
     "daisyui": "^5.1.7",
     "date-fns": "^4.1.0",
