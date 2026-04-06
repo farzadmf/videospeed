@@ -1,10 +1,14 @@
 /**
- * The <vsc-controller> element is used as an unregistered custom element.
- * Browsers allow any hyphenated tag name via document.createElement() without
- * calling customElements.define(). This avoids conflicts with third-party
- * custom-elements-es5-adapter polyfills that monkey-patch customElements.define()
- * and break native ES6 class constructors (see upstream #1458).
+ * Register <vsc-controller> so it becomes :defined.
  *
- * No registration is needed — CSS selectors, querySelector, shadow DOM, and
- * tagName all work on unregistered hyphenated elements.
+ * Sites like Reddit hide undefined custom elements via
+ * `:not(:defined) { visibility: hidden }`. Upstream dropped
+ * customElements.define() to avoid es5-adapter polyfill conflicts,
+ * but that only affects transpiled ES5 classes — our esbuild target
+ * (Chrome 114) emits native ES6 classes, so the conflict doesn't
+ * apply. Upstream has the same bug; this is a divergence we chose
+ * to make.
  */
+if (!customElements.get('vsc-controller')) {
+  customElements.define('vsc-controller', class extends HTMLElement {});
+}
