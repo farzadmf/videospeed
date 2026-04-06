@@ -260,17 +260,19 @@ export class ActionHandler {
 
       const src = video?.currentSrc || video?.src;
       if (!src) {
-        logger.warn('adjustSpeed called on video without source', video);
+        logger.debug('adjustSpeed called on video without source', video);
         return;
       }
 
       const url = getBaseURL(src);
       logger.debug('[adjustSpeed]', 'url', url);
 
+      const savedSpeed = this.config.settings.sources[url]?.speed || 1;
+
       let targetSpeed;
-      if (value === undefined) {
-        targetSpeed = this.config.settings.sources[url]?.speed || 1;
-        logger.debug('[adjustSpeed]', 'undefined value for speed');
+      if (value === undefined || source === 'external') {
+        targetSpeed = savedSpeed;
+        logger.debug('[adjustSpeed]', 'using saved speed (undefined value or external source)');
       } else {
         if (relative) {
           const currentSpeed = video.playbackRate < 0.1 ? 0.0 : video.playbackRate;

@@ -27,6 +27,23 @@ export class EventManager {
 
     // Event deduplication to prevent duplicate key processing
     this.lastKeyEventSignature = null;
+
+    // UPSTREAM: Fight detection — track how many times a site resets our speed.
+    // MyNote: We don't use fight-back; our adjustSpeed handles external ratechanges
+    // by always restoring the saved speed. These fields exist for upstream parity.
+    // If we ever face aggressive sites that cause rapid back-and-forth stuttering,
+    // upstream's approach is to surrender after MAX_FIGHT_COUNT attempts.
+    this.fightCount = 0;
+    this.fightTimer = null;
+
+    // UPSTREAM: User gesture tracking — timestamp of the last user interaction we
+    // did NOT handle (click on page UI, unhandled key). A ratechange arriving within
+    // USER_GESTURE_WINDOW_MS of this is treated as intentional and accepted
+    // immediately rather than fought.
+    // MyNote: We don't use this either since we always force saved speed. But if we
+    // ever want to let users use native site controls (e.g. YouTube's speed menu),
+    // this is the mechanism to detect that.
+    this.lastUserInteractionAt = 0;
   }
 
   /**
@@ -36,6 +53,7 @@ export class EventManager {
   setupEventListeners(document) {
     this.setupKeyboardShortcuts(document);
     this.setupRateChangeListener(document);
+    this.setupUserGestureListener(document);
   }
 
   /**
@@ -152,6 +170,9 @@ export class EventManager {
         event.stopPropagation();
       }
     } else {
+      // UPSTREAM: Unhandled key — could be a site shortcut (e.g. YouTube's < > speed keys).
+      // Mark as user interaction so an immediately-following ratechange is accepted.
+      this.lastUserInteractionAt = event.timeStamp;
       logger.debug(`No key binding found for keyCode: ${key}`);
     }
 
@@ -171,6 +192,31 @@ export class EventManager {
       target.isContentEditable ||
       target.nodeName === 'SHREDDIT-COMPOSER'
     );
+  }
+
+  /**
+   * UPSTREAM: Track user interactions that originate outside the VSC controller.
+   * Clicks on YouTube's speed menu (or any site's native speed UI) land here.
+   * Unhandled keyboard events (e.g. YouTube's < > shortcuts) land in handleKeyDown.
+   * Both update lastUserInteractionAt so handleRateChange can distinguish
+   * intentional speed changes from automatic site-initiated resets.
+   * @param {Document} document
+   * @private
+   */
+  setupUserGestureListener(document) {
+    const clickHandler = (event) => {
+      // Skip clicks on our own controller (shadow host retargeted at boundary)
+      if (event.target?.closest?.('vsc-controller')) {
+        return;
+      }
+      this.lastUserInteractionAt = event.timeStamp;
+    };
+    document.addEventListener('click', clickHandler, true);
+
+    if (!this.listeners.has(document)) {
+      this.listeners.set(document, []);
+    }
+    this.listeners.get(document).push({ type: 'click', handler: clickHandler, useCapture: true });
   }
 
   /**
@@ -198,34 +244,31 @@ export class EventManager {
    * @private
    */
   handleRateChange(event) {
-    // MyNote | I don't think I need this as I disabled CustomEvent in action-handler's
-    //              setSpeed (no idea why it's there TBH).
+    // UPSTREAM: Cooldown-based fight-back. When cooldown is active (we just set
+    // speed ourselves), block external ratechanges and restore our speed.
+    // MyNote: We don't use cooldown/CustomEvent tagging. Our adjustSpeed handles
+    // external ratechanges by always restoring the saved speed, which self-terminates
+    // after one extra cycle (setting playbackRate to the same value doesn't fire
+    // ratechange). Upstream needs cooldown because their setSpeed dispatches a
+    // CustomEvent and updates lastSpeed before touching playbackRate — without
+    // cooldown, handleRateChange would misclassify their own change as external.
     // if (this.coolDown) {
     //   logger.debug('Rate change event blocked by cooldown');
-    //
-    //   // Get the video element to restore authoritative speed
     //   const video = event.composedPath ? event.composedPath()[0] : event.target;
-    //
-    //   // UPSTREAM: Don't fight back during video initialization — the player's
-    //   // own setup fires ratechange at readyState=0; overwriting it can break
-    //   // the player.
-    //   // if (video.readyState < 1) {
-    //   //   logger.debug('Skipping cooldown fight-back during video init (readyState < 1)');
-    //   //   event.stopImmediatePropagation();
-    //   //   return;
-    //   // }
-    //
-    //   // RESTORE our authoritative value since external change already happened
+    //   if (video.readyState < 1) {
+    //     logger.debug('Skipping cooldown fight-back during video init (readyState < 1)');
+    //     event.stopImmediatePropagation();
+    //     return;
+    //   }
     //   if (video.vsc && this.config.settings.lastSpeed !== undefined) {
     //     const authoritativeSpeed = this.config.settings.lastSpeed;
     //     if (Math.abs(video.playbackRate - authoritativeSpeed) > 0.01) {
     //       logger.info(
     //         `Restoring speed during cooldown from external ${video.playbackRate} to authoritative ${authoritativeSpeed}`
     //       );
-    //       video.playbackRate = authoritativeSpeed;
+    //       this.siteHandlerManager.handleSpeedChange(video, authoritativeSpeed);
     //     }
     //   }
-    //
     //   event.stopImmediatePropagation();
     //   return;
     // }
@@ -241,25 +284,9 @@ export class EventManager {
 
     // Check if this is our own event
     if (event.detail && event.detail.origin === 'videoSpeed') {
-      // This is our change, don't process it again
       logger.debug('Ignoring extension-originated rate change');
       return;
     }
-
-    // MyNote: this prevents my speed changes (UI updates but video speed doesn't change),
-    //         so disabling it!
-    // Force last saved speed mode - restore authoritative speed for ANY external change
-    // if (this.config.settings.forceLastSavedSpeed) {
-    //   if (event.detail && event.detail.origin === 'videoSpeed') {
-    //     video.playbackRate = Number(event.detail.speed);
-    //   } else {
-    //     const authoritativeSpeed = this.config.settings.lastSpeed || 1.0;
-    //     logger.info(`Force mode: restoring external ${video.playbackRate} to authoritative ${authoritativeSpeed}`);
-    //     video.playbackRate = authoritativeSpeed;
-    //   }
-    //   event.stopImmediatePropagation();
-    //   return;
-    // }
 
     // Ignore external ratechanges during video initialization
     if (video.readyState < 1) {
@@ -268,7 +295,6 @@ export class EventManager {
       return;
     }
 
-    // External change - use adjustSpeed with external source
     const rawExternalRate = typeof video.playbackRate === 'number' ? video.playbackRate : NaN;
 
     // Ignore spurious external ratechanges below our supported MIN to avoid persisting clamped 0.07
@@ -279,6 +305,63 @@ export class EventManager {
       event.stopImmediatePropagation();
       return;
     }
+
+    // UPSTREAM: Fight-back with gesture detection and surrender.
+    // MyNote: We don't use this. Our adjustSpeed restores saved speed for all
+    // external ratechanges unconditionally. Two reasons upstream uses this instead:
+    // 1. Surrender: after MAX_FIGHT_COUNT rapid resets, stop fighting to avoid
+    //    stuttering on aggressive sites (DRM players, ad segments forcing 1x).
+    // 2. Gesture detection: if user clicked/typed within USER_GESTURE_WINDOW_MS,
+    //    accept the change as intentional (lets native site controls work).
+    // If we ever face either issue, this is the mechanism to enable.
+    // const authoritativeSpeed = this.config.settings.lastSpeed;
+    // if (authoritativeSpeed && Math.abs(video.playbackRate - authoritativeSpeed) > 0.01) {
+    //   const timeSinceGesture = event.timeStamp - this.lastUserInteractionAt;
+    //   const isUserGesture = timeSinceGesture < EventManager.USER_GESTURE_WINDOW_MS;
+    //   if (isUserGesture) {
+    //     logger.info(
+    //       `Accepting site speed change as user-intentional (gesture ${timeSinceGesture}ms ago): ${video.playbackRate}`
+    //     );
+    //     this.fightCount = 0;
+    //     if (this.fightTimer) {
+    //       clearTimeout(this.fightTimer);
+    //       this.fightTimer = null;
+    //     }
+    //     this.lastUserInteractionAt = 0;
+    //     if (this.actionHandler) {
+    //       this.actionHandler.adjustSpeed(video, video.playbackRate);
+    //     }
+    //     event.stopImmediatePropagation();
+    //     return;
+    //   }
+    //   this.fightCount++;
+    //   if (this.fightTimer) {
+    //     clearTimeout(this.fightTimer);
+    //   }
+    //   this.fightTimer = setTimeout(() => {
+    //     this.fightCount = 0;
+    //     this.fightTimer = null;
+    //   }, EventManager.FIGHT_WINDOW_MS);
+    //   if (this.fightCount >= EventManager.MAX_FIGHT_COUNT) {
+    //     logger.info(
+    //       `Fight detection: surrendering after ${this.fightCount} resets. Accepting site speed ${video.playbackRate}`
+    //     );
+    //     this.fightCount = 0;
+    //     // Fall through to accept the external change below
+    //   } else {
+    //     const cooldown = Math.min(
+    //       EventManager.BASE_COOLDOWN_MS * Math.pow(2, this.fightCount - 1),
+    //       EventManager.MAX_COOLDOWN_MS
+    //     );
+    //     logger.info(
+    //       `Fight detection: attempt ${this.fightCount}/${EventManager.MAX_FIGHT_COUNT}, re-applying ${authoritativeSpeed} (cooldown ${cooldown}ms)`
+    //     );
+    //     this.siteHandlerManager.handleSpeedChange(video, authoritativeSpeed);
+    //     this.refreshCoolDown(cooldown);
+    //     event.stopImmediatePropagation();
+    //     return;
+    //   }
+    // }
 
     this.actionHandler?.adjustSpeed(video, video.playbackRate, {
       source: 'external',
@@ -291,8 +374,8 @@ export class EventManager {
   /**
    * Start cooldown period to prevent event spam
    */
-  refreshCoolDown() {
-    logger.debug('Begin refreshCoolDown');
+  refreshCoolDown(duration = EventManager.COOLDOWN_MS) {
+    logger.debug(`Begin refreshCoolDown (${duration}ms)`);
 
     if (this.coolDown) {
       clearTimeout(this.coolDown);
@@ -300,7 +383,7 @@ export class EventManager {
 
     this.coolDown = setTimeout(() => {
       this.coolDown = false;
-    }, EventManager.COOLDOWN_MS);
+    }, duration);
 
     logger.debug('End refreshCoolDown');
   }
@@ -364,6 +447,12 @@ export class EventManager {
       this.coolDown = false;
     }
 
+    if (this.fightTimer) {
+      clearTimeout(this.fightTimer);
+      this.fightTimer = null;
+    }
+    this.fightCount = 0;
+
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;
@@ -371,8 +460,24 @@ export class EventManager {
   }
 }
 
-// Cooldown duration (ms) for ratechange handling
+// UPSTREAM: Time window (ms) after a user interaction in which an external ratechange
+// is treated as user-intentional (site native controls) rather than fought back.
+EventManager.USER_GESTURE_WINDOW_MS = 300;
+
+// Cooldown duration (ms) for ratechange handling; doubles each fight-back retry
 EventManager.COOLDOWN_MS = 200;
+
+// UPSTREAM: Also aliased as BASE_COOLDOWN_MS for fight-back exponential backoff
+EventManager.BASE_COOLDOWN_MS = EventManager.COOLDOWN_MS;
+
+// UPSTREAM: Maximum cooldown duration (ms) during fight-back backoff
+EventManager.MAX_COOLDOWN_MS = 2000;
+
+// UPSTREAM: Fight detection — surrender after this many rapid site-initiated resets
+EventManager.MAX_FIGHT_COUNT = 5;
+
+// UPSTREAM: Fight detection — reset fight count after this quiet period (ms)
+EventManager.FIGHT_WINDOW_MS = EventManager.MAX_COOLDOWN_MS + 1000;
 
 // Create singleton instance
 window.VSC.EventManager = EventManager;
