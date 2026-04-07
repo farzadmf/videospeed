@@ -35,18 +35,19 @@ function init() {
     }
     bridgeInitialized = true;
 
-    // Kick off async work BEFORE registering the listener — the listener
-    // will await this promise when it fires.
-    const payloadReady = preparePayload();
+    // Kick off settings read early (cheap), but defer shadow CSS fetch
+    // until the MAIN world actually requests settings — no point fetching
+    // CSS on pages that never initialize a controller.
+    const settingsReady = chrome.runtime?.id ? chrome.storage.sync.get(null) : Promise.resolve(null);
 
     // Register listener SYNCHRONOUSLY so we never miss the MAIN world's request.
+    // Not { once: true } — REINIT (re-enable/un-blacklist) triggers a second request.
     docEl.addEventListener(
       'VSC_REQUEST_SETTINGS',
       async () => {
-        const payload = await payloadReady;
+        const payload = await buildPayload(settingsReady);
         docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: payload }));
-      },
-      { once: true }
+      }
     );
 
     // Set up ongoing listeners (these don't depend on the payload)
@@ -56,25 +57,23 @@ function init() {
   }
 }
 
-async function preparePayload() {
-  // chrome.runtime.id becomes undefined when the extension context is
-  // invalidated (extension reload, update, or disable). All chrome.*
-  // API calls would throw after that, so bail early.
-  if (!chrome.runtime?.id) {
+async function buildPayload(settingsReady) {
+  const settings = await settingsReady;
+
+  if (!settings) {
     return { abort: true };
   }
 
-  const [settings, shadowCSS] = await Promise.all([chrome.storage.sync.get(null), fetchShadowCSS()]);
-
   const disabled = settings.enabled === false;
-  // MyNote: using location.hostname consistently with our blacklist convention
   const blacklisted = isBlacklisted(settings.blacklist, location.hostname);
 
   if (disabled || blacklisted) {
     return { abort: true };
   }
 
-  // Strip keys the MAIN world shouldn't see
+  // Fetch shadow CSS only now — we know the page actually needs it
+  const shadowCSS = await fetchShadowCSS();
+
   delete settings.blacklist;
   delete settings.enabled;
 

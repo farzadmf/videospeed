@@ -39,6 +39,20 @@ class VideoSpeedExtension {
         return;
       }
 
+      // Skip same-origin iframes — the top frame's media observer already
+      // scans them, and the bridge may not have been injected (dynamically
+      // created iframes miss document_start content scripts).
+      if (window !== window.top) {
+        try {
+          // Accessing cross-origin window.top.document throws — same-origin won't
+          if (window.top.document) {
+            return;
+          }
+        } catch {
+          // Cross-origin iframe — needs its own initialization
+        }
+      }
+
       // Access global modules
       this.siteHandlerManager = new SiteHandlerManager(this.config.settings);
       this.MediaElementObserver = MediaElementObserver;
