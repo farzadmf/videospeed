@@ -3,7 +3,7 @@ import { ACTIONS } from './actions.js';
 
 export const VSC_DEFAULTS = {
   audioBoolean: true,
-  blacklist: ['www.instagram.com', '/^x.com/', 'imgur.com', 'teams.microsoft.com'].map((value) => value.replace(REG_STRIP, '')),
+  blacklist: ['www.instagram.com', 'imgur.com', 'teams.microsoft.com'].map((value) => value.replace(REG_STRIP, '')),
   controllerButtonSize: 14,
   controllerOpacity: 0.8,
   defaultLogLevel: LOG_LEVELS.INFO,

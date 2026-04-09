@@ -39,7 +39,6 @@ const DEFAULT_SETTINGS = {
     { action: 'jump', key: 74, value: 0, force: false, predefined: true }, // J
   ],
   blacklist: `www.instagram.com
-x.com
 imgur.com
 teams.microsoft.com
 meet.google.com`.replace(regStrip, ''),
