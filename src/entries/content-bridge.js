@@ -71,13 +71,10 @@ async function buildPayload(settingsReady) {
     return { abort: true };
   }
 
-  // Fetch shadow CSS only now — we know the page actually needs it
-  const shadowCSS = await fetchShadowCSS();
-
   delete settings.blacklist;
   delete settings.enabled;
 
-  return { settings, shadowCSS };
+  return { settings };
 }
 
 async function fetchShadowCSS() {
@@ -96,6 +93,12 @@ async function fetchShadowCSS() {
 }
 
 function setupOngoingListeners() {
+  // --- On-demand shadow CSS fetch (only when a controller is actually created) ---
+  docEl.addEventListener('VSC_REQUEST_CSS', async () => {
+    const css = await fetchShadowCSS();
+    docEl.dispatchEvent(new CustomEvent('VSC_CSS_READY', { detail: css }));
+  });
+
   // --- Storage change relay + lifecycle ---
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace !== 'sync') {

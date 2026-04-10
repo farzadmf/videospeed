@@ -42,6 +42,7 @@ export class VideoController {
     this.videoResizeObserver = null;
     this.titleObserver = null;
     this.isInternalTitleUpdate = false;
+    this.controllerDiv = null;
 
     this.scrollListener = null;
     this.resizeListener = null;
@@ -109,7 +110,7 @@ export class VideoController {
 
     this.wrapperDiv = document.createElement('vsc-controller');
 
-    // Create UI
+    // Create UI (async — shadow CSS is fetched lazily on first controller)
     this.initializeControls();
 
     this.handlePlay = null;
@@ -119,8 +120,6 @@ export class VideoController {
     this.handleVolumeChange = null;
 
     this.startHandlers();
-
-    this.controllerDiv = this.shadowManager.controllerDiv;
 
     logger.info('VideoController initialized for video element');
   }
@@ -200,7 +199,7 @@ export class VideoController {
    * @returns {HTMLElement} Controller wrapper element
    * @private
    */
-  initializeControls() {
+  async initializeControls() {
     logger.debug('initializeControls Begin');
 
     const document = this.video.ownerDocument;
@@ -256,8 +255,8 @@ export class VideoController {
     //   buttonSize: this.config.settings.controllerButtonSize,
     // });
 
-    // Create shadow DOM
-    this.shadowManager.createShadowDOM(this.wrapperDiv, {
+    // Create shadow DOM (awaits lazy CSS fetch on first call)
+    await this.shadowManager.createShadowDOM(this.wrapperDiv, {
       buttonSize: this.config.settings.controllerButtonSize,
       speed,
       volume,
@@ -279,6 +278,8 @@ export class VideoController {
 
     // Debug: Log final classes on controller
     logger.info(`Controller classes after creation: ${this.wrapperDiv.className}`);
+
+    this.controllerDiv = this.shadowManager.controllerDiv;
 
     logger.debug('initializeControls End');
   }

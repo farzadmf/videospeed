@@ -5,6 +5,7 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
+import { StorageManager } from '../core/storage-manager.js';
 import { formatDuration, toPx } from '../utils/misc.js';
 import { formatVolume, formatSpeed } from '../shared/constants.js';
 
@@ -52,11 +53,7 @@ export class ShadowDOMManager {
     this.controllerDivHeightPx = 22;
     this.hourAlwaysVisible = false;
 
-    this.cssText = window.VSC._shadowCSS || '';
-
-    // MyNote: previously read from a hidden DOM element injected by injection-bridge.js:
-    // this.cssText = document.querySelector('#vsc-shadow-css-content').textContent;
-    // Now the bridge passes shadow CSS via the settings CustomEvent payload.
+    this.cssText = '';
 
     this.top = 0;
     this.left = 0;
@@ -70,8 +67,11 @@ export class ShadowDOMManager {
    * @param {string} [options.speed='1.0'] - Initial playback speed display value
    * @param {string} [options.volume='1.0'] - Initial volume display value
    */
-  createShadowDOM(wrapper, options = {}) {
+  async createShadowDOM(wrapper, options = {}) {
     const { buttonSize = 14, speed = '1.0', volume = '1.0' } = options;
+
+    // Lazy-fetch shadow CSS on first controller creation; cached for subsequent ones
+    this.cssText = await StorageManager.getShadowCSS();
 
     const { top = 0, left = 0 } = this.calculatePosition();
 
