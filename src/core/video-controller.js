@@ -105,21 +105,10 @@ export class VideoController {
     // Register with state manager immediately after controller is attached
     stateManager.registerController(this);
 
-    // Initialize speed
-    this.initializeSpeed();
-
     this.wrapperDiv = document.createElement('vsc-controller');
 
     // Create UI (async — shadow CSS is fetched lazily on first controller)
     this.initializeControls();
-
-    this.handlePlay = null;
-    this.handleSeek = null;
-
-    this.handleTimeUpdate = null;
-    this.handleVolumeChange = null;
-
-    this.startHandlers();
 
     logger.info('VideoController initialized for video element');
   }
@@ -280,6 +269,9 @@ export class VideoController {
     logger.info(`Controller classes after creation: ${this.wrapperDiv.className}`);
 
     this.controllerDiv = this.shadowManager.controllerDiv;
+
+    this.initializeSpeed();
+    this.startHandlers();
 
     logger.debug('initializeControls End');
   }
