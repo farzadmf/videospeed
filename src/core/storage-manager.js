@@ -70,8 +70,8 @@ export class StorageManager {
 
       const timeout = setTimeout(() => {
         docEl.removeEventListener('VSC_SETTINGS_READY', onReady);
-        logger.warn('StorageManager: settings timeout, using defaults');
-        resolve(defaults);
+        logger.info('StorageManager: bridge did not respond — aborting');
+        resolve(null);
       }, 2000);
 
       docEl.addEventListener('VSC_SETTINGS_READY', onReady);
