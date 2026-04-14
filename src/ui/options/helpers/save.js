@@ -1,6 +1,7 @@
 import { createKeyBinding } from './bindings.js';
 import { validate } from './validate.js';
 import { REG_STRIP } from '../../../shared/constants.js';
+import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 
 export const saveOptions = () => {
   if (!validate()) {
@@ -22,6 +23,7 @@ export const saveOptions = () => {
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
   const startHidden = document.getElementById('startHidden').checked;
   const yt_spb = document.getElementById('yt_spb').checked;
+  const yt_spb_interval = Number(document.getElementById('yt_spb_interval').value) || VSC_DEFAULTS.sites.youtube.spb_interval;
   const yt_spb_skip = document.getElementById('yt_spb_skip').checked;
 
   chrome.storage.sync.set(
@@ -40,6 +42,7 @@ export const saveOptions = () => {
       sites: {
         youtube: {
           spb_enabled: yt_spb,
+          spb_interval: yt_spb_interval,
           spb_skip: yt_spb_skip,
         },
       },

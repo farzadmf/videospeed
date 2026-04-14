@@ -49,6 +49,7 @@ export const VSC_DEFAULTS = {
     youtube: {
       // 'spb' means SponsorBlock
       spb_enabled: true, // Generally enabled or not
+      spb_interval: 5, // Seconds between SponsorBlock API re-fetches
       spb_skip: true, // Skip enabled or not
     },
   },

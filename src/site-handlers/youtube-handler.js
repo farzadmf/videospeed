@@ -6,6 +6,7 @@ import { map } from 'lodash-es';
 
 window.VSC = window.VSC || {};
 
+import { VSC_DEFAULTS } from '../shared/defaults.js';
 import { logger } from '../utils/logger.js';
 import { BaseSiteHandler } from './base-handler.js';
 
@@ -16,6 +17,7 @@ export class YouTubeHandler extends BaseSiteHandler {
     this.settings = settings;
 
     this.spb_enabled = this.settings.sites?.youtube?.spb_enabled;
+    this.spb_interval = this.settings.sites?.youtube?.spb_interval ?? VSC_DEFAULTS.sites.youtube.spb_interval;
     this.spb_skip = this.settings.sites?.youtube?.spb_skip;
   }
 

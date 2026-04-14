@@ -35,6 +35,7 @@ export class VideoController {
 
     this.segments = [];
     this.segmentEls = [];
+    this.skipSegmentsIntervalId = null;
     this.initSkipSegments();
 
     this.targetObserver = null;
@@ -313,10 +314,22 @@ export class VideoController {
   }
 
   initSkipSegments() {
-    const onInit = async () => {
+    this.clearSkipSegmentsInterval();
+
+    const fetchAndUpdate = async () => {
       this.shadowManager.clearSkipSegments();
       this.segments = await this.siteHandlerManager.initSkipSegments();
       this.shadowManager.addSkipSegments({ totalDuration: this.video.duration, segments: this.segments });
+    };
+
+    const startInterval = () => {
+      // Fetch immediately, then on interval
+      fetchAndUpdate();
+
+      const intervalSec = this.siteHandlerManager.getCurrentHandler().spb_interval;
+      if (intervalSec && intervalSec > 0) {
+        this.skipSegmentsIntervalId = setInterval(fetchAndUpdate, intervalSec * 1000);
+      }
     };
 
     /*
@@ -327,9 +340,16 @@ export class VideoController {
     readyState 4 (HAVE_ENOUGH_DATA) → canplaythrough
     */
     if (this.video.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-      (async () => await onInit())(); // IIFE to call async
+      startInterval();
     } else {
-      this.video.addEventListener('canplaythrough', onInit, { once: true });
+      this.video.addEventListener('canplaythrough', () => startInterval(), { once: true });
+    }
+  }
+
+  clearSkipSegmentsInterval() {
+    if (this.skipSegmentsIntervalId !== null) {
+      clearInterval(this.skipSegmentsIntervalId);
+      this.skipSegmentsIntervalId = null;
     }
   }
 
@@ -533,6 +553,8 @@ export class VideoController {
   }
 
   stopHandlers() {
+    this.clearSkipSegmentsInterval();
+
     // Remove event listeners by aborting
     this.abortController.abort();
 
@@ -558,6 +580,8 @@ export class VideoController {
    */
   remove() {
     logger.debug('Removing VideoController');
+
+    this.clearSkipSegmentsInterval();
 
     // Remove DOM element
     this.wrapperDiv?.remove();
