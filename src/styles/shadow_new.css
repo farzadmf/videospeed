@@ -11,7 +11,6 @@
   flex-direction: column;
   gap: 5px;
   margin: 10px 10px 10px 15px;
-  opacity: var(--opacity);
   position: absolute;
 }
 
