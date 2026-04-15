@@ -42,13 +42,10 @@ function init() {
 
     // Register listener SYNCHRONOUSLY so we never miss the MAIN world's request.
     // Not { once: true } — REINIT (re-enable/un-blacklist) triggers a second request.
-    docEl.addEventListener(
-      'VSC_REQUEST_SETTINGS',
-      async () => {
-        const payload = await buildPayload(settingsReady);
-        docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: payload }));
-      }
-    );
+    docEl.addEventListener('VSC_REQUEST_SETTINGS', async () => {
+      const payload = await buildPayload(settingsReady);
+      docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: payload }));
+    });
 
     // Set up ongoing listeners (these don't depend on the payload)
     setupOngoingListeners();
@@ -74,7 +71,9 @@ async function buildPayload(settingsReady) {
   delete settings.blacklist;
   delete settings.enabled;
 
-  return { settings };
+  const soundBeepUrl = chrome.runtime?.id ? chrome.runtime.getURL('assets/sounds/beep.oga') : '';
+
+  return { settings, soundBeepUrl };
 }
 
 async function fetchShadowCSS() {

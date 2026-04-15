@@ -60,9 +60,9 @@ export class SiteHandlerManager {
   /**
    * Initialize the current site handler
    */
-  setup({ onHide, onShow, signal, spyDiv, video }) {
+  setup({ onHide, onShow, shadowManager, signal, spyDiv, video }) {
     const handler = this.getCurrentHandler();
-    handler.setup({ onHide, onShow, signal, spyDiv, video });
+    handler.setup({ onHide, onShow, shadowManager, signal, spyDiv, video });
   }
 
   /**
@@ -155,14 +155,6 @@ export class SiteHandlerManager {
   refresh() {
     this.cleanup();
     this.currentHandler = null;
-  }
-
-  /**
-   * Handles sponsored segments from the video that can be skipped
-   */
-  async initSkipSegments() {
-    const handler = this.getCurrentHandler();
-    return await handler.initSkipSegments();
   }
 }
 

@@ -33,11 +33,6 @@ export class VideoController {
     this.shouldStartHidden = shouldStartHidden;
     this.siteHandlerManager = siteHandlerManager;
 
-    this.segments = [];
-    this.segmentEls = [];
-    this.skipSegmentsIntervalId = null;
-    this.initSkipSegments();
-
     this.targetObserver = null;
     this.intersectionObserver = null;
     this.videoResizeObserver = null;
@@ -85,6 +80,7 @@ export class VideoController {
     this.siteHandlerManager.setup({
       onHide: () => this.shadowManager.hideController(),
       onShow: () => this.shadowManager.showController(),
+      shadowManager: this.shadowManager,
       signal: this.signal,
       spyDiv: this.spyDiv,
       video: target,
@@ -313,46 +309,6 @@ export class VideoController {
     logger.debug(`Controller inserted using ${insertionMethod} method`, wrapper);
   }
 
-  initSkipSegments() {
-    this.clearSkipSegmentsInterval();
-
-    const fetchAndUpdate = async () => {
-      this.shadowManager.clearSkipSegments();
-      this.segments = await this.siteHandlerManager.initSkipSegments();
-      this.shadowManager.addSkipSegments({ totalDuration: this.video.duration, segments: this.segments });
-    };
-
-    const startInterval = () => {
-      // Fetch immediately, then on interval
-      fetchAndUpdate();
-
-      const intervalSec = this.siteHandlerManager.getCurrentHandler().spb_interval;
-      if (intervalSec && intervalSec > 0) {
-        this.skipSegmentsIntervalId = setInterval(fetchAndUpdate, intervalSec * 1000);
-      }
-    };
-
-    /*
-    readyState 0 (HAVE_NOTHING) → loadstart
-    readyState 1 (HAVE_METADATA) → loadedmetadata
-    readyState 2 (HAVE_CURRENT_DATA) → loadeddata
-    readyState 3 (HAVE_FUTURE_DATA) → canplay
-    readyState 4 (HAVE_ENOUGH_DATA) → canplaythrough
-    */
-    if (this.video.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-      startInterval();
-    } else {
-      this.video.addEventListener('canplaythrough', () => startInterval(), { once: true });
-    }
-  }
-
-  clearSkipSegmentsInterval() {
-    if (this.skipSegmentsIntervalId !== null) {
-      clearInterval(this.skipSegmentsIntervalId);
-      this.skipSegmentsIntervalId = null;
-    }
-  }
-
   /**
    * Set up event handlers for media events
    * @private
@@ -454,7 +410,6 @@ export class VideoController {
 
             this.actionHandler.adjustSpeed(this.video);
             this.shadowManager.adjustLocation();
-            this.initSkipSegments();
           }
         }
       });
@@ -553,8 +508,6 @@ export class VideoController {
   }
 
   stopHandlers() {
-    this.clearSkipSegmentsInterval();
-
     // Remove event listeners by aborting
     this.abortController.abort();
 
@@ -580,8 +533,6 @@ export class VideoController {
    */
   remove() {
     logger.debug('Removing VideoController');
-
-    this.clearSkipSegmentsInterval();
 
     // Remove DOM element
     this.wrapperDiv?.remove();

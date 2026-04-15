@@ -216,6 +216,11 @@ export class ActionHandler {
         this.jumpToMark(video);
         return true;
 
+      case 'undo_skip':
+        logger.debug('Undo segment skip');
+        this.siteHandlerManager.getCurrentHandler().undoSkip?.(video);
+        return true;
+
       case 'pip_toggle':
         return this.togglePip(video);
 

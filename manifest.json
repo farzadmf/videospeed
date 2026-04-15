@@ -50,7 +50,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["styles/shadow_new.css"],
+      "resources": ["styles/shadow_new.css", "assets/sounds/beep.oga"],
       "matches": ["http://*/*", "https://*/*", "file:///*"]
     }
   ]

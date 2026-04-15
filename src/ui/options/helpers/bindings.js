@@ -2,9 +2,9 @@ import { getTcDefaultBinding } from './misc.js';
 import { actionByName, ALLOWED_ACTION_OPTIONS, ACTION_OPTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
 import { BLACKLISTED_CODES, BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
 
-export function addBinding(item) {
-  // When this is called because we click "Add New" in options, 'item' would be a PointerEvent,
-  //  so 'action' and 'preddefined' would be undefined.
+export function addBinding(item = {}) {
+  // When this is called because we click "Add New" in options, 'item' would be undefined or a PointerEvent,
+  //  so 'action' and 'predefined' would be undefined.
   const { action, predefined } = item;
 
   let valueHtml = `

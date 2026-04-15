@@ -51,6 +51,7 @@ export const ACTIONS = {
   },
   slower: { name: 'slower', description: 'Decrease speed', value: 0.1 },
   vol_down: { name: 'vol_down', description: 'Decrease volume', value: 0.05 },
+  undo_skip: { name: 'undo_skip', description: 'Undo segment skip' },
   vol_up: { name: 'vol_up', description: 'Increase volume', value: 0.05 },
 };
 
