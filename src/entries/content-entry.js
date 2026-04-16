@@ -6,8 +6,10 @@
 import { injectScript, injectCSS, setupMessageBridge } from '../content/injection-bridge.js';
 import { isBlacklisted } from '../utils/blacklist.js';
 
-// MyNote: upstream has these imports for controllerCSS and domain CSS preprocessing.
-// We don't use controllerCSS or inline <style> injection, so these are not needed.
+// MyNote: upstream has these imports for CSS injection and domain preprocessing.
+// Upstream uses adoptedStyleSheets with two sheets: default (from DEFAULT_CONTROLLER_CSS,
+// domain-preprocessed) and custom (from customCSS setting, user additions only).
+// We don't use customCSS or inline <style> injection, so these are not needed.
 // import { matchSiteRule } from '../utils/site-pattern.js';
 // import { DEFAULT_CONTROLLER_CSS } from '../styles/controller-css-defaults.js';
 

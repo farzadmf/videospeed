@@ -109,7 +109,10 @@ class VideoSpeedExtension {
    */
   deferDOMWork(document) {
     const doWork = () => {
-      // MyNote: upstream injects controller CSS via adoptedStyleSheets here
+      // MyNote: upstream injects controller CSS via adoptedStyleSheets here —
+      // two separate sheets: _controllerSheet (built-in defaults, domain-
+      // preprocessed, never changes at runtime) and _customSheet (user
+      // additions from customCSS setting, injected raw, live-updatable).
       // (injectControllerCSS + setupCSSLiveUpdates). We use <link> tags via
       // manifest content_scripts.css, so no CSS injection needed.
 

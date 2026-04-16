@@ -3,6 +3,7 @@ local
 
 # IntelliJ IDEA
 .idea/
+.pi
 node_modules
 dist
 build
