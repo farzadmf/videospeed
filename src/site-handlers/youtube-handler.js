@@ -52,12 +52,15 @@ export class YouTubeHandler extends BaseSiteHandler {
     // because #player-controls also exists on regular YouTube (ytd-video-preview),
     // causing wrong insertion point and YouTube crashes.
     // See: https://github.com/igrigorik/videospeed/commit/be7a896
+    // UPSTREAM UPDATE: now scopes the query to targetParent.parentElement to avoid
+    // falsely matching a global #player-controls on the desktop site.
     //
-    // if (document.getElementById('player-controls')) {
-    //   const playerContainer = targetParent.parentElement;
-    //   if (playerContainer) {
-    //     targetParent = playerContainer;
-    //   }
+    // if (
+    //   targetParent &&
+    //   targetParent.parentElement &&
+    //   targetParent.parentElement.querySelector('#player-controls')
+    // ) {
+    //   targetParent = targetParent.parentElement;
     // }
 
     return {

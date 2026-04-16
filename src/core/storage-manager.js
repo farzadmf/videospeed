@@ -98,22 +98,20 @@ export class StorageManager {
     // Cache the in-flight promise so concurrent calls don't trigger multiple fetches
     if (!this._shadowCSSPromise) {
       this._shadowCSSPromise = new Promise((resolve) => {
-        let timeout;
-
-        const onReady = (e) => {
-          docEl.removeEventListener('VSC_CSS_READY', onReady);
-          clearTimeout(timeout);
-          const css = e.detail || '';
-          window.VSC._shadowCSS = css;
-          resolve(css);
-        };
-
-        timeout = setTimeout(() => {
+        const timeout = setTimeout(() => {
           docEl.removeEventListener('VSC_CSS_READY', onReady);
           logger.warn('StorageManager: shadow CSS timeout');
           window.VSC._shadowCSS = '';
           resolve('');
         }, 2000);
+
+        function onReady(e) {
+          docEl.removeEventListener('VSC_CSS_READY', onReady);
+          clearTimeout(timeout);
+          const css = e.detail || '';
+          window.VSC._shadowCSS = css;
+          resolve(css);
+        }
 
         docEl.addEventListener('VSC_CSS_READY', onReady);
         docEl.dispatchEvent(new CustomEvent('VSC_REQUEST_CSS'));

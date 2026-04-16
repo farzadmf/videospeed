@@ -339,16 +339,14 @@ class VideoSpeedExtension {
         return;
       }
 
-      if (!video.src && !video.currentSrc) {
-        logger.verbose('[onVideoFound] Video has no source; not attaching a controller');
-        return;
-      }
-
       // Defer controller creation until the video has enough data.
       // Inserting <vsc-controller> into a player container while the site's
       // framework is still initializing can trigger internal MutationObservers.
       // readyState >= 2 (HAVE_CURRENT_DATA) signals the player has settled.
-      if (video.readyState < 2 && (video.src || video.currentSrc)) {
+      // UPSTREAM: removed (video.src || video.currentSrc) guard — background tabs
+      // create empty <video> before assigning src; injecting into that uninitialized
+      // DOM triggers Polymer's wipe-and-reload recovery.
+      if (video.readyState < 2) {
         logger.debug('[onVideoFound] Deferring controller until loadeddata (readyState=%d)', video.readyState);
         video.addEventListener('loadeddata', () => this.onVideoFound(video, parent), {
           once: true,
