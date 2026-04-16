@@ -130,8 +130,15 @@ export class EventManager {
     //   this.leaderKeyHeld = true;
     // }
 
-    // Ignore IME composition events (CJK text input)
-    if (event.isComposing || event.keyCode === 229 || event.key === 'Process') {
+    // IME composition and dead key guard
+    // 'Process' / keyCode 229 = IME composition active (CJK input)
+    // 'Dead' = first keypress of a dead key sequence (e.g. ^ on French keyboard)
+    if (
+      event.isComposing ||
+      event.keyCode === 229 ||
+      event.key === 'Process' ||
+      event.key === 'Dead'
+    ) {
       return;
     }
 

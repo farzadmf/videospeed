@@ -2,6 +2,23 @@ import { getTcDefaultBinding } from './misc.js';
 import { actionByName, ALLOWED_ACTION_OPTIONS, ACTION_OPTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
 import { BLACKLISTED_CODES, BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
 
+// Keyboard layout map — resolved once on page load, used for display labels.
+// Upstream: this lives in options.js; we put it here because recordKeyPress is in bindings.js.
+let layoutMap = null;
+(async function initLayoutMap() {
+  try {
+    if (navigator.keyboard?.getLayoutMap) {
+      layoutMap = await navigator.keyboard.getLayoutMap();
+      // Re-render display labels if layout changes mid-session
+      navigator.keyboard.addEventListener('layoutchange', async () => {
+        layoutMap = await navigator.keyboard.getLayoutMap();
+      });
+    }
+  } catch {
+    // getLayoutMap not available — fallback chain handles it
+  }
+})();
+
 export function addBinding(item = {}) {
   // When this is called because we click "Add New" in options, 'item' would be undefined or a PointerEvent,
   //  so 'action' and 'predefined' would be undefined.
@@ -149,8 +166,17 @@ export function recordKeyPress(event) {
   }
 
   // Accept all other keys
-  // Use friendly name if available, otherwise show the key itself
-  event.target.value = (KEYS[code] || code).replace(/^(Key|Digit)/, '');
+  // Display: use the layout map when available — it shows the actual character
+  // printed on the key for the user's current keyboard layout (e.g. "z" for the
+  // KeyW physical key on AZERTY). Fall back to KEYS map for Numpad keys where
+  // the layout map returns the same value as the main keyboard (both Enter and
+  // NumpadEnter map to "Enter" in the layout map, so we need the explicit label
+  // from KEYS to keep them visually distinct).
+  // Upstream: uses displayKeyFromCode instead of KEYS; equivalent for our purposes.
+  const isNumpad = code.startsWith('Numpad');
+  event.target.value = isNumpad
+    ? (KEYS[code] || code).replace(/^(Key|Digit)/, '')
+    : layoutMap?.get(code) || (KEYS[code] || code).replace(/^(Key|Digit)/, '');
 
   event.target.alt = altKey;
   event.target.key = key;
@@ -197,7 +223,10 @@ export function inputBlur(e) {
 
 export function updateCustomShortcutInputText(inputItem, binding) {
   const { alt, code, ctrl, shift } = binding;
-  inputItem.value = (KEYS[code] || code).replace(/^(Key|Digit)/, '');
+  const isNumpad = code?.startsWith('Numpad');
+  inputItem.value = isNumpad
+    ? (KEYS[code] || code).replace(/^(Key|Digit)/, '')
+    : layoutMap?.get(code) || (KEYS[code] || code).replace(/^(Key|Digit)/, '');
 
   inputItem.code = code;
   inputItem.altKey = alt; // `alt` is HTML attribute and applicable on <input>!
