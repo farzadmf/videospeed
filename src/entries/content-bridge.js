@@ -104,19 +104,15 @@ function setupOngoingListeners() {
       return;
     }
 
-    // Lifecycle checks FIRST — teardown/reinit before relaying changes
-    const disabled = 'enabled' in changes && changes.enabled.newValue === false;
-    // MyNote: using location.hostname consistently with our blacklist convention
-    const blacklisted = 'blacklist' in changes && isBlacklisted(changes.blacklist.newValue, location.hostname);
-
-    if (disabled || blacklisted) {
+    // Lifecycle: only the popup's enabled toggle triggers teardown/reinit.
+    // Options page never writes `enabled`, so saving options can't trigger
+    // lifecycle — it only relays settings via VSC_STORAGE_CHANGED below.
+    // blacklist changes take effect on next page load.
+    if (changes.enabled?.newValue === false) {
       docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: 'VSC_TEARDOWN' } }));
       return;
     }
-
-    const reEnabled = 'enabled' in changes && changes.enabled.newValue === true;
-    const unblacklisted = 'blacklist' in changes && !blacklisted;
-    if (reEnabled || unblacklisted) {
+    if (changes.enabled?.oldValue === false && changes.enabled?.newValue !== false) {
       docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: 'VSC_REINIT' } }));
     }
 
