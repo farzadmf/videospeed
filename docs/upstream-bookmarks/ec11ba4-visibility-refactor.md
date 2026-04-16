@@ -46,7 +46,29 @@ contains useful insights for when we revisit our own visibility logic.
 | vsc-nosource  | Video has no src                           |
 | vsc-autohide  | YouTube player controls hidden             |
 
-## Files changed upstream
+## Follow-up fix: d96ea5a — rewrite flash guards, remove autohide override
+
+Upstream commit: https://github.com/igrigorik/videospeed/commit/d96ea5a
+
+Fixes broken guards in `flashController` (introduced in ec11ba4). The old
+guards conflated startHidden with "no user interaction yet":
+- `startHidden && !vsc-manual` blocked flash for startHidden=false (no
+  vsc-manual set yet) and allowed flash for startHidden=true after V toggle.
+
+New guards:
+1. `startHidden` → hard stop, never flash
+2. `vsc-manual && vsc-hidden` → user V-hid, respect that
+3. else → flash
+
+Also removes `:host(.vsc-manual:not(.vsc-hidden))` CSS rule from shadow-dom.js
+— V-show should return to default autohide behavior, not pin visible.
+
+**Relevance to us**: Our `showController` in `event-manager.js` has the same
+broken guard pattern: `startHidden && !controller.classList.contains('vsc-manual')`.
+When we revisit our visibility model, this should be fixed using upstream's
+simplified logic as a reference.
+
+## Files changed upstream (ec11ba4)
 
 - `src/core/action-handler.js` — blinkController → flashController
 - `src/utils/event-manager.js` — showController removed
@@ -54,3 +76,8 @@ contains useful insights for when we revisit our own visibility logic.
 - `src/site-handlers/youtube-handler.js` — autohide class forwarding
 - `src/styles/inject.css` — YouTube visibility rules removed
 - `src/utils/debug-helper.js` — updated for new class names
+
+## Files changed upstream (d96ea5a)
+
+- `src/core/action-handler.js` — flashController guard rewrite
+- `src/ui/shadow-dom.js` — remove vsc-manual:not(vsc-hidden) CSS override
