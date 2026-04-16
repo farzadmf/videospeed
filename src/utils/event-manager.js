@@ -264,7 +264,6 @@ export class EventManager {
     //   const video = event.composedPath ? event.composedPath()[0] : event.target;
     //   if (video.readyState < 1) {
     //     logger.debug('Skipping cooldown fight-back during video init (readyState < 1)');
-    //     event.stopImmediatePropagation();
     //     return;
     //   }
     //   if (video.vsc && this.config.settings.lastSpeed !== undefined) {
@@ -298,7 +297,6 @@ export class EventManager {
     // Ignore external ratechanges during video initialization
     if (video.readyState < 1) {
       logger.debug('Ignoring external ratechange during video initialization (readyState < 1)');
-      event.stopImmediatePropagation();
       return;
     }
 
@@ -309,7 +307,6 @@ export class EventManager {
     // Use <= to also catch values that Chrome already clamped to MIN (e.g., site set 0)
     if (!isNaN(rawExternalRate) && rawExternalRate <= min) {
       logger.debug(`Ignoring external ratechange below MIN: raw=${rawExternalRate}, MIN=${min}`);
-      event.stopImmediatePropagation();
       return;
     }
 
@@ -338,7 +335,6 @@ export class EventManager {
     //     if (this.actionHandler) {
     //       this.actionHandler.adjustSpeed(video, video.playbackRate);
     //     }
-    //     event.stopImmediatePropagation();
     //     return;
     //   }
     //   this.fightCount++;
@@ -365,7 +361,7 @@ export class EventManager {
     //     );
     //     this.siteHandlerManager.handleSpeedChange(video, authoritativeSpeed);
     //     this.refreshCoolDown(cooldown);
-    //     event.stopImmediatePropagation();
+    //     event.stopImmediatePropagation(); // UPSTREAM: kept — active override, block site handler
     //     return;
     //   }
     // }
@@ -373,9 +369,6 @@ export class EventManager {
     this.actionHandler?.adjustSpeed(video, video.playbackRate, {
       source: 'external',
     });
-
-    // Always stop propagation to prevent loops
-    event.stopImmediatePropagation();
   }
 
   /**
