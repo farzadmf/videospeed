@@ -266,7 +266,7 @@ export class EventManager {
     //     logger.debug('Skipping cooldown fight-back during video init (readyState < 1)');
     //     return;
     //   }
-    //   if (video.vsc && this.config.settings.lastSpeed !== undefined) {
+    //   if (video.vsc && this.config.settings.lastSpeed !== null) {
     //     const authoritativeSpeed = this.config.settings.lastSpeed;
     //     if (Math.abs(video.playbackRate - authoritativeSpeed) > 0.01) {
     //       logger.info(

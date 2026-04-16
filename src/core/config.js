@@ -100,15 +100,19 @@ export class VideoSpeedConfig {
       this.settings.controllerOpacity = Number(storage.controllerOpacity);
       this.settings.exclusiveKeys = Boolean(storage.exclusiveKeys);
       this.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
-      this.settings.lastSpeed = Number(storage.lastSpeed);
       this.settings.logLevel = Number(storage.logLevel || VSC_DEFAULTS.logLevel);
       this.settings.rememberSpeed = Boolean(storage.rememberSpeed);
 
-      // When rememberSpeed is OFF, discard the stored lastSpeed so that
-      // per-site baselines (sources) win on fresh page loads instead of
-      // a stale speed from a previous session.
-      if (!this.settings.rememberSpeed) {
-        this.settings.lastSpeed = 1.0;
+      // UPSTREAM: lastSpeed = null means "no user choice yet this session."
+      // null vs 1.0 distinguishes "hasn't acted" from "deliberately chose 1.0."
+      // MyNote: our getTargetSpeed uses per-URL sources, not global lastSpeed,
+      // so this mainly affects upstream-parity code paths (action-handler
+      // getPreferredSpeed, commented-out cooldown). The || 1.0 fallbacks
+      // in those paths handle null correctly.
+      if (this.settings.rememberSpeed) {
+        this.settings.lastSpeed = Number(storage.lastSpeed) || null;
+      } else {
+        this.settings.lastSpeed = null;
       }
 
       this.settings.startHidden = Boolean(storage.startHidden);
