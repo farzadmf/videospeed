@@ -23,7 +23,9 @@ export const saveOptions = () => {
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
   const startHidden = document.getElementById('startHidden').checked;
   const yt_spb = document.getElementById('yt_spb').checked;
-  const yt_spb_beep = document.getElementById('yt_spb_beep').checked;
+  const yt_spb_sound_enabled = document.getElementById('yt_spb_sound_enabled').checked;
+  const yt_spb_skip_sound = document.getElementById('yt_spb_skip_sound').value;
+  const yt_spb_unskip_sound = document.getElementById('yt_spb_unskip_sound').value;
   const yt_spb_interval = Number(document.getElementById('yt_spb_interval').value) || VSC_DEFAULTS.sites.youtube.spb_interval;
   const yt_spb_skip = document.getElementById('yt_spb_skip').checked;
 
@@ -42,7 +44,9 @@ export const saveOptions = () => {
       startHidden,
       sites: {
         youtube: {
-          spb_beep: yt_spb_beep,
+          spb_sound_enabled: yt_spb_sound_enabled,
+          spb_skip_sound: yt_spb_skip_sound,
+          spb_unskip_sound: yt_spb_unskip_sound,
           spb_enabled: yt_spb,
           spb_interval: yt_spb_interval,
           spb_skip: yt_spb_skip,

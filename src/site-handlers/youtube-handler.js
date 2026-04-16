@@ -6,7 +6,6 @@ import { map } from 'lodash-es';
 
 window.VSC = window.VSC || {};
 
-import { VSC_DEFAULTS } from '../shared/defaults.js';
 import { logger } from '../utils/logger.js';
 import { playBeep } from '../utils/sound.js';
 import { BaseSiteHandler } from './base-handler.js';
@@ -17,10 +16,13 @@ export class YouTubeHandler extends BaseSiteHandler {
 
     this.settings = settings;
 
-    this.spb_beep = this.settings.sites?.youtube?.spb_beep ?? VSC_DEFAULTS.sites.youtube.spb_beep;
-    this.spb_enabled = this.settings.sites?.youtube?.spb_enabled;
-    this.spb_interval = this.settings.sites?.youtube?.spb_interval ?? VSC_DEFAULTS.sites.youtube.spb_interval;
-    this.spb_skip = this.settings.sites?.youtube?.spb_skip;
+    const yt = this.settings.sites.youtube;
+    this.spb_sound_enabled = yt.spb_sound_enabled;
+    this.spb_skip_sound = yt.spb_skip_sound;
+    this.spb_unskip_sound = yt.spb_unskip_sound;
+    this.spb_enabled = yt.spb_enabled;
+    this.spb_interval = yt.spb_interval;
+    this.spb_skip = yt.spb_skip;
 
     this.segments = [];
     this.skipHistory = [];
@@ -281,8 +283,38 @@ export class YouTubeHandler extends BaseSiteHandler {
   }
 
   /**
+   * Manually skip the current sponsor segment.
+   * Also re-skips segments after an undo. Pushes to skipHistory so undo still works.
+   * @param {HTMLMediaElement} video - Video element
+   */
+  doSkip(video) {
+    const currentTime = video.currentTime;
+
+    const segment = this.segments.find(
+      (s) => currentTime >= s.start && currentTime < s.end
+    );
+
+    if (!segment) {
+      return;
+    }
+
+    const segmentId = `${segment.start}:${segment.end}`;
+    logger.info(`[doSkip] Skipping segment ${segmentId} (${segment.start}s → ${segment.end}s)`);
+
+    this.skipHistory.push({ position: currentTime, segment });
+    this.skippedSegmentIds.add(segmentId);
+    video.currentTime = segment.end;
+
+    if (this.spb_sound_enabled) {
+      const soundUrl = window.VSC._soundUrls?.[this.spb_skip_sound];
+      playBeep(soundUrl, video.muted ? 0 : video.volume);
+    }
+  }
+
+  /**
    * Undo the last auto-skip by seeking back.
-   * The segment remains in skippedSegmentIds so it won't re-skip.
+   * The segment stays in skippedSegmentIds to prevent auto-re-skip;
+   * use doSkip to manually re-skip.
    * @param {HTMLMediaElement} video - Video element
    */
   undoSkip(video) {
@@ -293,6 +325,11 @@ export class YouTubeHandler extends BaseSiteHandler {
     const entry = this.skipHistory.pop();
     video.currentTime = entry.position;
     logger.info(`[undoSkip] Seeking back to ${entry.position}`);
+
+    if (this.spb_sound_enabled) {
+      const soundUrl = window.VSC._soundUrls?.[this.spb_unskip_sound];
+      playBeep(soundUrl, video.muted ? 0 : video.volume);
+    }
   }
 
   /**
@@ -320,8 +357,9 @@ export class YouTubeHandler extends BaseSiteHandler {
         this.skippedSegmentIds.add(segmentId);
         this.video.currentTime = segment.end;
 
-        if (this.spb_beep) {
-          playBeep(window.VSC._soundBeepUrl, this.video.muted ? 0 : this.video.volume);
+        if (this.spb_sound_enabled) {
+          const soundUrl = window.VSC._soundUrls?.[this.spb_skip_sound];
+          playBeep(soundUrl, this.video.muted ? 0 : this.video.volume);
         }
 
         break;

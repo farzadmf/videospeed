@@ -18,7 +18,9 @@ export function restoreOptions() {
     document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
     document.getElementById('startHidden').checked = storage.startHidden;
     document.getElementById('yt_spb').checked = storage.sites?.youtube?.spb_enabled;
-    document.getElementById('yt_spb_beep').checked = storage.sites?.youtube?.spb_beep ?? VSC_DEFAULTS.sites.youtube.spb_beep;
+    document.getElementById('yt_spb_sound_enabled').checked = storage.sites?.youtube?.spb_sound_enabled ?? VSC_DEFAULTS.sites.youtube.spb_sound_enabled;
+    document.getElementById('yt_spb_skip_sound').value = storage.sites?.youtube?.spb_skip_sound ?? VSC_DEFAULTS.sites.youtube.spb_skip_sound;
+    document.getElementById('yt_spb_unskip_sound').value = storage.sites?.youtube?.spb_unskip_sound ?? VSC_DEFAULTS.sites.youtube.spb_unskip_sound;
     document.getElementById('yt_spb_interval').value = storage.sites?.youtube?.spb_interval ?? VSC_DEFAULTS.sites.youtube.spb_interval;
     document.getElementById('yt_spb_skip').checked = storage.sites?.youtube?.spb_skip;
 

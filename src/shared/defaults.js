@@ -41,7 +41,8 @@ export const VSC_DEFAULTS = {
     { action: ACTIONS.vol_up, code: 'ArrowUp', predefined: true },
     { action: ACTIONS.rewind, code: 'ArrowLeft', predefined: true },
     { action: ACTIONS.advance, code: 'ArrowRight', predefined: true },
-    { action: ACTIONS.undo_skip, code: 'KeyU', predefined: false, shift: true, alt: true },
+    { action: ACTIONS.skip_do, code: 'KeyU', predefined: false, shift: true, alt: true },
+    { action: ACTIONS.skip_undo, code: 'KeyU', predefined: false, alt: true },
   ],
   lastSpeed: 1.0,
   logLevel: LOG_LEVELS.WARNING,
@@ -49,7 +50,9 @@ export const VSC_DEFAULTS = {
   sites: {
     youtube: {
       // 'spb' means SponsorBlock
-      spb_beep: true, // Play beep sound on segment skip
+      spb_sound_enabled: true, // Play sound on segment skip/unskip
+      spb_skip_sound: 'beep', // Which sound to play on segment skip
+      spb_unskip_sound: 'pop_01', // Which sound to play on undo skip
       spb_enabled: true, // Generally enabled or not
       spb_interval: 5, // Seconds between SponsorBlock API re-fetches
       spb_skip: true, // Skip enabled or not

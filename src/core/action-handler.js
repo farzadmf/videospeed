@@ -216,7 +216,12 @@ export class ActionHandler {
         this.jumpToMark(video);
         return true;
 
-      case 'undo_skip':
+      case 'skip_do':
+        logger.debug('Skip current segment');
+        this.siteHandlerManager.getCurrentHandler().doSkip?.(video);
+        return true;
+
+      case 'skip_undo':
         logger.debug('Undo segment skip');
         this.siteHandlerManager.getCurrentHandler().undoSkip?.(video);
         return true;
