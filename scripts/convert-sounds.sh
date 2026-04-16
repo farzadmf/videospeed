@@ -3,7 +3,7 @@
 # Convert MP3 sound files to OGA (Vorbis) for the extension.
 # - Trims leading/trailing silence
 # - Encodes as Vorbis stereo, 24 kHz, 171 kbps (matches beep.oga settings)
-# - Moves successfully converted MP3s to a 'converted' subdirectory
+# - Moves successfully converted MP3s to a 'original' subdirectory
 #
 # Usage:
 #   ./scripts/convert-sounds.sh [input_dir] [output_dir]
@@ -31,8 +31,8 @@ MIN_SILENCE="0.02"
 
 SILENCE_FILTER="silenceremove=start_periods=1:start_silence=${MIN_SILENCE}:start_threshold=${SILENCE_THRESHOLD},areverse,silenceremove=start_periods=1:start_silence=${MIN_SILENCE}:start_threshold=${SILENCE_THRESHOLD},areverse"
 
-CONVERTED_DIR="$INPUT_DIR/converted"
-mkdir -p "$CONVERTED_DIR"
+ORIGINAL_DIR="$INPUT_DIR/original"
+mkdir -p "$ORIGINAL_DIR"
 
 count=0
 for f in "$INPUT_DIR"/*.mp3; do
@@ -46,11 +46,11 @@ for f in "$INPUT_DIR"/*.mp3; do
     -ar "$SAMPLE_RATE" \
     -b:a "$BITRATE" \
     "$output" 2>/dev/null; then
-    mv "$f" "$CONVERTED_DIR/"
+    mv "$f" "$ORIGINAL_DIR/"
     count=$((count + 1))
   else
     echo "  FAILED: $(basename "$f")"
   fi
 done
 
-echo "Done. Converted $count file(s). Originals moved to $(basename $CONVERTED_DIR)/"
+echo "Done. Converted $count file(s). Originals moved to $(basename $ORIGINAL_DIR)/"

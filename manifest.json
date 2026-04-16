@@ -50,7 +50,16 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["styles/shadow_new.css", "assets/sounds/beep.oga"],
+      "resources": [
+        "styles/shadow_new.css",
+        "assets/sounds/beep.oga",
+        "assets/sounds/cartoon_blinking_01.oga",
+        "assets/sounds/cartoon_blinking_02.oga",
+        "assets/sounds/game_start.oga",
+        "assets/sounds/new_notification.oga",
+        "assets/sounds/pop_01.oga",
+        "assets/sounds/pop_02.oga"
+      ],
       "matches": ["http://*/*", "https://*/*", "file:///*"]
     }
   ]

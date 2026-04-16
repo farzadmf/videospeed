@@ -71,9 +71,18 @@ async function buildPayload(settingsReady) {
   delete settings.blacklist;
   delete settings.enabled;
 
-  const soundBeepUrl = chrome.runtime?.id ? chrome.runtime.getURL('assets/sounds/beep.oga') : '';
+  const getSound = (name) => chrome.runtime?.id ? chrome.runtime.getURL(`assets/sounds/${name}`) : '';
+  const soundUrls = {
+    beep: getSound('beep.oga'),
+    cartoon_blinking_01: getSound('cartoon_blinking_01.oga'),
+    cartoon_blinking_02: getSound('cartoon_blinking_02.oga'),
+    game_start: getSound('game_start.oga'),
+    new_notification: getSound('new_notification.oga'),
+    pop_01: getSound('pop_01.oga'),
+    pop_02: getSound('pop_02.oga'),
+  };
 
-  return { settings, soundBeepUrl };
+  return { settings, soundUrls };
 }
 
 async function fetchShadowCSS() {

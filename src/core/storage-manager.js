@@ -64,9 +64,9 @@ export class StorageManager {
         // Store shadow CSS for shadow-dom-manager.js to read
         // NOTE: shadow CSS is now fetched lazily via getShadowCSS()
 
-        // Store sound URL for MAIN world usage (like shadow CSS pattern)
-        if (detail.soundBeepUrl) {
-          window.VSC._soundBeepUrl = detail.soundBeepUrl;
+        // Store sound URLs for MAIN world usage (like shadow CSS pattern)
+        if (detail.soundUrls) {
+          window.VSC._soundUrls = detail.soundUrls;
         }
 
         logger.debug('StorageManager: settings from bridge');
