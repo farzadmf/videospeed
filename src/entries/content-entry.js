@@ -15,12 +15,17 @@ import { isBlacklisted } from '../utils/blacklist.js';
 
 /**
  * MyNote: upstream resolves domain-based CSS selectors at injection time so it
- * never touches <html>. We inject CSS via <link> tags (not inline <style>), and
- * our inject_new.css has no --vsc-domain rules, so this is not needed.
+ * never touches <html>. Non-matching domains: entire rule removed (vs neutering
+ * with a dead selector) so perf-sensitive selectors like [style*=...] never
+ * reach the browser's style invalidation engine.
+ * We inject CSS via <link> tags (not inline <style>), and our inject_new.css
+ * has no --vsc-domain rules, so this is not needed.
  */
-// function preprocessDomainCSS(cssText, hostname) {
-//   return cssText.replace(/\[style\*='--vsc-domain:\s*"([^"]+)"'\]/g, (_match, domain) =>
-//     domain === hostname ? '' : '[data-vsc-never]'
+// function preprocessDomainCSS(cssText) {
+//   const hostname = location.hostname.replace(/^www\./, '');
+//   return cssText.replace(
+//     /:root\[style\*='--vsc-domain:\s*"([^"]+)"'\]([^{]*)\{([^}]*)\}/g,
+//     (match, domain, selector, body) => (domain === hostname ? `${selector.trim()} {${body}}` : '')
 //   );
 // }
 
