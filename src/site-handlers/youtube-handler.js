@@ -290,9 +290,10 @@ export class YouTubeHandler extends BaseSiteHandler {
   doSkip(video) {
     const currentTime = video.currentTime;
 
-    const segment = this.segments.find(
-      (s) => currentTime >= s.start && currentTime < s.end
-    );
+    // Find segment we're currently inside, or the next upcoming one
+    const segment =
+      this.segments.find((s) => currentTime >= s.start && currentTime < s.end) ||
+      this.segments.find((s) => s.start > currentTime);
 
     if (!segment) {
       return;
