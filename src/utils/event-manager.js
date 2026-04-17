@@ -130,15 +130,15 @@ export class EventManager {
     //   this.leaderKeyHeld = true;
     // }
 
-    // IME composition and dead key guard
+    // IME composition guard
     // 'Process' / keyCode 229 = IME composition active (CJK input)
-    // 'Dead' = first keypress of a dead key sequence (e.g. ^ on French keyboard)
-    if (
-      event.isComposing ||
-      event.keyCode === 229 ||
-      event.key === 'Process' ||
-      event.key === 'Dead'
-    ) {
+    if (event.isComposing || event.keyCode === 229 || event.key === 'Process') {
+      return;
+    }
+
+    // Dead key guard (e.g. ^ on French keyboard, Alt+U on macOS for diaeresis)
+    // Allow through if the key matches a configured binding (e.g. Alt+U = skip_undo)
+    if (event.key === 'Dead' && !this.config.getActionByKeyEvent(event)) {
       return;
     }
 
