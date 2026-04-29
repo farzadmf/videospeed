@@ -24,6 +24,11 @@ export function restoreOptions() {
     document.getElementById('yt_spb_interval').value = storage.sites?.youtube?.spb_interval ?? VSC_DEFAULTS.sites.youtube.spb_interval;
     document.getElementById('yt_spb_skip').checked = storage.sites?.youtube?.spb_skip;
 
+    const savedCategories = new Set(storage.sites?.youtube?.spb_categories ?? VSC_DEFAULTS.sites.youtube.spb_categories);
+    document.querySelectorAll('#yt_spb_categories .spb-category').forEach((el) => {
+      el.checked = savedCategories.has(el.value);
+    });
+
     const keyBindings = sortBy(storage.keyBindings, (b) => {
       return b.action.description;
     });

@@ -56,6 +56,9 @@ export const VSC_DEFAULTS = {
       spb_enabled: true, // Generally enabled or not
       spb_interval: 5, // Seconds between SponsorBlock API re-fetches
       spb_skip: true, // Skip enabled or not
+      // Categories to request from the SponsorBlock API. Valid values:
+      // sponsor, selfpromo, interaction, intro, outro, preview, music_offtopic, filler, exclusive_access
+      spb_categories: ['sponsor'],
     },
   },
   speed: 1.0,

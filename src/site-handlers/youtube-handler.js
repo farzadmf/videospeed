@@ -6,6 +6,7 @@ import { map } from 'lodash-es';
 
 window.VSC = window.VSC || {};
 
+import { hashPrefix } from '../utils/hash.js';
 import { logger } from '../utils/logger.js';
 import { playBeep } from '../utils/sound.js';
 import { BaseSiteHandler } from './base-handler.js';
@@ -23,6 +24,7 @@ export class YouTubeHandler extends BaseSiteHandler {
     this.spb_enabled = yt.spb_enabled;
     this.spb_interval = yt.spb_interval;
     this.spb_skip = yt.spb_skip;
+    this.spb_categories = yt.spb_categories;
 
     this.segments = [];
     this.skipHistory = [];
@@ -199,8 +201,10 @@ export class YouTubeHandler extends BaseSiteHandler {
   }
 
   /**
-   * Handles sponsored segments from the video that can be skipped
-   * @returns {Array<{start: number, end: number}>} Array of segments with start and end times in seconds
+   * Handles sponsored segments from the video that can be skipped.
+   * Uses SponsorBlock's privacy-preserving hash-prefix endpoint so the plaintext
+   * videoID never leaves the browser.
+   * @returns {Promise<Array<{start: number, end: number, category: string}>>}
    */
   async initSkipSegments() {
     if (!this.spb_enabled) {
@@ -216,9 +220,22 @@ export class YouTubeHandler extends BaseSiteHandler {
 
     let segments = [];
     try {
-      const res = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
+      const prefix = await hashPrefix(videoId, 4);
+      const params = new URLSearchParams();
+      params.set('categories', JSON.stringify(this.spb_categories));
+      params.set('actionTypes', JSON.stringify(['skip']));
+
+      const res = await fetch(`https://sponsor.ajay.app/api/skipSegments/${prefix}?${params}`);
       const json = await res.json();
-      segments = map(json, (r) => ({ start: Math.ceil(r.segment[0]), end: Math.floor(r.segment[1]) }));
+
+      const match = Array.isArray(json) ? json.find((v) => v.videoID === videoId) : null;
+      if (match && Array.isArray(match.segments)) {
+        segments = map(match.segments, (r) => ({
+          category: r.category,
+          end: Math.floor(r.segment[1]),
+          start: Math.ceil(r.segment[0]),
+        }));
+      }
     } catch (err) {
       logger.info('[initSkipSegments] error', err);
     }

@@ -236,13 +236,52 @@
               <div class="row mb-2">
                 <div class="col-lg-3">
                   <label class="form-label" for="yt_spb_interval">
-                    SponsorBlock refresh interval (seconds)
+                    Refresh interval (seconds)
                     <br />
                     <em>How often to re-fetch segments from SponsorBlock API</em>
                   </label>
+                  <input class="form-control" id="yt_spb_interval" type="number" min="1" value="" />
                 </div>
-                <div class="col-lg-2">
-                  <input class="form-control form-control-sm" id="yt_spb_interval" type="number" min="1" value="" />
+              </div>
+              <div class="mb-2">
+                <label class="form-label">
+                  Categories to skip
+                  <br />
+                  <em>Which SponsorBlock categories to request and skip</em>
+                </label>
+                <div class="row g-2" id="yt_spb_categories">
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_sponsor" type="checkbox" value="sponsor" />
+                    <label class="form-check-label" for="yt_spb_cat_sponsor">Sponsor</label>
+                  </div>
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_selfpromo" type="checkbox" value="selfpromo" />
+                    <label class="form-check-label" for="yt_spb_cat_selfpromo">Self-promotion</label>
+                  </div>
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_interaction" type="checkbox" value="interaction" />
+                    <label class="form-check-label" for="yt_spb_cat_interaction">Interaction reminder</label>
+                  </div>
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_intro" type="checkbox" value="intro" />
+                    <label class="form-check-label" for="yt_spb_cat_intro">Intro</label>
+                  </div>
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_outro" type="checkbox" value="outro" />
+                    <label class="form-check-label" for="yt_spb_cat_outro">Outro</label>
+                  </div>
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_preview" type="checkbox" value="preview" />
+                    <label class="form-check-label" for="yt_spb_cat_preview">Preview / recap</label>
+                  </div>
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_music_offtopic" type="checkbox" value="music_offtopic" />
+                    <label class="form-check-label" for="yt_spb_cat_music_offtopic">Non-music</label>
+                  </div>
+                  <div class="col-lg-3 form-check">
+                    <input class="form-check-input spb-category" id="yt_spb_cat_filler" type="checkbox" value="filler" />
+                    <label class="form-check-label" for="yt_spb_cat_filler">Filler tangent</label>
+                  </div>
                 </div>
               </div>
             </section>
