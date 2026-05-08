@@ -2,6 +2,7 @@ import { createKeyBinding } from './bindings.js';
 import { validate } from './validate.js';
 import { REG_STRIP } from '../../../shared/constants.js';
 import { VSC_DEFAULTS } from '../../../shared/defaults.js';
+import { collectSpbCategories } from './spb-categories.js';
 
 export const saveOptions = () => {
   if (!validate()) {
@@ -27,8 +28,7 @@ export const saveOptions = () => {
   const yt_spb_skip_sound = document.getElementById('yt_spb_skip_sound').value;
   const yt_spb_unskip_sound = document.getElementById('yt_spb_unskip_sound').value;
   const yt_spb_interval = Number(document.getElementById('yt_spb_interval').value) || VSC_DEFAULTS.sites.youtube.spb_interval;
-  const yt_spb_skip = document.getElementById('yt_spb_skip').checked;
-  const yt_spb_categories = Array.from(document.querySelectorAll('#yt_spb_categories .spb-category:checked')).map((el) => el.value);
+  const yt_spb_categories = collectSpbCategories();
 
   chrome.storage.sync.set(
     {
@@ -48,7 +48,6 @@ export const saveOptions = () => {
           spb_categories: yt_spb_categories,
           spb_enabled: yt_spb,
           spb_interval: yt_spb_interval,
-          spb_skip: yt_spb_skip,
           spb_skip_sound: yt_spb_skip_sound,
           spb_sound_enabled: yt_spb_sound_enabled,
           spb_unskip_sound: yt_spb_unskip_sound,

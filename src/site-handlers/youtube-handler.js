@@ -23,8 +23,8 @@ export class YouTubeHandler extends BaseSiteHandler {
     this.spb_unskip_sound = yt.spb_unskip_sound;
     this.spb_enabled = yt.spb_enabled;
     this.spb_interval = yt.spb_interval;
-    this.spb_skip = yt.spb_skip;
     this.spb_categories = yt.spb_categories;
+    this.spb_categoriesByName = new Map(yt.spb_categories.map((c) => [c.name, c]));
 
     this.segments = [];
     this.skipHistory = [];
@@ -222,7 +222,7 @@ export class YouTubeHandler extends BaseSiteHandler {
     try {
       const prefix = await hashPrefix(videoId, 4);
       const params = new URLSearchParams();
-      params.set('categories', JSON.stringify(this.spb_categories));
+      params.set('categories', JSON.stringify(this.spb_categories.map((c) => c.name)));
       params.set('actionTypes', JSON.stringify(['skip']));
 
       const res = await fetch(`https://sponsor.ajay.app/api/skipSegments/${prefix}?${params}`);
@@ -230,11 +230,16 @@ export class YouTubeHandler extends BaseSiteHandler {
 
       const match = Array.isArray(json) ? json.find((v) => v.videoID === videoId) : null;
       if (match && Array.isArray(match.segments)) {
-        segments = map(match.segments, (r) => ({
-          category: r.category,
-          end: Math.floor(r.segment[1]),
-          start: Math.ceil(r.segment[0]),
-        }));
+        segments = map(match.segments, (r) => {
+          const cfg = this.spb_categoriesByName.get(r.category);
+          return {
+            category: r.category,
+            color: cfg?.color,
+            end: Math.floor(r.segment[1]),
+            should_skip: cfg?.should_skip ?? false,
+            start: Math.ceil(r.segment[0]),
+          };
+        });
       }
     } catch (err) {
       logger.info('[initSkipSegments] error', err);
@@ -319,14 +324,7 @@ export class YouTubeHandler extends BaseSiteHandler {
     const segmentId = `${segment.start}:${segment.end}`;
     logger.info(`[doSkip] Skipping segment ${segmentId} (${segment.start}s → ${segment.end}s)`);
 
-    this.skipHistory.push({ position: currentTime, segment });
-    this.skippedSegmentIds.add(segmentId);
-    video.currentTime = segment.end;
-
-    if (this.spb_sound_enabled) {
-      const soundUrl = window.VSC._soundUrls?.[this.spb_skip_sound];
-      playBeep(soundUrl, video.muted ? 0 : video.volume);
-    }
+    this.#skipSegment(segment);
   }
 
   /**
@@ -355,13 +353,17 @@ export class YouTubeHandler extends BaseSiteHandler {
    * @private
    */
   checkSkipSegments() {
-    if (!this.spb_skip || !this.video) {
+    if (!this.video) {
       return;
     }
 
     const currentTime = this.video.currentTime;
 
     for (const segment of this.segments) {
+      if (!segment.should_skip) {
+        continue;
+      }
+
       const segmentId = `${segment.start}:${segment.end}`;
 
       if (this.skippedSegmentIds.has(segmentId)) {
@@ -371,17 +373,28 @@ export class YouTubeHandler extends BaseSiteHandler {
       if (currentTime >= segment.start && currentTime < segment.end) {
         logger.info(`[checkSkipSegments] Skipping segment ${segmentId} (${segment.start}s → ${segment.end}s)`);
 
-        this.skipHistory.push({ position: currentTime, segment });
-        this.skippedSegmentIds.add(segmentId);
-        this.video.currentTime = segment.end;
-
-        if (this.spb_sound_enabled) {
-          const soundUrl = window.VSC._soundUrls?.[this.spb_skip_sound];
-          playBeep(soundUrl, this.video.muted ? 0 : this.video.volume);
-        }
+        this.#skipSegment(segment);
 
         break;
       }
+    }
+  }
+
+  /**
+   * Skips the video to the end of the given segment, records it in history,
+   * and plays a notification sound if enabled.
+   * @param {object} segment - The segment to skip, with `start` and `end` properties (seconds).
+   */
+  #skipSegment(segment) {
+    const segmentId = `${segment.start}:${segment.end}`;
+
+    this.skipHistory.push({ position: this.video.currentTime, segment });
+    this.skippedSegmentIds.add(segmentId);
+    this.video.currentTime = segment.end;
+
+    if (this.spb_sound_enabled) {
+      const soundUrl = window.VSC._soundUrls?.[this.spb_skip_sound];
+      playBeep(soundUrl, this.video.muted ? 0 : this.video.volume);
     }
   }
 }

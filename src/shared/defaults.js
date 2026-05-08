@@ -1,6 +1,21 @@
 import { REG_STRIP, LOG_LEVELS } from './constants.js';
 import { ACTIONS } from './actions.js';
 
+/**
+ * All SponsorBlock categories the extension knows about. Colors mirror
+ * SponsorBlock's own defaults so users coming from SB see the same palette.
+ */
+export const SPB_CATEGORIES = [
+  { color: '#00d400', label: 'Sponsor', name: 'sponsor' },
+  { color: '#ffff00', label: 'Self-promotion', name: 'selfpromo' },
+  { color: '#cc00ff', label: 'Interaction reminder', name: 'interaction' },
+  { color: '#00ffff', label: 'Intro', name: 'intro' },
+  { color: '#0202ed', label: 'Outro', name: 'outro' },
+  { color: '#008fd6', label: 'Preview / recap', name: 'preview' },
+  { color: '#ff9900', label: 'Non-music', name: 'music_offtopic' },
+  { color: '#7300ff', label: 'Filler tangent', name: 'filler' },
+];
+
 export const VSC_DEFAULTS = {
   audioBoolean: true,
   blacklist: ['www.instagram.com', 'imgur.com', 'teams.microsoft.com'].map((value) => value.replace(REG_STRIP, '')),
@@ -55,10 +70,13 @@ export const VSC_DEFAULTS = {
       spb_unskip_sound: 'pop_01', // Which sound to play on undo skip
       spb_enabled: true, // Generally enabled or not
       spb_interval: 5, // Seconds between SponsorBlock API re-fetches
-      spb_skip: true, // Skip enabled or not
-      // Categories to request from the SponsorBlock API. Valid values:
-      // sponsor, selfpromo, interaction, intro, outro, preview, music_offtopic, filler, exclusive_access
-      spb_categories: ['sponsor'],
+      // Categories to request from the SponsorBlock API. `name` matches the API's
+      // category ID; `color` paints the progress-bar marker; `should_skip` toggles
+      // auto-skip (when false the segment still shows on the bar but the handler
+      // won't seek past it).
+      spb_categories: [
+        { color: '#00d400', name: 'sponsor', should_skip: true },
+      ],
     },
   },
   speed: 1.0,

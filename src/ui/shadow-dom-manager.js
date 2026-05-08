@@ -236,6 +236,9 @@ export class ShadowDOMManager {
 
       segmentDiv.style.left = `${leftPercent}%`;
       segmentDiv.style.width = `${widthPercent}%`;
+      if (segment.color) {
+        segmentDiv.style.backgroundColor = segment.color;
+      }
 
       this.segments.push(segmentDiv);
 
