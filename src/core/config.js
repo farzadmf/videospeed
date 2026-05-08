@@ -93,6 +93,7 @@ export class VideoSpeedConfig {
       }
 
       this.settings.sources = storage.sources || {};
+      this.settings.sites = storage.sites || {};
 
       // Apply loaded settings
       this.settings.audioBoolean = Boolean(storage.audioBoolean);
