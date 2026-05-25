@@ -223,7 +223,7 @@ export class YouTubeHandler extends BaseSiteHandler {
       const prefix = await hashPrefix(videoId, 4);
       const params = new URLSearchParams();
       params.set('categories', JSON.stringify(this.spb_categories.map((c) => c.name)));
-      params.set('actionTypes', JSON.stringify(['skip']));
+      params.set('actionTypes', JSON.stringify(['skip', 'full']));
 
       const res = await fetch(`https://sponsor.ajay.app/api/skipSegments/${prefix}?${params}`);
       const json = await res.json();
@@ -233,6 +233,7 @@ export class YouTubeHandler extends BaseSiteHandler {
         segments = map(match.segments, (r) => {
           const cfg = this.spb_categoriesByName.get(r.category);
           return {
+            actionType: r.actionType,
             category: r.category,
             color: cfg?.color,
             end: Math.floor(r.segment[1]),

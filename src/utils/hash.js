@@ -9,6 +9,5 @@ export async function hashPrefix(input, chars) {
   return Array.from(new Uint8Array(buf))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
-    .slice(0, chars)
-    .toUpperCase();
+    .slice(0, chars);
 }

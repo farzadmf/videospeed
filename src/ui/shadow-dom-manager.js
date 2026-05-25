@@ -227,21 +227,28 @@ export class ShadowDOMManager {
    * @param {number} segments[].end - End time of the segment in seconds
    */
   addSkipSegments({ totalDuration, segments }) {
-    segments.forEach((segment) => {
+    const fullSegments = segments.filter((s) => s.actionType === 'full');
+    const skipSegments = segments.filter((s) => s.actionType !== 'full');
+
+    [...fullSegments, ...skipSegments].forEach((segment) => {
       const segmentDiv = document.createElement('div');
       segmentDiv.className = 'vsc-progress-line-segment';
 
-      const leftPercent = (segment.start / totalDuration) * 100;
-      const widthPercent = ((segment.end - segment.start) / totalDuration) * 100;
+      if (segment.actionType === 'full') {
+        segmentDiv.style.left = '0%';
+        segmentDiv.style.width = '100%';
+      } else {
+        const leftPercent = (segment.start / totalDuration) * 100;
+        const widthPercent = ((segment.end - segment.start) / totalDuration) * 100;
+        segmentDiv.style.left = `${leftPercent}%`;
+        segmentDiv.style.width = `${widthPercent}%`;
+      }
 
-      segmentDiv.style.left = `${leftPercent}%`;
-      segmentDiv.style.width = `${widthPercent}%`;
       if (segment.color) {
         segmentDiv.style.backgroundColor = segment.color;
       }
 
       this.segments.push(segmentDiv);
-
       this.progressLineContainer.appendChild(segmentDiv);
     });
   }
