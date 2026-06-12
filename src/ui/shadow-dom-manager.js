@@ -242,6 +242,7 @@ export class ShadowDOMManager {
         const widthPercent = ((segment.end - segment.start) / totalDuration) * 100;
         segmentDiv.style.left = `${leftPercent}%`;
         segmentDiv.style.width = `${widthPercent}%`;
+        segmentDiv.style.zIndex = '3';
       }
 
       if (segment.color) {
@@ -258,6 +259,20 @@ export class ShadowDOMManager {
       this.progressLineContainer.removeChild(segment);
     });
     this.segments = [];
+  }
+
+  /**
+   * Whether `expectedCount` segment elements are actually rendered and still
+   * attached to the progress-line container. Used to detect a desync between
+   * the handler's cached segment data and what's really in the DOM.
+   * @param {number} expectedCount - Number of segments expected in the DOM
+   * @returns {boolean} True if the DOM matches the expected segment count
+   */
+  hasSkipSegmentsRendered(expectedCount) {
+    if (this.segments.length !== expectedCount) {
+      return false;
+    }
+    return this.segments.every((segment) => segment.parentNode === this.progressLineContainer);
   }
 
   /**

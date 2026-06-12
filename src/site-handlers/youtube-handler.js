@@ -259,11 +259,16 @@ export class YouTubeHandler extends BaseSiteHandler {
     const fetchAndUpdate = async () => {
       const newSegments = await this.initSkipSegments();
 
-      const changed =
+      const dataChanged =
         newSegments.length !== this.segments.length ||
         newSegments.some((s, i) => s.start !== this.segments[i].start || s.end !== this.segments[i].end);
 
-      if (!changed) {
+      // Even when the data is unchanged, the segments may be missing from the
+      // DOM (never rendered, or removed by a YouTube re-render). Re-sync in that
+      // case so the UI always reflects the cached segments.
+      const domStale = !this.shadowManager.hasSkipSegmentsRendered(this.segments.length);
+
+      if (!dataChanged && !domStale) {
         return;
       }
 
