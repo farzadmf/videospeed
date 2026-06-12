@@ -41,7 +41,6 @@ export class ShadowDOMManager {
     this.speedValue = 1;
     this.volumeIndicator = null;
     this.buttons = [];
-    this.segments = [];
 
     this.totalTime = null;
     this.totalTimeValue = null;
@@ -217,62 +216,6 @@ export class ShadowDOMManager {
    */
   getButtons() {
     return this.shadow.querySelectorAll('button');
-  }
-
-  /**
-   * Add skip segments to the progress bar
-   * @param {number} totalDuration - Total duration of the video in seconds
-   * @param {Array<Object>} segments - Array of segment objects
-   * @param {number} segments[].start - Start time of the segment in seconds
-   * @param {number} segments[].end - End time of the segment in seconds
-   */
-  addSkipSegments({ totalDuration, segments }) {
-    const fullSegments = segments.filter((s) => s.actionType === 'full');
-    const skipSegments = segments.filter((s) => s.actionType !== 'full');
-
-    [...fullSegments, ...skipSegments].forEach((segment) => {
-      const segmentDiv = document.createElement('div');
-      segmentDiv.className = 'vsc-progress-line-segment';
-
-      if (segment.actionType === 'full') {
-        segmentDiv.style.left = '0%';
-        segmentDiv.style.width = '100%';
-      } else {
-        const leftPercent = (segment.start / totalDuration) * 100;
-        const widthPercent = ((segment.end - segment.start) / totalDuration) * 100;
-        segmentDiv.style.left = `${leftPercent}%`;
-        segmentDiv.style.width = `${widthPercent}%`;
-        segmentDiv.style.zIndex = '3';
-      }
-
-      if (segment.color) {
-        segmentDiv.style.backgroundColor = segment.color;
-      }
-
-      this.segments.push(segmentDiv);
-      this.progressLineContainer.appendChild(segmentDiv);
-    });
-  }
-
-  clearSkipSegments() {
-    this.segments.forEach((segment) => {
-      this.progressLineContainer.removeChild(segment);
-    });
-    this.segments = [];
-  }
-
-  /**
-   * Whether `expectedCount` segment elements are actually rendered and still
-   * attached to the progress-line container. Used to detect a desync between
-   * the handler's cached segment data and what's really in the DOM.
-   * @param {number} expectedCount - Number of segments expected in the DOM
-   * @returns {boolean} True if the DOM matches the expected segment count
-   */
-  hasSkipSegmentsRendered(expectedCount) {
-    if (this.segments.length !== expectedCount) {
-      return false;
-    }
-    return this.segments.every((segment) => segment.parentNode === this.progressLineContainer);
   }
 
   /**

@@ -27,6 +27,7 @@ export class YouTubeHandler extends BaseSiteHandler {
     this.spb_categoriesByName = new Map(yt.spb_categories.map((c) => [c.name, c]));
 
     this.segments = [];
+    this.segmentDivs = [];
     this.skipHistory = [];
     this.skippedSegmentIds = new Set();
     this.skipSegmentsIntervalId = null;
@@ -266,15 +267,15 @@ export class YouTubeHandler extends BaseSiteHandler {
       // Even when the data is unchanged, the segments may be missing from the
       // DOM (never rendered, or removed by a YouTube re-render). Re-sync in that
       // case so the UI always reflects the cached segments.
-      const domStale = !this.shadowManager.hasSkipSegmentsRendered(this.segments.length);
+      const domStale = !this.#hasSegmentsRendered();
 
       if (!dataChanged && !domStale) {
         return;
       }
 
-      this.shadowManager.clearSkipSegments();
+      this.#clearSegments();
       this.segments = newSegments;
-      this.shadowManager.addSkipSegments({ totalDuration: this.video.duration, segments: this.segments });
+      this.#renderSegments();
     };
 
     const startInterval = () => {
@@ -402,6 +403,68 @@ export class YouTubeHandler extends BaseSiteHandler {
       const soundUrl = window.VSC._soundUrls?.[this.spb_skip_sound];
       playBeep(soundUrl, this.video.muted ? 0 : this.video.volume);
     }
+  }
+
+  /**
+   * Render the cached segments as overlay divs on the controller's progress bar.
+   * Full segments span the whole bar; skip segments sit above the live progress
+   * line so they stay visible.
+   * @private
+   */
+  #renderSegments() {
+    const container = this.shadowManager.progressLineContainer;
+    const totalDuration = this.video.duration;
+
+    const fullSegments = this.segments.filter((s) => s.actionType === 'full');
+    const skipSegments = this.segments.filter((s) => s.actionType !== 'full');
+
+    [...fullSegments, ...skipSegments].forEach((segment) => {
+      const segmentDiv = document.createElement('div');
+      segmentDiv.className = 'vsc-progress-line-segment';
+
+      if (segment.actionType === 'full') {
+        segmentDiv.style.left = '0%';
+        segmentDiv.style.width = '100%';
+      } else {
+        const leftPercent = (segment.start / totalDuration) * 100;
+        const widthPercent = ((segment.end - segment.start) / totalDuration) * 100;
+        segmentDiv.style.left = `${leftPercent}%`;
+        segmentDiv.style.width = `${widthPercent}%`;
+        segmentDiv.style.zIndex = '3';
+      }
+
+      if (segment.color) {
+        segmentDiv.style.backgroundColor = segment.color;
+      }
+
+      this.segmentDivs.push(segmentDiv);
+      container.appendChild(segmentDiv);
+    });
+  }
+
+  /**
+   * Remove all rendered segment divs from the progress bar.
+   * @private
+   */
+  #clearSegments() {
+    const container = this.shadowManager.progressLineContainer;
+    this.segmentDivs.forEach((div) => container.removeChild(div));
+    this.segmentDivs = [];
+  }
+
+  /**
+   * Whether the rendered segment divs match the cached segment data and are
+   * still attached to the progress-line container. Detects a desync between our
+   * cached data and what's actually in the DOM.
+   * @returns {boolean} True if the DOM is in sync with the cached segments
+   * @private
+   */
+  #hasSegmentsRendered() {
+    const container = this.shadowManager.progressLineContainer;
+    if (this.segmentDivs.length !== this.segments.length) {
+      return false;
+    }
+    return this.segmentDivs.every((div) => div.parentNode === container);
   }
 }
 
