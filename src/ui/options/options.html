@@ -1,6 +1,7 @@
 <!doctype html>
 <html data-bs-theme="dark">
   <head>
+    <meta charset="utf-8" />
     <title>Video Speed Controller: Options</title>
     <link rel="stylesheet" href="options.css" />
     <script src="options.js" type="module"></script>
@@ -202,27 +203,33 @@
               <div class="row mb-2">
                 <div class="col-lg-3">
                   <label class="form-label" for="yt_spb_skip_sound">Skip sound</label>
-                  <select class="form-select" id="yt_spb_skip_sound">
-                    <option value="beep">Beep</option>
-                    <option value="cartoon_blinking_01">Cartoon Blinking 1</option>
-                    <option value="cartoon_blinking_02">Cartoon Blinking 2</option>
-                    <option value="game_start">Game Start</option>
-                    <option value="new_notification">New Notification</option>
-                    <option value="pop_01">Pop 1</option>
-                    <option value="pop_02">Pop 2</option>
-                  </select>
+                  <div class="input-group">
+                    <select class="form-select" id="yt_spb_skip_sound">
+                      <option value="beep">Beep</option>
+                      <option value="cartoon_blinking_01">Cartoon Blinking 1</option>
+                      <option value="cartoon_blinking_02">Cartoon Blinking 2</option>
+                      <option value="game_start">Game Start</option>
+                      <option value="new_notification">New Notification</option>
+                      <option value="pop_01">Pop 1</option>
+                      <option value="pop_02">Pop 2</option>
+                    </select>
+                    <button class="btn btn-outline-secondary sound-preview" type="button" data-sound-target="yt_spb_skip_sound" title="Preview sound">▶</button>
+                  </div>
                 </div>
                 <div class="col-lg-3">
                   <label class="form-label" for="yt_spb_unskip_sound">Unskip sound</label>
-                  <select class="form-select" id="yt_spb_unskip_sound">
-                    <option value="beep">Beep</option>
-                    <option value="cartoon_blinking_01">Cartoon Blinking 1</option>
-                    <option value="cartoon_blinking_02">Cartoon Blinking 2</option>
-                    <option value="game_start">Game Start</option>
-                    <option value="new_notification">New Notification</option>
-                    <option value="pop_01">Pop 1</option>
-                    <option value="pop_02">Pop 2</option>
-                  </select>
+                  <div class="input-group">
+                    <select class="form-select" id="yt_spb_unskip_sound">
+                      <option value="beep">Beep</option>
+                      <option value="cartoon_blinking_01">Cartoon Blinking 1</option>
+                      <option value="cartoon_blinking_02">Cartoon Blinking 2</option>
+                      <option value="game_start">Game Start</option>
+                      <option value="new_notification">New Notification</option>
+                      <option value="pop_01">Pop 1</option>
+                      <option value="pop_02">Pop 2</option>
+                    </select>
+                    <button class="btn btn-outline-secondary sound-preview" type="button" data-sound-target="yt_spb_unskip_sound" title="Preview sound">▶</button>
+                  </div>
                 </div>
               </div>
               <div class="row mb-2">

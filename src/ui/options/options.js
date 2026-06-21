@@ -76,6 +76,24 @@ async function handleImportFile(event) {
   }
 }
 
+function previewSound(event) {
+  const targetId = event.target.dataset.soundTarget;
+  const select = document.getElementById(targetId);
+  if (!select) {
+    return;
+  }
+
+  const name = select.value;
+  const url = chrome.runtime?.id ? chrome.runtime.getURL(`assets/sounds/${name}.oga`) : '';
+  if (!url) {
+    return;
+  }
+
+  const audio = new Audio(url);
+  audio.volume = 0.5;
+  audio.play().catch(() => {});
+}
+
 function forgetAll() {
   chrome.storage.sync.remove(['sources']);
   const forgetStatus = document.querySelector('#forgetStatus');
@@ -165,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       event.target.parentNode.parentNode.remove();
       markDirty();
     });
+    eventCaller(event, 'sound-preview', previewSound);
   });
   document.addEventListener('change', (event) => {
     eventCaller(event, 'customDo', () => {
