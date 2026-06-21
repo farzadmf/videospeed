@@ -264,9 +264,8 @@ export class YouTubeHandler extends BaseSiteHandler {
         newSegments.length !== this.segments.length ||
         newSegments.some((s, i) => s.start !== this.segments[i].start || s.end !== this.segments[i].end);
 
-      // Even when the data is unchanged, the segments may be missing from the
-      // DOM (never rendered, or removed by a YouTube re-render). Re-sync in that
-      // case so the UI always reflects the cached segments.
+      // Re-sync even when data is unchanged: segments may be missing from the
+      // DOM (never rendered, or removed by a YouTube re-render).
       const domStale = !this.#hasSegmentsRendered();
 
       if (!dataChanged && !domStale) {
@@ -413,6 +412,9 @@ export class YouTubeHandler extends BaseSiteHandler {
    */
   #renderSegments() {
     const container = this.shadowManager.progressLineContainer;
+    if (!container) {
+      return;
+    }
     const totalDuration = this.video.duration;
 
     const fullSegments = this.segments.filter((s) => s.actionType === 'full');
@@ -447,8 +449,10 @@ export class YouTubeHandler extends BaseSiteHandler {
    * @private
    */
   #clearSegments() {
+    // Query the live container; cached divs may be orphaned (YouTube re-rendered
+    // the subtree), so container.removeChild on them would throw.
     const container = this.shadowManager.progressLineContainer;
-    this.segmentDivs.forEach((div) => container.removeChild(div));
+    container?.querySelectorAll('.vsc-progress-line-segment').forEach((div) => div.remove());
     this.segmentDivs = [];
   }
 
@@ -460,11 +464,13 @@ export class YouTubeHandler extends BaseSiteHandler {
    * @private
    */
   #hasSegmentsRendered() {
+    // Count what the live container holds. parentNode is unreliable: it survives
+    // the container being detached, so a div can look attached while off-screen.
     const container = this.shadowManager.progressLineContainer;
-    if (this.segmentDivs.length !== this.segments.length) {
+    if (!container || !container.isConnected) {
       return false;
     }
-    return this.segmentDivs.every((div) => div.parentNode === container);
+    return container.querySelectorAll('.vsc-progress-line-segment').length === this.segments.length;
   }
 }
 
