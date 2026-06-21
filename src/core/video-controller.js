@@ -480,7 +480,13 @@ export class VideoController {
       }
     });
 
-    this.titleObserver.observe(document.querySelector('title'), { childList: true });
+    const titleElement = document.querySelector('title');
+    if (titleElement) {
+      this.titleObserver.observe(titleElement, { childList: true });
+    } else if (document.head) {
+      // No <title> yet (some SPAs/iframes); watch <head> so we catch one when it's added.
+      this.titleObserver.observe(document.head, { childList: true });
+    }
   }
 
   startScrollListener() {
