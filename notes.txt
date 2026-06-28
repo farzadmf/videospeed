@@ -1,6 +1,13 @@
 Title isn't updated, but it should be?
 - https://bun.com/blog/behind-the-scenes-of-bun-install
 
+2026-06-28 - An FB video page with multiple videos to test the positioning; seems to be work great with anchor positioning
+2026-04-10 - https://grahamhelton.com/blog/custom-obsidian-publish
+- Scrolling down properly handles showing controller on videos, hiding, etc.
+- Scrolling up keeps all controllers at the bottom, creating a mess!
+2026-04-10 - https://dbushell.com/2026/04/10/no-stack-web-development/
+- WOW!!! COMPLETELY messed up!
+
 [NEW!] Websites overriding speed!
 - https://open.spotify.com/episode/4QpgEVNw4z1AfQ6Mjj4ZI9
 - https://www.ted.com/talks/cate_hall_a_practical_guide_to_taking_control_of_your_life
