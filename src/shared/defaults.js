@@ -17,6 +17,8 @@ export const SPB_CATEGORIES = [
 ];
 
 export const VSC_DEFAULTS = {
+  // Opt-in: position the controller via CSS anchor positioning instead of the JS observer model
+  anchorPositioning: false,
   audioBoolean: true,
   blacklist: ['www.instagram.com', 'imgur.com', 'teams.microsoft.com'].map((value) => value.replace(REG_STRIP, '')),
   controllerButtonSize: 14,

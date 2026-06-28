@@ -8,6 +8,7 @@ import { renderSpbCategories } from './spb-categories.js';
 
 export function restoreOptions() {
   chrome.storage.sync.get(VSC_DEFAULTS, (storage) => {
+    document.getElementById('anchorPositioning').checked = storage.anchorPositioning;
     document.getElementById('audioBoolean').checked = storage.audioBoolean;
     document.getElementById('blacklist').value = storage.blacklist.join('\n');
     document.getElementById('controllerButtonSize').value = storage.controllerButtonSize;

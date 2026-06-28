@@ -9,6 +9,9 @@ import { StorageManager } from '../core/storage-manager.js';
 import { formatDuration, toPx } from '../utils/misc.js';
 import { formatVolume, formatSpeed } from '../shared/constants.js';
 
+// Counter for unique CSS anchor names (dashed-ident)
+let anchorNameCounter = 0;
+
 export class ShadowDOMManager {
   /**
    * @param {HTMLMediaElement & { vsc?: VideoController }} target - Video element
@@ -56,6 +59,10 @@ export class ShadowDOMManager {
 
     this.top = 0;
     this.left = 0;
+
+    // When true, CSS anchor positioning drives placement and adjustLocation() is a no-op
+    this.anchorPositioning = false;
+    this.anchorName = null;
   }
 
   /**
@@ -89,7 +96,7 @@ export class ShadowDOMManager {
     this.shadow.appendChild(topContainerDiv);
 
     this.controllerDiv = document.createElement('div');
-    this.controllerDiv.id = 'vsc-controller';
+    this.controllerDiv.id = 'vsc-pill';
     this.controllerDiv.className = 'draggable';
     this.controllerDiv.setAttribute('data-action', 'drag');
     this.controllerDiv.style.setProperty('--height', toPx(this.controllerDivHeightPx));
@@ -246,6 +253,11 @@ export class ShadowDOMManager {
    * Adjusts the location of the controller based on the video element's position
    */
   adjustLocation() {
+    // Anchor mode: the browser tracks the video, so JS repositioning is a no-op
+    if (this.anchorPositioning) {
+      return;
+    }
+
     logger.debug('[adjustLocation] start ...');
 
     // const rect = this.target.getBoundingClientRect();
@@ -280,6 +292,49 @@ export class ShadowDOMManager {
     this.controllerDiv.style.top = pad(top - this.controllerDivHeightPx);
 
     logger.debug('[adjustLocation] end ...');
+  }
+
+  /**
+   * Pin the host to the video via CSS anchor positioning so the browser tracks
+   * it natively. The host shares the video's DOM tree, so it can reference an
+   * anchor-name set on the video.
+   * @param {HTMLElement} host - The <vsc-controller> host element
+   * @returns {boolean} true if anchor positioning was applied
+   */
+  enableAnchorPositioning(host) {
+    if (!host || !this.target) {
+      return false;
+    }
+
+    if (!(window.CSS && CSS.supports && CSS.supports('anchor-name', '--a'))) {
+      logger.warn('[anchorPositioning] not supported by this browser; keeping JS positioning');
+      this.anchorPositioning = false;
+      return false;
+    }
+
+    anchorNameCounter += 1;
+    const anchorName = `--vsc-anchor-${anchorNameCounter}`;
+    this.anchorName = anchorName;
+
+    this.target.style.setProperty('anchor-name', anchorName);
+
+    // fixed overrides the stylesheet's absolute so the anchor drives placement
+    host.style.setProperty('position', 'fixed');
+    host.style.setProperty('position-anchor', anchorName);
+    host.style.setProperty('top', 'anchor(top)');
+    host.style.setProperty('left', 'anchor(left)');
+    // Hide when the video scrolls out of view
+    host.style.setProperty('position-visibility', 'anchors-visible');
+
+    logger.info(`[anchorPositioning] enabled with ${anchorName}`);
+    return true;
+  }
+
+  disableAnchorPositioning() {
+    if (this.anchorName && this.target) {
+      this.target.style.removeProperty('anchor-name');
+    }
+    this.anchorName = null;
   }
 
   hide() {

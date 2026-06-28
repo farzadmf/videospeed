@@ -13,6 +13,7 @@ export const saveOptions = () => {
     .map((item) => createKeyBinding(item))
     .filter(Boolean);
 
+  const anchorPositioning = document.getElementById('anchorPositioning').checked;
   const audioBoolean = document.getElementById('audioBoolean').checked;
   const blacklist = document.getElementById('blacklist').value.trim().split('\n');
   const controllerButtonSize = Number(document.getElementById('controllerButtonSize').value);
@@ -32,6 +33,7 @@ export const saveOptions = () => {
 
   chrome.storage.sync.set(
     {
+      anchorPositioning,
       audioBoolean,
       blacklist: blacklist.map((value) => value.replace(REG_STRIP, '')),
       controllerButtonSize,

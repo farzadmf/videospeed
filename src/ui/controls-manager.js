@@ -118,7 +118,7 @@ export class ControlsManager {
    * @private
    */
   setupWheelHandler(shadow, video) {
-    const controller = shadow.querySelector('#vsc-controller');
+    const controller = shadow.querySelector('#vsc-pill');
 
     // Hover dwell gate: only allow wheel events after the cursor has rested on the
     // controller for HOVER_DWELL_MS. Prevents accidental speed changes when scrolling
@@ -174,7 +174,7 @@ export class ControlsManager {
    * @private
    */
   setupClickPrevention(shadow) {
-    const controller = shadow.querySelector('#vsc-controller');
+    const controller = shadow.querySelector('#vsc-pill');
 
     // Prevent clicks from bubbling up to page
     controller.addEventListener('click', (e) => e.stopPropagation(), false);

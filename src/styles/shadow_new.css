@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin: 10px 10px 10px 15px;
+  /* margin: 10px 10px 10px 15px; */
   position: absolute;
 }
 
@@ -21,7 +21,7 @@
   opacity: 0;
 }
 
-#vsc-controller {
+#vsc-pill {
   align-items: center;
   background: black;
   border-radius: 6px;
@@ -61,6 +61,13 @@
       opacity: 1;
     }
   }
+}
+
+/* Anchor mode: pill sits relative to the anchored host, not the viewport */
+:host(.vsc-anchored) #vsc-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 #vsc-progress-lines {

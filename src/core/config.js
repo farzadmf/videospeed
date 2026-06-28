@@ -96,6 +96,7 @@ export class VideoSpeedConfig {
       this.settings.sites = storage.sites || {};
 
       // Apply loaded settings
+      this.settings.anchorPositioning = Boolean(storage.anchorPositioning);
       this.settings.audioBoolean = Boolean(storage.audioBoolean);
       this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
       this.settings.controllerOpacity = Number(storage.controllerOpacity);

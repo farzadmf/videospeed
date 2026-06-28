@@ -241,6 +241,9 @@ export class VideoController {
     //   buttonSize: this.config.settings.controllerButtonSize,
     // });
 
+    // Set before createShadowDOM so the adjustLocation() no-op guard is active
+    this.shadowManager.anchorPositioning = Boolean(this.config.settings.anchorPositioning);
+
     // Create shadow DOM (awaits lazy CSS fetch on first call)
     await this.shadowManager.createShadowDOM(this.wrapperDiv, {
       buttonSize: this.config.settings.controllerButtonSize,
@@ -257,6 +260,16 @@ export class VideoController {
 
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, this.wrapperDiv);
+
+    // Enable anchor positioning now that the host is in the DOM; falls back to JS if unsupported
+    if (this.shadowManager.anchorPositioning) {
+      const ok = this.shadowManager.enableAnchorPositioning(this.wrapperDiv);
+      if (ok) {
+        this.wrapperDiv.classList.add('vsc-anchored');
+      } else {
+        this.shadowManager.anchorPositioning = false;
+      }
+    }
 
     // Thought about doing this directly in `createShadowDOM`, but I think doing
     // getBoundingClientRect etc needs the element(s) to already be inserted in DOM.
@@ -543,6 +556,8 @@ export class VideoController {
 
     // Remove DOM element
     this.wrapperDiv?.remove();
+
+    this.shadowManager.disableAnchorPositioning();
 
     this.stopHandlers();
 
