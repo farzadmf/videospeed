@@ -261,14 +261,13 @@ export class VideoController {
     // Insert into DOM based on site-specific rules
     this.insertIntoDOM(document, this.wrapperDiv);
 
-    // Enable anchor positioning now that the host is in the DOM; falls back to JS if unsupported
-    if (this.shadowManager.anchorPositioning) {
-      const ok = this.shadowManager.enableAnchorPositioning(this.wrapperDiv);
-      if (ok) {
-        this.wrapperDiv.classList.add('vsc-anchored');
-      } else {
-        this.shadowManager.anchorPositioning = false;
-      }
+    // Enable anchor positioning now that the host is in the DOM; falls back to JS if unsupported.
+    // The host always carries exactly one mode marker, so you can tell which is active.
+    if (this.shadowManager.anchorPositioning && this.shadowManager.enableAnchorPositioning(this.wrapperDiv)) {
+      this.wrapperDiv.classList.add('vsc-anchored');
+    } else {
+      this.shadowManager.anchorPositioning = false;
+      this.wrapperDiv.classList.add('vsc-js-positioned');
     }
 
     // Thought about doing this directly in `createShadowDOM`, but I think doing

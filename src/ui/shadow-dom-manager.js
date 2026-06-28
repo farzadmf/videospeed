@@ -79,8 +79,6 @@ export class ShadowDOMManager {
     // Lazy-fetch shadow CSS on first controller creation; cached for subsequent ones
     this.cssText = await StorageManager.getShadowCSS();
 
-    const { top = 0, left = 0 } = this.calculatePosition();
-
     this.shadow = wrapper.attachShadow({ mode: 'open' });
 
     // Create style element with embedded CSS
@@ -100,8 +98,6 @@ export class ShadowDOMManager {
     this.controllerDiv.className = 'draggable';
     this.controllerDiv.setAttribute('data-action', 'drag');
     this.controllerDiv.style.setProperty('--height', toPx(this.controllerDivHeightPx));
-    this.controllerDiv.style.setProperty('--left', toPx(left));
-    this.controllerDiv.style.setProperty('--top', toPx(top - this.controllerDivHeightPx));
     topContainerDiv.appendChild(this.controllerDiv);
 
     this.left = document.createElement('div');
@@ -288,6 +284,9 @@ export class ShadowDOMManager {
     const padding = 5;
     const pad = (value) => toPx(value + padding);
 
+    // JS positioning override (anchor mode is the CSS default): pin to the
+    // viewport and place by computed coordinates.
+    this.controllerDiv.style.position = 'fixed';
     this.controllerDiv.style.left = pad(left);
     this.controllerDiv.style.top = pad(top - this.controllerDivHeightPx);
 

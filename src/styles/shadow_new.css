@@ -31,13 +31,13 @@
   gap: 3px;
   height: var(--height);
   /* height: 22px; */
-  left: var(--left);
-  margin-left: var(--margin-left);
-  margin-top: var(--margin-top);
   padding-block: 1px;
   padding-inline: 4px;
-  position: fixed;
-  top: var(--top);
+  /* Default = anchor mode: sit at the anchored host's top-left. JS positioning
+     overrides position/top/left inline when it runs (see adjustLocation). */
+  position: absolute;
+  top: 0;
+  left: 0;
   transition: height 0.3s;
   /* width: min(250px, 50%); */
   white-space: nowrap;
@@ -61,13 +61,6 @@
       opacity: 1;
     }
   }
-}
-
-/* Anchor mode: pill sits relative to the anchored host, not the viewport */
-:host(.vsc-anchored) #vsc-pill {
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 
 #vsc-progress-lines {
