@@ -17,6 +17,9 @@
     "test:e2e": "npm run build && node tests/e2e/run-e2e.js",
     "test:integration": "node tests/run-tests.js integration",
     "test:unit": "node tests/run-tests.js unit",
+    "tutorials": "npm run tutorials:install && npm --prefix tutorials run dev",
+    "tutorials:install": "[ -d tutorials/node_modules ] || npm --prefix tutorials install",
+    "tutorials:build": "npm run tutorials:install && npm --prefix tutorials run build",
     "zip": "npm run build && cd dist && zip -r videospeed.zip . && cd .. && echo 'Extension packaged at dist/videospeed.zip'"
   },
   "dependencies": {
