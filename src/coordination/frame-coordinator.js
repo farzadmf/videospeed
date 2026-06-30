@@ -44,11 +44,14 @@ export class FrameCoordinator {
    * @param {object} opts
    * @param {() => number} opts.getLocalControllerCount - returns current count
    *   of controllers (videos) registered in THIS frame's stateManager.
+   * @param {() => void} [opts.flashControllers] - flash this frame's controllers
+   *   when a key is routed here.
    */
-  constructor({ getLocalControllerCount }) {
+  constructor({ getLocalControllerCount, flashControllers }) {
     this.frameId = mintFrameId();
     this.isTop = window === window.top;
     this.getLocalControllerCount = getLocalControllerCount || (() => 0);
+    this.flashControllers = flashControllers || (() => {});
 
     // HUB-only state: live registry of every frame that has said hello.
     // frameId -> { controllerCount, source } where source is the MessageEventSource
@@ -177,6 +180,8 @@ export class FrameCoordinator {
           `${LOG} [spoke ${this.frameId}] routed here: key="${msg.payload.key}" ` +
             `action="${msg.payload.action || '?'}" ${focusSnapshot()}`
         );
+
+        this.flashControllers();
         break;
 
       default:
@@ -241,6 +246,8 @@ export class FrameCoordinator {
       logger.warn(
         `${LOG} [hub] target is local frame: key="${body.key}" action="${body.action || '?'}"`
       );
+
+      this.flashControllers();
       return;
     }
 

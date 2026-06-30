@@ -17,6 +17,7 @@ import { stateManager } from '../core/state-manager.js';
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
 import { LeaderMode } from '../coordination/leader-mode.js';
 import { COORD_ENABLED, LEADER_ENABLED } from '../coordination/flags.js';
+import { flashElement } from '../coordination/flash.js';
 
 class VideoSpeedExtension {
   constructor() {
@@ -155,6 +156,7 @@ class VideoSpeedExtension {
     if (COORD_ENABLED) {
       this.frameCoordinator = new FrameCoordinator({
         getLocalControllerCount: () => stateManager.getAllMediaElements().length,
+        flashControllers: () => this.flashControllers(),
       });
 
       stateManager.onControllersChanged = () => this.frameCoordinator?.announceControllers();
@@ -170,6 +172,17 @@ class VideoSpeedExtension {
       });
 
       this.leaderMode.start();
+    }
+  }
+
+  /** Briefly outline this frame's controllers — visual proof a key was routed here. */
+  flashControllers() {
+    for (const { controller } of stateManager.controllers.values()) {
+      // The visible pill is controllerDiv; wrapperDiv (the host) can be 0x0.
+      const el = controller?.controllerDiv || controller?.wrapperDiv;
+      if (el?.isConnected) {
+        flashElement(el);
+      }
     }
   }
 

@@ -330,8 +330,46 @@ export const leaderCoordinationTutorial: TutorialContent = {
       ),
     },
     {
+      id: 'flash',
+      title: '10. flash.js — showing the key arrived',
+      content: (
+        <>
+          <p>
+            When a key is routed to a frame, that frame briefly changes the background color of its controllers. This is
+            visual proof that the routing worked: you press a key, and the box on the right video lights up for a moment.
+            It does not change the speed yet; it only shows that the key reached the right place.
+          </p>
+          <p>
+            The flash fills the inside, not the edge. An outline can blend into whatever color sits behind the pill, but
+            a filled background stands out anywhere. It saves the element's current background, sets the flash color,
+            then puts the old one back after a short time. It changes only the inline style, so the controller's own
+            style sheet is untouched.
+          </p>
+          <CodeSnippet
+            path="src/coordination/flash.js"
+            startMatch="export function flashElement"
+            caption="Fill the background, then restore the old one after a moment."
+          />
+          <p>
+            One detail matters. The controller has two parts: an outer host box and the visible pill inside its shadow
+            room. The outer box can have a size of zero, so an outline on it would show nothing. So we flash the inner
+            pill (<code>controllerDiv</code>) and fall back to the host only if the pill is missing.
+          </p>
+          <CodeSnippet
+            path="src/content/inject.js"
+            startMatch="flashControllers() {"
+            caption="Flash the visible pill, not the host, because the host can be zero-sized."
+          />
+          <Note title="A known limit">
+            Routing right now picks a frame, not a single controller. So if one frame has more than one video, all of its
+            controllers flash. Choosing one exact controller is a later step.
+          </Note>
+        </>
+      ),
+    },
+    {
       id: 'flow',
-      title: '10. The whole flow, step by step',
+      title: '11. The whole flow, step by step',
       content: (
         <>
           <p>Here is what happens when you press the keys, with everything turned on:</p>
@@ -351,19 +389,19 @@ export const leaderCoordinationTutorial: TutorialContent = {
             The hub looks at which frames have videos and picks one. It logs the choice.
           </Step>
           <Step n={5} title="Hub tells the chosen frame">
-            The hub sends a note back to the chosen frame: "you handle this key". That frame logs that it was picked.
+            The hub sends a note back to the chosen frame: "you handle this key". That frame logs that it was picked and
+            flashes its controllers.
           </Step>
           <Note title="What is not here yet">
-            The last step stops at a log line. The chosen frame does not actually run the action, and{' '}
-            <code>LEADER_SWALLOW</code> is off so keys are not taken from the page. Those are later steps, once we trust
-            what the logs show.
+            The chosen frame flashes but does not actually run the action, and <code>LEADER_SWALLOW</code> is off so keys
+            are not taken from the page. Those are later steps, once we trust what the logs and the flash show.
           </Note>
         </>
       ),
     },
     {
       id: 'what-to-remember',
-      title: '11. What to remember',
+      title: '12. What to remember',
       content: (
         <ul>
           <li>Leader mode: one key opens it, the next key picks an action. No hard combinations.</li>
