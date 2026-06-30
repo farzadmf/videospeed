@@ -12,7 +12,20 @@ export class VSCStateManager {
     // Map of controllerId → controller metadata
     this.controllers = new Map();
 
+    // Hook fired on register/unregister; the frame coordinator uses it to
+    // announce this frame's controller count to the hub.
+    this.onControllersChanged = null;
+
     logger.debug('VSCStateManager initialized');
+  }
+
+  /** Notify any subscriber that the controller set changed. */
+  _notifyControllersChanged() {
+    try {
+      this.onControllersChanged?.();
+    } catch (e) {
+      logger.warn(`onControllersChanged hook failed: ${e.message}`);
+    }
   }
 
   /**
@@ -35,6 +48,7 @@ export class VSCStateManager {
 
     this.controllers.set(controller.controllerId, controllerInfo);
     logger.debug(`Controller registered: ${controller.controllerId}`);
+    this._notifyControllersChanged();
   }
 
   /**
@@ -45,6 +59,7 @@ export class VSCStateManager {
     if (this.controllers.has(controllerId)) {
       this.controllers.delete(controllerId);
       logger.debug(`Controller unregistered: ${controllerId}`);
+      this._notifyControllersChanged();
     }
   }
 

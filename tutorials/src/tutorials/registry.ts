@@ -1,5 +1,6 @@
 import { readMinutes, type TutorialContent } from '../components/tutorial-layout';
 import { anchorPositioningTutorial } from './anchor-positioning';
+import { leaderCoordinationTutorial } from './leader-coordination';
 
 // Add new tutorials here: give a slug and the content object. Title, summary and
 // read time all come from the content, so there is nothing to keep in sync by
@@ -13,6 +14,7 @@ export interface TutorialEntry {
 
 export const TUTORIALS: TutorialEntry[] = [
   { slug: 'anchor-positioning', content: anchorPositioningTutorial },
+  { slug: 'leader-coordination', content: leaderCoordinationTutorial },
 ];
 
 export function getTutorial(slug: string): TutorialEntry | undefined {

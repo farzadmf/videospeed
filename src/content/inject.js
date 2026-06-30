@@ -14,12 +14,17 @@ import { MESSAGE_TYPES, SPEED_LIMITS } from '../shared/constants.js';
 import { MediaElementObserver } from '../observers/media-observer.js';
 import { SiteHandlerManager } from '../site-handlers/manager.js';
 import { stateManager } from '../core/state-manager.js';
+import { FrameCoordinator } from '../coordination/frame-coordinator.js';
+import { LeaderMode } from '../coordination/leader-mode.js';
+import { COORD_ENABLED, LEADER_ENABLED } from '../coordination/flags.js';
 
 class VideoSpeedExtension {
   constructor() {
     this.config = null;
     this.actionHandler = null;
     this.eventManager = null;
+    this.frameCoordinator = null;
+    this.leaderMode = null;
     this.mutationObserver = null;
     this.mediaObserver = null;
     // MyNote: comment out Gemini's shadow observers
@@ -126,6 +131,8 @@ class VideoSpeedExtension {
       });
       this.eventManager.actionHandler = this.actionHandler;
 
+      this.setupCoordination();
+
       this.setupObservers();
 
       dom.initializeWhenReady(document, (doc) => {
@@ -140,6 +147,29 @@ class VideoSpeedExtension {
       requestIdleCallback(doWork);
     } else {
       setTimeout(doWork, 0);
+    }
+  }
+
+  /** Cross-frame coordinator + leader mode (see coordination/flags.js). */
+  setupCoordination() {
+    if (COORD_ENABLED) {
+      this.frameCoordinator = new FrameCoordinator({
+        getLocalControllerCount: () => stateManager.getAllMediaElements().length,
+      });
+
+      stateManager.onControllersChanged = () => this.frameCoordinator?.announceControllers();
+
+      this.frameCoordinator.start();
+    }
+
+    if (LEADER_ENABLED) {
+      this.leaderMode = new LeaderMode({
+        // Shared id so leader + coordinator logs from one frame correlate.
+        frameId: this.frameCoordinator?.frameId,
+        onLeaderAction: (intent) => this.frameCoordinator?.forwardKeyIntent(intent),
+      });
+
+      this.leaderMode.start();
     }
   }
 
@@ -309,6 +339,17 @@ class VideoSpeedExtension {
       this.eventManager.cleanup();
       this.eventManager = null;
     }
+
+    if (this.leaderMode) {
+      this.leaderMode.stop();
+      this.leaderMode = null;
+    }
+
+    if (this.frameCoordinator) {
+      this.frameCoordinator.stop();
+      this.frameCoordinator = null;
+    }
+    stateManager.onControllersChanged = null;
 
     if (this.siteHandlerManager) {
       this.siteHandlerManager.cleanup();

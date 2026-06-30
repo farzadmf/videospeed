@@ -136,7 +136,7 @@ class Logger {
           break;
         case LOG_LEVELS.WARNING:
           console.log('%c[FMVSC] WRN |', 'color: yellow', context, ...message);
-          console.warn('[FMVSC] WRN |', context, ...message);
+          // console.warn('[FMVSC] WRN |', context, ...message);
           break;
         case LOG_LEVELS.INFO:
           console.log('%c[FMVSC] INF |', 'color:  green', context, ...message);
