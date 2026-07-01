@@ -3,6 +3,7 @@ import { keys, sortBy } from 'lodash-es';
 import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 import { ACTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
 import { addBinding, updateCustomShortcutInputText } from './bindings.js';
+import { restoreLeaderKey } from './leader.js';
 import { getActionName, getTcDefaultBinding } from './misc.js';
 import { renderSpbCategories } from './spb-categories.js';
 
@@ -19,6 +20,8 @@ export function restoreOptions() {
     document.getElementById('forceLastSavedSpeed').checked = storage.forceLastSavedSpeed;
     document.getElementById('rememberSpeed').checked = storage.rememberSpeed;
     document.getElementById('startHidden').checked = storage.startHidden;
+
+    restoreLeaderKey(storage.leaderKey ?? VSC_DEFAULTS.leaderKey);
     document.getElementById('yt_spb').checked = storage.sites?.youtube?.spb_enabled;
     document.getElementById('yt_spb_sound_enabled').checked = storage.sites?.youtube?.spb_sound_enabled ?? VSC_DEFAULTS.sites.youtube.spb_sound_enabled;
     document.getElementById('yt_spb_skip_sound').value = storage.sites?.youtube?.spb_skip_sound ?? VSC_DEFAULTS.sites.youtube.spb_skip_sound;

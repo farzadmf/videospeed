@@ -32,8 +32,10 @@ function handle(event) {
 
   log(msg);
 
-  switch (msg.type) {
+  switch (
+    msg.type
     // ...
+  ) {
   }
 }
 ```
@@ -44,6 +46,15 @@ switch is the main work — three groups, two blank lines.
 ## Comments
 
 Write a comment only when it explains something the code cannot: a non-obvious
-*why*, a constraint, or a gotcha. Do not narrate what the next line plainly
+_why_, a constraint, or a gotcha. Do not narrate what the next line plainly
 does. Keep comments factual; no hype, no "temporary"/"prototype" labels on code
 that is staying.
+
+## Commits
+
+Commits follow conventional commit format
+
+- They only mention facts, no hype to create excitement etc.
+- A commit lists the what(s) and more importantly why(s)
+- The what(s) DO NOT reiterate the code line/function changes; those are obvious in the diff; instead they're just an overview list where details can be separately looked at in case the reader wants to
+- The why(s) is/are super short, to-the-point, again no hype, no assumption. Eg, "change this; never do blah"; how do you know that "never"? Goes back to what was mentioned before: facts only.

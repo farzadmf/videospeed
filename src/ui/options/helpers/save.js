@@ -1,4 +1,5 @@
 import { createKeyBinding } from './bindings.js';
+import { collectLeaderKey } from './leader.js';
 import { validate } from './validate.js';
 import { REG_STRIP } from '../../../shared/constants.js';
 import { VSC_DEFAULTS } from '../../../shared/defaults.js';
@@ -21,6 +22,7 @@ export const saveOptions = () => {
   const enabled = document.getElementById('enabled').checked;
   const exclusiveKeys = document.getElementById('exclusiveKeys').checked;
   const forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
+  const leaderKey = collectLeaderKey() || VSC_DEFAULTS.leaderKey;
   const logLevel = Number(document.getElementById('logLevel').value);
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
   const startHidden = document.getElementById('startHidden').checked;
@@ -42,6 +44,7 @@ export const saveOptions = () => {
       exclusiveKeys,
       forceLastSavedSpeed,
       keyBindings,
+      leaderKey,
       logLevel,
       rememberSpeed,
       startHidden,

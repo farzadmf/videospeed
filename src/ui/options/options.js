@@ -3,6 +3,7 @@ import 'bootstrap';
 
 import { NO_VALUE_ACTIONS } from '../../shared/actions.js';
 import { addBinding, inputFilterNumbersOnly, inputFocus, inputBlur, recordKeyPress } from './helpers/bindings.js';
+import { recordLeaderKey } from './helpers/leader.js';
 import { cleanUpSpeeds, loadSpeeds } from './helpers/toggle-speeds.js';
 import { restoreDefaults, restoreOptions } from './helpers/restore.js';
 import { saveOptions } from './helpers/save.js';
@@ -177,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.addEventListener('keydown', (event) => {
     eventCaller(event, 'customKey', recordKeyPress);
+    eventCaller(event, 'leaderKey', recordLeaderKey);
   });
   document.addEventListener('click', (event) => {
     eventCaller(event, 'removeParent', () => {

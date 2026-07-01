@@ -27,6 +27,9 @@ export const VSC_DEFAULTS = {
   enabled: true,
   exclusiveKeys: true,
   forceLastSavedSpeed: true,
+  // Key that enters leader mode. Same shape as a keyBindings entry's key part:
+  // a physical `code` plus optional modifier flags.
+  leaderKey: { code: 'KeyQ' },
   keyBindings: [
     { action: ACTIONS.display, code: 'KeyV', predefined: true, shift: true, ctrl: true },
     { action: ACTIONS.fast, code: 'KeyG', predefined: true },

@@ -83,6 +83,55 @@
           </div>
         </div>
 
+        <!-- Leader Mode -->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" data-bs-target="#leader-mode" data-bs-toggle="collapse" type="button">
+              Leader Mode
+            </button>
+          </h2>
+          <div id="leader-mode" class="accordion-collapse collapse" data-bs-parent="#all-settings">
+            <section class="px-2">
+              <h3>Leader key</h3>
+              <p class="text-muted">
+                <em>
+                  Press this key to enter leader mode, then press a leader binding to run an action. Modifiers are
+                  optional. Press Escape in the box to clear it.
+                </em>
+              </p>
+              <table class="table table-bordered table-sm" id="leader-key-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50%">MODIFIERS</th>
+                    <th style="width: 50%">KEY</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="leaderAlt" />
+                        <label class="modifier form-check-label">ALT</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="leaderShift" />
+                        <label class="modifier form-check-label">SHIFT</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="leaderCtrl" />
+                        <label class="modifier form-check-label">CTRL</label>
+                      </div>
+                    </td>
+                    <td>
+                      <input class="form-control form-control-sm leaderKey" id="leaderKey" type="text" value="" placeholder="press a key" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+          </div>
+        </div>
+
         <!-- Other settings -->
         <div class="accordion-item">
           <h2 class="accordion-header">

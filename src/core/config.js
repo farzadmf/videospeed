@@ -94,6 +94,7 @@ export class VideoSpeedConfig {
 
       this.settings.sources = storage.sources || {};
       this.settings.sites = storage.sites || {};
+      this.settings.leaderKey = storage.leaderKey || VSC_DEFAULTS.leaderKey;
 
       // Apply loaded settings
       this.settings.anchorPositioning = Boolean(storage.anchorPositioning);
