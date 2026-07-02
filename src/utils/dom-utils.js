@@ -21,6 +21,21 @@ export function inIframe() {
 window.VSC.DomUtils.inIframe = inIframe;
 
 /**
+ * Check if the target is a text-entry context, where our shortcuts must not fire.
+ * @param {EventTarget} target - Event target
+ * @returns {boolean} True if typing context
+ */
+export function isTypingContext(target) {
+  return (
+    target.nodeName === 'INPUT' ||
+    target.nodeName === 'TEXTAREA' ||
+    target.isContentEditable ||
+    target.nodeName === 'SHREDDIT-COMPOSER'
+  );
+}
+window.VSC.DomUtils.isTypingContext = isTypingContext;
+
+/**
  * Get all elements in shadow DOMs recursively
  * @param {Element} parent - Parent element to search
  * @returns {Array<Element>} Flattened array of all elements

@@ -23,15 +23,10 @@
  */
 
 import { logger } from '../utils/logger.js';
-import {
-  LEADER_ENABLED,
-  LEADER_SWALLOW,
-  LEADER_TRIGGER_KEY,
-  LEADER_BINDINGS,
-  LEADER_TIMEOUT_MS,
-} from './flags.js';
+import { LEADER_ENABLED, LEADER_SWALLOW, LEADER_TRIGGER_KEY, LEADER_BINDINGS, LEADER_TIMEOUT_MS } from './flags.js';
 import { describeKey, focusSnapshot } from './debug.js';
 import { LeaderIndicator } from './leader-indicator.js';
+import { isTypingContext } from '../utils/dom-utils.js';
 
 const LOG = '[VSC-LEADER]';
 
@@ -73,9 +68,7 @@ export class LeaderMode {
     window.addEventListener('keydown', this._keydown, { capture: true, passive: false });
     window.addEventListener('keyup', this._keyup, { capture: true, passive: false });
 
-    logger.warn(
-      `${this._tag()} installed (swallow=${LEADER_SWALLOW}, trigger="${LEADER_TRIGGER_KEY}") ${focusSnapshot()}`
-    );
+    logger.warn(`${this._tag()} installed (swallow=${LEADER_SWALLOW}, trigger="${LEADER_TRIGGER_KEY}") ${focusSnapshot()}`);
   }
 
   stop() {
@@ -97,9 +90,15 @@ export class LeaderMode {
     const { key } = event;
 
     this._keyCount += 1;
-    logger.warn(
-      `${this._tag()} keydown #${this._keyCount} [active=${this.active}] ${describeKey(event)} ${focusSnapshot()}`
-    );
+    logger.warn(`${this._tag()} keydown #${this._keyCount} [active=${this.active}] ${describeKey(event)} ${focusSnapshot()}`);
+
+    // Exit if we were active so the indicator doesn't linger.
+    if (isTypingContext(event.target)) {
+      if (this.active) {
+        this._exit();
+      }
+      return;
+    }
 
     if (!this.active && key === LEADER_TRIGGER_KEY) {
       this._enter();

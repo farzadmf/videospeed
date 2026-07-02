@@ -58,3 +58,5 @@ Commits follow conventional commit format
 - A commit lists the what(s) and more importantly why(s)
 - The what(s) DO NOT reiterate the code line/function changes; those are obvious in the diff; instead they're just an overview list where details can be separately looked at in case the reader wants to
 - The why(s) is/are super short, to-the-point, again no hype, no assumption. Eg, "change this; never do blah"; how do you know that "never"? Goes back to what was mentioned before: facts only.
+- We prefer to mention the why along the what itself as it's easier to correlate (NOTE: we should still be careful to have short, readable points in there).
+- With the above, either the why section would be removed (because all the why's were mentioned) or it would be there and contain a "general why" that's not directly relatable to any of the "what's" mentioned above it.

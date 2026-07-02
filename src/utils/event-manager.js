@@ -154,7 +154,7 @@ export class EventManager {
     this.lastKeyEventSignature = eventSignature;
 
     // Ignore keydown event if typing in an input box
-    if (this.isTypingContext(event.target)) {
+    if (dom.isTypingContext(event.target)) {
       return false;
     }
 
@@ -184,21 +184,6 @@ export class EventManager {
     }
 
     return false;
-  }
-
-  /**
-   * Check if user is typing in an input context
-   * @param {Element} target - Event target
-   * @returns {boolean} True if typing context
-   * @private
-   */
-  isTypingContext(target) {
-    return (
-      target.nodeName === 'INPUT' ||
-      target.nodeName === 'TEXTAREA' ||
-      target.isContentEditable ||
-      target.nodeName === 'SHREDDIT-COMPOSER'
-    );
   }
 
   /**
