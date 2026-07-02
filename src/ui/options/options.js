@@ -3,10 +3,21 @@ import 'bootstrap';
 
 import { NO_VALUE_ACTIONS } from '../../shared/actions.js';
 import { addBinding, inputFilterNumbersOnly, inputFocus, inputBlur, recordKeyPress } from './helpers/bindings.js';
-import { recordLeaderKey } from './helpers/leader.js';
+import { addLeaderBinding, recordLeaderBindingKey, recordLeaderKey } from './helpers/leader.js';
 import { cleanUpSpeeds, loadSpeeds } from './helpers/toggle-speeds.js';
 import { restoreDefaults, restoreOptions } from './helpers/restore.js';
 import { saveOptions } from './helpers/save.js';
+
+// Follow the OS light/dark preference. Inline scripts are blocked by the
+// extension CSP, so this must live in the module, not a <script> in the HTML.
+(function followColorScheme() {
+  const query = matchMedia('(prefers-color-scheme: dark)');
+  const apply = () => {
+    document.documentElement.setAttribute('data-bs-theme', query.matches ? 'dark' : 'light');
+  };
+  apply();
+  query.addEventListener('change', apply);
+})();
 
 function show_experimental() {
   // MyNote: upstream removed per-binding force dropdowns; this was showing them.
@@ -142,6 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
     addBinding();
     markDirty();
   });
+  document.querySelector('#leaderAdd').addEventListener('click', () => {
+    addLeaderBinding();
+    markDirty();
+  });
   document.querySelector('#restore').addEventListener('click', () => {
     restoreDefaults();
     markDirty();
@@ -179,10 +194,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (event) => {
     eventCaller(event, 'customKey', recordKeyPress);
     eventCaller(event, 'leaderKey', recordLeaderKey);
+    eventCaller(event, 'leaderBindingKey', recordLeaderBindingKey);
   });
   document.addEventListener('click', (event) => {
     eventCaller(event, 'removeParent', () => {
       event.target.parentNode.parentNode.remove();
+      markDirty();
+    });
+    eventCaller(event, 'removeLeaderBinding', () => {
+      event.target.closest('tr').remove();
       markDirty();
     });
     eventCaller(event, 'sound-preview', previewSound);

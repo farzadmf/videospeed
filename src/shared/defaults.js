@@ -30,6 +30,11 @@ export const VSC_DEFAULTS = {
   // Key that enters leader mode. Same shape as a keyBindings entry's key part:
   // a physical `code` plus optional modifier flags.
   leaderKey: { code: 'KeyQ' },
+  // Key -> action, run while in leader mode. One example binding; users add
+  // their own. Modifiers (ctrl/shift/alt) are optional per binding.
+  leaderBindings: [
+    { action: ACTIONS.display, code: 'KeyV' },
+  ],
   keyBindings: [
     { action: ACTIONS.display, code: 'KeyV', predefined: true, shift: true, ctrl: true },
     { action: ACTIONS.fast, code: 'KeyG', predefined: true },
