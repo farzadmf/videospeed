@@ -1,16 +1,21 @@
 /**
- * On-screen badge shown while leader mode is active, centered in the viewport.
+ * On-screen panel shown while leader mode is active, centered in the viewport.
  * Self-contained (own shadow root, no dependency on the controller UI) so it
  * works in any frame regardless of whether a controller exists.
+ *
+ * Shows a "VSC" header and the list of leader bindings (key -> action) so the
+ * user can see what to press without leaving the page.
  */
+
+import styles from './leader-indicator.css';
 
 const HOST_ID = 'vsc-leader-indicator';
 
 export class LeaderIndicator {
-  constructor({ triggerKey } = {}) {
-    this.triggerKey = triggerKey || '';
+  constructor() {
     this._host = null;
-    this._badge = null;
+    this._panel = null;
+    this._list = null;
   }
 
   _ensure() {
@@ -26,67 +31,78 @@ export class LeaderIndicator {
 
     const shadow = host.attachShadow({ mode: 'open' });
     const style = document.createElement('style');
-    style.textContent = `
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font: 700 18px/1 -apple-system, system-ui, sans-serif;
-        color: #fff;
-        background: rgba(20, 20, 24, 0.88);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 10px;
-        padding: 14px 20px;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
-        opacity: 0;
-        transform: scale(0.96);
-        transition: opacity 120ms ease, transform 120ms ease;
-      }
-      .badge.show { opacity: 1; transform: scale(1); }
-      .dot {
-        width: 11px; height: 11px; border-radius: 50%;
-        background: #4ade80;
-        box-shadow: 0 0 8px #4ade80;
-      }
-    `;
+    style.textContent = styles;
 
-    // Build children programmatically — sites with a Trusted Types CSP (e.g.
-    // YouTube) throw on any innerHTML string assignment.
-    const badge = document.createElement('div');
-    badge.className = 'badge';
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+
+    const header = document.createElement('div');
+    header.className = 'header';
 
     const dot = document.createElement('span');
     dot.className = 'dot';
 
-    const label = document.createElement('span');
-    label.className = 'label';
+    const title = document.createElement('span');
+    title.textContent = 'VSC';
 
-    badge.append(dot, label);
+    header.append(dot, title);
 
-    shadow.append(style, badge);
+    const list = document.createElement('div');
+    list.className = 'list';
+
+    panel.append(header, list);
+    shadow.append(style, panel);
     (document.body || document.documentElement).appendChild(host);
 
     this._host = host;
-    this._badge = badge;
-    this._label = label;
+    this._panel = panel;
+    this._list = list;
   }
 
-  /** @param {string} [hint] - optional text shown next to the dot. */
-  show(hint) {
+  /** @param {{rows: Array<{keyLabel: string, action: string}>}} model */
+  show(model) {
     this._ensure();
-    this._label.textContent = hint || `LEADER${this.triggerKey ? ` ${this.triggerKey}` : ''}`;
+    this._renderRows(model?.rows || []);
 
     // Force reflow so the transition runs even when show() follows hide() fast.
-    void this._badge.offsetWidth;
-    this._badge.classList.add('show');
+    void this._panel.offsetWidth;
+    this._panel.classList.add('show');
+  }
+
+  _renderRows(rows) {
+    this._list.replaceChildren();
+
+    if (rows.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = 'No bindings configured';
+      this._list.append(empty);
+      return;
+    }
+
+    for (const { keyLabel, action } of rows) {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const key = document.createElement('span');
+      key.className = 'key';
+      key.textContent = keyLabel;
+
+      const label = document.createElement('span');
+      label.className = 'action';
+      label.textContent = action;
+
+      row.append(key, label);
+      this._list.append(row);
+    }
   }
 
   hide() {
-    this._badge?.classList.remove('show');
+    this._panel?.classList.remove('show');
   }
 
   destroy() {
     this._host?.remove();
-    this._host = this._badge = this._label = null;
+    this._host = this._panel = this._list = null;
   }
 }

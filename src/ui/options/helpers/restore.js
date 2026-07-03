@@ -23,6 +23,8 @@ export function restoreOptions() {
 
     restoreLeaderKey(storage.leaderKey ?? VSC_DEFAULTS.leaderKey);
     restoreLeaderBindings(storage.leaderBindings ?? VSC_DEFAULTS.leaderBindings);
+    document.getElementById('leaderExit').value = storage.leaderExit ?? VSC_DEFAULTS.leaderExit;
+    document.getElementById('leaderTimeout').value = storage.leaderTimeout ?? VSC_DEFAULTS.leaderTimeout;
     document.getElementById('yt_spb').checked = storage.sites?.youtube?.spb_enabled;
     document.getElementById('yt_spb_sound_enabled').checked = storage.sites?.youtube?.spb_sound_enabled ?? VSC_DEFAULTS.sites.youtube.spb_sound_enabled;
     document.getElementById('yt_spb_skip_sound').value = storage.sites?.youtube?.spb_skip_sound ?? VSC_DEFAULTS.sites.youtube.spb_skip_sound;

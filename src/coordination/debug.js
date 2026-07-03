@@ -47,9 +47,7 @@ export function describeEl(el) {
     const tag = (el.tagName || '?').toLowerCase();
     const id = el.id ? `#${el.id}` : '';
     const cls =
-      typeof el.className === 'string' && el.className
-        ? `.${el.className.trim().split(/\s+/).slice(0, 2).join('.')}`
-        : '';
+      typeof el.className === 'string' && el.className ? `.${el.className.trim().split(/\s+/).slice(0, 2).join('.')}` : '';
     const editable = el.isContentEditable ? '{editable}' : '';
     return `${tag}${id}${cls}${editable}`;
   } catch {
@@ -65,20 +63,11 @@ export function describeEl(el) {
  */
 export function describeKey(event) {
   try {
-    const mods = [
-      event.ctrlKey ? 'C' : '',
-      event.altKey ? 'A' : '',
-      event.shiftKey ? 'S' : '',
-      event.metaKey ? 'M' : '',
-    ]
+    const mods = [event.ctrlKey ? 'C' : '', event.altKey ? 'A' : '', event.shiftKey ? 'S' : '', event.metaKey ? 'M' : '']
       .filter(Boolean)
       .join('+');
 
-    const flags = [
-      event.repeat ? 'repeat' : '',
-      event.isComposing ? 'composing' : '',
-      event.keyCode === 229 ? 'ime229' : '',
-    ]
+    const flags = [event.repeat ? 'repeat' : '', event.isComposing ? 'composing' : '', event.keyCode === 229 ? 'ime229' : '']
       .filter(Boolean)
       .join(',');
 

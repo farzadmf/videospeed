@@ -63,29 +63,34 @@ export const leaderCoordinationTutorial: TutorialContent = {
       ),
     },
     {
-      id: 'the-flags',
-      title: '2. flags.js — the on and off switches',
+      id: 'the-settings',
+      title: '2. The settings that drive leader mode',
       content: (
         <>
           <p>
-            Every new piece is behind a switch in one small file. This lets us turn things on or off by hand while we
-            test, without touching the real code. Two switches turn the whole thing on. One more, <code>
-            LEADER_SWALLOW</code>, decides if leader mode is allowed to "eat" keys (stop the page from seeing them). It
-            is off for now, so keys still reach the page and we cannot break anything yet.
+            What key opens leader mode, and which keys map to which actions, are user settings. They live with the rest
+            of the extension's defaults and are edited on the options page. The leader key is one physical key plus
+            optional modifiers; each binding pairs a key with an action.
           </p>
           <CodeSnippet
-            path="src/coordination/flags.js"
-            startMatch="export const LEADER_SWALLOW"
-            caption="When this is off, leader mode only watches keys; it does not take them away from the page."
+            path="src/shared/defaults.js"
+            startMatch="leaderKey:"
+            caption="The default leader key."
+          />
+          <CodeSnippet
+            path="src/shared/defaults.js"
+            startMatch="leaderBindings:"
+            caption="Default bindings: each has a key code and an action. Users add their own."
           />
           <p>
-            The list of leader keys lives here too. Each letter maps to one action name. So <code>v</code> means "show
-            or hide the box", <code>s</code> means "slower", and so on.
+            One thing is still a code switch, not a setting: whether leader mode is allowed to "eat" keys (stop the page
+            from seeing them). It is off while matched keys do not yet run real actions, so a swallowed key would do
+            nothing. Until then, keys still reach the page.
           </p>
           <CodeSnippet
-            path="src/coordination/flags.js"
-            startMatch="export const LEADER_BINDINGS"
-            caption="Bare key on the left, action name on the right."
+            path="src/coordination/leader-mode.js"
+            startMatch="const SWALLOW_ENABLED"
+            caption="Off until matched keys dispatch real actions."
           />
         </>
       ),
@@ -111,20 +116,22 @@ export const leaderCoordinationTutorial: TutorialContent = {
             caption="Listen on window, in the capture trip, so we run first."
           />
           <p>
-            The handler for a key press has a simple shape. If leader mode is off and you press the trigger key
-            (<code>q</code>), it turns the mode on. If the mode is on, the next key is looked up in the bindings list. If
-            it matches, we call the action; if not, nothing happens. <code>Escape</code> turns the mode off.
+            The handler has a clear shape. First, if this frame has no controller, it does nothing and lets the key
+            pass. If leader mode is off and you press the leader key, it turns on. While on, each key is looked up in the
+            bindings; a match runs its action and the mode stays on, so you can run several in a row. Pressing Escape or
+            the leader key again turns it off (and, depending on the setting, it can also close on its own after a quiet
+            period).
           </p>
           <CodeSnippet
             path="src/coordination/leader-mode.js"
             startMatch="_onKeyDown(event)"
-            caption="The whole key flow: open the mode, then map the next key to an action."
+            caption="The whole key flow: no-op without a controller, open, run actions, exit."
           />
           <p>
-            There is one shared place where keys get "eaten". It is gated by the <code>LEADER_SWALLOW</code> switch from
-            the flags file. When the switch is on, it calls two browser methods: <code>preventDefault</code> (do not do
-            the page's normal thing for this key) and <code>stopImmediatePropagation</code> (do not let any other code
-            see this key). When the switch is off, it only writes a log line and lets the key pass.
+            There is one shared place where keys get "eaten". It is gated by the <code>SWALLOW_ENABLED</code> switch.
+            When on, it calls two browser methods: <code>preventDefault</code> (do not do the page's normal thing for
+            this key) and <code>stopImmediatePropagation</code> (do not let any other code see this key). When off, it
+            only writes a log line and lets the key pass.
           </p>
           <CodeSnippet
             path="src/coordination/leader-mode.js"
@@ -393,8 +400,8 @@ export const leaderCoordinationTutorial: TutorialContent = {
             flashes its controllers.
           </Step>
           <Note title="What is not here yet">
-            The chosen frame flashes but does not actually run the action, and <code>LEADER_SWALLOW</code> is off so keys
-            are not taken from the page. Those are later steps, once we trust what the logs and the flash show.
+            The chosen frame flashes but does not actually run the action, and <code>SWALLOW_ENABLED</code> is off so
+            keys are not taken from the page. Those are later steps, once we trust what the logs and the flash show.
           </Note>
         </>
       ),
@@ -404,12 +411,13 @@ export const leaderCoordinationTutorial: TutorialContent = {
       title: '12. What to remember',
       content: (
         <ul>
-          <li>Leader mode: one key opens it, the next key picks an action. No hard combinations.</li>
+          <li>Leader mode: one key opens it, then keys run actions until you exit. No hard combinations.</li>
           <li>It listens on window in the capture trip, so it runs before the page.</li>
+          <li>It only acts on frames that have a controller; elsewhere it does nothing.</li>
           <li>The browser sends a key only to the focused frame, so frames must talk.</li>
           <li>The top frame is the hub. It tracks which frames have videos and picks who handles a key.</li>
           <li>Notes between frames carry a tag, so we ignore notes that are not ours.</li>
-          <li>Switches in flags.js turn each part on or off; for now most things only log.</li>
+          <li>The leader key and bindings are user settings; whether keys get eaten is still a code switch.</li>
         </ul>
       ),
     },

@@ -16,7 +16,6 @@ import { SiteHandlerManager } from '../site-handlers/manager.js';
 import { stateManager } from '../core/state-manager.js';
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
 import { LeaderMode } from '../coordination/leader-mode.js';
-import { COORD_ENABLED, LEADER_ENABLED } from '../coordination/flags.js';
 import { flashElement } from '../coordination/flash.js';
 
 class VideoSpeedExtension {
@@ -151,28 +150,26 @@ class VideoSpeedExtension {
     }
   }
 
-  /** Cross-frame coordinator + leader mode (see coordination/flags.js). */
+  /** Cross-frame coordinator + leader mode. */
   setupCoordination() {
-    if (COORD_ENABLED) {
-      this.frameCoordinator = new FrameCoordinator({
-        getLocalControllerCount: () => stateManager.getAllMediaElements().length,
-        flashControllers: () => this.flashControllers(),
-      });
+    this.frameCoordinator = new FrameCoordinator({
+      getLocalControllerCount: () => stateManager.getAllMediaElements().length,
+      flashControllers: () => this.flashControllers(),
+    });
 
-      stateManager.onControllersChanged = () => this.frameCoordinator?.announceControllers();
+    stateManager.onControllersChanged = () => this.frameCoordinator?.announceControllers();
 
-      this.frameCoordinator.start();
-    }
+    this.frameCoordinator.start();
 
-    if (LEADER_ENABLED) {
-      this.leaderMode = new LeaderMode({
-        // Shared id so leader + coordinator logs from one frame correlate.
-        frameId: this.frameCoordinator?.frameId,
-        onLeaderAction: (intent) => this.frameCoordinator?.forwardKeyIntent(intent),
-      });
+    this.leaderMode = new LeaderMode({
+      config: this.config,
+      // Shared id so leader + coordinator logs from one frame correlate.
+      frameId: this.frameCoordinator?.frameId,
+      hasControllers: () => stateManager.getAllMediaElements().length > 0,
+      onLeaderAction: (intent) => this.frameCoordinator?.forwardKeyIntent(intent),
+    });
 
-      this.leaderMode.start();
-    }
+    this.leaderMode.start();
   }
 
   /** Briefly outline this frame's controllers — visual proof a key was routed here. */

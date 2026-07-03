@@ -32,9 +32,11 @@ export const VSC_DEFAULTS = {
   leaderKey: { code: 'KeyQ' },
   // Key -> action, run while in leader mode. One example binding; users add
   // their own. Modifiers (ctrl/shift/alt) are optional per binding.
-  leaderBindings: [
-    { action: ACTIONS.display, code: 'KeyV' },
-  ],
+  leaderBindings: [{ action: ACTIONS.display, code: 'KeyV' }],
+  // How leader mode ends: 'timer' auto-exits after leaderTimeout ms of
+  // inactivity; 'key' stays until Escape or the leader key is pressed again.
+  leaderExit: 'timer',
+  leaderTimeout: 2000,
   keyBindings: [
     { action: ACTIONS.display, code: 'KeyV', predefined: true, shift: true, ctrl: true },
     { action: ACTIONS.fast, code: 'KeyG', predefined: true },
@@ -84,9 +86,7 @@ export const VSC_DEFAULTS = {
       // category ID; `color` paints the progress-bar marker; `should_skip` toggles
       // auto-skip (when false the segment still shows on the bar but the handler
       // won't seek past it).
-      spb_categories: [
-        { color: '#00d400', name: 'sponsor', should_skip: true },
-      ],
+      spb_categories: [{ color: '#00d400', name: 'sponsor', should_skip: true }],
     },
   },
   speed: 1.0,

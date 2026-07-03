@@ -24,6 +24,8 @@ export const saveOptions = () => {
   const forceLastSavedSpeed = document.getElementById('forceLastSavedSpeed').checked;
   const leaderKey = collectLeaderKey() || VSC_DEFAULTS.leaderKey;
   const leaderBindings = collectLeaderBindings();
+  const leaderExit = document.getElementById('leaderExit').value;
+  const leaderTimeout = Number(document.getElementById('leaderTimeout').value) || VSC_DEFAULTS.leaderTimeout;
   const logLevel = Number(document.getElementById('logLevel').value);
   const rememberSpeed = document.getElementById('rememberSpeed').checked;
   const startHidden = document.getElementById('startHidden').checked;
@@ -46,7 +48,9 @@ export const saveOptions = () => {
       forceLastSavedSpeed,
       keyBindings,
       leaderBindings,
+      leaderExit,
       leaderKey,
+      leaderTimeout,
       logLevel,
       rememberSpeed,
       startHidden,

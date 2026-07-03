@@ -148,6 +148,33 @@
               <div class="d-grid">
                 <button id="leaderAdd" class="btn btn-primary">Add New</button>
               </div>
+
+              <h3 class="mt-3">Exit behavior</h3>
+              <p class="text-muted">
+                <em>
+                  How leader mode ends. Timer auto-exits after a period of inactivity; Key stays until you press Escape
+                  or the leader key again.
+                </em>
+              </p>
+              <div class="row mb-2">
+                <div class="col-lg-3">
+                  <label class="form-label" for="leaderExit">Exit mode</label>
+                </div>
+                <div class="col-lg-9">
+                  <select class="form-select form-select-sm" id="leaderExit">
+                    <option value="timer">Timer (auto-exit when idle)</option>
+                    <option value="key">Key (Escape or leader key)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-lg-3">
+                  <label class="form-label" for="leaderTimeout">Idle timeout (ms)</label>
+                </div>
+                <div class="col-lg-9">
+                  <input class="form-control form-control-sm" id="leaderTimeout" type="text" value="" />
+                </div>
+              </div>
             </section>
           </div>
         </div>

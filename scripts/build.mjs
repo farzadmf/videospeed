@@ -97,6 +97,17 @@ async function build() {
           },
         },
         {
+          // CSS imported from coordination/ is inlined as a string for a shadow
+          // root. Scoped so it doesn't turn the CSS entry points into text.
+          name: 'coordination-css-as-text',
+          setup(build) {
+            build.onLoad({ filter: /coordination[/\\].*\.css$/ }, async (args) => {
+              const contents = await fs.readFile(args.path, 'utf8');
+              return { contents, loader: 'text' };
+            });
+          },
+        },
+        {
           name: 'rename-files',
           setup(build) {
             build.onEnd(async () => {

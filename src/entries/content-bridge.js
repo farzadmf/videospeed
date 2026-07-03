@@ -71,7 +71,7 @@ async function buildPayload(settingsReady) {
   delete settings.blacklist;
   delete settings.enabled;
 
-  const getSound = (name) => chrome.runtime?.id ? chrome.runtime.getURL(`assets/sounds/${name}`) : '';
+  const getSound = (name) => (chrome.runtime?.id ? chrome.runtime.getURL(`assets/sounds/${name}`) : '');
   const soundUrls = {
     beep: getSound('beep.oga'),
     cartoon_blinking_01: getSound('cartoon_blinking_01.oga'),

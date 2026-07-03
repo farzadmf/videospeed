@@ -13,7 +13,6 @@
  */
 
 import { logger } from '../utils/logger.js';
-import { COORD_ENABLED } from './flags.js';
 import { COORD_MSG, makeMessage, parseMessage } from './messages.js';
 import { focusSnapshot } from './debug.js';
 
@@ -64,7 +63,7 @@ export class FrameCoordinator {
 
   /** Install listeners + announce presence. Safe to call once per frame. */
   start() {
-    if (!COORD_ENABLED || this._installed) {
+    if (this._installed) {
       return;
     }
     this._installed = true;
@@ -86,9 +85,6 @@ export class FrameCoordinator {
 
   /** Spoke API: call whenever this frame's controller count changes. */
   announceControllers() {
-    if (!COORD_ENABLED) {
-      return;
-    }
     const count = this.getLocalControllerCount();
     logger.warn(`${LOG} announce controllers: frame=${this.frameId} count=${count}`);
 
@@ -104,14 +100,9 @@ export class FrameCoordinator {
    * @param {object} intent - { key, code, ctrl, alt, shift, meta, leader }
    */
   forwardKeyIntent(intent) {
-    if (!COORD_ENABLED) {
-      return;
-    }
     const localCount = this.getLocalControllerCount();
 
-    logger.warn(
-      `${LOG} key intent: frame=${this.frameId} key="${intent.key}" localControllers=${localCount}`
-    );
+    logger.warn(`${LOG} key intent: frame=${this.frameId} key="${intent.key}" localControllers=${localCount}`);
 
     if (this.isTop) {
       this._route({ ...intent, fromFrameId: this.frameId, fromLocalCount: localCount });
@@ -130,9 +121,7 @@ export class FrameCoordinator {
     try {
       // '*' origin is intentional: cross-origin iframes are the case we serve,
       // and payloads carry no secrets.
-      logger.warn(
-        `${LOG} SEND → top  type=${type} from=${this.frameId} payload=${safeJson(payload)}`
-      );
+      logger.warn(`${LOG} SEND → top  type=${type} from=${this.frameId} payload=${safeJson(payload)}`);
 
       window.top.postMessage(makeMessage(type, { ...payload, frameId: this.frameId }), '*');
     } catch (e) {
@@ -155,23 +144,17 @@ export class FrameCoordinator {
       case COORD_MSG.HELLO:
       case COORD_MSG.CONTROLLERS:
         if (this.isTop) {
-          this._hubUpsert(
-            payloadFrameId(event, msg),
-            msg.payload.controllerCount || 0,
-            event.source
-          );
+          this._hubUpsert(payloadFrameId(event, msg), msg.payload.controllerCount || 0, event.source);
         }
         break;
 
       case COORD_MSG.KEY_INTENT:
         if (this.isTop) {
-          this._route(
-            {
-              ...msg.payload.intent,
-              fromFrameId: payloadFrameId(event, msg),
-              fromLocalCount: msg.payload.localControllerCount || 0,
-            }
-          );
+          this._route({
+            ...msg.payload.intent,
+            fromFrameId: payloadFrameId(event, msg),
+            fromLocalCount: msg.payload.localControllerCount || 0,
+          });
         }
         break;
 
@@ -209,9 +192,7 @@ export class FrameCoordinator {
    * else the sole controller frame, else the first of several.
    */
   _route(intent) {
-    const framesWithControllers = [...this.registry.entries()].filter(
-      ([, info]) => info.controllerCount > 0
-    );
+    const framesWithControllers = [...this.registry.entries()].filter(([, info]) => info.controllerCount > 0);
 
     logger.warn(
       `${LOG} [hub] ROUTE key="${intent.key}" from=${intent.fromFrameId} ` +
@@ -232,9 +213,7 @@ export class FrameCoordinator {
       return;
     } else {
       targetId = framesWithControllers[0][0];
-      logger.warn(
-        `${LOG} [hub] ${framesWithControllers.length} frames have controllers; picking first (${targetId})`
-      );
+      logger.warn(`${LOG} [hub] ${framesWithControllers.length} frames have controllers; picking first (${targetId})`);
     }
 
     const action = intent.action || null;
@@ -243,9 +222,7 @@ export class FrameCoordinator {
 
   _dispatchRoute(targetId, body) {
     if (targetId === this.frameId) {
-      logger.warn(
-        `${LOG} [hub] target is local frame: key="${body.key}" action="${body.action || '?'}"`
-      );
+      logger.warn(`${LOG} [hub] target is local frame: key="${body.key}" action="${body.action || '?'}"`);
 
       this.flashControllers();
       return;
@@ -267,9 +244,7 @@ export class FrameCoordinator {
   }
 
   _registrySummary() {
-    return [...this.registry.entries()]
-      .map(([id, info]) => `${id}:${info.controllerCount}`)
-      .join(', ');
+    return [...this.registry.entries()].map(([id, info]) => `${id}:${info.controllerCount}`).join(', ');
   }
 
   /** Tear down listeners (called on extension teardown). */
