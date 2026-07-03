@@ -1,3 +1,14 @@
+:host {
+  all: initial;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .panel {
   min-width: 220px;
   font: 500 14px/1.4 -apple-system, system-ui, sans-serif;

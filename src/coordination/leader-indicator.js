@@ -25,9 +25,6 @@ export class LeaderIndicator {
 
     const host = document.createElement('div');
     host.id = HOST_ID;
-    host.style.cssText =
-      'all: initial; position: fixed; inset: 0; z-index: 2147483647; ' +
-      'pointer-events: none; display: flex; align-items: center; justify-content: center;';
 
     const shadow = host.attachShadow({ mode: 'open' });
     const style = document.createElement('style');
