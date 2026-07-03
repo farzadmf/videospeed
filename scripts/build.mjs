@@ -75,7 +75,6 @@ async function build() {
       ...common,
       entryPoints: {
         'styles/inject_new': 'src/styles/inject_new.css',
-        'styles/shadow_new': 'src/styles/shadow_new.css',
         'ui/options/options': 'src/ui/options/options.js',
         'ui/options/options-html': 'src/ui/options/options.html',
         'ui/popup/popup': 'src/ui/popup/popup.js',
@@ -100,11 +99,11 @@ async function build() {
           },
         },
         {
-          // CSS imported from coordination/ is inlined as a string for a shadow
-          // root. Scoped so it doesn't turn the CSS entry points into text.
-          name: 'coordination-css-as-text',
+          // These stylesheets are imported into JS and inlined as strings for a
+          // shadow root, rather than emitted as files like the CSS entry points.
+          name: 'css-as-text',
           setup(build) {
-            build.onLoad({ filter: /coordination[/\\].*\.css$/ }, async (args) => {
+            build.onLoad({ filter: /(leader-indicator|shadow_new)\.css$/ }, async (args) => {
               const contents = await fs.readFile(args.path, 'utf8');
               return { contents, loader: 'text' };
             });

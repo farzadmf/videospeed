@@ -5,9 +5,9 @@
 window.VSC = window.VSC || {};
 
 import { logger } from '../utils/logger.js';
-import { StorageManager } from '../core/storage-manager.js';
 import { formatDuration, toPx } from '../utils/misc.js';
 import { formatVolume, formatSpeed } from '../shared/constants.js';
+import shadowCss from '../styles/shadow_new.css';
 
 // Counter for unique CSS anchor names (dashed-ident)
 let anchorNameCounter = 0;
@@ -76,8 +76,7 @@ export class ShadowDOMManager {
   async createShadowDOM(wrapper, options = {}) {
     const { buttonSize = 14, speed = '1.0', volume = '1.0' } = options;
 
-    // Lazy-fetch shadow CSS on first controller creation; cached for subsequent ones
-    this.cssText = await StorageManager.getShadowCSS();
+    this.cssText = shadowCss;
 
     this.shadow = wrapper.attachShadow({ mode: 'open' });
 

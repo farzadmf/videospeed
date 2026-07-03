@@ -85,28 +85,7 @@ async function buildPayload(settingsReady) {
   return { settings, soundUrls };
 }
 
-async function fetchShadowCSS() {
-  try {
-    // See preparePayload() for why we check this
-    if (!chrome.runtime?.id) {
-      return '';
-    }
-    const url = chrome.runtime.getURL('styles/shadow_new.css');
-    const response = await fetch(url);
-    return await response.text();
-  } catch (e) {
-    console.warn('[VSC] Bridge: failed to fetch shadow CSS:', e.message);
-    return '';
-  }
-}
-
 function setupOngoingListeners() {
-  // --- On-demand shadow CSS fetch (only when a controller is actually created) ---
-  docEl.addEventListener('VSC_REQUEST_CSS', async () => {
-    const css = await fetchShadowCSS();
-    docEl.dispatchEvent(new CustomEvent('VSC_CSS_READY', { detail: css }));
-  });
-
   // --- Storage change relay + lifecycle ---
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace !== 'sync') {

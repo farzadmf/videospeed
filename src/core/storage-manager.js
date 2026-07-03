@@ -61,10 +61,7 @@ export class StorageManager {
           return;
         }
 
-        // Store shadow CSS for shadow-dom-manager.js to read
-        // NOTE: shadow CSS is now fetched lazily via getShadowCSS()
-
-        // Store sound URLs for MAIN world usage (like shadow CSS pattern)
+        // Store sound URLs for MAIN world usage
         if (detail.soundUrls) {
           window.VSC._soundUrls = detail.soundUrls;
         }
@@ -83,42 +80,6 @@ export class StorageManager {
 
       docEl.dispatchEvent(new CustomEvent('VSC_REQUEST_SETTINGS'));
     });
-  }
-
-  /**
-   * Fetch shadow CSS from the bridge on demand. Caches the result so the
-   * fetch only happens once per page — subsequent calls return immediately.
-   * @returns {Promise<string>} CSS text
-   */
-  static getShadowCSS() {
-    if (window.VSC._shadowCSS !== undefined) {
-      return Promise.resolve(window.VSC._shadowCSS);
-    }
-
-    // Cache the in-flight promise so concurrent calls don't trigger multiple fetches
-    if (!this._shadowCSSPromise) {
-      this._shadowCSSPromise = new Promise((resolve) => {
-        const timeout = setTimeout(() => {
-          docEl.removeEventListener('VSC_CSS_READY', onReady);
-          logger.warn('StorageManager: shadow CSS timeout');
-          window.VSC._shadowCSS = '';
-          resolve('');
-        }, 2000);
-
-        function onReady(e) {
-          docEl.removeEventListener('VSC_CSS_READY', onReady);
-          clearTimeout(timeout);
-          const css = e.detail || '';
-          window.VSC._shadowCSS = css;
-          resolve(css);
-        }
-
-        docEl.addEventListener('VSC_CSS_READY', onReady);
-        docEl.dispatchEvent(new CustomEvent('VSC_REQUEST_CSS'));
-      });
-    }
-
-    return this._shadowCSSPromise;
   }
 
   /**

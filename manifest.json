@@ -51,7 +51,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "styles/shadow_new.css",
         "assets/sounds/beep.oga",
         "assets/sounds/cartoon_blinking_01.oga",
         "assets/sounds/cartoon_blinking_02.oga",
