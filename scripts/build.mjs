@@ -12,6 +12,9 @@ const __dist_ui = path.join(__dist, 'ui');
 
 const isWatch = process.argv.includes('--watch');
 
+// Live esbuild context in watch mode, kept so a config change can dispose it.
+let ctx = null;
+
 const common = {
   bundle: true,
   sourcemap: false, // set true locally if debugging
@@ -125,7 +128,7 @@ async function build() {
     };
 
     if (isWatch) {
-      const ctx = await esbuild.context(esbuildConfig);
+      ctx = await esbuild.context(esbuildConfig);
       await ctx.watch();
       console.log('🔧 Watching for changes...');
     } else {
@@ -139,4 +142,23 @@ async function build() {
   }
 }
 
-build();
+// esbuild's watch snapshots this config at startup and never re-reads it, so
+// editing build.mjs (e.g. adding a loader) would otherwise silently ship stale
+// output. Watch the file ourselves and restart the build on change.
+function watchConfig() {
+  let timer = null;
+  fs.watch(__filename, () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      console.log('🔄 build.mjs changed, restarting...');
+      await ctx?.dispose();
+      await build();
+    }, 100);
+  });
+}
+
+await build();
+
+if (isWatch) {
+  watchConfig();
+}
