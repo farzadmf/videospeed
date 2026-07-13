@@ -43,6 +43,7 @@
     "@trivago/prettier-plugin-sort-imports": "*",
     "@types/chrome": "*",
     "@types/lodash-es": "^4.17.12",
+    "@types/luxon": "^3.7.2",
     "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",

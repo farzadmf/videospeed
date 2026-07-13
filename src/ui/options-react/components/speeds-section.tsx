@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { useEffect, useMemo, useState } from 'react';
 
 type SourceEntry = { speed: number; updated: number };
@@ -5,12 +6,6 @@ type Sources = Record<string, SourceEntry>;
 
 function readSources(): Promise<Sources> {
   return new Promise<Sources>((resolve) => chrome.storage.sync.get('sources', (s) => resolve((s.sources ?? {}) as Sources)));
-}
-
-function formatUpdated(ms: number): string {
-  const d = new Date(ms);
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
 function writeSources(sources: Sources): Promise<void> {
@@ -105,7 +100,7 @@ export const SpeedsSection = () => {
                   onChange={(e) => setSpeed(url, parseFloat(e.target.value))}
                 />
               </td>
-              <td>{formatUpdated(entry.updated)}</td>
+              <td>{DateTime.fromMillis(entry.updated).toFormat('yyyy-MM-dd HH:mm:ss')}</td>
               <td>
                 <button className="btn btn-error btn-xs" onClick={() => forget(url)}>
                   Forget
