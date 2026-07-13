@@ -19,6 +19,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: path.resolve(__dirname, 'src', 'ui', 'popup-react', 'index.html'),
+        options: path.resolve(__dirname, 'src', 'ui', 'options-react', 'index.html'),
       },
     },
   },
