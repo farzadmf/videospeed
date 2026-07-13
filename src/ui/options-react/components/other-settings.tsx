@@ -36,7 +36,7 @@ export const OtherSettings = ({ settings, update }: Props) => (
         <>
           Exclusive keys
           <br />
-          <em className="text-base-content/60">When possible, prevent websites from also handling VSC shortcut keys</em>
+          <em className="text-base-content/70 text-sm">When possible, prevent websites from also handling VSC shortcut keys</em>
         </>
       }
       checked={settings.exclusiveKeys}
@@ -47,7 +47,7 @@ export const OtherSettings = ({ settings, update }: Props) => (
         <>
           Force last saved speed
           <br />
-          <em className="text-base-content/60">Useful for video players that override the speeds set by VideoSpeed</em>
+          <em className="text-base-content/70 text-sm">Useful for video players that override the speeds set by VideoSpeed</em>
         </>
       }
       checked={settings.forceLastSavedSpeed}
@@ -59,7 +59,7 @@ export const OtherSettings = ({ settings, update }: Props) => (
         <>
           Anchor positioning
           <br />
-          <em className="text-base-content/60">
+          <em className="text-base-content/70 text-sm">
             On by default. Turn off to position the controller with JS scroll/resize tracking instead.
           </em>
         </>
@@ -90,7 +90,7 @@ export const OtherSettings = ({ settings, update }: Props) => (
     <label className="flex flex-col gap-1 py-1">
       <span className="text-sm">Sites on which extension is disabled (one per line). Regex supported.</span>
       <textarea
-        className="textarea textarea-bordered h-40 font-mono text-xs"
+        className="textarea textarea-bordered h-40 font-mono text-sm"
         value={settings.blacklist.join('\n')}
         onChange={(e) => update({ blacklist: e.target.value.split('\n') })}
       />

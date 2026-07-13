@@ -1,8 +1,12 @@
 @import 'tailwindcss';
 
 /* light is the default; dark auto-activates via OS preference. */
-@plugin "daisyui" {
+@plugin 'daisyui' {
   themes:
     light --default,
     dark --prefersdark;
+}
+
+html {
+  font-size: 16px;
 }

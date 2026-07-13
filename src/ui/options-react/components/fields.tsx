@@ -7,14 +7,9 @@ type CheckboxProps = {
 };
 
 export const CheckboxField = ({ label, checked, onChange }: CheckboxProps) => (
-  <label className="flex cursor-pointer items-start gap-3 py-1">
-    <input
-      type="checkbox"
-      className="checkbox checkbox-sm mt-0.5"
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-    />
-    <span className="text-sm">{label}</span>
+  <label className="flex cursor-pointer items-start gap-3 py-1.5">
+    <input type="checkbox" className="checkbox mt-0.5" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+    <span className="text-base">{label}</span>
   </label>
 );
 
@@ -26,14 +21,9 @@ type TextProps = {
 };
 
 export const TextField = ({ label, value, type = 'text', onChange }: TextProps) => (
-  <label className="flex items-center gap-3 py-1">
-    <span className="w-48 text-sm">{label}</span>
-    <input
-      type={type}
-      className="input input-sm input-bordered flex-1"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
+  <label className="flex items-center gap-3 py-1.5">
+    <span className="w-56 text-base">{label}</span>
+    <input type={type} className="input input-bordered flex-1" value={value} onChange={(e) => onChange(e.target.value)} />
   </label>
 );
 
@@ -45,9 +35,9 @@ type SelectProps = {
 };
 
 export const SelectField = ({ label, value, options, onChange }: SelectProps) => (
-  <label className="flex items-center gap-3 py-1">
-    <span className="w-48 text-sm">{label}</span>
-    <select className="select select-sm select-bordered flex-1" value={value} onChange={(e) => onChange(e.target.value)}>
+  <label className="flex items-center gap-3 py-1.5">
+    <span className="w-56 text-base">{label}</span>
+    <select className="select select-bordered flex-1" value={value} onChange={(e) => onChange(e.target.value)}>
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
