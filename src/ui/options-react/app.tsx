@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { OtherSettings } from './components/other-settings';
 import { Section } from './components/section';
+import { SiteSettings } from './components/site-settings';
 import { Settings, useOptions } from './use-options';
 
 export const App = () => {
@@ -57,7 +58,9 @@ export const App = () => {
         <Section title="Other Settings">
           <OtherSettings settings={draft} update={update} />
         </Section>
-        <Section title="Site-specific Settings">Not yet ported.</Section>
+        <Section title="Site-specific Settings">
+          <SiteSettings settings={draft} update={update} />
+        </Section>
         <Section title="Speeds">Not yet ported.</Section>
       </div>
     </div>
