@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Faq } from './components/faq';
 import { KeyBindings } from './components/key-bindings';
@@ -12,18 +12,11 @@ import { serialize, validateBlacklist } from './serialize';
 import { Settings, useOptions } from './use-options';
 
 export const App = () => {
-  const { settings, save, restoreDefaults } = useOptions();
+  const { draft, setDraft, update, save, restoreDefaults } = useOptions();
 
-  const [draft, setDraft] = useState<Settings | null>(null);
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (settings) {
-      setDraft(structuredClone(settings));
-    }
-  }, [settings]);
 
   if (!draft) {
     return <div className="p-8 text-lg">Loading…</div>;
@@ -34,8 +27,8 @@ export const App = () => {
     setTimeout(() => setStatus(''), ms);
   };
 
-  const update = (patch: Partial<Settings>) => {
-    setDraft({ ...draft, ...patch });
+  const edit = (patch: Partial<Settings>) => {
+    update(patch);
     setDirty(true);
   };
 
@@ -106,16 +99,16 @@ export const App = () => {
 
       <div className="join join-vertical w-full">
         <Section title="Key Bindings">
-          <KeyBindings settings={draft} update={update} />
+          <KeyBindings settings={draft} update={edit} />
         </Section>
         <Section title="Leader Mode">
-          <LeaderModeSection settings={draft} update={update} />
+          <LeaderModeSection settings={draft} update={edit} />
         </Section>
         <Section title="Other Settings">
-          <OtherSettings settings={draft} update={update} />
+          <OtherSettings settings={draft} update={edit} />
         </Section>
         <Section title="Site-specific Settings">
-          <SiteSettings settings={draft} update={update} />
+          <SiteSettings settings={draft} update={edit} />
         </Section>
         <Section title="Speeds">
           <SpeedsSection />

@@ -39,22 +39,27 @@ export type Settings = Omit<typeof VSC_DEFAULTS, 'keyBindings' | 'leaderBindings
   };
 };
 
+// Owns the editable draft: the stored settings are loaded once into state and
+// that state IS the working copy the sections mutate. Keeping it here avoids a
+// prop-to-state sync effect in the app.
 export function useOptions() {
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const [draft, setDraft] = useState<Settings | null>(null);
 
   useEffect(() => {
-    chrome.storage.sync.get(VSC_DEFAULTS, (stored) => setSettings(stored as Settings));
+    chrome.storage.sync.get(VSC_DEFAULTS, (stored) => setDraft(stored as Settings));
   }, []);
+
+  const update = (patch: Partial<Settings>) => setDraft((d) => (d ? { ...d, ...patch } : d));
 
   const save = (next: Settings) => new Promise<void>((resolve) => chrome.storage.sync.set(next, () => resolve()));
 
   const restoreDefaults = () =>
     new Promise<void>((resolve) =>
       chrome.storage.sync.set(VSC_DEFAULTS, () => {
-        setSettings(structuredClone(VSC_DEFAULTS));
+        setDraft(structuredClone(VSC_DEFAULTS));
         resolve();
       })
     );
 
-  return { settings, setSettings, save, restoreDefaults };
+  return { draft, setDraft, update, save, restoreDefaults };
 }
