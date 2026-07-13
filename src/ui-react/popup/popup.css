@@ -1,6 +1,41 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #666666;
+  --surface: #f6f6f6;
+  --surface-hover: #ececec;
+  --border: #cccccc;
+  --accent: #2563eb;
+}
+
+/* Default follows the OS preference; an explicit data-theme overrides it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #1e1e1e;
+    --fg: #e8e8e8;
+    --muted: #9a9a9a;
+    --surface: #2a2a2a;
+    --surface-hover: #353535;
+    --border: #444444;
+    --accent: #60a5fa;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #1e1e1e;
+  --fg: #e8e8e8;
+  --muted: #9a9a9a;
+  --surface: #2a2a2a;
+  --surface-hover: #353535;
+  --border: #444444;
+  --accent: #60a5fa;
+}
+
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
 }
 
 .popup-container {
@@ -26,10 +61,17 @@ body {
 .preset-btn,
 .icon-btn {
   cursor: pointer;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 10px;
-  background: #f6f6f6;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.control-btn:hover,
+.preset-btn:hover,
+.icon-btn:hover {
+  background: var(--surface-hover);
 }
 
 .reset-btn {
@@ -48,5 +90,5 @@ body {
   margin-bottom: 6px;
   text-align: center;
   font-size: 12px;
-  color: #555;
+  color: var(--muted);
 }
