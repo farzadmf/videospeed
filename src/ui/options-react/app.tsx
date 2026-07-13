@@ -1,29 +1,64 @@
-import { useOptions } from './use-options';
+import { useEffect, useState } from 'react';
 
-const SECTIONS = ['Key Bindings', 'Leader Mode', 'Other Settings', 'Site-specific Settings', 'Speeds', 'FAQ', 'Help & Support'];
+import { OtherSettings } from './components/other-settings';
+import { Section } from './components/section';
+import { Settings, useOptions } from './use-options';
 
 export const App = () => {
-  const { settings } = useOptions();
+  const { settings, save, restoreDefaults } = useOptions();
 
-  if (!settings) {
+  const [draft, setDraft] = useState<Settings | null>(null);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (settings) {
+      setDraft(structuredClone(settings));
+    }
+  }, [settings]);
+
+  if (!draft) {
     return <div className="p-8">Loading…</div>;
   }
 
+  const update = (patch: Partial<Settings>) => {
+    setDraft({ ...draft, ...patch });
+    setDirty(true);
+  };
+
+  const onSave = async () => {
+    await save(draft);
+    setDirty(false);
+  };
+
+  const onRestore = async () => {
+    await restoreDefaults();
+    setDirty(false);
+  };
+
   return (
     <div className="bg-base-100 text-base-content mx-auto max-w-4xl p-6">
-      <header className="mb-6">
+      <header className="mb-4">
         <h1 className="text-3xl font-bold">Video Speed Controller</h1>
         <p className="text-base-content/70 mt-1">Expand each section for relevant settings</p>
       </header>
 
+      <div className="bg-base-100 sticky top-0 z-10 mb-4 flex gap-2 py-3">
+        <button className={`btn btn-sm ${dirty ? 'btn-success' : 'btn-outline'}`} disabled={!dirty} onClick={onSave}>
+          {dirty ? 'Save Settings *' : 'Save Settings'}
+        </button>
+        <button className="btn btn-sm btn-primary" onClick={onRestore}>
+          Restore Defaults
+        </button>
+      </div>
+
       <div className="join join-vertical w-full">
-        {SECTIONS.map((title) => (
-          <div key={title} className="collapse-arrow join-item border-base-300 collapse border">
-            <input type="checkbox" />
-            <div className="collapse-title font-semibold">{title}</div>
-            <div className="collapse-content text-base-content/50 text-sm">Not yet ported.</div>
-          </div>
-        ))}
+        <Section title="Key Bindings">Not yet ported.</Section>
+        <Section title="Leader Mode">Not yet ported.</Section>
+        <Section title="Other Settings">
+          <OtherSettings settings={draft} update={update} />
+        </Section>
+        <Section title="Site-specific Settings">Not yet ported.</Section>
+        <Section title="Speeds">Not yet ported.</Section>
       </div>
     </div>
   );
