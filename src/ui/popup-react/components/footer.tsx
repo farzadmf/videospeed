@@ -13,13 +13,13 @@ export const Footer = ({ enabled, status, onToggleEnabled }: Props) => (
     {status && <span className="text-base-content/70 text-xs">{status}</span>}
     <div className="ml-auto flex gap-1">
       <button
-        className={`btn btn-circle btn-ghost ${enabled ? 'text-success' : 'text-error'}`}
+        className={`btn btn-circle btn-soft ${enabled ? 'btn-success' : 'btn-error'}`}
         title={enabled ? 'Disable Extension' : 'Enable Extension'}
         onClick={onToggleEnabled}
       >
         <LuPower size={18} />
       </button>
-      <button className="btn btn-circle btn-ghost" title="Settings" onClick={openOptions}>
+      <button className="btn btn-circle btn-soft btn-primary" title="Settings" onClick={openOptions}>
         <LuSettings size={18} />
       </button>
     </div>

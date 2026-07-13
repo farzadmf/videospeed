@@ -13,13 +13,16 @@ type Props = {
 export const SpeedControls = ({ slowerStep, fasterStep, resetSpeed }: Props) => (
   <div className="flex flex-col gap-4 p-5">
     <div className="grid grid-cols-3 gap-2">
-      <button className="btn btn-outline" onClick={() => adjustSpeed(-slowerStep)}>
+      <button className="btn btn-soft btn-primary" onClick={() => adjustSpeed(-slowerStep)}>
         <LuMinus /> {slowerStep}
       </button>
-      <button className="btn btn-primary" onClick={() => setSpeed(resetSpeed)}>
+      <button
+        className="btn btn-primary hover:bg-primary-content hover:text-primary font-bold"
+        onClick={() => setSpeed(resetSpeed)}
+      >
         {resetSpeed}
       </button>
-      <button className="btn btn-outline" onClick={() => adjustSpeed(fasterStep)}>
+      <button className="btn btn-soft btn-primary" onClick={() => adjustSpeed(fasterStep)}>
         <LuPlus /> {fasterStep}
       </button>
     </div>
