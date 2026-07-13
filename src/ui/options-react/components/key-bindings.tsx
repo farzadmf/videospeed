@@ -11,22 +11,21 @@ type Props = {
 const ALL_ACTIONS = Object.values(ACTIONS) as ActionDef[];
 
 export const KeyBindings = ({ settings, update }: Props) => {
-  const bindings = settings.keyBindings as KeyBinding[];
+  const bindings = settings.keyBindings;
 
   const sorted = [...bindings].sort((a, b) => a.action.description.localeCompare(b.action.description));
 
   const setBinding = (target: KeyBinding, patch: Partial<KeyBinding>) =>
-    update({ keyBindings: bindings.map((b) => (b === target ? { ...b, ...patch } : b)) as Settings['keyBindings'] });
+    update({ keyBindings: bindings.map((b) => (b === target ? { ...b, ...patch } : b)) });
 
-  const removeBinding = (target: KeyBinding) =>
-    update({ keyBindings: bindings.filter((b) => b !== target) as Settings['keyBindings'] });
+  const removeBinding = (target: KeyBinding) => update({ keyBindings: bindings.filter((b) => b !== target) });
 
   const usedNames = new Set(bindings.map((b) => b.action.name));
   const available = ALL_ACTIONS.filter((a) => !usedNames.has(a.name));
 
   const addBinding = () => {
     const action = available[0] ?? ALL_ACTIONS[0];
-    update({ keyBindings: [...bindings, { action, code: '' }] as Settings['keyBindings'] });
+    update({ keyBindings: [...bindings, { action, code: '' }] });
   };
 
   return (

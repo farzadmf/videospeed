@@ -1,10 +1,6 @@
 import { VSC_DEFAULTS } from '@shared/defaults';
 import { useEffect, useState } from 'react';
 
-// The stored settings shape is defined once, by the shared defaults the content
-// script also reads. Deriving the type from it keeps options in lockstep.
-export type Settings = typeof VSC_DEFAULTS;
-
 export type ActionDef = { name: string; description: string; value?: number; value2?: number; predefined?: boolean };
 
 export type KeyBinding = {
@@ -19,6 +15,29 @@ export type KeyBinding = {
 };
 
 export type LeaderBinding = Omit<KeyBinding, 'predefined' | 'value' | 'value2'>;
+
+export type LeaderKey = { code: string; alt?: boolean; shift?: boolean; ctrl?: boolean };
+
+export type SpbCategory = { name: string; color: string; should_skip: boolean };
+
+// VSC_DEFAULTS literal infers types too narrowly (missing optional modifiers,
+// widened enums). Declare the real stored shape explicitly; the defaults still
+// supply the values, so the two stay aligned at the one call site that reads them.
+export type Settings = Omit<typeof VSC_DEFAULTS, 'keyBindings' | 'leaderBindings' | 'leaderKey' | 'sites'> & {
+  keyBindings: KeyBinding[];
+  leaderBindings: LeaderBinding[];
+  leaderKey: LeaderKey;
+  sites: {
+    youtube: {
+      spb_sound_enabled: boolean;
+      spb_skip_sound: string;
+      spb_unskip_sound: string;
+      spb_enabled: boolean;
+      spb_interval: number;
+      spb_categories: SpbCategory[];
+    };
+  };
+};
 
 export function useOptions() {
   const [settings, setSettings] = useState<Settings | null>(null);

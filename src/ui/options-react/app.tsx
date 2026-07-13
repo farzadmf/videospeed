@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { KeyBindings } from './components/key-bindings';
+import { LeaderModeSection } from './components/leader-mode';
 import { OtherSettings } from './components/other-settings';
 import { Section } from './components/section';
 import { SiteSettings } from './components/site-settings';
@@ -58,7 +59,9 @@ export const App = () => {
         <Section title="Key Bindings">
           <KeyBindings settings={draft} update={update} />
         </Section>
-        <Section title="Leader Mode">Not yet ported.</Section>
+        <Section title="Leader Mode">
+          <LeaderModeSection settings={draft} update={update} />
+        </Section>
         <Section title="Other Settings">
           <OtherSettings settings={draft} update={update} />
         </Section>
