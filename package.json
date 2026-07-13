@@ -8,7 +8,7 @@
     "build:react": "vite build -c vite.react.config.ts",
     "dev": "concurrently -n esbuild,vite -c blue,magenta \"node scripts/build.mjs --watch\" \"npm run dev:react\"",
     "dev:react": "vite build -c vite.react.config.ts --watch",
-    "format": "prettier --write src/**/*.js tests/**/*.js",
+    "format": "prettier --write \"src/**/*.{js,ts,tsx}\" \"tests/**/*.js\"",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "prebuild": "rimraf dist",
@@ -78,12 +78,5 @@
     "speed",
     "utils"
   ],
-  "author": "Farzad Majidfayyaz",
-  "prettier": {
-    "singleQuote": true,
-    "semi": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "printWidth": 130
-  }
+  "author": "Farzad Majidfayyaz"
 }

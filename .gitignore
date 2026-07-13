@@ -7,3 +7,4 @@ local
 node_modules
 dist
 build
+*.tsbuildinfo
