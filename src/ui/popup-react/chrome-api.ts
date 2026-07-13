@@ -2,7 +2,7 @@ import { MESSAGE_TYPES } from '@shared/constants';
 
 function sendToActiveTab(message: unknown) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0]?.id != null) {
+    if (tabs[0]?.id !== undefined) {
       chrome.tabs.sendMessage(tabs[0].id, message);
     }
   });

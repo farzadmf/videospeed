@@ -1,4 +1,5 @@
 import { BLACKLISTED_CODES, BLACKLISTED_KEYS, KEYS } from '@key-codes';
+import type { KeyboardEvent } from 'react';
 
 // Resolved once; used to label a physical code per the active keyboard layout.
 let layoutMap: Map<string, string> | null = null;
@@ -33,7 +34,7 @@ export type Captured = { code: string; alt: boolean; shift: boolean; ctrl: boole
 //   null      — ignore (a bare modifier or blacklisted key)
 //   'clear'   — Escape: clear the binding
 //   Captured  — a recorded key + the modifiers held with it
-export function captureKey(event: React.KeyboardEvent): Captured | 'clear' | null {
+export function captureKey(event: KeyboardEvent): Captured | 'clear' | null {
   const { altKey, code, ctrlKey, key, shiftKey } = event;
 
   if (key === 'Escape') {

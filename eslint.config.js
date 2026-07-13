@@ -1,4 +1,7 @@
 import js from '@eslint/js';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
 export default [
@@ -57,6 +60,25 @@ export default [
   //     'no-unused-expressions': 'off',
   //   },
   // },
+  // React/TypeScript UI. The TS parser needs jsx enabled explicitly; without it
+  // the parser rejects TSX with a "configured jsx" error.
+  {
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+      'react-hooks': reactHooks,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    rules: {
+      ...tsPlugin.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+    },
+  },
   {
     ignores: ['dist/**', 'node_modules/**', 'src/assets/**', 'tests/**'],
   },

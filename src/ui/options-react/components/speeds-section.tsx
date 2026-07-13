@@ -26,7 +26,7 @@ export const SpeedsSection = () => {
   };
 
   const forget = (url: string) => {
-    const { [url]: _removed, ...rest } = sources;
+    const rest = Object.fromEntries(Object.entries(sources).filter(([key]) => key !== url));
     persist(rest);
   };
 
