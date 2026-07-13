@@ -9,21 +9,19 @@ type Props = {
 };
 
 export const Footer = ({ enabled, status, onToggleEnabled }: Props) => (
-  <div className="footer">
-    <div className="footer-content">
-      {status && <div className="status">{status}</div>}
-      <div className="footer-controls">
-        <button
-          className={`icon-btn power-btn${enabled ? '' : ' disabled'}`}
-          title={enabled ? 'Disable Extension' : 'Enable Extension'}
-          onClick={onToggleEnabled}
-        >
-          <LuPower size={20} />
-        </button>
-        <button className="icon-btn settings-btn" title="Settings" onClick={openOptions}>
-          <LuSettings size={20} />
-        </button>
-      </div>
+  <div className="border-base-300 bg-base-200 flex items-center gap-2 border-t px-5 py-2">
+    {status && <span className="text-base-content/70 text-xs">{status}</span>}
+    <div className="ml-auto flex gap-1">
+      <button
+        className={`btn btn-circle btn-ghost ${enabled ? 'text-success' : 'text-error'}`}
+        title={enabled ? 'Disable Extension' : 'Enable Extension'}
+        onClick={onToggleEnabled}
+      >
+        <LuPower size={18} />
+      </button>
+      <button className="btn btn-circle btn-ghost" title="Settings" onClick={openOptions}>
+        <LuSettings size={18} />
+      </button>
     </div>
   </div>
 );

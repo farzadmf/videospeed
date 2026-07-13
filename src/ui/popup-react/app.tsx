@@ -15,7 +15,7 @@ export const App = () => {
   };
 
   return (
-    <div className="popup-container">
+    <div className="bg-base-100 text-base-content w-72">
       <SpeedControls slowerStep={settings.slowerStep} fasterStep={settings.fasterStep} resetSpeed={settings.resetSpeed} />
       <Footer enabled={settings.enabled} status={status} onToggleEnabled={toggleEnabled} />
     </div>

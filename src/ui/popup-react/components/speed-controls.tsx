@@ -1,3 +1,5 @@
+import { LuMinus, LuPlus } from 'react-icons/lu';
+
 import { adjustSpeed, setSpeed } from '../chrome-api';
 
 const PRESETS = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5];
@@ -9,27 +11,25 @@ type Props = {
 };
 
 export const SpeedControls = ({ slowerStep, fasterStep, resetSpeed }: Props) => (
-  <div className="speed-section">
-    <div className="speed-controls">
-      <button className="control-btn" onClick={() => adjustSpeed(-slowerStep)}>
-        <span>-{slowerStep}</span>
+  <div className="flex flex-col gap-4 p-5">
+    <div className="grid grid-cols-3 gap-2">
+      <button className="btn btn-outline" onClick={() => adjustSpeed(-slowerStep)}>
+        <LuMinus /> {slowerStep}
       </button>
-      <button className="control-btn reset-btn" onClick={() => setSpeed(resetSpeed)}>
+      <button className="btn btn-primary" onClick={() => setSpeed(resetSpeed)}>
         {resetSpeed}
       </button>
-      <button className="control-btn" onClick={() => adjustSpeed(fasterStep)}>
-        <span>+{fasterStep}</span>
+      <button className="btn btn-outline" onClick={() => adjustSpeed(fasterStep)}>
+        <LuPlus /> {fasterStep}
       </button>
     </div>
 
-    <div className="speed-presets">
-      <div className="preset-grid">
-        {PRESETS.map((speed) => (
-          <button key={speed} className="preset-btn" onClick={() => setSpeed(speed)}>
-            {speed}
-          </button>
-        ))}
-      </div>
+    <div className="grid grid-cols-4 gap-2">
+      {PRESETS.map((speed) => (
+        <button key={speed} className="btn btn-sm btn-soft btn-primary" onClick={() => setSpeed(speed)}>
+          {speed}
+        </button>
+      ))}
     </div>
   </div>
 );
