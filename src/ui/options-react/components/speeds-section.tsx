@@ -74,9 +74,9 @@ export const SpeedsSection = () => {
         onChange={(e) => setFilter(e.target.value)}
       />
 
-      <table className="table-zebra table-sm table">
+      <table className="table-zebra table text-base">
         <thead>
-          <tr>
+          <tr className="text-base">
             <th>#</th>
             <th>URL</th>
             <th>Speed</th>
@@ -95,14 +95,14 @@ export const SpeedsSection = () => {
                   step="0.1"
                   min="0.1"
                   max="16"
-                  className="input input-bordered input-sm w-20"
+                  className="input input-bordered w-24"
                   value={entry.speed}
                   onChange={(e) => setSpeed(url, parseFloat(e.target.value))}
                 />
               </td>
               <td>{DateTime.fromMillis(entry.updated).toFormat('yyyy-MM-dd HH:mm:ss')}</td>
               <td>
-                <button className="btn btn-error btn-xs" onClick={() => forget(url)}>
+                <button className="btn btn-error btn-sm" onClick={() => forget(url)}>
                   Forget
                 </button>
               </td>
