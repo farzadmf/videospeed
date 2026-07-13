@@ -2,10 +2,9 @@
  * Unit tests for recursive shadow DOM media element detection
  * Tests the findShadowMedia functionality in dom-utils.js and MediaElementObserver
  */
-
-import { installChromeMock, cleanupChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert, createMockVideo, createMockDOM } from '../../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
 import { loadCoreModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert, createMockDOM, createMockVideo } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadCoreModules();
@@ -141,7 +140,7 @@ runner.test('DomUtils.findShadowMedia should find multiple videos across differe
 
   assert.equal(results.length, 3);
 
-  const videoIds = results.map(v => v.id).sort();
+  const videoIds = results.map((v) => v.id).sort();
   assert.deepEqual(videoIds, ['regular-video', 'video-1', 'video-2']);
 });
 
@@ -269,7 +268,7 @@ runner.test('Should handle mixed regular and shadow DOM content', () => {
   const results = window.VSC.DomUtils.findShadowMedia(container, 'video');
 
   assert.equal(results.length, 2);
-  const ids = results.map(v => v.id).sort();
+  const ids = results.map((v) => v.id).sort();
   assert.deepEqual(ids, ['regular', 'shadow']);
 });
 
@@ -298,7 +297,7 @@ runner.test('Should handle complex nested structure with multiple videos per lev
   const results = window.VSC.DomUtils.findShadowMedia(host, 'video');
 
   assert.equal(results.length, 3);
-  const ids = results.map(v => v.id).sort();
+  const ids = results.map((v) => v.id).sort();
   assert.deepEqual(ids, ['level-1', 'level-2a', 'level-2b']);
 });
 
@@ -321,4 +320,4 @@ runner.test('Performance test - should handle many nested shadow roots efficient
   assert.true(duration < 100, `Search took ${duration}ms, should be under 100ms`);
 });
 
-export { runner as recursiveShadowDOMTestRunner }; 
+export { runner as recursiveShadowDOMTestRunner };

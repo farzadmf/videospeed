@@ -1,10 +1,9 @@
 /**
  * Tests for audio element size handling
  */
-
-import { installChromeMock, cleanupChromeMock } from '../../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert, createMockDOM } from '../../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock } from '../../helpers/chrome-mock.js';
 import { loadObserverModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert, createMockDOM } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadObserverModules();
@@ -19,7 +18,7 @@ const SMALL_AUDIO_SIZE = {
 };
 
 const SMALL_VIDEO_SIZE = {
-  WIDTH: 40, // Below VIDEO_MIN_WIDTH (50)  
+  WIDTH: 40, // Below VIDEO_MIN_WIDTH (50)
   HEIGHT: 30, // Below VIDEO_MIN_HEIGHT (50)
 };
 
@@ -201,16 +200,10 @@ runner.test('VideoController should start visible for small audio elements', asy
   assert.exists(controller.div, 'Controller should be created for small audio');
 
   // Check that it starts visible (size no longer matters)
-  assert.false(
-    controller.div.classList.contains('vsc-hidden'),
-    'Small audio controller should start visible'
-  );
+  assert.false(controller.div.classList.contains('vsc-hidden'), 'Small audio controller should start visible');
 
   // Verify it's not hidden (uses natural visibility)
-  assert.false(
-    controller.div.classList.contains('vsc-hidden'),
-    'Small audio controller should not be hidden'
-  );
+  assert.false(controller.div.classList.contains('vsc-hidden'), 'Small audio controller should not be hidden');
 
   // Cleanup
   controller.remove();
@@ -315,4 +308,4 @@ runner.test('Display toggle should work with audio controllers', async () => {
   mockDOM.container.removeChild(smallAudio);
 });
 
-export default runner; 
+export default runner;

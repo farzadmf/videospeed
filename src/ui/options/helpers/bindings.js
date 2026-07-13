@@ -1,6 +1,6 @@
+import { ACTION_OPTIONS, ALLOWED_ACTION_OPTIONS, NO_VALUE_ACTIONS, actionByName } from '../../../shared/actions.js';
+import { BLACKLISTED_CODES, BLACKLISTED_KEYS, KEYS, KEY_CODES } from './key-codes.js';
 import { getTcDefaultBinding } from './misc.js';
-import { actionByName, ALLOWED_ACTION_OPTIONS, ACTION_OPTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
-import { BLACKLISTED_CODES, BLACKLISTED_KEYS, KEY_CODES, KEYS } from './key-codes.js';
 
 // Keyboard layout map — resolved once on page load, used for display labels.
 // Upstream: this lives in options.js; we put it here because recordKeyPress is in bindings.js.
@@ -103,7 +103,6 @@ export function addBinding(item = {}) {
 `;
   const shortcuts = document.querySelector('#shortcuts tbody');
   shortcuts.insertAdjacentHTML('beforeend', html);
-
 }
 
 export function createKeyBinding(binding) {

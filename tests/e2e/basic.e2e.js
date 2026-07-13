@@ -1,19 +1,18 @@
 /**
  * Basic E2E tests for Video Speed Controller extension
  */
-
 import {
+  assert,
+  controlVideo,
+  getControllerSpeedDisplay,
+  getVideoSpeed,
   launchChromeWithExtension,
+  sleep,
+  takeScreenshot,
+  testKeyboardShortcut,
+  waitForController,
   waitForExtension,
   waitForVideo,
-  waitForController,
-  getVideoSpeed,
-  controlVideo,
-  testKeyboardShortcut,
-  getControllerSpeedDisplay,
-  takeScreenshot,
-  assert,
-  sleep,
 } from './e2e-utils.js';
 
 export default async function runBasicE2ETests() {

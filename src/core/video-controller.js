@@ -1,15 +1,15 @@
+import { formatSpeed } from '../shared/constants.js';
+import { ControlsManager } from '../ui/controls-manager.js';
+import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
+import { logger } from '../utils/logger.js';
+import { getBaseURL } from '../utils/url.js';
+import { stateManager } from './state-manager.js';
+
 /**
  * Video Controller class for managing individual video elements
  */
 
 window.VSC = window.VSC || {};
-
-import { getBaseURL } from '../utils/url.js';
-import { logger } from '../utils/logger.js';
-import { ControlsManager } from '../ui/controls-manager.js';
-import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
-import { formatSpeed } from '../shared/constants.js';
-import { stateManager } from './state-manager.js';
 
 export class VideoController {
   /**

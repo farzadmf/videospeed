@@ -4,10 +4,9 @@
  * E2E test runner for Video Speed Controller Chrome Extension
  * Usage: node tests/e2e/run-e2e.js [youtube|basic|all]
  */
-
-import { pathToFileURL, fileURLToPath } from 'url';
 import { existsSync } from 'fs';
 import { dirname, join } from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

@@ -1,15 +1,14 @@
 /**
  * YouTube-specific handler
  */
-
 import { map } from 'lodash-es';
-
-window.VSC = window.VSC || {};
 
 import { hashPrefix } from '../utils/hash.js';
 import { logger } from '../utils/logger.js';
 import { playBeep } from '../utils/sound.js';
 import { BaseSiteHandler } from './base-handler.js';
+
+window.VSC = window.VSC || {};
 
 export class YouTubeHandler extends BaseSiteHandler {
   constructor(settings) {

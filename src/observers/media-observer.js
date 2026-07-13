@@ -1,11 +1,11 @@
+import * as dom from '../utils/dom-utils.js';
+import { logger } from '../utils/logger.js';
+
 /**
  * Media element observer for finding and tracking video/audio elements
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
-import * as dom from '../utils/dom-utils.js';
 
 export class MediaElementObserver {
   constructor(config, siteHandler) {

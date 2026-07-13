@@ -1,9 +1,9 @@
-import { createKeyBinding } from './bindings.js';
-import { collectLeaderBindings, collectLeaderKey } from './leader.js';
-import { validate } from './validate.js';
 import { REG_STRIP } from '../../../shared/constants.js';
 import { VSC_DEFAULTS } from '../../../shared/defaults.js';
+import { createKeyBinding } from './bindings.js';
+import { collectLeaderBindings, collectLeaderKey } from './leader.js';
 import { collectSpbCategories } from './spb-categories.js';
+import { validate } from './validate.js';
 
 export const saveOptions = () => {
   if (!validate()) {

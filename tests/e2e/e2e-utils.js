@@ -1,9 +1,8 @@
 /**
  * E2E test utilities for Chrome extension testing
  */
-
-import puppeteer from 'puppeteer';
 import { dirname, join } from 'path';
+import puppeteer from 'puppeteer';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

@@ -2,10 +2,9 @@
  * Unit tests for VideoController class
  * Using global variables to match browser extension architecture
  */
-
-import { installChromeMock, cleanupChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert, createMockVideo, createMockDOM } from '../../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
 import { loadCoreModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert, createMockDOM, createMockVideo } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadCoreModules();
@@ -38,7 +37,7 @@ runner.afterEach(() => {
   }
 
   // Remove any lingering video elements
-  document.querySelectorAll('video, audio').forEach(el => el.remove());
+  document.querySelectorAll('video, audio').forEach((el) => el.remove());
 
   if (mockDOM) {
     mockDOM.cleanup();
@@ -201,7 +200,7 @@ runner.test('VideoController should initialize speed using adjustSpeed method', 
   await config.load();
   config.settings.rememberSpeed = false; // Per-video mode
   config.settings.speeds = {
-    'https://example.com/test.mp4': 1.75
+    'https://example.com/test.mp4': 1.75,
   };
 
   const eventManager = new window.VSC.EventManager(config, null);
@@ -209,7 +208,7 @@ runner.test('VideoController should initialize speed using adjustSpeed method', 
 
   const mockVideo = createMockVideo({
     currentSrc: 'https://example.com/test.mp4',
-    playbackRate: 1.0
+    playbackRate: 1.0,
   });
   mockDOM.container.appendChild(mockVideo);
 
@@ -243,7 +242,7 @@ runner.test('VideoController should handle initialization with no stored speed',
 
   const mockVideo = createMockVideo({
     currentSrc: 'https://example.com/new-video.mp4',
-    playbackRate: 1.0
+    playbackRate: 1.0,
   });
   mockDOM.container.appendChild(mockVideo);
 
@@ -292,7 +291,7 @@ runner.test('VideoController should properly setup event handlers', async () => 
   const controller = new window.VSC.VideoController(mockVideo, null, config, actionHandler);
 
   // Should have added media event listeners
-  const listenerTypes = addedListeners.map(l => l.type);
+  const listenerTypes = addedListeners.map((l) => l.type);
   assert.true(addedListeners.length > 0); // Should have added some listeners
 
   // Should have proper vsc structure with speedIndicator
@@ -313,7 +312,7 @@ runner.test('VideoController should handle media events correctly', async () => 
 
   const mockVideo = createMockVideo({
     currentSrc: 'https://example.com/video.mp4',
-    playbackRate: 1.0
+    playbackRate: 1.0,
   });
   mockDOM.container.appendChild(mockVideo);
 
@@ -329,7 +328,7 @@ runner.test('VideoController should handle media events correctly', async () => 
 
   // Should have called adjustSpeed during initialization
   assert.true(adjustSpeedCalls.length > 0);
-  const initCall = adjustSpeedCalls.find(call => call.value === 1.5);
+  const initCall = adjustSpeedCalls.find((call) => call.value === 1.5);
   assert.exists(initCall);
 });
 

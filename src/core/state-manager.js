@@ -1,11 +1,11 @@
+import { logger } from '../utils/logger.js';
+
 /**
  * Video Speed Controller State Manager
  * Tracks media elements for popup and keyboard commands.
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
 
 export class VSCStateManager {
   constructor() {

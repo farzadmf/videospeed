@@ -1,7 +1,7 @@
 // Import necessary modules
-import { installChromeMock, cleanupChromeMock } from '../../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert } from '../../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock } from '../../helpers/chrome-mock.js';
 import { loadObserverModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadObserverModules();
@@ -29,11 +29,7 @@ runner.test('VideoMutationObserver should process element nodes', () => {
     mockOnVideoRemoved.push(video);
   };
 
-  const observer = new window.VSC.VideoMutationObserver(
-    mockConfig,
-    onVideoFound,
-    onVideoRemoved
-  );
+  const observer = new window.VSC.VideoMutationObserver(mockConfig, onVideoFound, onVideoRemoved);
 
   const videoElement = document.createElement('video');
   const divElement = document.createElement('div');
@@ -42,7 +38,7 @@ runner.test('VideoMutationObserver should process element nodes', () => {
     type: 'childList',
     addedNodes: [videoElement, divElement],
     removedNodes: [],
-    target: document.body
+    target: document.body,
   };
 
   observer.processChildListMutation(mutation);
@@ -66,11 +62,7 @@ runner.test('VideoMutationObserver should skip non-element nodes', () => {
     mockOnVideoRemoved.push(video);
   };
 
-  const observer = new window.VSC.VideoMutationObserver(
-    mockConfig,
-    onVideoFound,
-    onVideoRemoved
-  );
+  const observer = new window.VSC.VideoMutationObserver(mockConfig, onVideoFound, onVideoRemoved);
 
   const textNode = document.createTextNode('text');
   const commentNode = document.createComment('comment');
@@ -80,7 +72,7 @@ runner.test('VideoMutationObserver should skip non-element nodes', () => {
     type: 'childList',
     addedNodes: [textNode, commentNode, videoElement],
     removedNodes: [],
-    target: document.body
+    target: document.body,
   };
 
   observer.processChildListMutation(mutation);
@@ -104,20 +96,16 @@ runner.test('VideoMutationObserver should handle removed video elements', () => 
     mockOnVideoRemoved.push(video);
   };
 
-  const observer = new window.VSC.VideoMutationObserver(
-    mockConfig,
-    onVideoFound,
-    onVideoRemoved
-  );
+  const observer = new window.VSC.VideoMutationObserver(mockConfig, onVideoFound, onVideoRemoved);
 
   const videoElement = document.createElement('video');
-  videoElement.vsc = { remove: () => { } };
+  videoElement.vsc = { remove: () => {} };
 
   const mutation = {
     type: 'childList',
     addedNodes: [],
     removedNodes: [videoElement],
-    target: document.body
+    target: document.body,
   };
 
   observer.processChildListMutation(mutation);
@@ -139,17 +127,13 @@ runner.test('VideoMutationObserver should handle null and undefined nodes gracef
     mockOnVideoRemoved.push(video);
   };
 
-  const observer = new window.VSC.VideoMutationObserver(
-    mockConfig,
-    onVideoFound,
-    onVideoRemoved
-  );
+  const observer = new window.VSC.VideoMutationObserver(mockConfig, onVideoFound, onVideoRemoved);
 
   const mutation = {
     type: 'childList',
     addedNodes: [null, undefined, document.createElement('video')],
     removedNodes: [null, undefined],
-    target: document.body
+    target: document.body,
   };
 
   // Should not throw
@@ -173,11 +157,7 @@ runner.test('VideoMutationObserver should detect video elements in shadow DOM', 
     mockOnVideoRemoved.push(video);
   };
 
-  const observer = new window.VSC.VideoMutationObserver(
-    mockConfig,
-    onVideoFound,
-    onVideoRemoved
-  );
+  const observer = new window.VSC.VideoMutationObserver(mockConfig, onVideoFound, onVideoRemoved);
 
   const host = document.createElement('div');
   const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -204,11 +184,7 @@ runner.test('VideoMutationObserver should handle HTMLCollection children properl
     mockOnVideoRemoved.push(video);
   };
 
-  const observer = new window.VSC.VideoMutationObserver(
-    mockConfig,
-    onVideoFound,
-    onVideoRemoved
-  );
+  const observer = new window.VSC.VideoMutationObserver(mockConfig, onVideoFound, onVideoRemoved);
 
   // Create a container with multiple child elements including a video
   const container = document.createElement('div');
@@ -241,11 +217,7 @@ runner.test('VideoMutationObserver should detect nested video elements', () => {
     mockOnVideoRemoved.push(video);
   };
 
-  const observer = new window.VSC.VideoMutationObserver(
-    mockConfig,
-    onVideoFound,
-    onVideoRemoved
-  );
+  const observer = new window.VSC.VideoMutationObserver(mockConfig, onVideoFound, onVideoRemoved);
 
   const container = document.createElement('div');
   const innerDiv = document.createElement('div');
@@ -260,4 +232,4 @@ runner.test('VideoMutationObserver should detect nested video elements', () => {
   assert.equal(mockOnVideoFound[0].parent, videoElement.parentNode);
 });
 
-export { runner as mutationObserverTestRunner }; 
+export { runner as mutationObserverTestRunner };

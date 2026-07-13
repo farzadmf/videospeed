@@ -1,10 +1,10 @@
+import { logger } from '../utils/logger.js';
+
 /**
  * Base class for site-specific handlers
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
 
 export class BaseSiteHandler {
   constructor(settings) {

@@ -2,10 +2,9 @@
  * Integration tests for full UI to storage flow
  * Tests the complete path from user interactions to storage persistence
  */
-
-import { installChromeMock, cleanupChromeMock, resetMockStorage } from '../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert, createMockVideo, createMockDOM } from '../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock, resetMockStorage } from '../helpers/chrome-mock.js';
 import { loadCoreModules } from '../helpers/module-loader.js';
+import { SimpleTestRunner, assert, createMockDOM, createMockVideo } from '../helpers/test-utils.js';
 
 // Load all required modules
 await loadCoreModules();

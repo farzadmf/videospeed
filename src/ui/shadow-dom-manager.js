@@ -1,13 +1,13 @@
+import { formatSpeed, formatVolume } from '../shared/constants.js';
+import shadowCss from '../styles/shadow_new.css';
+import { logger } from '../utils/logger.js';
+import { formatDuration, toPx } from '../utils/misc.js';
+
 /**
  * Shadow DOM creation and management
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
-import { formatDuration, toPx } from '../utils/misc.js';
-import { formatVolume, formatSpeed } from '../shared/constants.js';
-import shadowCss from '../styles/shadow_new.css';
 
 // Counter for unique CSS anchor names (dashed-ident)
 let anchorNameCounter = 0;

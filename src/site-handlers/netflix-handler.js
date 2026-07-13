@@ -1,11 +1,11 @@
+import { logger } from '../utils/logger.js';
+import { BaseSiteHandler } from './base-handler.js';
+
 /**
  * Netflix-specific handler
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
-import { BaseSiteHandler } from './base-handler.js';
 
 export class NetflixHandler extends BaseSiteHandler {
   /**

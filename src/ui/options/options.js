@@ -1,12 +1,12 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { NO_VALUE_ACTIONS } from '../../shared/actions.js';
-import { addBinding, inputFilterNumbersOnly, inputFocus, inputBlur, recordKeyPress } from './helpers/bindings.js';
+import { addBinding, inputBlur, inputFilterNumbersOnly, inputFocus, recordKeyPress } from './helpers/bindings.js';
 import { addLeaderBinding, recordLeaderBindingKey, recordLeaderKey } from './helpers/leader.js';
-import { cleanUpSpeeds, loadSpeeds } from './helpers/toggle-speeds.js';
 import { restoreDefaults, restoreOptions } from './helpers/restore.js';
 import { saveOptions } from './helpers/save.js';
+import { cleanUpSpeeds, loadSpeeds } from './helpers/toggle-speeds.js';
 
 // Follow the OS light/dark preference. Inline scripts are blocked by the
 // extension CSP, so this must live in the module, not a <script> in the HTML.
@@ -39,10 +39,14 @@ function exportSettings() {
       URL.revokeObjectURL(url);
 
       status.textContent = 'Settings exported';
-      setTimeout(() => { status.textContent = ''; }, 2000);
+      setTimeout(() => {
+        status.textContent = '';
+      }, 2000);
     } catch (error) {
-      status.textContent = `Error exporting settings: ${  error.message}`;
-      setTimeout(() => { status.textContent = ''; }, 3000);
+      status.textContent = `Error exporting settings: ${error.message}`;
+      setTimeout(() => {
+        status.textContent = '';
+      }, 3000);
     }
   });
 }
@@ -54,7 +58,9 @@ function importSettings() {
 async function handleImportFile(event) {
   const status = document.getElementById('status');
   const file = event.target.files[0];
-  if (!file) {return;}
+  if (!file) {
+    return;
+  }
 
   // Reset so the same file can be re-selected
   event.target.value = '';
@@ -81,10 +87,14 @@ async function handleImportFile(event) {
     restoreOptions();
 
     status.textContent = 'Settings imported successfully';
-    setTimeout(() => { status.textContent = ''; }, 2000);
+    setTimeout(() => {
+      status.textContent = '';
+    }, 2000);
   } catch (error) {
-    status.textContent = `Import failed: ${  error.message}`;
-    setTimeout(() => { status.textContent = ''; }, 4000);
+    status.textContent = `Import failed: ${error.message}`;
+    setTimeout(() => {
+      status.textContent = '';
+    }, 4000);
   }
 }
 

@@ -1,7 +1,7 @@
 import { keys, sortBy } from 'lodash-es';
 
-import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 import { ACTIONS, NO_VALUE_ACTIONS } from '../../../shared/actions.js';
+import { VSC_DEFAULTS } from '../../../shared/defaults.js';
 import { addBinding, updateCustomShortcutInputText } from './bindings.js';
 import { restoreLeaderBindings, restoreLeaderKey } from './leader.js';
 import { getActionName, getTcDefaultBinding } from './misc.js';
@@ -26,10 +26,14 @@ export function restoreOptions() {
     document.getElementById('leaderExit').value = storage.leaderExit ?? VSC_DEFAULTS.leaderExit;
     document.getElementById('leaderTimeout').value = storage.leaderTimeout ?? VSC_DEFAULTS.leaderTimeout;
     document.getElementById('yt_spb').checked = storage.sites?.youtube?.spb_enabled;
-    document.getElementById('yt_spb_sound_enabled').checked = storage.sites?.youtube?.spb_sound_enabled ?? VSC_DEFAULTS.sites.youtube.spb_sound_enabled;
-    document.getElementById('yt_spb_skip_sound').value = storage.sites?.youtube?.spb_skip_sound ?? VSC_DEFAULTS.sites.youtube.spb_skip_sound;
-    document.getElementById('yt_spb_unskip_sound').value = storage.sites?.youtube?.spb_unskip_sound ?? VSC_DEFAULTS.sites.youtube.spb_unskip_sound;
-    document.getElementById('yt_spb_interval').value = storage.sites?.youtube?.spb_interval ?? VSC_DEFAULTS.sites.youtube.spb_interval;
+    document.getElementById('yt_spb_sound_enabled').checked =
+      storage.sites?.youtube?.spb_sound_enabled ?? VSC_DEFAULTS.sites.youtube.spb_sound_enabled;
+    document.getElementById('yt_spb_skip_sound').value =
+      storage.sites?.youtube?.spb_skip_sound ?? VSC_DEFAULTS.sites.youtube.spb_skip_sound;
+    document.getElementById('yt_spb_unskip_sound').value =
+      storage.sites?.youtube?.spb_unskip_sound ?? VSC_DEFAULTS.sites.youtube.spb_unskip_sound;
+    document.getElementById('yt_spb_interval').value =
+      storage.sites?.youtube?.spb_interval ?? VSC_DEFAULTS.sites.youtube.spb_interval;
 
     renderSpbCategories(storage.sites?.youtube?.spb_categories ?? VSC_DEFAULTS.sites.youtube.spb_categories);
 

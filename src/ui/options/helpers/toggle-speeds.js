@@ -14,9 +14,7 @@ export function loadSpeeds() {
     sources = sortBy(toPairs(storage.sources), (s) => s[0]);
 
     speedsDiv.innerHTML = `
-<h3 class="text-center">Remembering a total of ${
-      Object.entries(storage.sources).length
-    } Website speeds</h3>
+<h3 class="text-center">Remembering a total of ${Object.entries(storage.sources).length} Website speeds</h3>
 <input class="form-control mb-4" 100%" type="text" id="speeds-filter" placeholder="start typing to filter ..." />
 <div id="speed-items"></div>
 `;
@@ -88,7 +86,9 @@ function setUpSpeedEditing() {
     input.addEventListener('change', (event) => {
       const url = event.target.getAttribute('data-speed-url');
       const newSpeed = parseFloat(event.target.value);
-      if (isNaN(newSpeed) || newSpeed <= 0) {return;}
+      if (isNaN(newSpeed) || newSpeed <= 0) {
+        return;
+      }
 
       const entry = sources.find((s) => s[0] === url);
       if (entry) {
@@ -120,9 +120,7 @@ function filterSpeeds() {
 
   // When filterTerm is empty, nothing matches
   const matching = filterTerm
-    ? Array.from(
-        document.querySelectorAll(`tr[data-speed-row]:has(button[data-speed-url*="${filterTerm}"])`)
-      )
+    ? Array.from(document.querySelectorAll(`tr[data-speed-row]:has(button[data-speed-url*="${filterTerm}"])`))
     : all;
   matching.forEach((el) => el.classList.remove('d-none'));
 }

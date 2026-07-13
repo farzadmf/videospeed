@@ -1,10 +1,10 @@
+import { BaseSiteHandler } from './base-handler.js';
+
 /**
  * Amazon Prime Video handler
  */
 
 window.VSC = window.VSC || {};
-
-import { BaseSiteHandler } from './base-handler.js';
 
 export class AmazonHandler extends BaseSiteHandler {
   /**

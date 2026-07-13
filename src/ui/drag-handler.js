@@ -1,11 +1,11 @@
+import { logger } from '../utils/logger.js';
+
 /**
  * Drag functionality for video controller
  * Uses pointer events for unified mouse + touch support
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
 
 export class DragHandler {
   /**

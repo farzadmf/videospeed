@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger.js';
+
 /**
  * Chrome storage management utilities.
  *
@@ -6,8 +8,6 @@
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
 
 const docEl = document.documentElement;
 

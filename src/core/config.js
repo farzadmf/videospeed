@@ -1,12 +1,12 @@
+import { VSC_DEFAULTS } from '../shared/defaults.js';
+import { logger } from '../utils/logger.js';
+import { StorageManager } from './storage-manager.js';
+
 /**
  * Settings management for Video Speed Controller
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
-import { StorageManager } from './storage-manager.js';
-import { VSC_DEFAULTS } from '../shared/defaults.js';
 
 export class VideoSpeedConfig {
   constructor() {

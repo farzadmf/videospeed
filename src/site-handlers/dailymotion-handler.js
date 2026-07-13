@@ -7,7 +7,6 @@
  * .video_view can beat the sibling overlay.  Fix: insert the controller into
  * the grandparent (.player) so it participates in the same stacking context.
  */
-
 import { BaseSiteHandler } from './base-handler.js';
 
 export class DailymotionHandler extends BaseSiteHandler {

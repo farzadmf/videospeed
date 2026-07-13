@@ -2,7 +2,6 @@
  * E2E tests for settings injection from content script to injected page context
  * Tests that user settings are properly loaded and applied in injected context
  */
-
 import { launchChromeWithExtension, sleep } from './e2e-utils.js';
 
 export default async function runSettingsInjectionE2ETests() {

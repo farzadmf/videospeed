@@ -1,11 +1,11 @@
+import { logger } from '../utils/logger.js';
+
 /**
  * DOM utility functions for Video Speed Controller
  */
 
 window.VSC = window.VSC || {};
 window.VSC.DomUtils = {};
-
-import { logger } from '../utils/logger.js';
 
 /**
  * Check if we're running in an iframe

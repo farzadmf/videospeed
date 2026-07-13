@@ -11,7 +11,6 @@
  *   3. When MAIN world fires VSC_REQUEST_SETTINGS, the listener waits for the
  *      async work to finish, then responds with VSC_SETTINGS_READY.
  */
-
 import { isBlacklisted } from '../utils/blacklist.js';
 
 // Speed limits for page→bridge write validation.

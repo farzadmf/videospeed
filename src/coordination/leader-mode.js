@@ -21,11 +21,10 @@
  * The trigger and exit keys are always swallowed (they toggle our mode).
  * Action bindings are gated behind SWALLOW_ENABLED until they dispatch.
  */
-
+import { isTypingContext } from '../utils/dom-utils.js';
 import { logger } from '../utils/logger.js';
 import { describeKey, focusSnapshot } from './debug.js';
 import { LeaderIndicator } from './leader-indicator.js';
-import { isTypingContext } from '../utils/dom-utils.js';
 
 const LOG = '[VSC-LEADER]';
 

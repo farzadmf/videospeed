@@ -2,9 +2,8 @@
  * Unit tests for blacklist regex parsing
  * Tests regex patterns with and without flags
  */
-
-import { SimpleTestRunner, assert } from '../../helpers/test-utils.js';
 import { loadMinimalModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadMinimalModules();
@@ -21,7 +20,7 @@ runner.afterEach(() => {
   Object.defineProperty(global.location, 'href', {
     value: runner.originalHref,
     writable: true,
-    configurable: true
+    configurable: true,
   });
 });
 
@@ -29,7 +28,7 @@ function setTestURL(url) {
   Object.defineProperty(global.location, 'href', {
     value: url,
     writable: true,
-    configurable: true
+    configurable: true,
   });
 }
 
@@ -40,7 +39,7 @@ runner.test('should parse regex patterns WITHOUT flags', () => {
     { url: 'https://www.youtube.com/', shouldMatch: true },
     { url: 'https://music.youtube.com/', shouldMatch: true },
     { url: 'https://m.youtube.com/', shouldMatch: true },
-    { url: 'https://example.com/', shouldMatch: false }
+    { url: 'https://example.com/', shouldMatch: false },
   ];
 
   testCases.forEach(({ url, shouldMatch }) => {
@@ -57,7 +56,7 @@ runner.test('should parse regex patterns WITH flags', () => {
     { url: 'https://www.youtube.com/', shouldMatch: true },
     { url: 'https://YOUTUBE.COM/', shouldMatch: true }, // case insensitive with 'i' flag
     { url: 'https://music.youtube.com/', shouldMatch: true },
-    { url: 'https://example.com/', shouldMatch: false }
+    { url: 'https://example.com/', shouldMatch: false },
   ];
 
   testCases.forEach(({ url, shouldMatch }) => {
@@ -85,7 +84,7 @@ runner.test('should handle multiple blacklist entries with mixed formats', () =>
     { url: 'https://www.instagram.com/', shouldMatch: true },
     { url: 'https://twitter.com/', shouldMatch: true },
     { url: 'https://TWITTER.COM/', shouldMatch: true }, // case insensitive
-    { url: 'https://example.com/', shouldMatch: false }
+    { url: 'https://example.com/', shouldMatch: false },
   ];
 
   testCases.forEach(({ url, shouldMatch }) => {

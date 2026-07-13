@@ -6,7 +6,6 @@
  * Shows a "VSC" header and the list of leader bindings (key -> action) so the
  * user can see what to press without leaving the page.
  */
-
 import styles from './leader-indicator.css';
 
 const HOST_ID = 'vsc-leader-indicator';

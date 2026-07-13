@@ -1,7 +1,6 @@
 /**
  * Control button interactions and event handling
  */
-
 import { logger } from '../utils/logger.js';
 
 window.VSC = window.VSC || {};

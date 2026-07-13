@@ -2,10 +2,9 @@
  * Unit tests for VideoSpeedExtension (inject.js)
  * Testing the fix for video elements without parentElement
  */
-
-import { installChromeMock, cleanupChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert, createMockVideo, createMockDOM } from '../../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
 import { loadInjectModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert, createMockDOM, createMockVideo } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadInjectModules();
@@ -36,7 +35,7 @@ runner.afterEach(() => {
 
   // Clean up any remaining video elements
   const videos = document.querySelectorAll('video');
-  videos.forEach(video => {
+  videos.forEach((video) => {
     if (video.vsc) {
       try {
         video.vsc.remove();
@@ -66,20 +65,20 @@ function createVideoWithoutParentElement() {
   Object.defineProperty(video, 'parentElement', {
     value: null,
     writable: false,
-    configurable: true
+    configurable: true,
   });
 
   Object.defineProperty(video, 'parentNode', {
     value: parentNode,
     writable: false,
-    configurable: true
+    configurable: true,
   });
 
   // Mock isConnected property for validity check
   Object.defineProperty(video, 'isConnected', {
     value: true,
     writable: false,
-    configurable: true
+    configurable: true,
   });
 
   return { video, parentNode };
@@ -108,7 +107,6 @@ runner.test('onVideoFound should handle video elements without parentElement', a
 
     // Verify that the controller was initialized with the correct parent (parentNode fallback)
     assert.equal(video.vsc.parent, parentNode, 'VideoController should use parentNode when parentElement is null');
-
   } catch (error) {
     console.error('Test error:', error);
     assert.true(false, `Test should not throw error: ${error.message}`);
@@ -134,20 +132,20 @@ runner.test('onVideoFound should prefer parentElement when available', async () 
     Object.defineProperty(video, 'parentElement', {
       value: parentElement,
       writable: false,
-      configurable: true
+      configurable: true,
     });
 
     Object.defineProperty(video, 'parentNode', {
       value: parentNode,
       writable: false,
-      configurable: true
+      configurable: true,
     });
 
     // Mock isConnected property for validity check
     Object.defineProperty(video, 'isConnected', {
       value: true,
       writable: false,
-      configurable: true
+      configurable: true,
     });
 
     // Test onVideoFound with parentElement available
@@ -159,7 +157,6 @@ runner.test('onVideoFound should prefer parentElement when available', async () 
     // Verify that the controller was initialized with video.parentElement (not the passed parent)
     // VideoController constructor uses target.parentElement || parent
     assert.equal(video.vsc.parent, parentElement, 'VideoController should prefer video.parentElement when available');
-
   } catch (error) {
     assert.true(false, `Test should not throw error: ${error.message}`);
   }
@@ -180,20 +177,20 @@ runner.test('onVideoFound should handle video with neither parentElement nor par
     Object.defineProperty(video, 'parentElement', {
       value: null,
       writable: false,
-      configurable: true
+      configurable: true,
     });
 
     Object.defineProperty(video, 'parentNode', {
       value: null,
       writable: false,
-      configurable: true
+      configurable: true,
     });
 
     // Mock isConnected property for validity check
     Object.defineProperty(video, 'isConnected', {
       value: true,
       writable: false,
-      configurable: true
+      configurable: true,
     });
 
     // This should not throw an error even with no parent references
@@ -202,10 +199,9 @@ runner.test('onVideoFound should handle video with neither parentElement nor par
     // Verify basic functionality
     assert.exists(video.vsc, 'Video controller should be attached even without parent references');
     assert.equal(video.vsc.parent, fallbackParent, 'VideoController should use provided fallback parent');
-
   } catch (error) {
     assert.true(false, `Test should not throw error: ${error.message}`);
   }
 });
 
-export { runner as injectTestRunner }; 
+export { runner as injectTestRunner };

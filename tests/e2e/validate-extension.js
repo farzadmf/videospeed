@@ -4,9 +4,8 @@
  * Extension validation script - checks extension files and structure
  * This runs without browser automation to verify extension is ready for E2E testing
  */
-
 import { existsSync, readFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);

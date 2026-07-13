@@ -1,9 +1,3 @@
-/**
- * Site handler factory and manager
- */
-
-window.VSC = window.VSC || {};
-
 import { logger } from '../utils/logger.js';
 import { AmazonHandler } from './amazon-handler.js';
 import { AppleHandler } from './apple-handler.js';
@@ -12,6 +6,12 @@ import { DailymotionHandler } from './dailymotion-handler.js';
 import { FacebookHandler } from './facebook-handler.js';
 import { NetflixHandler } from './netflix-handler.js';
 import { YouTubeHandler } from './youtube-handler.js';
+
+/**
+ * Site handler factory and manager
+ */
+
+window.VSC = window.VSC || {};
 
 export class SiteHandlerManager {
   constructor(settings) {

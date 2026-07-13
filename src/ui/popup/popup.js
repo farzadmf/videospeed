@@ -34,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       () => {
         toggleEnabledUI(enabled);
-        if (callback) {callback(enabled);}
+        if (callback) {
+          callback(enabled);
+        }
       }
     );
   }

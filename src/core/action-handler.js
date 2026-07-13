@@ -1,3 +1,9 @@
+import { stateManager } from '../core/state-manager.js';
+import { SPEED_LIMITS } from '../shared/constants.js';
+import { DragHandler } from '../ui/drag-handler.js';
+import { logger } from '../utils/logger.js';
+import { getBaseURL } from '../utils/url.js';
+
 /**
  * Action handling system for Video Speed Controller
  *
@@ -7,12 +13,6 @@
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
-import { getBaseURL } from '../utils/url.js';
-import { SPEED_LIMITS } from '../shared/constants.js';
-import { DragHandler } from '../ui/drag-handler.js';
-import { stateManager } from '../core/state-manager.js';
 
 export class ActionHandler {
   /**

@@ -1,10 +1,9 @@
 /**
  * Tests for icon integration (controller lifecycle events)
  */
-
-import { installChromeMock, cleanupChromeMock } from '../../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert } from '../../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock } from '../../helpers/chrome-mock.js';
 import { loadCoreModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadCoreModules();
@@ -26,7 +25,7 @@ runner.afterEach(() => {
     window.VSC.stateManager.controllers.clear();
   }
   // Remove any lingering video elements
-  document.querySelectorAll('video, audio').forEach(el => el.remove());
+  document.querySelectorAll('video, audio').forEach((el) => el.remove());
 });
 
 function createMockVideo(options = {}) {
@@ -191,4 +190,4 @@ runner.test('Audio controllers should register with state manager too', async ()
   document.body.removeChild(mockAudio);
 });
 
-export { runner as iconIntegrationTestRunner }; 
+export { runner as iconIntegrationTestRunner };

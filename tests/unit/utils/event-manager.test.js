@@ -2,10 +2,9 @@
  * Unit tests for EventManager class
  * Tests cooldown behavior to prevent rapid changes
  */
-
-import { installChromeMock, cleanupChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
-import { SimpleTestRunner, assert, createMockVideo } from '../../helpers/test-utils.js';
+import { cleanupChromeMock, installChromeMock, resetMockStorage } from '../../helpers/chrome-mock.js';
 import { loadCoreModules } from '../../helpers/module-loader.js';
+import { SimpleTestRunner, assert, createMockVideo } from '../../helpers/test-utils.js';
 
 // Load all required modules
 await loadCoreModules();
@@ -66,7 +65,7 @@ runner.test('handleRateChange should block events during cooldown', async () => 
     detail: { origin: 'external' }, // Not our own event
     stopImmediatePropagation: () => {
       eventStopped = true;
-    }
+    },
   };
 
   // Activate cooldown first
@@ -90,7 +89,7 @@ runner.test('cooldown should expire after timeout', async () => {
 
   // Wait for cooldown to expire (COOLDOWN_MS + buffer)
   const waitMs = (window.VSC.EventManager?.COOLDOWN_MS || 50) + 50;
-  await new Promise(resolve => setTimeout(resolve, waitMs));
+  await new Promise((resolve) => setTimeout(resolve, waitMs));
 
   // Cooldown should be expired
   assert.equal(eventManager.coolDown, false);
@@ -109,7 +108,7 @@ runner.test('multiple refreshCoolDown calls should reset timer', async () => {
   assert.true(firstTimeout !== false);
 
   // Wait a bit
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   // Second cooldown activation should replace the first
   eventManager.refreshCoolDown();

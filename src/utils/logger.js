@@ -1,9 +1,7 @@
 /**
  * Logging utility for Video Speed Controller
  */
-
 // window.VSC = window.VSC || {};
-
 import { LOG_LEVELS } from '../shared/constants.js';
 
 class Logger {

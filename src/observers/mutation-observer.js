@@ -1,11 +1,11 @@
+import * as dom from '../utils/dom-utils.js';
+import { logger } from '../utils/logger.js';
+
 /**
  * DOM mutation observer for detecting video elements
  */
 
 window.VSC = window.VSC || {};
-
-import * as dom from '../utils/dom-utils.js';
-import { logger } from '../utils/logger.js';
 
 export class VideoMutationObserver {
   constructor(config, onVideoFound, onVideoRemoved, mediaObserver) {

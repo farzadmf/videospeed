@@ -1,7 +1,7 @@
 import { ACTION_OPTIONS, actionByName } from '../../../shared/actions.js';
 import { displayLabelForCode, layoutMapReady } from './bindings.js';
-import { getActionName } from './misc.js';
 import { BLACKLISTED_CODES, BLACKLISTED_KEYS } from './key-codes.js';
+import { getActionName } from './misc.js';
 
 const LEADER_KEY_INPUT_ID = 'leaderKey';
 

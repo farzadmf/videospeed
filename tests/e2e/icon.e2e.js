@@ -6,9 +6,8 @@
  * - Icon is gray only when extension is disabled via popup
  * - No tab state tracking
  */
-
-import puppeteer from 'puppeteer';
 import path from 'path';
+import puppeteer from 'puppeteer';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

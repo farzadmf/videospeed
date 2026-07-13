@@ -1,10 +1,10 @@
+import { BaseSiteHandler } from './base-handler.js';
+
 /**
  * Apple TV+ handler
  */
 
 window.VSC = window.VSC || {};
-
-import { BaseSiteHandler } from './base-handler.js';
 
 export class AppleHandler extends BaseSiteHandler {
   /**

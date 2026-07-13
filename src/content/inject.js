@@ -2,21 +2,20 @@
  * Video Speed Controller - Main Content Script
  * Modular architecture using global variables loaded via script array
  */
-
-import { VideoController } from '../core/video-controller.js';
-import { logger } from '../utils/logger.js';
-import { config } from '../core/config.js';
-import { ActionHandler } from '../core/action-handler.js';
-import { EventManager } from '../utils/event-manager.js';
-import { VideoMutationObserver } from '../observers/mutation-observer.js';
-import * as dom from '../utils/dom-utils.js';
-import { MESSAGE_TYPES, SPEED_LIMITS } from '../shared/constants.js';
-import { MediaElementObserver } from '../observers/media-observer.js';
-import { SiteHandlerManager } from '../site-handlers/manager.js';
-import { stateManager } from '../core/state-manager.js';
+import { flashElement } from '../coordination/flash.js';
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
 import { LeaderMode } from '../coordination/leader-mode.js';
-import { flashElement } from '../coordination/flash.js';
+import { ActionHandler } from '../core/action-handler.js';
+import { config } from '../core/config.js';
+import { stateManager } from '../core/state-manager.js';
+import { VideoController } from '../core/video-controller.js';
+import { MediaElementObserver } from '../observers/media-observer.js';
+import { VideoMutationObserver } from '../observers/mutation-observer.js';
+import { MESSAGE_TYPES, SPEED_LIMITS } from '../shared/constants.js';
+import { SiteHandlerManager } from '../site-handlers/manager.js';
+import * as dom from '../utils/dom-utils.js';
+import { EventManager } from '../utils/event-manager.js';
+import { logger } from '../utils/logger.js';
 
 class VideoSpeedExtension {
   constructor() {

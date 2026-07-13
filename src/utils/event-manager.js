@@ -1,3 +1,8 @@
+import { stateManager } from '../core/state-manager.js';
+import { SPEED_LIMITS } from '../shared/constants.js';
+import * as dom from '../utils/dom-utils.js';
+import { logger } from '../utils/logger.js';
+
 /**
  * Event management system for Video Speed Controller
  *
@@ -6,11 +11,6 @@
  */
 
 window.VSC = window.VSC || {};
-
-import { logger } from '../utils/logger.js';
-import * as dom from '../utils/dom-utils.js';
-import { stateManager } from '../core/state-manager.js';
-import { SPEED_LIMITS } from '../shared/constants.js';
 
 export class EventManager {
   /**

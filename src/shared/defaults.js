@@ -1,5 +1,5 @@
-import { REG_STRIP, LOG_LEVELS } from './constants.js';
 import { ACTIONS } from './actions.js';
+import { LOG_LEVELS, REG_STRIP } from './constants.js';
 
 /**
  * All SponsorBlock categories the extension knows about. Colors mirror

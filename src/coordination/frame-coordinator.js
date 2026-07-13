@@ -11,10 +11,9 @@
  * controllers and decides which frame should act. The top frame is both hub
  * and spoke.
  */
-
 import { logger } from '../utils/logger.js';
-import { COORD_MSG, makeMessage, parseMessage } from './messages.js';
 import { focusSnapshot } from './debug.js';
+import { COORD_MSG, makeMessage, parseMessage } from './messages.js';
 
 const LOG = '[VSC-COORD]';
 
