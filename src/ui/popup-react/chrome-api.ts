@@ -1,8 +1,4 @@
-// Must match the content script's message contract.
-const MessageTypes = {
-  SET_SPEED: 'VSC_SET_SPEED',
-  ADJUST_SPEED: 'VSC_ADJUST_SPEED',
-} as const;
+import { MESSAGE_TYPES } from '@shared/constants';
 
 function sendToActiveTab(message: unknown) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -12,8 +8,8 @@ function sendToActiveTab(message: unknown) {
   });
 }
 
-export const setSpeed = (speed: number) => sendToActiveTab({ type: MessageTypes.SET_SPEED, payload: { speed } });
+export const setSpeed = (speed: number) => sendToActiveTab({ type: MESSAGE_TYPES.SET_SPEED, payload: { speed } });
 
-export const adjustSpeed = (delta: number) => sendToActiveTab({ type: MessageTypes.ADJUST_SPEED, payload: { delta } });
+export const adjustSpeed = (delta: number) => sendToActiveTab({ type: MESSAGE_TYPES.ADJUST_SPEED, payload: { delta } });
 
 export const openOptions = () => chrome.runtime.openOptionsPage();
