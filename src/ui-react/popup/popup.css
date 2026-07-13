@@ -1,0 +1,52 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.popup-container {
+  min-width: 250px;
+  padding: 12px;
+}
+
+.speed-controls,
+.footer-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.control-btn,
+.preset-btn,
+.icon-btn {
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: #f6f6f6;
+}
+
+.reset-btn {
+  font-weight: 600;
+}
+
+.footer {
+  margin-top: 12px;
+}
+
+.power-btn.disabled {
+  opacity: 0.4;
+}
+
+.status {
+  margin-bottom: 6px;
+  text-align: center;
+  font-size: 12px;
+  color: #555;
+}
