@@ -11,7 +11,10 @@ export default defineConfig({
   css: { postcss: {} }, // repo-root postcss.config.js is for content styles only
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: { '@shared': path.resolve(__dirname, 'src', 'shared') },
+    alias: {
+      '@shared': path.resolve(__dirname, 'src', 'shared'),
+      '@key-codes': path.resolve(__dirname, 'src', 'ui', 'options', 'helpers', 'key-codes.js'),
+    },
   },
   build: {
     outDir: path.resolve(__dirname, 'dist', 'ui-react'),

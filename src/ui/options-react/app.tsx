@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { KeyBindings } from './components/key-bindings';
 import { OtherSettings } from './components/other-settings';
 import { Section } from './components/section';
 import { SiteSettings } from './components/site-settings';
@@ -54,7 +55,9 @@ export const App = () => {
       </div>
 
       <div className="join join-vertical w-full">
-        <Section title="Key Bindings">Not yet ported.</Section>
+        <Section title="Key Bindings">
+          <KeyBindings settings={draft} update={update} />
+        </Section>
         <Section title="Leader Mode">Not yet ported.</Section>
         <Section title="Other Settings">
           <OtherSettings settings={draft} update={update} />

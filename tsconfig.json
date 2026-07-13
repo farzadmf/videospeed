@@ -8,7 +8,8 @@
 
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@key-codes": ["./src/ui/options/helpers/key-codes.js"]
     },
 
     /* Bundler mode */

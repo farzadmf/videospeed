@@ -5,6 +5,21 @@ import { useEffect, useState } from 'react';
 // script also reads. Deriving the type from it keeps options in lockstep.
 export type Settings = typeof VSC_DEFAULTS;
 
+export type ActionDef = { name: string; description: string; value?: number; value2?: number; predefined?: boolean };
+
+export type KeyBinding = {
+  action: ActionDef;
+  code: string;
+  predefined?: boolean;
+  alt?: boolean;
+  shift?: boolean;
+  ctrl?: boolean;
+  value?: number;
+  value2?: number;
+};
+
+export type LeaderBinding = Omit<KeyBinding, 'predefined' | 'value' | 'value2'>;
+
 export function useOptions() {
   const [settings, setSettings] = useState<Settings | null>(null);
 
