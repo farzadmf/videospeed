@@ -26,9 +26,9 @@
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["chrome", "node"]
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }],
-  "types": ["chrome", "node"]
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
