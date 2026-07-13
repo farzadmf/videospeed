@@ -22,7 +22,7 @@
       "38": "assets/icons/icon38.png",
       "48": "assets/icons/icon48.png"
     },
-    "default_popup": "ui-react/popup/index.html"
+    "default_popup": "ui-react/popup-react/index.html"
   },
   "background": {
     "service_worker": "background.js"
