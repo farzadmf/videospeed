@@ -11,11 +11,13 @@ html {
   font-size: 17px;
 }
 
-/* Options controls should not shrink below the readable base size. */
+/* Options controls and section bodies should not shrink below the readable
+   base size. daisyUI's .collapse-content sets a smaller font otherwise. */
 .select,
 .input,
 .textarea,
 .btn,
+.collapse-content,
 table {
   font-size: 1rem;
 }
