@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
@@ -8,7 +9,7 @@ export default defineConfig({
   root: path.resolve(__dirname, 'src', 'ui'),
   base: './', // extension-relative asset URLs; MV3 forbids absolute-root paths
   css: { postcss: {} }, // repo-root postcss.config.js is for content styles only
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: { '@shared': path.resolve(__dirname, 'src', 'shared') },
   },
