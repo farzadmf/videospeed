@@ -47,10 +47,10 @@ export const App = () => {
       </header>
 
       <div className="bg-base-100 sticky top-0 z-10 mb-4 flex gap-2 py-3">
-        <button className={`btn btn-sm ${dirty ? 'btn-success' : 'btn-outline'}`} disabled={!dirty} onClick={onSave}>
+        <button className={`btn ${dirty ? 'btn-success' : 'btn-outline'}`} disabled={!dirty} onClick={onSave}>
           {dirty ? 'Save Settings *' : 'Save Settings'}
         </button>
-        <button className="btn btn-sm btn-primary" onClick={onRestore}>
+        <button className="btn btn-primary" onClick={onRestore}>
           Restore Defaults
         </button>
       </div>

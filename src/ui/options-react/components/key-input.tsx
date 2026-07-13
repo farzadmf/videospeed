@@ -10,10 +10,10 @@ type ModifiersProps = {
 export const Modifiers = ({ mods, onChange }: ModifiersProps) => (
   <div className="flex flex-col gap-1">
     {(['alt', 'shift', 'ctrl'] as const).map((m) => (
-      <label key={m} className="flex cursor-pointer items-center gap-2 text-sm">
+      <label key={m} className="flex cursor-pointer items-center gap-2 text-base">
         <input
           type="checkbox"
-          className="checkbox checkbox-sm"
+          className="checkbox"
           checked={mods[m]}
           onChange={(e) => onChange({ ...mods, [m]: e.target.checked })}
         />
@@ -32,7 +32,7 @@ type KeyInputProps = {
 // capture up to the caller (which reflects them in the modifier checkboxes).
 export const KeyInput = ({ code, onCapture }: KeyInputProps) => (
   <input
-    className="input input-bordered input-sm w-full"
+    className="input input-bordered w-full"
     type="text"
     readOnly
     placeholder="press a key"

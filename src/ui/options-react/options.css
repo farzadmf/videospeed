@@ -8,5 +8,14 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 17px;
+}
+
+/* Options controls should not shrink below the readable base size. */
+.select,
+.input,
+.textarea,
+.btn,
+table {
+  font-size: 1rem;
 }

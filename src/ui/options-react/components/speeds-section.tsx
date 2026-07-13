@@ -57,10 +57,10 @@ export const SpeedsSection = () => {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex gap-2">
-        <button className="btn btn-error btn-sm" onClick={forgetAll}>
+        <button className="btn btn-error" onClick={forgetAll}>
           Forget All Speeds
         </button>
-        <button className="btn btn-success btn-sm" onClick={cleanUp}>
+        <button className="btn btn-success" onClick={cleanUp}>
           Clean Up Speeds
         </button>
       </div>
@@ -102,7 +102,7 @@ export const SpeedsSection = () => {
               </td>
               <td>{DateTime.fromMillis(entry.updated).toFormat('yyyy-MM-dd HH:mm:ss')}</td>
               <td>
-                <button className="btn btn-error btn-sm" onClick={() => forget(url)}>
+                <button className="btn btn-error" onClick={() => forget(url)}>
                   Forget
                 </button>
               </td>

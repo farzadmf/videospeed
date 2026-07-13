@@ -33,7 +33,7 @@ export const LeaderModeSection = ({ settings, update }: Props) => {
     <div className="flex flex-col gap-4">
       <div>
         <h3 className="text-lg font-semibold">Leader key</h3>
-        <p className="text-base-content/70 mb-2 text-sm">
+        <p className="text-base-content/70 mb-2 text-base">
           Press this key to enter leader mode, then press a leader binding to run an action. Modifiers are optional.
         </p>
         <div className="flex items-start gap-4">
@@ -49,7 +49,7 @@ export const LeaderModeSection = ({ settings, update }: Props) => {
 
       <div>
         <h3 className="text-lg font-semibold">Leader bindings</h3>
-        <p className="text-base-content/70 mb-2 text-sm">
+        <p className="text-base-content/70 mb-2 text-base">
           Key pressed after the leader key to run an action. Modifiers are optional.
         </p>
         <table className="table text-base">
@@ -66,7 +66,7 @@ export const LeaderModeSection = ({ settings, update }: Props) => {
               <tr key={idx}>
                 <td>
                   <select
-                    className="select select-bordered select-sm w-full"
+                    className="select select-bordered w-full"
                     value={b.action.name}
                     onChange={(e) => setBinding(idx, { action: actionByName(e.target.value) as ActionDef })}
                   >
@@ -87,7 +87,7 @@ export const LeaderModeSection = ({ settings, update }: Props) => {
                   <KeyInput code={b.code} onCapture={(code, mods) => setBinding(idx, { code, ...mods })} />
                 </td>
                 <td>
-                  <button className="btn btn-error btn-xs" onClick={() => removeBinding(idx)}>
+                  <button className="btn btn-error" onClick={() => removeBinding(idx)}>
                     X
                   </button>
                 </td>
@@ -95,14 +95,14 @@ export const LeaderModeSection = ({ settings, update }: Props) => {
             ))}
           </tbody>
         </table>
-        <button className="btn btn-primary btn-sm mt-2 self-start" onClick={addBinding}>
+        <button className="btn btn-primary mt-2 self-start" onClick={addBinding}>
           Add New
         </button>
       </div>
 
       <div>
         <h3 className="text-lg font-semibold">Exit behavior</h3>
-        <p className="text-base-content/70 mb-2 text-sm">
+        <p className="text-base-content/70 mb-2 text-base">
           Timer auto-exits after a period of inactivity; Key stays until you press Escape or the leader key again.
         </p>
         <SelectField

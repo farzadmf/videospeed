@@ -49,7 +49,7 @@ export const KeyBindings = ({ settings, update }: Props) => {
               <tr key={`${b.action.name}-${idx}`}>
                 <td>
                   <select
-                    className="select select-bordered select-sm w-full"
+                    className="select select-bordered w-full"
                     value={b.action.name}
                     disabled={b.predefined}
                     onChange={(e) => setBinding(b, { action: actionByName(e.target.value) as ActionDef })}
@@ -73,7 +73,7 @@ export const KeyBindings = ({ settings, update }: Props) => {
                       <input
                         type="number"
                         step="0.1"
-                        className="input input-bordered input-sm w-20"
+                        className="input input-bordered w-20"
                         value={b.value ?? b.action.value ?? 0}
                         onChange={(e) => setBinding(b, { value: Number(e.target.value) })}
                       />
@@ -81,7 +81,7 @@ export const KeyBindings = ({ settings, update }: Props) => {
                         <input
                           type="number"
                           step="1"
-                          className="input input-bordered input-sm w-20"
+                          className="input input-bordered w-20"
                           value={b.value2 ?? b.action.value2 ?? 0}
                           onChange={(e) => setBinding(b, { value2: Number(e.target.value) })}
                         />
@@ -91,7 +91,7 @@ export const KeyBindings = ({ settings, update }: Props) => {
                 </td>
                 <td>
                   {!b.predefined && (
-                    <button className="btn btn-error btn-xs" onClick={() => removeBinding(b)}>
+                    <button className="btn btn-error" onClick={() => removeBinding(b)}>
                       X
                     </button>
                   )}
@@ -103,7 +103,7 @@ export const KeyBindings = ({ settings, update }: Props) => {
       </table>
 
       {available.length > 0 && (
-        <button className="btn btn-primary btn-sm self-start" onClick={addBinding}>
+        <button className="btn btn-primary self-start" onClick={addBinding}>
           Add New
         </button>
       )}

@@ -54,7 +54,7 @@ export const SiteSettings = ({ settings, update }: Props) => {
           <>
             Enable SponsorBlock
             <br />
-            <em className="text-base-content/70 text-sm">Call SponsorBlock API to get sponsored sections</em>
+            <em className="text-base-content/70 text-base">Call SponsorBlock API to get sponsored sections</em>
           </>
         }
         checked={yt.spb_enabled}
@@ -65,7 +65,7 @@ export const SiteSettings = ({ settings, update }: Props) => {
           <>
             Play sound on segment skip
             <br />
-            <em className="text-base-content/70 text-sm">Play a sound when a sponsored segment is skipped</em>
+            <em className="text-base-content/70 text-base">Play a sound when a sponsored segment is skipped</em>
           </>
         }
         checked={yt.spb_sound_enabled}
@@ -104,7 +104,7 @@ export const SiteSettings = ({ settings, update }: Props) => {
 
       <div className="mt-2">
         <div className="mb-1 text-base font-semibold">Categories</div>
-        <p className="text-base-content/70 mb-2 text-sm">
+        <p className="text-base-content/70 mb-2 text-base">
           Which SponsorBlock categories to request; enable one to pick a color and toggle auto-skip.
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -121,7 +121,7 @@ export const SiteSettings = ({ settings, update }: Props) => {
                 />
                 {enabled && existing && (
                   <div className="mt-1 ml-8 flex flex-col gap-1">
-                    <label className="flex items-center gap-2 text-sm">
+                    <label className="flex items-center gap-2 text-base">
                       <input
                         type="color"
                         className="h-6 w-10"
