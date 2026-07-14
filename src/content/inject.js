@@ -11,7 +11,7 @@ import { stateManager } from '../core/state-manager.js';
 import { VideoController } from '../core/video-controller.js';
 import { MediaElementObserver } from '../observers/media-observer.js';
 import { VideoMutationObserver } from '../observers/mutation-observer.js';
-import { MESSAGE_TYPES, SPEED_LIMITS } from '../shared/constants.js';
+import { MESSAGE_TYPES } from '../shared/constants.js';
 import { SiteHandlerManager } from '../site-handlers/manager.js';
 import * as dom from '../utils/dom-utils.js';
 import { EventManager } from '../utils/event-manager.js';
@@ -537,6 +537,21 @@ class VideoSpeedExtension {
 
       case MESSAGE_TYPES.RESET_SPEED:
         extension.actionHandler.runAction({ actionItem: { action: { name: 'RESET_SPEED' } } });
+        break;
+
+      case MESSAGE_TYPES.RUN_ACTION:
+        if (message.payload?.action) {
+          const binding = config.getActionByName(message.payload.action);
+          extension.actionHandler.runAction({ actionItem: binding ?? message.payload.action });
+        }
+        break;
+
+      case MESSAGE_TYPES.PLAY:
+        stateManager.getAllMediaElements().forEach((video) => video.play());
+        break;
+
+      case MESSAGE_TYPES.PAUSE:
+        stateManager.getAllMediaElements().forEach((video) => video.pause());
         break;
 
       case MESSAGE_TYPES.TOGGLE_DISPLAY:

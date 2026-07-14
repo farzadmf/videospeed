@@ -16,8 +16,8 @@ export const App = () => {
   };
 
   return (
-    <div className="bg-base-100 text-base-content w-72">
-      <SpeedControls slowerStep={settings.slowerStep} fasterStep={settings.fasterStep} resetSpeed={settings.resetSpeed} />
+    <div className="bg-base-500 text-base-content w-64">
+      <SpeedControls slowerStep={settings.slowerStep} fasterStep={settings.fasterStep} />
       <Footer
         enabled={settings.enabled}
         status={status}

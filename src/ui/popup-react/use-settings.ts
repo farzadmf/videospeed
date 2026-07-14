@@ -6,11 +6,10 @@ type Settings = {
   enabled: boolean;
   slowerStep: number;
   fasterStep: number;
-  resetSpeed: number;
   theme: Theme;
 };
 
-const DEFAULTS: Settings = { enabled: true, slowerStep: 0.1, fasterStep: 0.1, resetSpeed: 1.0, theme: 'system' };
+const DEFAULTS: Settings = { enabled: true, slowerStep: 0.1, fasterStep: 0.1, theme: 'system' };
 
 // The stored keyBindings entry's action is an object, so match by action.name.
 function stepValue(bindings: { action?: { name?: string }; value?: unknown }[], name: string, fallback: number) {
@@ -31,7 +30,6 @@ export function useSettings() {
         enabled: storage.enabled !== false,
         slowerStep: stepValue(bindings, 'slower', DEFAULTS.slowerStep),
         fasterStep: stepValue(bindings, 'faster', DEFAULTS.fasterStep),
-        resetSpeed: stepValue(bindings, 'fast', DEFAULTS.resetSpeed),
         theme,
       });
     });
