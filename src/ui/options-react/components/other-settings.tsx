@@ -1,5 +1,6 @@
 import { LOG_LEVELS } from '@shared/constants';
 
+import { Theme, applyTheme } from '../../theme';
 import { Settings } from '../use-options';
 import { CheckboxField, SelectField, TextField } from './fields';
 
@@ -7,6 +8,12 @@ type Props = {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
 };
+
+const THEME_OPTIONS = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
 
 // Log levels the options page offers, derived from the shared enum. Matches the
 // original page: ERROR(2) through VERBOSE(6).
@@ -20,6 +27,15 @@ const LOG_LEVEL_OPTIONS = [
 
 export const OtherSettings = ({ settings, update }: Props) => (
   <div className="flex flex-col gap-1">
+    <SelectField
+      label="Theme"
+      value={settings.theme}
+      options={THEME_OPTIONS}
+      onChange={(v) => {
+        applyTheme(v as Theme);
+        update({ theme: v as Theme });
+      }}
+    />
     <CheckboxField label="Enable" checked={settings.enabled} onChange={(v) => update({ enabled: v })} />
     <CheckboxField
       label="Hide controller by default"

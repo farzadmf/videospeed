@@ -1,6 +1,8 @@
 import { VSC_DEFAULTS } from '@shared/defaults';
 import { useEffect, useState } from 'react';
 
+import { Theme, applyTheme } from '../theme';
+
 export type ActionDef = { name: string; description: string; value?: number; value2?: number; predefined?: boolean };
 
 export type KeyBinding = {
@@ -23,10 +25,11 @@ export type SpbCategory = { name: string; color: string; should_skip: boolean };
 // VSC_DEFAULTS literal infers types too narrowly (missing optional modifiers,
 // widened enums). Declare the real stored shape explicitly; the defaults still
 // supply the values, so the two stay aligned at the one call site that reads them.
-export type Settings = Omit<typeof VSC_DEFAULTS, 'keyBindings' | 'leaderBindings' | 'leaderKey' | 'sites'> & {
+export type Settings = Omit<typeof VSC_DEFAULTS, 'keyBindings' | 'leaderBindings' | 'leaderKey' | 'sites' | 'theme'> & {
   keyBindings: KeyBinding[];
   leaderBindings: LeaderBinding[];
   leaderKey: LeaderKey;
+  theme: Theme;
   sites: {
     youtube: {
       spb_sound_enabled: boolean;
@@ -46,7 +49,10 @@ export function useOptions() {
   const [draft, setDraft] = useState<Settings | null>(null);
 
   useEffect(() => {
-    chrome.storage.sync.get(VSC_DEFAULTS, (stored) => setDraft(stored as Settings));
+    chrome.storage.sync.get(VSC_DEFAULTS, (stored) => {
+      applyTheme((stored.theme as Theme) ?? 'system');
+      setDraft(stored as Settings);
+    });
   }, []);
 
   const update = (patch: Partial<Settings>) => setDraft((d) => (d ? { ...d, ...patch } : d));
@@ -56,7 +62,9 @@ export function useOptions() {
   const restoreDefaults = () =>
     new Promise<void>((resolve) =>
       chrome.storage.sync.set(VSC_DEFAULTS, () => {
-        setDraft(structuredClone(VSC_DEFAULTS));
+        const defaults = structuredClone(VSC_DEFAULTS) as Settings;
+        applyTheme(defaults.theme);
+        setDraft(defaults);
         resolve();
       })
     );

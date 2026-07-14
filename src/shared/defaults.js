@@ -92,4 +92,5 @@ export const VSC_DEFAULTS = {
   speed: 1.0,
   sources: {}, // empty object to hold stored values for each source
   startHidden: false,
+  theme: 'system', // 'light' | 'dark' | 'system'
 };
