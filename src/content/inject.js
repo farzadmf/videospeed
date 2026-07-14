@@ -516,71 +516,40 @@ class VideoSpeedExtension {
   document.documentElement.addEventListener('VSC_MESSAGE', (event) => {
     const message = event.detail;
 
-    // Handle namespaced VSC message types
-    if (typeof message === 'object' && message.type && message.type.startsWith('VSC_')) {
-      // Use state manager for complete media element discovery (includes shadow DOM)
-      const videos = stateManager ? stateManager.getAllMediaElements() : [];
+    if (typeof message !== 'object' || !message.type || !message.type.startsWith('VSC_')) {
+      return;
+    }
 
-      switch (message.type) {
-        case MESSAGE_TYPES.SET_SPEED:
-          if (message.payload && typeof message.payload.speed === 'number') {
-            const targetSpeed = Math.min(Math.max(message.payload.speed, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
-            videos.forEach((video) => {
-              if (video.vsc) {
-                extension.actionHandler.adjustSpeed(video, targetSpeed);
-              } else {
-                video.playbackRate = targetSpeed;
-              }
-            });
+    // Route through runAction (the keyboard path) so behavior and speed
+    // persistence stay identical rather than diverging in a parallel path.
+    switch (message.type) {
+      case MESSAGE_TYPES.SET_SPEED:
+        if (typeof message.payload?.speed === 'number') {
+          extension.actionHandler.runAction({ actionItem: { action: { name: 'SET_SPEED' }, value: message.payload.speed } });
+        }
+        break;
 
-            // Log the successful operation
-            logger.debug(`Set speed to ${targetSpeed} on ${videos.length} media elements`);
-          }
-          break;
+      case MESSAGE_TYPES.ADJUST_SPEED:
+        if (typeof message.payload?.delta === 'number') {
+          extension.actionHandler.runAction({ actionItem: { action: { name: 'ADJUST_SPEED' }, value: message.payload.delta } });
+        }
+        break;
 
-        case MESSAGE_TYPES.ADJUST_SPEED:
-          if (message.payload && typeof message.payload.delta === 'number') {
-            const delta = message.payload.delta;
-            videos.forEach((video) => {
-              if (video.vsc) {
-                extension.actionHandler.adjustSpeed(video, delta, { relative: true });
-              } else {
-                // Fallback for videos without controller
-                const newSpeed = Math.min(Math.max(video.playbackRate + delta, SPEED_LIMITS.MIN), SPEED_LIMITS.MAX);
-                video.playbackRate = newSpeed;
-              }
-            });
+      case MESSAGE_TYPES.RESET_SPEED:
+        extension.actionHandler.runAction({ actionItem: { action: { name: 'RESET_SPEED' } } });
+        break;
 
-            logger.debug(`Adjusted speed by ${delta} on ${videos.length} media elements`);
-          }
-          break;
+      case MESSAGE_TYPES.TOGGLE_DISPLAY:
+        extension.actionHandler.runAction({ actionItem: 'display' });
+        break;
 
-        case MESSAGE_TYPES.RESET_SPEED:
-          videos.forEach((video) => {
-            if (video.vsc) {
-              extension.actionHandler.resetSpeed(video, 1.0);
-            } else {
-              video.playbackRate = 1.0;
-            }
-          });
+      case MESSAGE_TYPES.TEARDOWN:
+        extension.teardown();
+        break;
 
-          logger.debug(`Reset speed on ${videos.length} media elements`);
-          break;
-
-        case MESSAGE_TYPES.TOGGLE_DISPLAY:
-          if (extension.actionHandler) {
-            extension.actionHandler.runAction('display', null, null);
-          }
-          break;
-
-        case MESSAGE_TYPES.TEARDOWN:
-          extension.teardown();
-          break;
-
-        case MESSAGE_TYPES.REINIT:
-          extension.initialize();
-          break;
-      }
+      case MESSAGE_TYPES.REINIT:
+        extension.initialize();
+        break;
     }
   });
 

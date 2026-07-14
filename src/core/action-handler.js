@@ -231,18 +231,18 @@ export class ActionHandler {
 
       case 'SET_SPEED':
         logger.info('Setting speed to:', value);
-        this.adjustSpeed(video, value, { source: 'internal' });
+        this.adjustSpeed(video, value, { source: 'action-handler' });
         return true;
 
       case 'ADJUST_SPEED':
         logger.info('Adjusting speed by:', value);
-        this.adjustSpeed(video, value, { relative: true, source: 'internal' });
+        this.adjustSpeed(video, value, { relative: true, source: 'action-handler' });
         return true;
 
       case 'RESET_SPEED': {
         logger.info('Resetting speed');
         const preferredSpeed = this.config.getSpeedStep('fast');
-        this.adjustSpeed(video, preferredSpeed, { source: 'internal' });
+        this.adjustSpeed(video, preferredSpeed, { source: 'action-handler' });
         return true;
       }
 
