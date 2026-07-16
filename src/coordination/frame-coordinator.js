@@ -1,18 +1,13 @@
 /**
- * Cross-frame keyboard coordinator.
+ * Cross-frame controller registry.
  *
- * The browser delivers a keydown only to the focused frame, but with
- * `all_frames: true` each cross-origin iframe runs its own isolated VSC
- * instance. So a key pressed while the top frame is focused never reaches the
- * iframe that owns the video — hence "I must click inside the frame first."
- *
- * Since one frame can't hear every key, each frame captures locally and
- * forwards the intent to a hub (the top frame), which tracks who owns
- * controllers and decides which frame should act. The top frame is both hub
- * and spoke.
+ * With `all_frames: true`, each cross-origin iframe runs its own isolated VSC
+ * instance. Every frame announces its controller (video) count to a hub (the
+ * top frame), which keeps a registry of which frames own controllers. The top
+ * frame is both hub and spoke. Popup commands use this registry to find the
+ * frame(s) to act on.
  */
 import { logger } from '../utils/logger.js';
-import { focusSnapshot } from './debug.js';
 import { COORD_MSG, makeMessage, parseMessage } from './messages.js';
 
 const LOG = '[VSC-COORD]';
@@ -42,14 +37,11 @@ export class FrameCoordinator {
    * @param {object} opts
    * @param {() => number} opts.getLocalControllerCount - returns current count
    *   of controllers (videos) registered in THIS frame's stateManager.
-   * @param {() => void} [opts.flashControllers] - flash this frame's controllers
-   *   when a key is routed here.
    */
-  constructor({ getLocalControllerCount, flashControllers }) {
+  constructor({ getLocalControllerCount }) {
     this.frameId = mintFrameId();
     this.isTop = window === window.top;
     this.getLocalControllerCount = getLocalControllerCount || (() => 0);
-    this.flashControllers = flashControllers || (() => {});
 
     // HUB-only state: live registry of every frame that has said hello.
     // frameId -> { controllerCount, source } where source is the MessageEventSource
@@ -71,7 +63,7 @@ export class FrameCoordinator {
 
     logger.warn(
       `${LOG} ${'='.repeat(8)} frame init ${'='.repeat(8)} id=${this.frameId} ` +
-        `role=${this.isTop ? 'HUB+spoke' : 'spoke'} url=${safeUrl()} ${focusSnapshot()}`
+        `role=${this.isTop ? 'HUB+spoke' : 'spoke'} url=${safeUrl()}`
     );
 
     // Hub can't postMessage to itself, so record its own spoke directly.
@@ -92,22 +84,6 @@ export class FrameCoordinator {
     }
 
     this._send(COORD_MSG.CONTROLLERS, { controllerCount: count });
-  }
-
-  /**
-   * Spoke API: a key was captured locally. Forward the intent for the hub to route.
-   * @param {object} intent - { key, code, ctrl, alt, shift, meta, leader }
-   */
-  forwardKeyIntent(intent) {
-    const localCount = this.getLocalControllerCount();
-
-    logger.warn(`${LOG} key intent: frame=${this.frameId} key="${intent.key}" localControllers=${localCount}`);
-
-    if (this.isTop) {
-      this._route({ ...intent, fromFrameId: this.frameId, fromLocalCount: localCount });
-    } else {
-      this._send(COORD_MSG.KEY_INTENT, { intent, localControllerCount: localCount });
-    }
   }
 
   // --- transport ---------------------------------------------------------
@@ -147,25 +123,6 @@ export class FrameCoordinator {
         }
         break;
 
-      case COORD_MSG.KEY_INTENT:
-        if (this.isTop) {
-          this._route({
-            ...msg.payload.intent,
-            fromFrameId: payloadFrameId(event, msg),
-            fromLocalCount: msg.payload.localControllerCount || 0,
-          });
-        }
-        break;
-
-      case COORD_MSG.ROUTE:
-        logger.warn(
-          `${LOG} [spoke ${this.frameId}] routed here: key="${msg.payload.key}" ` +
-            `action="${msg.payload.action || '?'}" ${focusSnapshot()}`
-        );
-
-        this.flashControllers();
-        break;
-
       default:
         break;
     }
@@ -184,62 +141,6 @@ export class FrameCoordinator {
       `${LOG} [hub] registry ${isNew ? 'ADD' : 'update'} ${frameId} (controllers=${controllerCount}). ` +
         `Now ${this.registry.size} frame(s): ${this._registrySummary()}`
     );
-  }
-
-  /**
-   * Decide which frame should handle a key: origin frame if it has controllers,
-   * else the sole controller frame, else the first of several.
-   */
-  _route(intent) {
-    const framesWithControllers = [...this.registry.entries()].filter(([, info]) => info.controllerCount > 0);
-
-    logger.warn(
-      `${LOG} [hub] ROUTE key="${intent.key}" from=${intent.fromFrameId} ` +
-        `(localControllers=${intent.fromLocalCount}); candidates=[${framesWithControllers
-          .map(([id, info]) => `${id}:${info.controllerCount}`)
-          .join(', ')}]`
-    );
-
-    let targetId = null;
-    if (intent.fromLocalCount > 0) {
-      targetId = intent.fromFrameId;
-      logger.warn(`${LOG} [hub] decision: origin frame handles it (${targetId})`);
-    } else if (framesWithControllers.length === 1) {
-      targetId = framesWithControllers[0][0];
-      logger.warn(`${LOG} [hub] decision: route to sole controller frame (${targetId})`);
-    } else if (framesWithControllers.length === 0) {
-      logger.warn(`${LOG} [hub] decision: no frame has controllers — drop`);
-      return;
-    } else {
-      targetId = framesWithControllers[0][0];
-      logger.warn(`${LOG} [hub] ${framesWithControllers.length} frames have controllers; picking first (${targetId})`);
-    }
-
-    const action = intent.action || null;
-    this._dispatchRoute(targetId, { key: intent.key, action });
-  }
-
-  _dispatchRoute(targetId, body) {
-    if (targetId === this.frameId) {
-      logger.warn(`${LOG} [hub] target is local frame: key="${body.key}" action="${body.action || '?'}"`);
-
-      this.flashControllers();
-      return;
-    }
-
-    const entry = this.registry.get(targetId);
-    const target = entry && entry.source;
-    if (!target) {
-      logger.warn(`${LOG} [hub] no postMessage source for target ${targetId} — cannot route`);
-      return;
-    }
-
-    try {
-      target.postMessage(makeMessage(COORD_MSG.ROUTE, body), '*');
-      logger.warn(`${LOG} [hub] routed key="${body.key}" -> ${targetId}`);
-    } catch (e) {
-      logger.warn(`${LOG} [hub] route postMessage failed: ${e.message}`);
-    }
   }
 
   _registrySummary() {

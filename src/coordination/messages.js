@@ -14,10 +14,6 @@ export const COORD_MSG = {
   HELLO: 'hello',
   // Spoke reports its current local controller (video) count changed.
   CONTROLLERS: 'controllers',
-  // Spoke forwards a captured key intent for the hub to route.
-  KEY_INTENT: 'key_intent',
-  // HUB -> SPOKE: the routing decision ("you should handle this key").
-  ROUTE: 'route',
 };
 
 /**

@@ -2,9 +2,7 @@
  * Video Speed Controller - Main Content Script
  * Modular architecture using global variables loaded via script array
  */
-import { flashElement } from '../coordination/flash.js';
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
-import { LeaderMode } from '../coordination/leader-mode.js';
 import { ActionHandler } from '../core/action-handler.js';
 import { config } from '../core/config.js';
 import { stateManager } from '../core/state-manager.js';
@@ -23,7 +21,6 @@ class VideoSpeedExtension {
     this.actionHandler = null;
     this.eventManager = null;
     this.frameCoordinator = null;
-    this.leaderMode = null;
     this.mutationObserver = null;
     this.mediaObserver = null;
     // MyNote: comment out Gemini's shadow observers
@@ -149,37 +146,15 @@ class VideoSpeedExtension {
     }
   }
 
-  /** Cross-frame coordinator + leader mode. */
+  /** Cross-frame coordinator: tracks which frames have controllers. */
   setupCoordination() {
     this.frameCoordinator = new FrameCoordinator({
       getLocalControllerCount: () => stateManager.getAllMediaElements().length,
-      flashControllers: () => this.flashControllers(),
     });
 
     stateManager.onControllersChanged = () => this.frameCoordinator?.announceControllers();
 
     this.frameCoordinator.start();
-
-    this.leaderMode = new LeaderMode({
-      config: this.config,
-      // Shared id so leader + coordinator logs from one frame correlate.
-      frameId: this.frameCoordinator?.frameId,
-      hasControllers: () => stateManager.getAllMediaElements().length > 0,
-      onLeaderAction: (intent) => this.frameCoordinator?.forwardKeyIntent(intent),
-    });
-
-    this.leaderMode.start();
-  }
-
-  /** Briefly outline this frame's controllers — visual proof a key was routed here. */
-  flashControllers() {
-    for (const { controller } of stateManager.controllers.values()) {
-      // The visible pill is controllerDiv; wrapperDiv (the host) can be 0x0.
-      const el = controller?.controllerDiv || controller?.wrapperDiv;
-      if (el?.isConnected) {
-        flashElement(el);
-      }
-    }
   }
 
   /**
@@ -347,11 +322,6 @@ class VideoSpeedExtension {
     if (this.eventManager) {
       this.eventManager.cleanup();
       this.eventManager = null;
-    }
-
-    if (this.leaderMode) {
-      this.leaderMode.stop();
-      this.leaderMode = null;
     }
 
     if (this.frameCoordinator) {
