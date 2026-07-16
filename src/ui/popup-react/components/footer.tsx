@@ -5,6 +5,7 @@ import { openOptions } from '../chrome-api';
 
 type Props = {
   enabled: boolean;
+  showEnable: boolean;
   status: string;
   theme: Theme;
   onToggleEnabled: () => void;
@@ -14,7 +15,7 @@ type Props = {
 const THEME_ICON = { light: LuSun, dark: LuMoon, system: LuMonitor };
 const THEME_LABEL = { light: 'Light', dark: 'Dark', system: 'System' };
 
-export const Footer = ({ enabled, status, theme, onToggleEnabled, onCycleTheme }: Props) => {
+export const Footer = ({ enabled, showEnable, status, theme, onToggleEnabled, onCycleTheme }: Props) => {
   const ThemeIcon = THEME_ICON[theme];
 
   return (
@@ -28,13 +29,15 @@ export const Footer = ({ enabled, status, theme, onToggleEnabled, onCycleTheme }
         >
           <ThemeIcon size={18} />
         </button>
-        <button
-          className={`btn btn-circle btn-soft ${enabled ? 'btn-success' : 'btn-error'}`}
-          title={enabled ? 'Disable Extension' : 'Enable Extension'}
-          onClick={onToggleEnabled}
-        >
-          <LuPower size={18} />
-        </button>
+        {showEnable && (
+          <button
+            className={`btn btn-circle btn-soft ${enabled ? 'btn-success' : 'btn-error'}`}
+            title={enabled ? 'Disable Extension' : 'Enable Extension'}
+            onClick={onToggleEnabled}
+          >
+            <LuPower size={18} />
+          </button>
+        )}
         <button className="btn btn-circle btn-soft btn-primary" title="Settings" onClick={openOptions}>
           <LuSettings size={18} />
         </button>

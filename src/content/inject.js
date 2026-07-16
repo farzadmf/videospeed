@@ -490,6 +490,19 @@ class VideoSpeedExtension {
       return;
     }
 
+    if (message.type === MESSAGE_TYPES.STATUS) {
+      document.documentElement.dispatchEvent(
+        new CustomEvent('VSC_STATUS_REPLY', {
+          detail: {
+            abort: !!extension.config?.settings?._abort,
+            initialized: extension.initialized,
+            controllerCount: stateManager.getAllMediaElements().length,
+          },
+        })
+      );
+      return;
+    }
+
     // Route through runAction (the keyboard path) so behavior and speed
     // persistence stay identical rather than diverging in a parallel path.
     switch (message.type) {

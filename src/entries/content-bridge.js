@@ -11,6 +11,7 @@
  *   3. When MAIN world fires VSC_REQUEST_SETTINGS, the listener waits for the
  *      async work to finish, then responds with VSC_SETTINGS_READY.
  */
+import { MESSAGE_TYPES } from '../shared/constants.js';
 import { isBlacklisted } from '../utils/blacklist.js';
 
 // Speed limits for page→bridge write validation.
@@ -113,7 +114,20 @@ function setupOngoingListeners() {
   });
 
   // --- Popup/background message relay ---
-  chrome.runtime.onMessage.addListener((request) => {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // The popup asks MAIN whether VSC is live here; no reply means unreachable.
+    if (request?.type === MESSAGE_TYPES.STATUS) {
+      const onReply = (e) => {
+        docEl.removeEventListener('VSC_STATUS_REPLY', onReply);
+        sendResponse(e.detail);
+      };
+      docEl.addEventListener('VSC_STATUS_REPLY', onReply);
+
+      docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: request }));
+
+      return true; // keep the channel open for the async sendResponse
+    }
+
     docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: request }));
   });
 

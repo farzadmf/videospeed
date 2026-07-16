@@ -20,3 +20,26 @@ export const play = () => sendToActiveTab({ type: MESSAGE_TYPES.PLAY });
 export const pause = () => sendToActiveTab({ type: MESSAGE_TYPES.PAUSE });
 
 export const openOptions = () => chrome.runtime.openOptionsPage();
+
+export type VscStatus = { reachable: false } | { reachable: true; abort: boolean; initialized: boolean; controllerCount: number };
+
+export function getStatus(): Promise<VscStatus> {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0]?.id;
+
+      if (tabId === undefined) {
+        resolve({ reachable: false });
+        return;
+      }
+
+      chrome.tabs.sendMessage(tabId, { type: MESSAGE_TYPES.STATUS }, (reply) => {
+        if (chrome.runtime.lastError || !reply) {
+          resolve({ reachable: false });
+          return;
+        }
+        resolve({ reachable: true, ...reply });
+      });
+    });
+  });
+}
