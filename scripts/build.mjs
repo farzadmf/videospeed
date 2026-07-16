@@ -38,19 +38,17 @@ async function copyStaticFiles() {
       await fs.ensureDir(outDir);
     }
 
-    // Paths to copy
     const pathsToCopy = {
-      'manifest.json': [path.join(outDir, 'manifest.json')],
-      'src/assets': [path.join(outDir, 'assets')],
-      LICENSE: [path.join(outDir, 'LICENSE')],
-      'CONTRIBUTING.md': [path.join(outDir, 'CONTRIBUTING.md')],
-      'PRIVACY.md': [path.join(outDir, 'PRIVACY.md')],
-      'README.md': [path.join(outDir, 'README.md')],
+      'manifest.json': path.join(outDir, 'manifest.json'),
+      'src/assets': path.join(outDir, 'assets'),
+      LICENSE: path.join(outDir, 'LICENSE'),
+      'CONTRIBUTING.md': path.join(outDir, 'CONTRIBUTING.md'),
+      'PRIVACY.md': path.join(outDir, 'PRIVACY.md'),
+      'README.md': path.join(outDir, 'README.md'),
     };
 
-    // Perform copy operations
-    for (const [src, [dest, filter]] of Object.entries(pathsToCopy)) {
-      await fs.copy(path.join(rootDir, src), dest, { filter });
+    for (const [src, dest] of Object.entries(pathsToCopy)) {
+      await fs.copy(path.join(rootDir, src), dest);
     }
 
     const timestamp = format(new Date(), 'yyyy-MM-dd@HH:mm:ss');
