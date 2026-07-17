@@ -57,14 +57,6 @@ import { logger } from '../utils/logger.js';
         }
         break;
 
-      case MESSAGE_TYPES.PLAY:
-        stateManager.getAllMediaElements().forEach((video) => video.play());
-        break;
-
-      case MESSAGE_TYPES.PAUSE:
-        stateManager.getAllMediaElements().forEach((video) => video.pause());
-        break;
-
       case MESSAGE_TYPES.TOGGLE_DISPLAY:
         extension.actionHandler.runAction({ actionItem: 'display' });
         break;

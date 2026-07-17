@@ -15,13 +15,11 @@ export const adjustSpeed = (delta: number) => sendToActiveTab({ type: MESSAGE_TY
 
 export const runAction = (action: string) => sendToActiveTab({ type: MESSAGE_TYPES.RUN_ACTION, payload: { action } });
 
-export const play = () => sendToActiveTab({ type: MESSAGE_TYPES.PLAY });
-
-export const pause = () => sendToActiveTab({ type: MESSAGE_TYPES.PAUSE });
-
 export const openOptions = () => chrome.runtime.openOptionsPage();
 
-export type VscStatus = { reachable: false } | { reachable: true; abort: boolean; initialized: boolean; controllerCount: number };
+export type VscStatus =
+  | { reachable: false }
+  | { abort: boolean; controllerCount: number; initialized: boolean; reachable: true };
 
 export function getStatus(): Promise<VscStatus> {
   return new Promise((resolve) => {
