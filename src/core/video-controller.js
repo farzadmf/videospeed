@@ -413,7 +413,10 @@ export class VideoController {
       }
 
       mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')) {
+        if (
+          mutation.type === 'attributes' &&
+          (mutation.attributeName === 'src' || mutation.attributeName === 'currentSrc')
+        ) {
           logger.debug('Mutation of A/V element detected');
           const wrapper = this.wrapperDiv;
           if (!mutation.target.src && !mutation.target.currentSrc) {

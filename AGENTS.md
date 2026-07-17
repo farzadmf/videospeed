@@ -1,3 +1,7 @@
+## Coding style
+
+See @docs/coding-style.md for conventions beyond the linter — notably using blank lines to group code into readable "paragraphs", and when to comment.
+
 ## Overview
 
 This project is a heavily modified fork of https://github.com/igrigorik/videospeed, but tries to keep all the existing functionality/fixes of upstream. Some of upstream changes may not be applicable to this project because of the fundamental differences made on purpose.

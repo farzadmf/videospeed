@@ -16,7 +16,14 @@ window.VSC = window.VSC || {};
 export class SiteHandlerManager {
   constructor(settings) {
     this.currentHandler = null;
-    this.availableHandlers = [AmazonHandler, AppleHandler, DailymotionHandler, FacebookHandler, NetflixHandler, YouTubeHandler];
+    this.availableHandlers = [
+      AmazonHandler,
+      AppleHandler,
+      DailymotionHandler,
+      FacebookHandler,
+      NetflixHandler,
+      YouTubeHandler,
+    ];
     this.settings = settings;
   }
 

@@ -77,7 +77,10 @@ runner.test('VideoController should register with state manager', async () => {
 
   // Verify controller is registered with state manager
   assert.equal(window.VSC.stateManager.controllers.size, 1, 'Controller should be registered with state manager');
-  assert.true(window.VSC.stateManager.controllers.has(controller.controllerId), 'Controller ID should be in state manager');
+  assert.true(
+    window.VSC.stateManager.controllers.has(controller.controllerId),
+    'Controller ID should be in state manager'
+  );
 
   // Verify controller has ID
   assert.exists(controller.controllerId, 'Controller should have an ID');
@@ -112,7 +115,10 @@ runner.test('VideoController should unregister from state manager on removal', a
 
   // Verify controller was unregistered from state manager
   assert.equal(window.VSC.stateManager.controllers.size, 0, 'Controller should be unregistered from state manager');
-  assert.false(window.VSC.stateManager.controllers.has(controllerId), 'Controller ID should be removed from state manager');
+  assert.false(
+    window.VSC.stateManager.controllers.has(controllerId),
+    'Controller ID should be removed from state manager'
+  );
 
   // Verify controller is properly cleaned up
   assert.equal(mockVideo.vsc, undefined, 'Video should no longer have vsc reference');

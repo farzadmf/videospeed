@@ -166,7 +166,11 @@ runner.test('Should handle string force values from legacy storage', async () =>
   // Should have proper boolean types in all bindings
   const bindings = config.settings.keyBindings;
   bindings.forEach((binding, index) => {
-    assert.equal(typeof binding.force, 'boolean', `Binding ${index} force should be boolean, got ${typeof binding.force}`);
+    assert.equal(
+      typeof binding.force,
+      'boolean',
+      `Binding ${index} force should be boolean, got ${typeof binding.force}`
+    );
   });
 });
 

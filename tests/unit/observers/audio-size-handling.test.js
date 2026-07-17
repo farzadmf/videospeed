@@ -274,7 +274,13 @@ runner.test('Display toggle should work with audio controllers', async () => {
   const observer = new window.VSC.MediaElementObserver(config, siteHandler);
   const shouldStartHidden = observer.shouldStartHidden(smallAudio);
 
-  const controller = new window.VSC.VideoController(smallAudio, mockDOM.container, config, actionHandler, shouldStartHidden);
+  const controller = new window.VSC.VideoController(
+    smallAudio,
+    mockDOM.container,
+    config,
+    actionHandler,
+    shouldStartHidden
+  );
 
   // Verify controller was created properly
   assert.exists(controller, 'Controller should exist');

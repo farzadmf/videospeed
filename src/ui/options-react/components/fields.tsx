@@ -23,7 +23,12 @@ type TextProps = {
 export const TextField = ({ label, value, type = 'text', onChange }: TextProps) => (
   <label className="flex items-center gap-3 py-1.5">
     <span className="w-56 text-base">{label}</span>
-    <input type={type} className="input input-bordered flex-1" value={value} onChange={(e) => onChange(e.target.value)} />
+    <input
+      type={type}
+      className="input input-bordered flex-1"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
   </label>
 );
 

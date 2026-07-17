@@ -33,7 +33,8 @@ export const saveOptions = () => {
   const yt_spb_sound_enabled = document.getElementById('yt_spb_sound_enabled').checked;
   const yt_spb_skip_sound = document.getElementById('yt_spb_skip_sound').value;
   const yt_spb_unskip_sound = document.getElementById('yt_spb_unskip_sound').value;
-  const yt_spb_interval = Number(document.getElementById('yt_spb_interval').value) || VSC_DEFAULTS.sites.youtube.spb_interval;
+  const yt_spb_interval =
+    Number(document.getElementById('yt_spb_interval').value) || VSC_DEFAULTS.sites.youtube.spb_interval;
   const yt_spb_categories = collectSpbCategories();
 
   chrome.storage.sync.set(

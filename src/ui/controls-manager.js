@@ -161,7 +161,9 @@ export class ControlsManager {
 
         this.actionHandler.adjustSpeed(video, speedDelta, { relative: true });
 
-        logger.debug(`Wheel control: adjusting speed by ${speedDelta} (deltaMode: ${event.deltaMode}, deltaY: ${event.deltaY})`);
+        logger.debug(
+          `Wheel control: adjusting speed by ${speedDelta} (deltaMode: ${event.deltaMode}, deltaY: ${event.deltaY})`
+        );
       },
       { passive: false }
     );

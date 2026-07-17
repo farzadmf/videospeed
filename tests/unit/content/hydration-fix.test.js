@@ -80,7 +80,11 @@ runner.test('CSS custom properties enable domain-specific styling without body m
   const finalBodyClasses = [...document.body.classList];
   const finalBodyHTML = document.body.outerHTML;
 
-  assert.deepEqual(initialBodyClasses, finalBodyClasses, 'Body classes should not be modified when applying domain styles');
+  assert.deepEqual(
+    initialBodyClasses,
+    finalBodyClasses,
+    'Body classes should not be modified when applying domain styles'
+  );
 
   assert.equal(initialBodyHTML, finalBodyHTML, 'Body HTML should not be modified when applying domain styles');
 

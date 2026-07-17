@@ -32,7 +32,9 @@ async function testDisplayToggle() {
       const controller = controllers[0];
       const computedStyle = window.getComputedStyle(controller);
       const isVisible =
-        computedStyle.display !== 'none' && computedStyle.visibility !== 'hidden' && !controller.classList.contains('vsc-hidden');
+        computedStyle.display !== 'none' &&
+        computedStyle.visibility !== 'hidden' &&
+        !controller.classList.contains('vsc-hidden');
 
       return {
         success: isVisible,
@@ -55,7 +57,9 @@ async function testDisplayToggle() {
       const controller = document.querySelector('.vsc-controller');
       const computedStyle = window.getComputedStyle(controller);
       const isHidden =
-        computedStyle.display === 'none' || computedStyle.visibility === 'hidden' || controller.classList.contains('vsc-hidden');
+        computedStyle.display === 'none' ||
+        computedStyle.visibility === 'hidden' ||
+        controller.classList.contains('vsc-hidden');
 
       return {
         success: isHidden,
@@ -78,7 +82,9 @@ async function testDisplayToggle() {
       const controller = document.querySelector('.vsc-controller');
       const computedStyle = window.getComputedStyle(controller);
       const isVisible =
-        computedStyle.display !== 'none' && computedStyle.visibility !== 'hidden' && !controller.classList.contains('vsc-hidden');
+        computedStyle.display !== 'none' &&
+        computedStyle.visibility !== 'hidden' &&
+        !controller.classList.contains('vsc-hidden');
 
       return {
         success: isVisible,

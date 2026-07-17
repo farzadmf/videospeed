@@ -246,7 +246,8 @@ export class VideoSpeedConfig {
     const ctrl = !!event.ctrlKey;
 
     return this.settings.keyBindings.find(
-      (binding) => binding.code === code && !!binding.alt === alt && !!binding.shift === shift && !!binding.ctrl === ctrl
+      (binding) =>
+        binding.code === code && !!binding.alt === alt && !!binding.shift === shift && !!binding.ctrl === ctrl
     );
   }
 

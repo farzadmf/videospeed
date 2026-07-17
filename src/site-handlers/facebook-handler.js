@@ -28,7 +28,8 @@ export class FacebookHandler extends BaseSiteHandler {
     let targetParent = parent;
 
     try {
-      targetParent = parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+      targetParent =
+        parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
     } catch {
       logger.warn('Facebook DOM structure changed, using fallback positioning');
       targetParent = parent.parentElement;

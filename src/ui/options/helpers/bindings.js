@@ -216,7 +216,8 @@ export function inputFocus(e) {
 
 export function inputBlur(e) {
   const keyCode = e.target.keyCode;
-  e.target.value = KEY_CODES[keyCode] || (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
+  e.target.value =
+    KEY_CODES[keyCode] || (keyCode >= 48 && keyCode <= 90 ? String.fromCharCode(keyCode) : `Key ${keyCode}`);
 }
 
 // MyNote: commented because I didn't have it, and I don't think it's needed.

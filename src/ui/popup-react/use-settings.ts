@@ -35,7 +35,8 @@ export function useSettings() {
     });
   }, []);
 
-  const setEnabled = (enabled: boolean) => chrome.storage.sync.set({ enabled }, () => setSettings((s) => ({ ...s, enabled })));
+  const setEnabled = (enabled: boolean) =>
+    chrome.storage.sync.set({ enabled }, () => setSettings((s) => ({ ...s, enabled })));
 
   const setTheme = (theme: Theme) =>
     chrome.storage.sync.set({ theme }, () => {

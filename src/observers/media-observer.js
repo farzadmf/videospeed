@@ -189,7 +189,10 @@ export class MediaElementObserver {
 
     // Skip audio elements when audio support is disabled
     if (media.tagName === 'AUDIO') {
-      logger.verbose('[isValidMediaElement] Audio element detected - audioBoolean status:', this.config.settings.audioBoolean);
+      logger.verbose(
+        '[isValidMediaElement] Audio element detected - audioBoolean status:',
+        this.config.settings.audioBoolean
+      );
       return this.config.settings.audioBoolean;
     }
 

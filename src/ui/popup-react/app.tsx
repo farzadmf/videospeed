@@ -69,7 +69,9 @@ export const App = () => {
 
         {!showHelp && (
           <div className="col-start-1 row-start-1">
-            {availability === 'active' && <SpeedControls slowerStep={settings.slowerStep} fasterStep={settings.fasterStep} />}
+            {availability === 'active' && (
+              <SpeedControls slowerStep={settings.slowerStep} fasterStep={settings.fasterStep} />
+            )}
 
             {availability === 'probing' && <div className="text-base-content/60 p-4 text-sm">Checking…</div>}
 
@@ -81,7 +83,9 @@ export const App = () => {
               <div className="text-base-content/70 p-4 text-sm">VideoSpeed is disabled on this page.</div>
             )}
 
-            {availability === 'no-video' && <div className="text-base-content/70 p-4 text-sm">No video found on this page.</div>}
+            {availability === 'no-video' && (
+              <div className="text-base-content/70 p-4 text-sm">No video found on this page.</div>
+            )}
           </div>
         )}
       </div>

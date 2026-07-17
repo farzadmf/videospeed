@@ -1,6 +1,5 @@
 // The popup's shortcuts. Fixed for now; the seam for reading from stored
 // settings later.
-
 import { formatForDisplay } from '@tanstack/react-hotkeys';
 
 export type SpeedShortcut = {

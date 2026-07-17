@@ -4,8 +4,8 @@ const ENTRIES = [
     a: (
       <>
         To enable playback of local media (File &gt; Open File) or Incognito mode, grant additional permissions: go to{' '}
-        <code>chrome://extensions</code>, find "Video Speed Controller", click Details, and enable "Allow access to file URLs"
-        and/or "Allow in Incognito".
+        <code>chrome://extensions</code>, find "Video Speed Controller", click Details, and enable "Allow access to file
+        URLs" and/or "Allow in Incognito".
       </>
     ),
   },
@@ -13,8 +13,8 @@ const ENTRIES = [
     q: 'Disable on a site',
     a: (
       <>
-        Add the site's domain to the blacklist in Other Settings (e.g. <code>example.com</code>). Regex is supported (e.g.{' '}
-        <code>/\.edu$/i</code>).
+        Add the site's domain to the blacklist in Other Settings (e.g. <code>example.com</code>). Regex is supported
+        (e.g. <code>/\.edu$/i</code>).
       </>
     ),
   },
@@ -26,8 +26,8 @@ const ENTRIES = [
     q: 'Shortcut conflicts',
     a: (
       <>
-        If a site captures one of your shortcut keys, try <code>Shift+&lt;key&gt;</code> — the extension listens for both cases.
-        You can also remap keys in Key Bindings above.
+        If a site captures one of your shortcut keys, try <code>Shift+&lt;key&gt;</code> — the extension listens for
+        both cases. You can also remap keys in Key Bindings above.
       </>
     ),
   },

@@ -2,11 +2,11 @@
  * Video Speed Controller - Main Content Script.
  * Bootstraps the extension and bridges popup/background messages to it.
  */
-import { VideoSpeedExtension } from './video-speed-extension.js';
 import { config } from '../core/config.js';
 import { stateManager } from '../core/state-manager.js';
 import { MESSAGE_TYPES } from '../shared/constants.js';
 import { logger } from '../utils/logger.js';
+import { VideoSpeedExtension } from './video-speed-extension.js';
 
 // Initialize extension and message handlers in an IIFE to avoid global scope pollution
 (function () {
@@ -27,7 +27,8 @@ import { logger } from '../utils/logger.js';
           new CustomEvent('VSC_STATUS_REPLY', {
             detail: {
               abort: !!extension.config?.settings?._abort,
-              controllerCount: extension.frameCoordinator?.totalControllerCount() ?? stateManager.getAllMediaElements().length,
+              controllerCount:
+                extension.frameCoordinator?.totalControllerCount() ?? stateManager.getAllMediaElements().length,
               initialized: extension.initialized,
             },
           })
@@ -36,13 +37,17 @@ import { logger } from '../utils/logger.js';
 
       case MESSAGE_TYPES.SET_SPEED:
         if (typeof message.payload?.speed === 'number') {
-          extension.actionHandler.runAction({ actionItem: { action: { name: 'SET_SPEED' }, value: message.payload.speed } });
+          extension.actionHandler.runAction({
+            actionItem: { action: { name: 'SET_SPEED' }, value: message.payload.speed },
+          });
         }
         break;
 
       case MESSAGE_TYPES.ADJUST_SPEED:
         if (typeof message.payload?.delta === 'number') {
-          extension.actionHandler.runAction({ actionItem: { action: { name: 'ADJUST_SPEED' }, value: message.payload.delta } });
+          extension.actionHandler.runAction({
+            actionItem: { action: { name: 'ADJUST_SPEED' }, value: message.payload.delta },
+          });
         }
         break;
 

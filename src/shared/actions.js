@@ -60,7 +60,10 @@ export const NO_VALUE_ACTIONS = keys(pickBy(ACTIONS, (value) => value.value === 
 
 export const actionByName = (actionName) => pick(ACTIONS, [actionName])[actionName];
 
-export const ACTION_OPTIONS = map(ACTIONS, ({ name, description }) => `<option value="${name}">${description}</option>`);
+export const ACTION_OPTIONS = map(
+  ACTIONS,
+  ({ name, description }) => `<option value="${name}">${description}</option>`
+);
 
 export const ALLOWED_ACTION_OPTIONS = () => {
   const usedOptions = map(document.querySelectorAll('#shortcuts td:first-child select'), (s) => s.value);

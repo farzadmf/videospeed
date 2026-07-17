@@ -79,7 +79,11 @@ export const SiteSettings = ({ settings, update }: Props) => {
           options={SOUND_OPTIONS}
           onChange={(v) => patchYt({ spb_skip_sound: v })}
         />
-        <button className="btn btn-square btn-soft btn-primary" title="Preview" onClick={() => previewSound(yt.spb_skip_sound)}>
+        <button
+          className="btn btn-square btn-soft btn-primary"
+          title="Preview"
+          onClick={() => previewSound(yt.spb_skip_sound)}
+        >
           <LuPlay />
         </button>
       </div>
@@ -90,7 +94,11 @@ export const SiteSettings = ({ settings, update }: Props) => {
           options={SOUND_OPTIONS}
           onChange={(v) => patchYt({ spb_unskip_sound: v })}
         />
-        <button className="btn btn-square btn-soft btn-primary" title="Preview" onClick={() => previewSound(yt.spb_unskip_sound)}>
+        <button
+          className="btn btn-square btn-soft btn-primary"
+          title="Preview"
+          onClick={() => previewSound(yt.spb_unskip_sound)}
+        >
           <LuPlay />
         </button>
       </div>
@@ -117,7 +125,9 @@ export const SiteSettings = ({ settings, update }: Props) => {
                 <CheckboxField
                   label={cat.label}
                   checked={enabled}
-                  onChange={(v) => setCategory(cat.name, v ? { name: cat.name, color: cat.color, should_skip: true } : null)}
+                  onChange={(v) =>
+                    setCategory(cat.name, v ? { name: cat.name, color: cat.color, should_skip: true } : null)
+                  }
                 />
                 {enabled && existing && (
                   <div className="mt-1 ml-8 flex flex-col gap-1">

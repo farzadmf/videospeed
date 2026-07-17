@@ -160,7 +160,9 @@ export class YouTubeHandler extends BaseSiteHandler {
    */
   shouldIgnoreVideo(video) {
     // Ignore thumbnail videos and ads
-    return video.classList.contains('video-thumbnail') || video.parentElement?.classList.contains('ytp-ad-player-overlay');
+    return (
+      video.classList.contains('video-thumbnail') || video.parentElement?.classList.contains('ytp-ad-player-overlay')
+    );
   }
 
   /**

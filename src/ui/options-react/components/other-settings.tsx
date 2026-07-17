@@ -52,7 +52,9 @@ export const OtherSettings = ({ settings, update }: Props) => (
         <>
           Exclusive keys
           <br />
-          <em className="text-base-content/70 text-base">When possible, prevent websites from also handling VSC shortcut keys</em>
+          <em className="text-base-content/70 text-base">
+            When possible, prevent websites from also handling VSC shortcut keys
+          </em>
         </>
       }
       checked={settings.exclusiveKeys}
@@ -63,13 +65,19 @@ export const OtherSettings = ({ settings, update }: Props) => (
         <>
           Force last saved speed
           <br />
-          <em className="text-base-content/70 text-base">Useful for video players that override the speeds set by VideoSpeed</em>
+          <em className="text-base-content/70 text-base">
+            Useful for video players that override the speeds set by VideoSpeed
+          </em>
         </>
       }
       checked={settings.forceLastSavedSpeed}
       onChange={(v) => update({ forceLastSavedSpeed: v })}
     />
-    <CheckboxField label="Work on audio" checked={settings.audioBoolean} onChange={(v) => update({ audioBoolean: v })} />
+    <CheckboxField
+      label="Work on audio"
+      checked={settings.audioBoolean}
+      onChange={(v) => update({ audioBoolean: v })}
+    />
     <CheckboxField
       label={
         <>

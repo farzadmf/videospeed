@@ -366,7 +366,10 @@ class DebugHelper {
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && (mutation.attributeName === 'class' || mutation.attributeName === 'style')) {
+        if (
+          mutation.type === 'attributes' &&
+          (mutation.attributeName === 'class' || mutation.attributeName === 'style')
+        ) {
           const target = mutation.target;
           if (target.tagName === 'VSC-CONTROLLER') {
             console.log('🔄 Controller visibility changed:', {

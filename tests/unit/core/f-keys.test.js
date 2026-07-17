@@ -85,7 +85,11 @@ runner.test('Special keys beyond standard range should be accepted', async () =>
   await config.save({ keyBindings: specialKeyBindings });
   await config.load();
 
-  assert.equal(config.settings.keyBindings.length, specialKeyBindings.length, 'All special key bindings should be saved');
+  assert.equal(
+    config.settings.keyBindings.length,
+    specialKeyBindings.length,
+    'All special key bindings should be saved'
+  );
 
   specialKeys.forEach((specialKey, index) => {
     const binding = config.settings.keyBindings[index];

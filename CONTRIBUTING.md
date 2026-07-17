@@ -1,7 +1,6 @@
 # Contributing
 
-Video Speed Controller is an open source project licensed under the MIT license
-with many contributors. Contributions are welcome, and greatly appreciated.
+Video Speed Controller is an open source project licensed under the MIT license with many contributors. Contributions are welcome, and greatly appreciated.
 
 If you would like to help, getting started is easy.
 
@@ -42,13 +41,9 @@ If you would like to help, getting started is easy.
    git add .
    ```
 
-   > Important: Your commit must be formatted using
-   > [prettier](https://prettier.io/). If it is not it may be autoformatted for
-   > you or your pull request may be rejected.
+   > Important: Your commit must be formatted using [prettier](https://prettier.io/). If it is not it may be autoformatted for you or your pull request may be rejected.
 
-7. Next, open Chrome/Brave/Chromium and enable developer mode via
-   `Settings > Extensions > Manage Extensions` and toggle `Developer mode` in
-   the top-right corner.
+7. Next, open Chrome/Brave/Chromium and enable developer mode via `Settings > Extensions > Manage Extensions` and toggle `Developer mode` in the top-right corner.
 8. Install dependencies
 
    ```sh
@@ -72,30 +67,18 @@ git commit -m "Awesome description of some awesome changes."
 git push
 ```
 
-13. Open your branch up on the github website then click `New pull request` and
-    write up a description of your changes.
-
+13. Open your branch up on the github website then click `New pull request` and write up a description of your changes.
 
 ## Optional
 
 ### Run Pre-Commit Checks Locally
 
-Installing [pre-commit](https://pre-commit.com/) is easy to do (click the link
-for instructions on your platform). This repo comes with pre-commit already
-configured. Doing this will ensure that your project is properly formatted and
-runs some very basic tests. Once you have pre-commit installed on your system,
-simply enter `pre-commit install` in your terminal in the folder to have these
-checks run automatically each time you commit.
+Installing [pre-commit](https://pre-commit.com/) is easy to do (click the link for instructions on your platform). This repo comes with pre-commit already configured. Doing this will ensure that your project is properly formatted and runs some very basic tests. Once you have pre-commit installed on your system, simply enter `pre-commit install` in your terminal in the folder to have these checks run automatically each time you commit.
 
-Even better, after issueing the install command you can now manually run
-pre-commit checks before committing via `pre-commit run --all-files`
+Even better, after issueing the install command you can now manually run pre-commit checks before committing via `pre-commit run --all-files`
 
 ### Pull Upstream Changes
 
-You should always be working with the latest version of the tool to make pull
-requests easy. If you want to do this easily, just add a second remote to your
-local git repo like this
-`git remote add upstream https://github.com/igrigorik/videospeed.git`
+You should always be working with the latest version of the tool to make pull requests easy. If you want to do this easily, just add a second remote to your local git repo like this `git remote add upstream https://github.com/igrigorik/videospeed.git`
 
-Now any time you like to pull the latest version in to your local branch you can
-simply issue the command `git pull upstream master`
+Now any time you like to pull the latest version in to your local branch you can simply issue the command `git pull upstream master`

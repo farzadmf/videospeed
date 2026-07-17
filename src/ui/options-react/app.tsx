@@ -121,7 +121,10 @@ export const App = () => {
             <button className="btn btn-error" onClick={() => window.open('https://github.com/farzadmf/videospeed')}>
               About Video Speed Controller
             </button>
-            <button className="btn btn-success" onClick={() => window.open('https://github.com/farzadmf/videospeed/issues')}>
+            <button
+              className="btn btn-success"
+              onClick={() => window.open('https://github.com/farzadmf/videospeed/issues')}
+            >
               Send Feedback
             </button>
           </div>

@@ -62,7 +62,10 @@ export const KeyBindings = ({ settings, update }: Props) => {
                   </select>
                 </td>
                 <td>
-                  <Modifiers mods={{ alt: !!b.alt, shift: !!b.shift, ctrl: !!b.ctrl }} onChange={(mods) => setBinding(b, mods)} />
+                  <Modifiers
+                    mods={{ alt: !!b.alt, shift: !!b.shift, ctrl: !!b.ctrl }}
+                    onChange={(mods) => setBinding(b, mods)}
+                  />
                 </td>
                 <td>
                   <KeyInput code={b.code} onCapture={(code, mods) => setBinding(b, { code, ...mods })} />

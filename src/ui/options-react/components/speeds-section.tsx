@@ -5,7 +5,9 @@ type SourceEntry = { speed: number; updated: number };
 type Sources = Record<string, SourceEntry>;
 
 function readSources(): Promise<Sources> {
-  return new Promise<Sources>((resolve) => chrome.storage.sync.get('sources', (s) => resolve((s.sources ?? {}) as Sources)));
+  return new Promise<Sources>((resolve) =>
+    chrome.storage.sync.get('sources', (s) => resolve((s.sources ?? {}) as Sources))
+  );
 }
 
 function writeSources(sources: Sources): Promise<void> {

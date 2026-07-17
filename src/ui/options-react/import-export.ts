@@ -29,7 +29,11 @@ export async function importSettings(file: File): Promise<Settings> {
     throw new Error('File is not valid JSON');
   }
 
-  if (!imported || typeof imported !== 'object' || !Array.isArray((imported as { keyBindings?: unknown }).keyBindings)) {
+  if (
+    !imported ||
+    typeof imported !== 'object' ||
+    !Array.isArray((imported as { keyBindings?: unknown }).keyBindings)
+  ) {
     throw new Error('File does not look like a Video Speed Controller settings file');
   }
 
