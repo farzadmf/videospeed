@@ -115,8 +115,14 @@ function setupOngoingListeners() {
 
   // --- Popup/background message relay ---
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    // The popup asks MAIN whether VSC is live here; no reply means unreachable.
+    // Only the top frame answers: sendMessage broadcasts to every frame, and
+    // MAIN reports the hub-wide count, so extra frames would race conflicting
+    // replies into the popup's single callback.
     if (request?.type === MESSAGE_TYPES.STATUS) {
+      if (window !== window.top) {
+        return;
+      }
+
       const onReply = (e) => {
         docEl.removeEventListener('VSC_STATUS_REPLY', onReply);
         sendResponse(e.detail);

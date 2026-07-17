@@ -143,6 +143,11 @@ export class FrameCoordinator {
     );
   }
 
+  /** Hub-wide controller count across all frames. Only meaningful on the top frame. */
+  totalControllerCount() {
+    return [...this.registry.values()].reduce((sum, info) => sum + info.controllerCount, 0);
+  }
+
   _registrySummary() {
     return [...this.registry.entries()].map(([id, info]) => `${id}:${info.controllerCount}`).join(', ');
   }

@@ -27,8 +27,8 @@ import { logger } from '../utils/logger.js';
           new CustomEvent('VSC_STATUS_REPLY', {
             detail: {
               abort: !!extension.config?.settings?._abort,
+              controllerCount: extension.frameCoordinator?.totalControllerCount() ?? stateManager.getAllMediaElements().length,
               initialized: extension.initialized,
-              controllerCount: stateManager.getAllMediaElements().length,
             },
           })
         );
