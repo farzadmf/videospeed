@@ -5,17 +5,17 @@ import { openOptions } from '../chrome-api';
 
 type Props = {
   enabled: boolean;
+  onCycleTheme: () => void;
+  onToggleEnabled: () => void;
   showEnable: boolean;
   status: string;
   theme: Theme;
-  onToggleEnabled: () => void;
-  onCycleTheme: () => void;
 };
 
-const THEME_ICON = { light: LuSun, dark: LuMoon, system: LuMonitor };
-const THEME_LABEL = { light: 'Light', dark: 'Dark', system: 'System' };
+const THEME_ICON = { dark: LuMoon, light: LuSun, system: LuMonitor };
+const THEME_LABEL = { dark: 'Dark', light: 'Light', system: 'System' };
 
-export const Footer = ({ enabled, showEnable, status, theme, onToggleEnabled, onCycleTheme }: Props) => {
+export const Footer = ({ enabled, onCycleTheme, onToggleEnabled, showEnable, status, theme }: Props) => {
   const ThemeIcon = THEME_ICON[theme];
 
   return (
