@@ -36,7 +36,7 @@ Here the parse-and-guard is one paragraph, the log is its own beat, and the swit
 
 ## Comments
 
-Write a comment only when it explains something the code cannot: a non-obvious _why_, a constraint, or a gotcha. Do not narrate what the next line plainly does. Keep comments factual; no hype, no "temporary"/"prototype" labels on code that is staying.
+Write a comment only when it explains something the code cannot: a non-obvious _why_, a constraint, or a gotcha. Do not narrate what the next line plainly does. Keep comments factual; no hype, no "temporary"/"prototype" labels on code that is staying. State the constraint plainly — don't sell or praise the code; a comment that reads like ad copy for the function ("so a quick tap never flips the UI") is noise even when it's technically a _why_.
 
 ## Markdown
 
