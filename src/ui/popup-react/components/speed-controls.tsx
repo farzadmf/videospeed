@@ -1,8 +1,8 @@
-import { useHeldKeys } from '@tanstack/react-hotkeys';
 import { LuFastForward, LuPause, LuPlay, LuRewind } from 'react-icons/lu';
 
 import { adjustSpeed, runAction, setSpeed } from '../chrome-api';
 import * as sh from '../shortcuts';
+import { useShiftOnly } from '../use-shift-only';
 import { HotkeyButton } from './hotkey-button';
 
 type Props = {
@@ -27,8 +27,7 @@ const PresetButton = ({ shiftHeld, shortcut }: { shiftHeld: boolean; shortcut: s
 };
 
 export const SpeedControls = ({ fasterStep, slowerStep }: Props) => {
-  const heldKeys = useHeldKeys();
-  const shiftHeld = heldKeys.length === 1 && heldKeys[0] === 'Shift';
+  const shiftHeld = useShiftOnly();
 
   return (
     <div className="flex flex-col gap-3 p-4">
