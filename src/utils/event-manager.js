@@ -236,6 +236,9 @@ export class EventManager {
    * @private
    */
   handleRateChange(event) {
+    // Upstream later replaced this fight-back model with a formal state machine
+    // (SpeedArbiter); we skipped it. See docs/upstream-bookmarks/26cbf2d-speed-arbitration.md.
+
     // UPSTREAM: Cooldown-based fight-back. When cooldown is active (we just set
     // speed ourselves), block external ratechanges and restore our speed.
     // MyNote: We don't use cooldown/CustomEvent tagging. Our adjustSpeed handles
