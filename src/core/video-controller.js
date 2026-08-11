@@ -295,7 +295,11 @@ export class VideoController {
     const fragment = document.createDocumentFragment();
     fragment.appendChild(wrapper);
 
-    document.body.appendChild(fragment);
+    // CSS anchor names are tree-scoped, so the host must share the video's tree to
+    // resolve position-anchor: the video's shadow root, or document.body if none.
+    const root = this.video.getRootNode();
+    const host = root instanceof ShadowRoot ? root : document.body;
+    host.appendChild(fragment);
 
     // Get site-specific positioning information
     const { insertionPoint, insertionMethod } = this.siteHandlerManager.getControllerPosition(this.parent, this.video);

@@ -63,6 +63,7 @@ export class ShadowDOMManager {
     // When true, CSS anchor positioning drives placement and adjustLocation() is a no-op
     this.anchorPositioning = false;
     this.anchorName = null;
+    this.beacon = null;
   }
 
   /**
@@ -294,8 +295,8 @@ export class ShadowDOMManager {
 
   /**
    * Pin the host to the video via CSS anchor positioning so the browser tracks
-   * it natively. The host shares the video's DOM tree, so it can reference an
-   * anchor-name set on the video.
+   * it natively. insertIntoDOM places the host in the video's tree, so it shares
+   * the tree scope of the anchor-name set on the video and can reference it.
    * @param {HTMLElement} host - The <vsc-controller> host element
    * @returns {boolean} true if anchor positioning was applied
    */
@@ -311,7 +312,8 @@ export class ShadowDOMManager {
     }
 
     anchorNameCounter += 1;
-    const anchorName = `--vsc-anchor-${anchorNameCounter}`;
+    const id = anchorNameCounter;
+    const anchorName = `--vsc-anchor-${id}`;
     this.anchorName = anchorName;
 
     this.target.style.setProperty('anchor-name', anchorName);
@@ -324,8 +326,37 @@ export class ShadowDOMManager {
     // Hide when the video scrolls out of view
     host.style.setProperty('position-visibility', 'anchors-visible');
 
+    this.createBeacon(id, host);
+
     logger.info(`[anchorPositioning] enabled with ${anchorName}`);
     return true;
+  }
+
+  /**
+   * A light-DOM marker at document.body keeping the controller discoverable from
+   * the top of the page even when the host sits in the video's shadow tree. Its
+   * data- attributes name the JS props and a ready-to-run console selector.
+   * @param {number} id - Shared id: matches --vsc-anchor-<id>
+   * @param {HTMLElement} host - The <vsc-controller> host element
+   */
+  createBeacon(id, host) {
+    const root = host.getRootNode();
+
+    const beacon = document.createElement('vsc-beacon');
+    beacon.setAttribute('data-vsc-id', String(id));
+    beacon.setAttribute('data-vsc-location', root instanceof ShadowRoot ? 'shadow' : 'light');
+    beacon.setAttribute('data-vsc-anchor', this.anchorName);
+    beacon.setAttribute(
+      'data-vsc-js-props',
+      'vscHost → the <vsc-controller> element; vscRoot → its tree (ShadowRoot/Document)'
+    );
+    beacon.setAttribute('data-vsc-find', `document.querySelector('vsc-beacon[data-vsc-id="${id}"]').vscHost`);
+
+    beacon.vscHost = host;
+    beacon.vscRoot = root;
+
+    document.body.appendChild(beacon);
+    this.beacon = beacon;
   }
 
   disableAnchorPositioning() {

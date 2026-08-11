@@ -1,7 +1,6 @@
 # Upstream Speed-Arbitration Refactor — 26cbf2d (series)
 
-Upstream Wave 0: https://github.com/igrigorik/videospeed/commit/26cbf2d
-Merged upstream: https://github.com/igrigorik/videospeed/commit/87cc6d2
+Upstream Wave 0: https://github.com/igrigorik/videospeed/commit/26cbf2d Merged upstream: https://github.com/igrigorik/videospeed/commit/87cc6d2
 
 ## Why bookmarked
 
