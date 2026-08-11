@@ -46,44 +46,4 @@ Upstream tests do NOT work in our project - mainly because of upstream injecting
 
 ## Syncing upstream changes
 
-As a result of what mentioned above, when we're planning to sync upstream changes with this repo, we should keep in mind:
-
-- Some changes might not be even applicable in our project because of the decision to have functionally different behaviors.
-- It's possible that a bug fix in upstream has already been taken care of in this project, which means the change is not necessary, otherwise, we DO need the change.
-- Because of changes mentioned above, special consideration needs to be present to make sure the change is properly incorporated into this project's existing code - When applying a change, some things might be different: line numbers containing the change, variable names, and possibly logic, so the change CANNOT be "git applied", but should be conceptually integrated into the code.
-- In cases where we don't take upstream change or take part of it, it'd be nice to include a tiny comment, noting what/why we didn't pick.
-- When applying upstream changes, we should have single git commits corresponding to each commit upstream, while:
-  - Following conventional commit format.
-  - Commit title matches upstream title.
-  - We should include the word `[UPSTREAM]` in the commit title.
-  - Include a link to upstream commit in the commit message.
-  - An example would be our commit message for commit hash `16ef4e8b2`.
-- To know which upstream commit we need to start syncing, we do:
-  - Find the most recent commit having the word `[UPSTREAM]` in it.
-  - In its commit message, it would have the short version of upstream commit SHA.
-  - That means that commit is the last synced one, and we should continue after that.
-- Under no circumstances, we're allowed to skip a commit unless confirmed with the user.
-- If we confirm and decide that a commit is not applicable at all, not even partially, we can do an empty commit with proper title and including small notes on why we decided that it's not applicable.
-- NOTE: empty commits ARE required for non-dependency-only commits/changes.
-- If an upstream commit is _only_ about dependency version upgrade, we can ignore it (NOTE: if dependencies are added/removed, we need to see how to proceed).
-- For merge commits, we need to make sure that we've processed individual commits instead and can skip that merge commit itself. If a merge commit has more than one commit, let's combine those commits into one on our side, mentioning in the commit description that we've combined (so we're basically doing a squash commit on our side).
-- Upstream may have changes to take care of settings migration etc, but we do not want that, and we can simply delete all settings and start from scratch (but you need to say that a change may need deleting settings).
-- If the upstream change has an associated design doc, make sure to read and understand it to know what the underlying issue/motivation is for the change.
-
-But, before applying a change (or parts of it), you need to:
-
-- Clearly explain what the change is about.
-- Clearly explain what/how it applies to our code base; what parts are not applicable, etc.
-- Discuss and confirm and only appl
-- NEVER decide by yourself that a commit is "small enough" and "no need to discuss this; I know what to do"
-
-In a nutshell, THE MOST important thing when applying upstream changes:
-
-- We MUST COMPLETELY understand our logic AND COMPLETELY understand upstream change.
-- We MUST make sure our logic won't break - bug fixes and new features are fine, but we MUST pay extra attention to existing code flow.
-
-After applying the changes, we MUST re-read all the changes to:
-
-- Make sure they're sane and applicable to our code.
-- Make sure we didn't mess up any existing in the process.
-- Compare with upstream for a second time to make sure we got everything that's applicable to our code.
+To sync upstream changes into this fork, use the `sync-upstream` skill (`.claude/skills/sync-upstream/SKILL.md`). It carries the full workflow: finding the last-synced commit, the per-commit confirm-before-applying loop, commit conventions, and special cases.
