@@ -61,7 +61,7 @@ export class FrameCoordinator {
 
     window.addEventListener('message', this._messageHandler, false);
 
-    logger.warn(
+    logger.debug(
       `${LOG} ${'='.repeat(8)} frame init ${'='.repeat(8)} id=${this.frameId} ` +
         `role=${this.isTop ? 'HUB+spoke' : 'spoke'} url=${safeUrl()}`
     );
@@ -77,7 +77,7 @@ export class FrameCoordinator {
   /** Spoke API: call whenever this frame's controller count changes. */
   announceControllers() {
     const count = this.getLocalControllerCount();
-    logger.warn(`${LOG} announce controllers: frame=${this.frameId} count=${count}`);
+    logger.debug(`${LOG} announce controllers: frame=${this.frameId} count=${count}`);
 
     if (this.isTop) {
       this._hubUpsert(this.frameId, count, null);
@@ -96,7 +96,7 @@ export class FrameCoordinator {
     try {
       // '*' origin is intentional: cross-origin iframes are the case we serve,
       // and payloads carry no secrets.
-      logger.warn(`${LOG} SEND → top  type=${type} from=${this.frameId} payload=${safeJson(payload)}`);
+      logger.debug(`${LOG} SEND → top  type=${type} from=${this.frameId} payload=${safeJson(payload)}`);
 
       window.top.postMessage(makeMessage(type, { ...payload, frameId: this.frameId }), '*');
     } catch (e) {
@@ -110,7 +110,7 @@ export class FrameCoordinator {
       return;
     }
 
-    logger.warn(
+    logger.debug(
       `${LOG} RECV ← type=${msg.type} at=${this.frameId} from=${payloadFrameId(event, msg)} ` +
         `origin=${safeOrigin(event)} payload=${safeJson(msg.payload)}`
     );
@@ -137,7 +137,7 @@ export class FrameCoordinator {
     const isNew = !this.registry.has(frameId);
     this.registry.set(frameId, { controllerCount, source });
 
-    logger.warn(
+    logger.debug(
       `${LOG} [hub] registry ${isNew ? 'ADD' : 'update'} ${frameId} (controllers=${controllerCount}). ` +
         `Now ${this.registry.size} frame(s): ${this._registrySummary()}`
     );
