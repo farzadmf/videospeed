@@ -1,14 +1,6 @@
 Title isn't updated, but it should be?
 - https://bun.com/blog/behind-the-scenes-of-bun-install
 
-Seems like attached (speed can be controlled), but doesn't show up on the video:
-- 2026-09-24 | https://www.gatesnotes.com/a-turbulent-ai-era-and-critical-choices-to-make
-
-Nowhere to be found:
-- 2026-09-24 - https://bsky.app/profile/asked100devs.bsky.social
-- 2026-09-17 - https://bsky.app/profile/webdevs.firefox.com/post/3mtgszujepc2r
-- https://www.gatesnotes.com/a-turbulent-ai-era-and-critical-choices-to-make
-
 2026-06-28 - An FB video page with multiple videos to test the positioning; seems to be work great with anchor positioning
 2026-04-10 - https://grahamhelton.com/blog/custom-obsidian-publish
 - Scrolling down properly handles showing controller on videos, hiding, etc.
