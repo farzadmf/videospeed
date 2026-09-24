@@ -285,8 +285,34 @@ export class VideoController {
 
     this.initializeSpeed();
     this.startHandlers();
+    this.renderInitialValues();
 
     logger.debug('initializeControls End');
+  }
+
+  /**
+   * Paint the readouts once at attach. Their handlers only fire during playback, so a
+   * controller on a paused video would keep the '...' placeholders until it played.
+   * @private
+   */
+  renderInitialValues() {
+    try {
+      this.setVolumeVal(this.video.volume);
+
+      // Keep the placeholders until the duration is known; loadedmetadata and
+      // durationchange paint the times then.
+      if (!Number.isFinite(this.video.duration)) {
+        return;
+      }
+
+      this.setProgressVal();
+
+      if (this.video.buffered.length > 0) {
+        this.setBufferVal(this.video.buffered.end(this.video.buffered.length - 1) / this.video.duration);
+      }
+    } catch (error) {
+      logger.warn(`[renderInitialValues] Failed to paint initial values: ${error.message}`);
+    }
   }
 
   /**
@@ -400,6 +426,14 @@ export class VideoController {
     if (!this.handleVolumeChange) {
       this.handleVolumeChange = volumeChangeAction.bind(this);
       this.video.addEventListener('volumechange', this.handleVolumeChange, { signal: this.signal });
+    }
+
+    // duration is often NaN at attach, so repaint when it becomes known rather than
+    // waiting for playback.
+    if (!this.handleDurationKnown) {
+      this.handleDurationKnown = timeUpdateAction.bind(this);
+      this.video.addEventListener('loadedmetadata', this.handleDurationKnown, { signal: this.signal });
+      this.video.addEventListener('durationchange', this.handleDurationKnown, { signal: this.signal });
     }
 
     logger.debug('Added essential media event handlers: play, seeked');

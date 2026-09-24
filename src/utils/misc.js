@@ -15,9 +15,12 @@ export function toPx(value) {
 export function formatDuration({ secs, hourAlwaysVisible = false }) {
   const pad = (num) => num.toString().padStart(2, '0');
 
-  const hours = pad(Math.floor(secs / 3600));
-  const minutes = pad(Math.floor((secs % 3600) / 60));
-  const seconds = pad(Math.floor(secs % 60));
+  // NaN before metadata loads, Infinity for live streams; both format as garbage.
+  const total = Number.isFinite(secs) ? secs : 0;
+
+  const hours = pad(Math.floor(total / 3600));
+  const minutes = pad(Math.floor((total % 3600) / 60));
+  const seconds = pad(Math.floor(total % 60));
 
   if (hours > 0 || hourAlwaysVisible) {
     return `${hours}:${minutes}:${seconds}`;
