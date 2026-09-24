@@ -64,6 +64,12 @@ export class ShadowDOMManager {
     this.anchorPositioning = false;
     this.anchorName = null;
     this.beacon = null;
+
+    /** @type {HTMLElement|null} The <vsc-controller> host */
+    this.host = null;
+
+    // True when the startHidden setting hid the controller, so show() leaves it hidden
+    this.userHidden = false;
   }
 
   /**
@@ -79,6 +85,7 @@ export class ShadowDOMManager {
 
     this.cssText = shadowCss;
 
+    this.host = wrapper;
     this.shadow = wrapper.attachShadow({ mode: 'open' });
 
     // Create style element with embedded CSS
@@ -367,19 +374,19 @@ export class ShadowDOMManager {
   }
 
   hide() {
-    this.hideController();
-    // this.controllerDiv.style.display = 'none';
-  }
-  hideController() {
-    // this.controllerDiv.classList.add('hidden');
+    this.host?.style.setProperty('--visibility', 'hidden');
+    this.host?.style.setProperty('--controller-visibility', 'hidden');
   }
 
-  showController() {
-    // this.controllerDiv.classList.remove('hidden');
-  }
   show() {
-    this.showController();
-    // this.controllerDiv.style.display = 'flex';
+    // startHidden persists until the user asks for the controller. An invisible video
+    // hides it too, but transiently, so only that case clears here.
+    if (this.userHidden) {
+      return;
+    }
+
+    this.host?.style.removeProperty('--visibility');
+    this.host?.style.removeProperty('--controller-visibility');
   }
 
   _remaining() {

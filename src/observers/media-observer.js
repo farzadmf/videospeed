@@ -242,9 +242,11 @@ export class MediaElementObserver {
       return false;
     }
 
-    // For video elements, check visibility - only hide controllers for truly invisible media elements
+    // For video elements, check visibility - only hide controllers for truly invisible media elements.
+    // opacity is excluded: sites fade videos in, and some park the video at opacity 0
+    // behind a poster.
     const style = window.getComputedStyle(media);
-    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+    if (style.display === 'none' || style.visibility === 'hidden') {
       logger.debug('Video not visible, controller will start hidden');
       return true;
     }

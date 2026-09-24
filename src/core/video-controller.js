@@ -78,8 +78,8 @@ export class VideoController {
     this.spyDiv.setAttribute('id', 'vsc-spy');
 
     this.siteHandlerManager.setup({
-      onHide: () => this.shadowManager.hideController(),
-      onShow: () => this.shadowManager.showController(),
+      onHide: () => this.shadowManager.hide(),
+      onShow: () => this.shadowManager.show(),
       shadowManager: this.shadowManager,
       signal: this.signal,
       spyDiv: this.spyDiv,
@@ -204,6 +204,10 @@ export class VideoController {
     if (!this.video.currentSrc && !this.video.src && this.video.readyState < 2) {
       cssClasses.push('vsc-nosource');
     }
+
+    // Only the setting persists. shouldStartHidden reflects a video that was invisible
+    // at attach time, so show() may clear it once the video appears.
+    this.shadowManager.userHidden = Boolean(this.config.settings.startHidden);
 
     if (this.config.settings.startHidden || this.shouldStartHidden) {
       // MyNote: using CSS variables instead.
@@ -614,9 +618,10 @@ export class VideoController {
       return true;
     }
 
-    // Check computed style for visibility
+    // Check computed style for visibility. opacity is excluded for the same reason as
+    // in shouldStartHidden: sites toggle it for fades and poster overlays.
     const style = window.getComputedStyle(this.video);
-    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+    if (style.display === 'none' || style.visibility === 'hidden') {
       logger.debug('[isVideoVisible] video style makes it hidden');
       return false;
     }
@@ -633,46 +638,32 @@ export class VideoController {
   }
 
   /**
-   * Update controller visibility based on video visibility
-   * Called when video visibility changes
+   * Match the controller's visibility to the video's.
+   * Called when the video's style or class changes.
    */
   updateVisibility() {
-    const isVisible = this.isVideoVisible();
-    const isCurrentlyHidden = this.controllerDiv?.classList.contains('vsc-hidden');
-
-    // Special handling for audio elements - don't hide controllers for functional audio
-    if (this.video.tagName === 'AUDIO') {
-      // For audio, only hide if manually hidden or if audio support is disabled
-      if (!this.config.settings.audioBoolean && !isCurrentlyHidden) {
-        this.controllerDiv?.classList.add('vsc-hidden');
-        logger.debug('Hiding audio controller - audio support disabled');
-      } else if (
-        this.config.settings.audioBoolean &&
-        isCurrentlyHidden &&
-        !this.controllerDiv?.classList.contains('vsc-manual')
-      ) {
-        // Show audio controller if audio support is enabled and not manually hidden
-        this.controllerDiv?.classList.remove('vsc-hidden');
-        logger.debug('Showing audio controller - audio support enabled');
-      }
-
+    // The display action sets vsc-manual on the host, so the state is the user's choice.
+    if (this.wrapperDiv?.classList.contains('vsc-manual')) {
       return;
     }
 
-    // Original logic for video elements
-    if (
-      isVisible &&
-      isCurrentlyHidden &&
-      !this.controllerDiv?.classList.contains('vsc-manual') &&
-      !this.config.settings.startHidden
-    ) {
-      // Video became visible and controller is hidden (but not manually hidden)
-      this.controllerDiv?.classList.remove('vsc-hidden');
+    // Audio players are often invisible by design but still controllable, so their
+    // controller follows the audio setting rather than the element's visibility.
+    const shouldShow = this.video.tagName === 'AUDIO' ? this.config.settings.audioBoolean : this.isVideoVisible();
+
+    // start/stopHandlers rebuild observers, so only run them on an actual change.
+    if (shouldShow === this.isVisible) {
+      return;
+    }
+
+    this.isVisible = shouldShow;
+
+    if (shouldShow) {
+      this.shadowManager.show();
       this.startHandlers();
       logger.debug('Showing controller - video became visible');
-    } else if (!isVisible && !isCurrentlyHidden) {
-      // Video became invisible and controller is visible
-      this.controllerDiv?.classList.add('vsc-hidden');
+    } else {
+      this.shadowManager.hide();
       this.stopHandlers();
       logger.debug('Hiding controller - video became invisible');
     }
