@@ -115,12 +115,14 @@ export class SiteHandlerManager {
       return true;
     }
 
-    // Detect gif-like videos: muted looping videos with no native controls.
-    // Sites like Telegram, X, Imgur serve animated stickers/GIFs as <video
-    // autoplay loop muted> elements. Showing a speed overlay on these is
-    // visually noisy and not useful.
-    if (video.tagName === 'VIDEO' && video.loop && video.muted && !video.controls) {
-      logger.debug('Video ignored: gif-video pattern (loop + muted + no controls)');
+    // Ignore gif-like videos: Telegram, X, and Imgur serve stickers as
+    // <video autoplay loop muted>. A speed overlay on those is only noise.
+    //
+    // autoplay is required: real players also set loop and muted and use custom
+    // controls, so without it this matches Bluesky's player. duration would be a
+    // better test but is NaN at readyState 0.
+    if (video.tagName === 'VIDEO' && video.autoplay && video.loop && video.muted && !video.controls) {
+      logger.debug('Video ignored: gif-video pattern (autoplay + loop + muted + no controls)');
       return true;
     }
 
