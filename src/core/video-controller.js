@@ -78,8 +78,10 @@ export class VideoController {
     this.spyDiv.setAttribute('id', 'vsc-spy');
 
     this.siteHandlerManager.setup({
-      onHide: () => this.shadowManager.hide(),
-      onShow: () => this.shadowManager.show(),
+      // The handler reports the site's own controls autohiding. VSC stays visible
+      // through that on purpose, so these are deliberately empty.
+      onHide: () => {},
+      onShow: () => {},
       shadowManager: this.shadowManager,
       signal: this.signal,
       spyDiv: this.spyDiv,
