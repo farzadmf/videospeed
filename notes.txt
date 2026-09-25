@@ -1,25 +1,8 @@
-Title isn't updated, but it should be?
-- https://bun.com/blog/behind-the-scenes-of-bun-install
-
-2026-06-28 - An FB video page with multiple videos to test the positioning; seems to be work great with anchor positioning
-2026-04-10 - https://grahamhelton.com/blog/custom-obsidian-publish
-- Scrolling down properly handles showing controller on videos, hiding, etc.
-- Scrolling up keeps all controllers at the bottom, creating a mess!
 2026-04-10 - https://dbushell.com/2026/04/10/no-stack-web-development/
 - WOW!!! COMPLETELY messed up!
 
-[NEW!] Websites overriding speed!
+No audio/video tags but an audio is playing!
 - https://open.spotify.com/episode/4QpgEVNw4z1AfQ6Mjj4ZI9
-- https://www.ted.com/talks/cate_hall_a_practical_guide_to_taking_control_of_your_life
-
-Video is not recognized?
-- https://www.cnn.com/2025/09/17/media/jimmy-kimmel-charlie-kirk-trump-fcc-brendan-carr
-2025-10-10 - why is it stuck while it should follow "audio"?
-- https://aws.amazon.com/blogs/aws/new-general-purpose-amazon-ec2-m8a-instances-are-now-available/
-
-2025-09-05 | A case for audio: https://openai.com/index/expanding-economic-opportunity-with-ai/
-- Keeps changing its source, so spy div is being added constantly
-- Location of the controller is off because the element has no [good] dimension
 
 Progress:
 - Trying to go through inject.js and bring in functions.
@@ -41,36 +24,8 @@ Progress:
 
 ---
 
-Some URLs for testing videos:
-
-- https://realpython.com/lessons/hello-walrus/
-- https://www.youtube.com/watch?v=WH_FUQgMvuY
-- https://www.reddit.com/r/commandline/comments/sf5gcr/interactively_search_github_repos/
-- https://www.epicweb.dev/talks/let-me-be <- doesn't even load!
-  seems to be working, but it's not visible.
-
-- Why doesn't it work on audio?
-  - https://aws.amazon.com/blogs/aws/introducing-the-next-generation-of-amazon-sagemaker-the-center-for-all-your-data-analytics-and-ai
-
-- Works, but not visible
-  - https://www.loom.com/share/154457fdea8e4e3c8b9bbe5ab8d6b1c5?sid=fc8184ec-c14e-4af6-8437-686c31a32059
-  - https://scottjehl.com/learn/webcomponentsdemystified/ -> works, but not visible
-  - https://redd.it/zrt1rb
-  - https://shkspr.mobi/blog/2024/10/you-can-use-text-wrap-balance-on-icons/
-  - https://gitnation.com/contents/why-you-should-use-redux-in-2024
-
-- Appears at a random place at the bottom:
-  - https://www.comfydeploy.com/blog/you-dont-need-nextjs
-- Appears on the timeline, preventing clicking on it:
-  - https://redd.it/1hveiuk
-
 - Increasing volume beyong 100%: https://stackoverflow.com/a/43794379/3646201
 - PiP (Picture-in-Picture) API: https://developer.mozilla.org/en-US/docs/Web/API/Picture-in-Picture_API
-
-Check https://openai.com/blog/sora-first-impressions to see if we can attach to the videos:
-- When a button is clicked, it loads an iframe inside a div
-- That iframe has divs etc. containing the video
-- Wait, the `left-0` div already has the iframe (and the video), so why are we not attaching?
 
 Icon sizes:
 You should always provide a 128x128 icon; it's used during installation and by
