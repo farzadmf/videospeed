@@ -69,10 +69,6 @@ import { VideoSpeedExtension } from './video-speed-extension.js';
       case MESSAGE_TYPES.TEARDOWN:
         extension.teardown();
         break;
-
-      case MESSAGE_TYPES.REINIT:
-        extension.initialize();
-        break;
     }
   });
 

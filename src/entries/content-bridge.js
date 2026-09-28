@@ -10,6 +10,9 @@
  *   2. Bridge kicks off async work (storage read + shadow CSS fetch) in parallel.
  *   3. When MAIN world fires VSC_REQUEST_SETTINGS, the listener waits for the
  *      async work to finish, then responds with VSC_SETTINGS_READY.
+ *
+ * Once disabled, a document stays inactive until reload: the popup asks for a
+ * reload, and a live re-init would reuse the settings snapshot from page load.
  */
 import { MESSAGE_TYPES } from '../shared/constants.js';
 import { isBlacklisted } from '../utils/blacklist.js';
@@ -22,30 +25,53 @@ const SPEED_MAX = 16;
 const docEl = document.documentElement;
 let bridgeInitialized = false;
 
+// 'pending' until the handshake answers; 'inactive' once aborted or disabled.
+let bridgeState = 'pending';
+
+// Set by any enabled toggle involving false, even one that lands before the
+// handshake: the settings snapshot read at load no longer holds.
+let disabledForDocument = false;
+
+function dispatchAbort() {
+  docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: { abort: true } }));
+}
+
 function init() {
   try {
-    // Skip about:blank frames — they share the parent window
-    if (location.href === 'about:blank') {
-      return;
-    }
-
     // Double-injection guard (module-level flag resets on page navigation)
     if (bridgeInitialized) {
       return;
     }
     bridgeInitialized = true;
 
+    // about: documents (blank, srcdoc) have no site URL to check rules
+    // against. Fail closed rather than run on a disabled site's child frame.
+    if (location.protocol === 'about:') {
+      bridgeState = 'inactive';
+      docEl.addEventListener('VSC_REQUEST_SETTINGS', dispatchAbort, { once: true });
+      return;
+    }
+
     // Kick off settings read early (cheap), but defer shadow CSS fetch
     // until the MAIN world actually requests settings — no point fetching
     // CSS on pages that never initialize a controller.
-    const settingsReady = chrome.runtime?.id ? chrome.storage.sync.get(null) : Promise.resolve(null);
+    const settingsReady = chrome.runtime?.id
+      ? chrome.storage.sync.get(null).catch((error) => {
+          console.error('[VSC] Initial settings load failed:', error);
+          return null;
+        })
+      : Promise.resolve(null);
 
     // Register listener SYNCHRONOUSLY so we never miss the MAIN world's request.
-    // Not { once: true } — REINIT (re-enable/un-blacklist) triggers a second request.
-    docEl.addEventListener('VSC_REQUEST_SETTINGS', async () => {
-      const payload = await buildPayload(settingsReady);
-      docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: payload }));
-    });
+    docEl.addEventListener(
+      'VSC_REQUEST_SETTINGS',
+      async () => {
+        const payload = await buildPayload(settingsReady);
+        bridgeState = payload.abort ? 'inactive' : 'active';
+        docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: payload }));
+      },
+      { once: true }
+    );
 
     // Set up ongoing listeners (these don't depend on the payload)
     setupOngoingListeners();
@@ -61,7 +87,7 @@ async function buildPayload(settingsReady) {
     return { abort: true };
   }
 
-  const disabled = settings.enabled === false;
+  const disabled = disabledForDocument || settings.enabled === false;
   const blacklisted = isBlacklisted(settings.blacklist, location.hostname);
 
   if (disabled || blacklisted) {
@@ -92,16 +118,21 @@ function setupOngoingListeners() {
       return;
     }
 
-    // Lifecycle: only the popup's enabled toggle triggers teardown/reinit.
-    // Options page never writes `enabled`, so saving options can't trigger
-    // lifecycle — it only relays settings via VSC_STORAGE_CHANGED below.
-    // blacklist changes take effect on next page load.
-    if (changes.enabled?.newValue === false) {
-      docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: 'VSC_TEARDOWN' } }));
+    // Lifecycle: only the popup's enabled toggle triggers teardown. Options
+    // page never writes `enabled`, so saving options can't trigger lifecycle —
+    // it only relays settings via VSC_STORAGE_CHANGED below. blacklist changes
+    // and re-enabling take effect on next page load.
+    const enabledChange = changes.enabled;
+    if (enabledChange?.oldValue === false || enabledChange?.newValue === false) {
+      disabledForDocument = true;
+    }
+    if (enabledChange?.newValue === false) {
+      bridgeState = 'inactive';
+      docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: MESSAGE_TYPES.TEARDOWN } }));
       return;
     }
-    if (changes.enabled?.oldValue === false && changes.enabled?.newValue !== false) {
-      docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: 'VSC_REINIT' } }));
+    if (bridgeState !== 'active') {
+      return;
     }
 
     // Relay changes to MAIN world (filter out keys MAIN never received)
@@ -123,6 +154,13 @@ function setupOngoingListeners() {
         return;
       }
 
+      // MAIN is torn down or never started; answer for it so the popup shows
+      // "disabled" rather than stale counts or "unreachable".
+      if (bridgeState === 'inactive') {
+        sendResponse({ abort: true, controllerCount: 0, initialized: false });
+        return;
+      }
+
       const onReply = (e) => {
         docEl.removeEventListener('VSC_STATUS_REPLY', onReply);
         sendResponse(e.detail);
@@ -134,12 +172,18 @@ function setupOngoingListeners() {
       return true; // keep the channel open for the async sendResponse
     }
 
-    docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: request }));
+    if (bridgeState !== 'inactive') {
+      docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: request }));
+    }
   });
 
   // --- Storage write-back from MAIN world ---
   const handleWriteStorage = (e) => {
     try {
+      if (bridgeState !== 'active') {
+        return;
+      }
+
       const data = e.detail;
       if (!data || typeof data !== 'object') {
         return;

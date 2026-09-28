@@ -47,16 +47,25 @@ export class StorageManager {
         clearTimeout(timeout);
         const detail = e.detail;
 
-        // Structured clone failure: detail is null when crossing worlds
+        // No answer means the site's enabled state is unknown: fail closed
+        // rather than start with defaults on a disabled site.
         if (!detail) {
           logger.error('StorageManager: bridge response is null (clone failed?)');
-          resolve(defaults);
+          resolve(null);
           return;
         }
 
         // Bridge signals abort for blacklisted/disabled sites
         if (detail.abort) {
           logger.debug('StorageManager: site disabled by bridge');
+          resolve(null);
+          return;
+        }
+
+        // Page scripts can dispatch this event too; reject anything that
+        // isn't a settings object instead of starting with defaults.
+        if (!detail.settings || typeof detail.settings !== 'object' || Array.isArray(detail.settings)) {
+          logger.error('StorageManager: invalid settings response from bridge');
           resolve(null);
           return;
         }

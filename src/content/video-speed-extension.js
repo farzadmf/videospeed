@@ -26,6 +26,9 @@ export class VideoSpeedExtension {
     // MyNote: comment out Gemini's shadow observers
     // this.shadowHostObserver = null;
     this.initialized = false;
+    // Cleared by teardown(); queued idle/timeout/loadeddata callbacks check it
+    // so a disable that lands mid-startup can't be undone by them.
+    this.acceptingMedia = false;
     this.config = config;
   }
 
@@ -67,6 +70,8 @@ export class VideoSpeedExtension {
         logger.debug('Extension disabled on this site — aborting init');
         return;
       }
+
+      this.acceptingMedia = true;
 
       // Defer DOM work so the page's framework (e.g. YouTube's Polymer)
       // finishes init before we touch anything.
@@ -110,6 +115,10 @@ export class VideoSpeedExtension {
    */
   deferDOMWork(document) {
     const doWork = () => {
+      if (!this.acceptingMedia) {
+        return;
+      }
+
       // MyNote: upstream injects controller CSS via adoptedStyleSheets here —
       // two separate sheets: _controllerSheet (built-in defaults, domain-
       // preprocessed, never changes at runtime) and _customSheet (user
@@ -132,7 +141,9 @@ export class VideoSpeedExtension {
       this.setupObservers();
 
       dom.initializeWhenReady(document, (doc) => {
-        this.initializeDocument(doc);
+        if (this.acceptingMedia) {
+          this.initializeDocument(doc);
+        }
       });
 
       logger.info('Video Speed Controller initialized successfully');
@@ -164,6 +175,10 @@ export class VideoSpeedExtension {
   deferExpensiveOperations(document) {
     const callback = () => {
       try {
+        if (!this.acceptingMedia) {
+          return;
+        }
+
         // Start mutation observer — catches dynamically added media elements
         if (this.mutationObserver) {
           this.mutationObserver.start(document);
@@ -192,6 +207,10 @@ export class VideoSpeedExtension {
     // Split media scanning into smaller chunks to avoid blocking
     const performChunkedScan = () => {
       try {
+        if (!this.acceptingMedia) {
+          return;
+        }
+
         // Use a lighter initial scan - avoid expensive shadow DOM traversal initially
         const lightMedia = this.mediaObserver.scanForMediaLight(document);
 
@@ -225,6 +244,10 @@ export class VideoSpeedExtension {
     // Only do comprehensive scan if we didn't find any media with light scan
     setTimeout(() => {
       try {
+        if (!this.acceptingMedia) {
+          return;
+        }
+
         const comprehensiveMedia = this.mediaObserver.scanAll(document);
 
         comprehensiveMedia.forEach((media) => {
@@ -301,6 +324,10 @@ export class VideoSpeedExtension {
    * Counterpart to initialize() — leaves the page as if VSC was never active.
    */
   teardown() {
+    // Before the initialized check: startup may still be queued with nothing
+    // to clean up yet.
+    this.acceptingMedia = false;
+
     if (!this.initialized) {
       return;
     }
@@ -349,6 +376,11 @@ export class VideoSpeedExtension {
     logger.verbose('[onVideoFound] start', 'video', video, 'parent', parent);
 
     try {
+      // Also reached from the loadeddata wait below, which outlives teardown.
+      if (!this.acceptingMedia) {
+        return;
+      }
+
       if (!this.mediaObserver.isValidMediaElement(video)) {
         logger.verbose('[onVideoFound] Video element is not valid for controller attachment');
         return;
