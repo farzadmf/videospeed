@@ -1,5 +1,6 @@
 import { stateManager } from '../core/state-manager.js';
 import { SPEED_LIMITS } from '../shared/constants.js';
+import { YouTubeHandler } from '../site-handlers/youtube-handler.js';
 import * as dom from '../utils/dom-utils.js';
 import { logger } from '../utils/logger.js';
 import { getBaseURL } from '../utils/url.js';
@@ -384,7 +385,7 @@ export class EventManager {
    * @returns {boolean}
    */
   isTemporaryNativeBoost(video, event) {
-    if (!location.hostname.endsWith('youtube.com')) {
+    if (!YouTubeHandler.matches()) {
       return false;
     }
 

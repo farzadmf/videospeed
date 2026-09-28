@@ -38,7 +38,9 @@ export class YouTubeHandler extends BaseSiteHandler {
    * @returns {boolean} True if on YouTube
    */
   static matches() {
-    return location.hostname === 'www.youtube.com';
+    // youtube-nocookie.com serves the same player for privacy-enhanced embeds.
+    // music.youtube.com stays out: different player shell.
+    return location.hostname === 'www.youtube.com' || location.hostname === 'www.youtube-nocookie.com';
   }
 
   /**
