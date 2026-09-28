@@ -21,7 +21,7 @@ Even a commit you're confident is not applicable still gets a tracking commit on
    - Maximum 150 words. Plainest possible words. No word vomit.
    - Do NOT mention non-applicable machinery at all (tests, upstream's global-namespace modules, etc.) — the user knows these don't apply here.
 
-3. **Confirm before applying.** Never apply until the user agrees.
+3. **Confirm before applying.** Never apply until the user agrees. Every question carries its own context, placed directly before it (inside the question itself when using a question tool) — never rely on earlier messages. Context is at most 7 sentences of at most 10 words each.
 
 4. **Batch the likely-skippable.** Group commits you believe can be skipped and ask about them together in one message. Give a per-commit justification, maximum 30 words each. Still the user's call.
 
