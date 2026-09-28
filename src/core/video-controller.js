@@ -135,12 +135,18 @@ export class VideoController {
     if (this.video.readyState < 1) {
       logger.debug('Deferring initializeSpeed until loadedmetadata');
       const handler = () => {
-        this.video.removeEventListener('loadedmetadata', handler);
-        if (targetSpeed !== this.video.playbackRate) {
-          this.actionHandler.adjustSpeed(this.video, targetSpeed, { source: 'internal' });
+        // The wait outlives removal: bail if another controller took over this
+        // video, and re-read the target because it can change while we wait.
+        if (this.video.vsc !== this || !this.actionHandler) {
+          return;
+        }
+
+        const deferredSpeed = this.getTargetSpeed();
+        if (deferredSpeed !== this.video.playbackRate) {
+          this.actionHandler.adjustSpeed(this.video, deferredSpeed, { source: 'internal' });
         }
       };
-      this.video.addEventListener('loadedmetadata', handler);
+      this.video.addEventListener('loadedmetadata', handler, { once: true, signal: this.signal });
     } else {
       logger.debug('Setting initial speed via adjustSpeed');
       this.actionHandler.adjustSpeed(this.video, targetSpeed, { source: 'internal' });
