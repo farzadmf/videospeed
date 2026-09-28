@@ -38,8 +38,7 @@ const DEFAULT_SETTINGS = {
     { action: 'mark', key: 77, value: 0, force: false, predefined: true }, // M
     { action: 'jump', key: 74, value: 0, force: false, predefined: true }, // J
   ],
-  blacklist: `www.instagram.com
-imgur.com
+  blacklist: `imgur.com
 teams.microsoft.com
 meet.google.com`.replace(regStrip, ''),
   defaultLogLevel: 4,

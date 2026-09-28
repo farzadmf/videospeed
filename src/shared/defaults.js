@@ -20,7 +20,7 @@ export const VSC_DEFAULTS = {
   // Position the controller via CSS anchor positioning; turn off to use the JS observer model
   anchorPositioning: true,
   audioBoolean: true,
-  blacklist: ['www.instagram.com', 'imgur.com', 'teams.microsoft.com'].map((value) => value.replace(REG_STRIP, '')),
+  blacklist: ['imgur.com', 'teams.microsoft.com'].map((value) => value.replace(REG_STRIP, '')),
   controllerButtonSize: 14,
   controllerOpacity: 0.8,
   defaultLogLevel: LOG_LEVELS.INFO,
