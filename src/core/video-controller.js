@@ -154,7 +154,10 @@ export class VideoController {
    * @private
    */
   getTargetSpeed(media = this.video) {
-    let targetSpeed;
+    // playbackRate is a restricted double: assigning undefined/NaN throws.
+    // With rememberSpeed on, no stored speed, and lastSpeed null, no branch
+    // below assigns, so the default has to be a real number.
+    let targetSpeed = 1.0;
 
     const videoSrc = getBaseURL(media.currentSrc || media.src);
     logger.debug('[getTargetSpeed]', 'videoSrc', videoSrc);
