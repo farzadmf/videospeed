@@ -136,6 +136,13 @@ export class ControlsManager {
     controller.addEventListener(
       'wheel',
       (event) => {
+        // Trackpad pinch and Ctrl+wheel zoom arrive as ctrl-modified wheel events;
+        // leave them to the browser.
+        if (event.ctrlKey) {
+          logger.debug('Browser zoom gesture ignored');
+          return;
+        }
+
         // Reject wheel events before hover dwell threshold is met
         if (event.timeStamp - hoverStart < HOVER_DWELL_MS) {
           logger.debug('Wheel ignored: hover dwell threshold not met');
