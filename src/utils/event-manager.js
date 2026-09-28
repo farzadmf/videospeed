@@ -2,6 +2,7 @@ import { stateManager } from '../core/state-manager.js';
 import { SPEED_LIMITS } from '../shared/constants.js';
 import * as dom from '../utils/dom-utils.js';
 import { logger } from '../utils/logger.js';
+import { getBaseURL } from '../utils/url.js';
 
 /**
  * Event management system for Video Speed Controller
@@ -196,19 +197,24 @@ export class EventManager {
    * @private
    */
   setupUserGestureListener(document) {
-    const clickHandler = (event) => {
+    const gestureHandler = (event) => {
       // Skip clicks on our own controller (shadow host retargeted at boundary)
       if (event.target?.closest?.('vsc-controller')) {
         return;
       }
       this.lastUserInteractionAt = event.timeStamp;
     };
-    document.addEventListener('click', clickHandler, true);
 
-    if (!this.listeners.has(document)) {
-      this.listeners.set(document, []);
+    // pointerdown as well as click: a press-and-hold boost starts while the
+    // button is still down, and click only fires on release.
+    for (const type of ['click', 'pointerdown']) {
+      document.addEventListener(type, gestureHandler, true);
+
+      if (!this.listeners.has(document)) {
+        this.listeners.set(document, []);
+      }
+      this.listeners.get(document).push({ handler: gestureHandler, type, useCapture: true });
     }
-    this.listeners.get(document).push({ type: 'click', handler: clickHandler, useCapture: true });
   }
 
   /**
@@ -354,9 +360,41 @@ export class EventManager {
     //   }
     // }
 
+    if (this.isTemporaryNativeBoost(video, event)) {
+      logger.info(`Accepting temporary native boost: ${video.playbackRate}`);
+      video.vsc?.setSpeedVal(video.playbackRate);
+      return;
+    }
+
     this.actionHandler?.adjustSpeed(video, video.playbackRate, {
       source: 'external',
     });
+  }
+
+  /**
+   * A site-driven speed increase that arrived mid-gesture, i.e. YouTube's
+   * press-and-hold 2x. Accepting it leaves the site's rate in place instead of
+   * restoring the saved speed, and never persists — the site puts the old rate
+   * back on release.
+   *
+   * Scoped to YouTube: a held pointer elsewhere can change rate for reasons
+   * that aren't user intent (scrub-preview players adjust rate while dragging).
+   * @param {HTMLMediaElement} video
+   * @param {Event} event - the ratechange event, for its timeStamp
+   * @returns {boolean}
+   */
+  isTemporaryNativeBoost(video, event) {
+    if (!location.hostname.endsWith('youtube.com')) {
+      return false;
+    }
+
+    if (event.timeStamp - this.lastUserInteractionAt > EventManager.USER_GESTURE_WINDOW_MS) {
+      return false;
+    }
+
+    // Upward only: a drop toward 1.0 is the site resetting us, not a boost.
+    const url = getBaseURL(video.currentSrc || video.src);
+    return video.playbackRate > (this.config.settings.sources[url]?.speed || 1);
   }
 
   /**
