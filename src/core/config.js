@@ -12,13 +12,7 @@ export class VideoSpeedConfig {
   constructor() {
     this.settings = { ...VSC_DEFAULTS };
 
-    this.pendingSave = null;
-    this.saveTimer = null;
-    this.SAVE_DELAY = 1000; // 1 second
     this._loaded = false;
-    // Tracks the last speed value we wrote to storage, so the onChanged
-    // listener can distinguish our own echo from a genuine external write.
-    this._lastWrittenSpeed = null;
 
     this._setupStorageListener();
   }
@@ -37,24 +31,7 @@ export class VideoSpeedConfig {
             continue;
           }
 
-          // Self-echo guard: skip our own debounced speed write echoing back.
-          if (key === 'lastSpeed') {
-            const isSelfEcho = this._lastWrittenSpeed !== null && change.newValue === this._lastWrittenSpeed;
-            this._lastWrittenSpeed = null;
-            if (isSelfEcho) {
-              continue;
-            }
-          }
-
           this.settings[key] = change.newValue;
-
-          // External lastSpeed write while we have a pending debounce:
-          // cancel our stale timer — the external value is more recent.
-          if (key === 'lastSpeed' && this.saveTimer) {
-            clearTimeout(this.saveTimer);
-            this.saveTimer = null;
-            this.pendingSave = null;
-          }
 
           logger.debug(`Settings updated from storage change: ${key}`);
         }
@@ -143,7 +120,7 @@ export class VideoSpeedConfig {
    * and overwrite each other's changes.
    *
    * @param {Object} newSettings - Settings to save (only these keys are written)
-   * @returns {Promise<boolean>} true if persisted (or debounced), false on storage failure
+   * @returns {Promise<boolean>} true if persisted, false on storage failure
    */
   async save(newSettings = {}) {
     const keys = Object.keys(newSettings);
@@ -159,31 +136,6 @@ export class VideoSpeedConfig {
 
     // Update in-memory settings immediately
     this.settings = { ...this.settings, ...newSettings };
-
-    // MyNote: is there even a thing of only saving speed?!
-    // Check if this is a speed-only update that should be debounced
-    if (keys.length === 1 && keys[0] === 'lastSpeed') {
-      this.pendingSave = newSettings.lastSpeed;
-
-      clearTimeout(this.saveTimer);
-
-      this.saveTimer = setTimeout(async () => {
-        const speedToSave = this.pendingSave;
-        this.pendingSave = null;
-        this.saveTimer = null;
-
-        this._lastWrittenSpeed = speedToSave;
-        try {
-          await StorageManager.set({ lastSpeed: speedToSave });
-          logger.info('Debounced speed setting saved successfully');
-        } catch (error) {
-          this._lastWrittenSpeed = null;
-          logger.error(`Failed to persist speed: ${error.message}`);
-        }
-      }, this.SAVE_DELAY);
-
-      return true;
-    }
 
     try {
       await StorageManager.set(newSettings);
