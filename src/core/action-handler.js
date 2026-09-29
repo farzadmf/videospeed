@@ -151,8 +151,12 @@ export class ActionHandler {
         //   return;
         // }
 
+        // Oppose what is rendered, not the vsc-hidden class: startHidden hides
+        // via --visibility, so a plain toggle made the first press a no-op.
+        const style = getComputedStyle(wrapperDiv);
+        const isVisible = style.display !== 'none' && style.visibility !== 'hidden';
         wrapperDiv.classList.add('vsc-manual');
-        wrapperDiv.classList.toggle('vsc-hidden');
+        wrapperDiv.classList.toggle('vsc-hidden', isVisible);
 
         // Clear any pending timers that might interfere with manual toggle
         // This prevents delays when manually hiding/showing the controller
