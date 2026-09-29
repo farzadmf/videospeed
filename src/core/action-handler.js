@@ -78,7 +78,11 @@ export class ActionHandler {
         return false; // We didn't handle it
       }
 
-      this.eventManager.showController(wrapperDiv);
+      // display reads rendered visibility, so a flash first would make V hide
+      // instead of show; blink flashes on its own.
+      if (actionName !== 'display' && actionName !== 'blink') {
+        this.eventManager.showController(wrapperDiv);
+      }
 
       if (!video.classList.contains('vsc-cancelled')) {
         // MyNote: for keyup events, I assume that if we reach here, it means that we had an action
@@ -165,12 +169,6 @@ export class ActionHandler {
           wrapperDiv.blinkTimeOut = undefined;
         }
 
-        // Also clear EventManager timer if it exists
-        if (this.eventManager && this.eventManager.timer) {
-          clearTimeout(this.eventManager.timer);
-          this.eventManager.timer = null;
-        }
-
         // Remove vsc-show class immediately when manually hiding
         if (wrapperDiv.classList.contains('vsc-hidden')) {
           wrapperDiv.classList.remove('vsc-show');
@@ -182,7 +180,7 @@ export class ActionHandler {
 
       case 'blink':
         logger.debug('Showing controller momentarily');
-        this.blinkController(video.vsc.controllerDiv, value);
+        this.blinkController(video.vsc.wrapperDiv, value);
         return true;
 
       case 'drag':
@@ -481,55 +479,22 @@ export class ActionHandler {
   /**
    * Show controller briefly
    * @param {HTMLElement} controller - Controller element
-   * @param {number} duration - Duration in ms (default 1000)
+   * @param {number} duration - Duration in ms (default 2500)
    */
   blinkController(controller, duration) {
-    // Don't hide audio controllers after blinking - audio elements are often invisible by design
-    // but should maintain visible controllers for user interaction
-    const isAudioController = this.isAudioController(controller);
-
-    // Always clear any existing timeout first
     if (controller.blinkTimeOut !== undefined) {
       clearTimeout(controller.blinkTimeOut);
-      controller.blinkTimeOut = undefined;
     }
 
-    // Add vsc-show class to temporarily show controller
-    // This overrides vsc-hidden via CSS specificity
+    // vsc-show outranks vsc-hidden and startHidden's --visibility (inject_new.css)
     controller.classList.add('vsc-show');
     logger.debug('Showing controller temporarily with vsc-show class');
 
-    // For audio controllers, don't set timeout to hide again
-    if (!isAudioController) {
-      controller.blinkTimeOut = setTimeout(
-        () => {
-          controller.classList.remove('vsc-show');
-          controller.blinkTimeOut = undefined;
-          logger.debug('Removing vsc-show class after timeout');
-        },
-        duration ? duration : 2500
-      );
-    } else {
-      logger.debug('Audio controller blink - keeping vsc-show class');
-    }
-  }
-
-  /**
-   * Check if controller is associated with an audio element
-   * @param {HTMLElement} controller - Controller element
-   * @returns {boolean} True if associated with audio element
-   * @private
-   */
-  isAudioController(controller) {
-    // Find associated media element
-    const mediaElements = stateManager.getControlledElements();
-
-    for (const media of mediaElements) {
-      if (media.vsc && media.vsc.div === controller) {
-        return media.tagName === 'AUDIO';
-      }
-    }
-    return false;
+    controller.blinkTimeOut = setTimeout(() => {
+      controller.classList.remove('vsc-show');
+      controller.blinkTimeOut = undefined;
+      logger.debug('Removing vsc-show class after timeout');
+    }, duration || 2500);
   }
 
   /**

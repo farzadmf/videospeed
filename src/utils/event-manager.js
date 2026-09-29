@@ -23,7 +23,6 @@ export class EventManager {
     this.actionHandler = actionHandler;
     this.listeners = new Map();
     this.coolDown = false;
-    this.timer = null;
 
     this.leaderKeyHeld = false;
 
@@ -420,37 +419,19 @@ export class EventManager {
    * @param {Element} controller - Controller element
    */
   showController(controller) {
-    // When startHidden is enabled, only show temporary feedback if the user has
-    // previously interacted with this controller manually (vsc-manual class)
-    // This prevents unwanted controller appearances on pages where user wants them hidden
+    // startHidden is a standing preference until the user shows or hides this
+    // controller by hand.
     if (this.config.settings.startHidden && !controller.classList.contains('vsc-manual')) {
-      logger.info(
-        `Controller respecting startHidden setting - no temporary display (startHidden: ${this.config.settings.startHidden}, manual: ${controller.classList.contains('vsc-manual')})`
-      );
       return;
     }
 
-    logger.info(
-      `Showing controller temporarily (startHidden: ${this.config.settings.startHidden}, manual: ${controller.classList.contains('vsc-manual')})`
-    );
+    // A visible controller already shows the change.
+    if (!controller.classList.contains('vsc-hidden')) {
+      return;
+    }
 
-    const wasHidden = controller.classList.contains('hidden');
-
-    // controller.classList.add('vsc-show');
-    controller.classList.remove('hidden');
-
-    clearTimeout(this.timer);
-
-    this.timer = setTimeout(() => {
-      this.timer = null;
-
-      if (wasHidden) {
-        // controller.classList.remove('vsc-show');
-        controller.classList.add('hidden');
-
-        logger.debug('Hiding controller');
-      }
-    }, 2000);
+    logger.debug('Flashing hidden controller');
+    this.actionHandler?.blinkController(controller, 2000);
   }
 
   /**
@@ -479,11 +460,6 @@ export class EventManager {
       this.fightTimer = null;
     }
     this.fightCount = 0;
-
-    if (this.timer) {
-      clearTimeout(this.timer);
-      this.timer = null;
-    }
   }
 }
 

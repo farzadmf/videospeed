@@ -19,6 +19,14 @@ vsc-controller:not(:defined) {
   visibility: visible !important;
 }
 
+/* Temporary flash (speed feedback, blink action). Outranks .vsc-hidden and
+   startHidden's --visibility; a source-less video stays hidden. */
+.vsc-show:not(.vsc-nosource) {
+  display: block !important;
+  opacity: var(--opacity) !important;
+  visibility: visible !important;
+}
+
 vsc-controller.vsc-main {
   /* Used in shadow.css to hide controls; this remains always visible, so we're not */
   /* using the variables here */
