@@ -132,9 +132,9 @@ export class EventManager {
     //   this.leaderKeyHeld = true;
     // }
 
-    // IME composition guard
-    // 'Process' / keyCode 229 = IME composition active (CJK input)
-    if (event.isComposing || event.keyCode === 229 || event.key === 'Process') {
+    // IME composition guard (CJK input). Chrome reports key 'Process' where
+    // older engines used the deprecated keyCode 229.
+    if (event.isComposing || event.key === 'Process') {
       return;
     }
 
