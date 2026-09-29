@@ -40,11 +40,6 @@ vsc-controller.vsc-main {
 
 /* Origin specific overrides */
 /* YouTube player */
-.ytp-hide-info-bar .vsc-controller {
-  position: relative;
-  top: 10px;
-}
-
 .ytp-autohide #vsc-spy {
   --should-hide: yes;
 }
