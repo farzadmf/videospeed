@@ -166,7 +166,7 @@ export class ControlsManager {
         const step = 0.1;
         const speedDelta = delta < 0 ? step : -step;
 
-        this.actionHandler.adjustSpeed(video, speedDelta, { relative: true });
+        this.actionHandler.adjustSpeed(video, speedDelta, { relative: true, source: 'action-handler' });
 
         logger.debug(
           `Wheel control: adjusting speed by ${speedDelta} (deltaMode: ${event.deltaMode}, deltaY: ${event.deltaY})`
