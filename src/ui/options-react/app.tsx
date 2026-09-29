@@ -97,7 +97,7 @@ export const App = () => {
         {status && <span className="text-base-content/80 ml-2">{status}</span>}
       </div>
 
-      <div className="join join-vertical w-full">
+      <div className="flex w-full flex-col gap-3">
         <Section title="Key Bindings">
           <KeyBindings settings={draft} update={edit} />
         </Section>
