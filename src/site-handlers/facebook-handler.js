@@ -23,16 +23,18 @@ export class FacebookHandler extends BaseSiteHandler {
    * @returns {Object} Positioning information
    */
   getControllerPosition(parent) {
-    // Facebook requires deep DOM traversal due to complex nesting
-    // This is a monstrosity but new FB design does not have semantic handles
+    // The feed needs a seven-level promotion (no semantic handle to target).
+    // Plugin players are shallower, so fall back when an ancestor is missing.
+    const fallbackParent = parent.parentElement || parent;
     let targetParent = parent;
 
-    try {
-      targetParent =
-        parent.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
-    } catch {
-      logger.warn('Facebook DOM structure changed, using fallback positioning');
-      targetParent = parent.parentElement;
+    for (let depth = 0; depth < 7; depth += 1) {
+      if (!targetParent.parentElement) {
+        logger.warn('Facebook DOM structure changed, using fallback positioning');
+        targetParent = fallbackParent;
+        break;
+      }
+      targetParent = targetParent.parentElement;
     }
 
     return {
