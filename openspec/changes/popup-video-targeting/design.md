@@ -47,6 +47,15 @@ popup --- tabs.connect(tabId) ---> bridge (frame A) <-- CustomEvents --> MAIN (f
 - No permission is added, and the background service worker is not involved.
 - A frame cannot know its Chrome `frameId`, so each frame generates a random frame token once. A video's identity is `<frameToken>:<controllerId>`.
 
+Measured by the task 1.2 spike on `tests/manual/multi-video`, with a top frame, a cross-origin child, and a cross-origin frame inside that child:
+
+- One `tabs.connect` with no `frameId` reaches all three frames, and all three receive a single `port.postMessage` from the popup.
+- All three frames' messages arrive on the popup's one port.
+- Closing the popup fires `onDisconnect` in every frame.
+- A token generated once per frame load stays the same across popup open and close cycles.
+
+So D1 holds and the coordinator relay is not needed.
+
 Alternatives considered:
 
 - **Background aggregator**: frames send reports to the service worker (`sender.frameId`), and the popup reads them. This needs per-tab state that survives service worker suspension (`chrome.storage.session`), and reports run even while the popup is closed. Rejected: more moving parts and constant work.
@@ -75,7 +84,11 @@ A frame derives each label in this order: the video's `title` or `aria-label`, t
 
 ### D5. Order
 
-The popup lists the top frame's entries first, then other frames in the order their first snapshot arrived. Within a frame, entries follow document order across shadow roots (flat-tree order). The order is stable for one popup session.
+The popup lists the top frame's entries first, identified by the snapshot's `isTop` flag, then the other frames sorted by their frame URL. Within a frame, entries follow document order across shadow roots (flat-tree order).
+
+The sort key is not arrival order. The task 1.2 spike saw the top frame answer last of three, so arrival order varies per popup open and would move a video's row between opens, which moves the `j` and `k` positions the user is aiming at. Frame URL is arbitrary against the visual layout but it is the same on every open.
+
+Matching the visual top-to-bottom order of the page needs each frame's position within its parent, which the reveal chain in D8 could carry later.
 
 ### D6. Selection lives in the popup
 
