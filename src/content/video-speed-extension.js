@@ -220,10 +220,7 @@ export class VideoSpeedExtension {
 
         logger.info(`Attached controllers to ${lightMedia.length} media elements (light scan)`);
 
-        // Schedule comprehensive scan for later if needed
-        if (lightMedia.length === 0) {
-          this.scheduleComprehensiveScan(document);
-        }
+        this.scheduleComprehensiveScan(document, { scanMedia: lightMedia.length === 0 });
       } catch (error) {
         logger.error(`Failed to scan media elements: ${error.message}`);
       }
@@ -237,14 +234,21 @@ export class VideoSpeedExtension {
   }
 
   /**
-   * Schedule a comprehensive scan if the light scan didn't find anything
+   * Watch existing shadow roots, and run a comprehensive scan if the light scan found nothing
    * @param {Document} document - Document to scan comprehensively
+   * @param {Object} options
+   * @param {boolean} options.scanMedia - Whether to run the comprehensive scan
    */
-  scheduleComprehensiveScan(document) {
-    // Only do comprehensive scan if we didn't find any media with light scan
+  scheduleComprehensiveScan(document, { scanMedia }) {
     setTimeout(() => {
       try {
         if (!this.acceptingMedia) {
+          return;
+        }
+
+        this.mutationObserver?.observeExistingShadowRoots(document);
+
+        if (!scanMedia) {
           return;
         }
 

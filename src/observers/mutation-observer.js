@@ -260,6 +260,20 @@ export class VideoMutationObserver {
   }
 
   /**
+   * Observe every open shadow root under root. A root attached before this observer
+   * started produced no mutation, so a video added inside it later goes unseen.
+   * @param {Document|ShadowRoot} root
+   */
+  observeExistingShadowRoots(root) {
+    for (const element of root.querySelectorAll('*')) {
+      if (element.shadowRoot) {
+        this.observeShadowRoot(element.shadowRoot);
+        this.observeExistingShadowRoots(element.shadowRoot);
+      }
+    }
+  }
+
+  /**
    * Handle document replacement
    * @private
    */
