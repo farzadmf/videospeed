@@ -4,7 +4,7 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 
 ## 1. Test pages and transport check
 
-- [ ] 1.1 Add `tests/manual/multi-video/` with `index.html` (two videos in the document, one video in an open shadow root, one video inside a scroll container, and an iframe that loads `frame.html` from the other origin), `frame.html` (one video plus a nested iframe), and `nested.html` (one video), all using a public CC0 sample video URL, plus a `README.md` that says how to serve it: `python3 -m http.server` and open `http://localhost:8000/`, with the iframes pointing at `http://127.0.0.1:8000/` so they are cross-origin. Verify: the page loads and VSC attaches a controller to all six videos, one of them two frames deep.
+- [x] 1.1 Add `tests/manual/multi-video/` with `index.html` (two videos in the document, one video in an open shadow root, one video inside a scroll container, and an iframe that loads `frame.html` from the other origin), `frame.html` (one video plus a nested iframe), and `nested.html` (one video), all using a sample video generated locally with ffmpeg so the page needs no network, plus two videos created on click (one in the document, one in a shadow root) and a `README.md` that says how to serve it: `python3 -m http.server` and open `http://localhost:8000/`, with the iframes pointing at `http://127.0.0.1:8000/` so they are cross-origin. Verify: the page loads and VSC attaches a controller to all eight videos, one of them two frames deep.
 - [ ] 1.2 Spike D1 with temporary code: the popup opens a broadcast `tabs.connect` port, and each bridge posts a test message with a random token. Verify on the test page: the popup receives messages from the top frame, the cross-origin frame, and the nested frame, and all three receive a message the popup posts. Record the result in `design.md` (keep D1, or switch to the coordinator relay), then remove the spike code.
 - [ ] 1.3 Measure the throttling and autoplay limits with temporary code: log the real heartbeat interval in a frame scrolled out of view, and call `play()` in a cross-origin frame from a popup command. Verify: the measured interval supports the 5 s frame timeout (tune D2 if not), and the result says whether `play()` resolves or rejects there. Record both in `design.md`, then remove the code.
 
@@ -22,10 +22,10 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 
 ## 4. Popup list and selection
 
-- [ ] 4.1 Add an inventory hook in the popup that opens the port, merges snapshots per frame (top frame first, then by first arrival), drops a frame silent for more than 5 s, and fills empty labels with "Video N". Verify: the popup shows six entries on the test page, and deleting a video in DevTools removes its entry within 1 s.
+- [ ] 4.1 Add an inventory hook in the popup that opens the port, merges snapshots per frame (top frame first, then by first arrival), drops a frame silent for more than 5 s, and fills empty labels with "Video N". Verify: the popup shows eight entries on the test page, and deleting a video in DevTools removes its entry within 1 s.
 - [ ] 4.2 Show the video list when there are two or more videos, with label, playing state, speed, and an in-view or off-screen tag. With one video, show no list. Verify on the test page and on a single-video page.
 - [ ] 4.3 Apply the selection-on-open rule once after a 150 ms settle. Keep the selection while the popup is open, and re-run the rule when the selected video goes away. Verify each scenario of "Selection on open" and "Selection is stable while open" on the test page.
-- [ ] 4.4 Add `j`/`Down` and `k`/`Up` (wrapping) and row clicks to move the selection, and add the keys and `Enter` to `shortcuts.ts` and the help overlay. Verify: the keys move the selection through all five videos, including off-screen ones, and the help lists them.
+- [ ] 4.4 Add `j`/`Down` and `k`/`Up` (wrapping) and row clicks to move the selection, and add the keys and `Enter` to `shortcuts.ts` and the help overlay. Verify: the keys move the selection through all eight videos, including off-screen ones, and the help lists them.
 
 ## 5. Targeted actions and reveal
 

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>VSC manual test: multiple videos</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px 40px 70vh;
+        font: 14px/1.5 system-ui, sans-serif;
+        background: #15171c;
+        color: #e6e6e6;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      p {
+        max-width: 60ch;
+        color: #9aa3b2;
+      }
+      section {
+        margin: 48px 0;
+      }
+      h2 {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #8a93a3;
+      }
+      video,
+      iframe {
+        width: 480px;
+        max-width: 100%;
+        border: 0;
+        background: #000;
+      }
+      iframe {
+        height: 420px;
+      }
+      .spacer {
+        height: 60vh;
+      }
+      /* Video 4 lives here, so scrolling this box out of view must report it off-screen. */
+      .scroller {
+        width: 520px;
+        height: 240px;
+        overflow: auto;
+        border: 1px solid #333a46;
+      }
+      /* Video visible at the top, with room below so it can be scrolled out of sight. */
+      .scroller .inner {
+        padding: 20px 20px 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>VSC manual test: multiple videos</h1>
+    <p>
+      Eight videos: two in this document, one in an open shadow root, one in a scroll container, one in a cross-origin
+      frame, one two frames deep, and two that appear only when clicked. See README.md for how to serve this.
+    </p>
+
+    <section>
+      <h2>1. Plain video, labelled with title</h2>
+      <video src="sample.mp4" title="Plain video" controls preload="auto"></video>
+    </section>
+
+    <section>
+      <h2>2. Video in a figure, labelled by figcaption</h2>
+      <figure style="margin: 0">
+        <video src="sample.mp4" controls preload="auto"></video>
+        <figcaption>Figure caption video</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <h2>3. Video in an open shadow root, no label</h2>
+      <div id="shadow-host"></div>
+    </section>
+
+    <section>
+      <h2>4. Video in a scroll container</h2>
+      <p>Scroll inside this box to move the video out of sight while the page stays put.</p>
+      <div class="scroller">
+        <div class="inner">
+          <video src="sample.mp4" title="Scroll container video" controls preload="auto"></video>
+        </div>
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+
+    <section>
+      <h2>5 and 6. Cross-origin frame, with another frame inside it</h2>
+      <iframe id="child-frame" title="Child frame" allow="autoplay"></iframe>
+    </section>
+
+    <div class="spacer"></div>
+
+    <section>
+      <h2>7. Lazy video, created on click</h2>
+      <p>Nothing exists until you click. The mutation observer has to catch the new element.</p>
+      <div id="lazy-plain"><button type="button" data-lazy="plain">Load and play video 7</button></div>
+    </section>
+
+    <section>
+      <h2>8. Lazy video in a shadow root, created on click</h2>
+      <p>The shadow root exists now; the video appears on click. This is how embedded players behave.</p>
+      <div id="lazy-shadow-host"></div>
+    </section>
+
+    <div class="spacer"></div>
+
+    <script>
+      // Shadow DOM video: VSC must find it and place its controller in the same tree.
+      const root = document.getElementById('shadow-host').attachShadow({ mode: 'open' });
+      const shadowVideo = document.createElement('video');
+      shadowVideo.src = 'sample.mp4';
+      shadowVideo.controls = true;
+      shadowVideo.preload = 'auto';
+      shadowVideo.style.width = '480px';
+      root.append(shadowVideo);
+
+      // Lazy videos 7 and 8: the element is created on click, so only the mutation
+      // observer can find them. Video 8's lives in a shadow root, which is what an
+      // embedded player does.
+      const lazyShadow = document.getElementById('lazy-shadow-host').attachShadow({ mode: 'open' });
+      const lazyButton = document.createElement('button');
+      lazyButton.type = 'button';
+      lazyButton.dataset.lazy = 'shadow';
+      lazyButton.textContent = 'Load and play video 8';
+      lazyShadow.append(lazyButton);
+
+      const lazyRoots = { plain: document.getElementById('lazy-plain'), shadow: lazyShadow };
+
+      function loadLazyVideo(where) {
+        const video = document.createElement('video');
+        video.src = 'sample.mp4';
+        video.controls = true;
+        video.preload = 'auto';
+        video.title = `Lazy ${where} video`;
+        video.style.width = '480px';
+
+        const root = lazyRoots[where];
+        root.replaceChildren(video);
+        video.play();
+      }
+
+      for (const root of Object.values(lazyRoots)) {
+        root.addEventListener('click', (event) => {
+          const where = event.target.dataset?.lazy;
+          if (where) {
+            loadLazyVideo(where);
+          }
+        });
+      }
+
+      // 127.0.0.1 and localhost are different origins, so the frames are cross-origin
+      // whichever of the two you open the page with.
+      const otherHost = location.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
+      document.getElementById('child-frame').src = `${location.protocol}//${otherHost}:${location.port}/frame.html`;
+    </script>
+  </body>
+</html>

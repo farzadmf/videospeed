@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Child frame video</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font: 13px/1.5 system-ui, sans-serif;
+        background: #1f232b;
+        color: #e6e6e6;
+      }
+      video,
+      iframe {
+        width: 100%;
+        max-width: 360px;
+        border: 0;
+        background: #000;
+      }
+      iframe {
+        height: 180px;
+      }
+      h2 {
+        font-size: 13px;
+        color: #8a93a3;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Video 5: cross-origin frame (one level deep)</h2>
+    <video src="sample.mp4" controls preload="auto"></video>
+
+    <h2>Video 6 is inside the frame below (two levels deep)</h2>
+    <!-- No allow="autoplay" on purpose: the browser refuses play() here, which is the
+         case the popup must report as blocked. -->
+    <iframe id="nested-frame" title="Nested frame"></iframe>
+
+    <script>
+      // Hop origins again, so the nested frame is cross-origin to this one too.
+      const otherHost = location.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
+      document.getElementById('nested-frame').src = `${location.protocol}//${otherHost}:${location.port}/nested.html`;
+    </script>
+  </body>
+</html>
