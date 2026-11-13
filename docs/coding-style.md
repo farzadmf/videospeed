@@ -34,6 +34,10 @@ function handle(event) {
 
 Here the parse-and-guard is one paragraph, the log is its own beat, and the switch is the main work — three groups, two blank lines.
 
+## Writing
+
+Write comments, docs, and commit messages in ASD-STE100 Simplified Technical English: active voice, short sentences with one idea each, simple tenses, plain words with one meaning each, and no filler.
+
 ## Comments
 
 Write a comment only when it explains something the code cannot: a non-obvious _why_, a constraint, or a gotcha. Do not narrate what the next line plainly does. Keep comments factual; no hype, no "temporary"/"prototype" labels on code that is staying. State the constraint plainly — don't sell or praise the code; a comment that reads like ad copy for the function ("so a quick tap never flips the UI") is noise even when it's technically a _why_.
@@ -46,6 +50,7 @@ Do not manually wrap prose across multiple lines. Write each paragraph as one lo
 
 Commits follow conventional commit format
 
+- Respect git's column limits: subject of 50 characters or fewer, body wrapped at 72 columns, bullet continuation lines indented two spaces.
 - They only mention facts, no hype to create excitement etc.
 - A commit lists the what(s) and more importantly why(s)
 - The what(s) DO NOT reiterate the code line/function changes; those are obvious in the diff; instead they're just an overview list where details can be separately looked at in case the reader wants to
