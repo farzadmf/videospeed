@@ -15,6 +15,30 @@ import * as dom from '../utils/dom-utils.js';
 import { EventManager } from '../utils/event-manager.js';
 import { logger } from '../utils/logger.js';
 
+/**
+ * Whether the top frame can walk the DOM down into this frame.
+ *
+ * Being same-origin with the top frame is not enough: one cross-origin frame
+ * anywhere in the ancestor chain stops the traversal, so a frame behind it is
+ * reached by nobody and has to scan itself.
+ * @returns {boolean}
+ */
+function isReachableFromTop() {
+  let frame = window;
+
+  while (frame !== window.top) {
+    try {
+      // Throws when this boundary is cross-origin.
+      void frame.parent.document;
+    } catch {
+      return false;
+    }
+    frame = frame.parent;
+  }
+
+  return true;
+}
+
 export class VideoSpeedExtension {
   constructor() {
     this.config = null;
@@ -43,18 +67,11 @@ export class VideoSpeedExtension {
         return;
       }
 
-      // Skip same-origin iframes — the top frame's media observer already
-      // scans them, and the bridge may not have been injected (dynamically
-      // created iframes miss document_start content scripts).
-      if (window !== window.top) {
-        try {
-          // Accessing cross-origin window.top.document throws — same-origin won't
-          if (window.top.document) {
-            return;
-          }
-        } catch {
-          // Cross-origin iframe — needs its own initialization
-        }
+      // Skip iframes the top frame can reach — its media observer already scans
+      // them, and the bridge may not have been injected (dynamically created
+      // iframes miss document_start content scripts).
+      if (window !== window.top && isReachableFromTop()) {
+        return;
       }
 
       // Access global modules
