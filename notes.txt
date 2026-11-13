@@ -1,3 +1,13 @@
+Controller pill hangs outside a scroll container (tests/manual/multi-video, video 4):
+- Scroll the video out of its overflow box and the pill stays where the video's
+  top-left used to be, floating over unrelated content.
+- Not a bug in position-visibility: anchors-visible hides only a FULLY clipped
+  anchor, and this one is still ~60% visible. The pill just sits on the clipped part.
+- No cheap fix. IntersectionObserver is threshold-based, so it never fires at the
+  moment the corner clips. A correct fix needs a 1x1 probe element in the video's
+  own ancestor chain (inserting into page layout), or scroll listeners on ancestor
+  scrollers (back to scroll-driven JS). See docs/upstream-bookmarks/10e7de2-positioning-model.md.
+
 2026-04-10 - https://dbushell.com/2026/04/10/no-stack-web-development/
 - WOW!!! COMPLETELY messed up!
 
