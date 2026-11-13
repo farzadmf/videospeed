@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VSC targeting mock</title>
+<style>
+  :root { --accent: #4ea1ff; --bg: #15171c; --panel: #1f232b; --text: #e6e6e6; --muted: #8a93a3; --blink-ms: 600ms; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+  /* Fake page */
+  #page { margin-right: 380px; padding: 24px 40px 60vh; }
+  #page h1 { font-size: 18px; margin: 0 0 4px; }
+  #page p.hint { color: var(--muted); margin: 0 0 24px; max-width: 640px; }
+  .filler { color: var(--muted); max-width: 640px; margin: 24px 0; min-height: 40vh; }
+
+  .video {
+    position: relative; width: 560px; aspect-ratio: 16 / 9; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    font-size: 20px; font-weight: 600; user-select: none; margin: 16px 0;
+  }
+  .video .state { position: absolute; bottom: 10px; right: 12px; font: 13px ui-monospace, monospace; opacity: 0.9; }
+  .pill {
+    position: absolute; top: 8px; left: 8px; padding: 2px 8px; border-radius: 4px;
+    background: rgba(0, 0, 0, 0.6); font: 12px ui-monospace, monospace;
+  }
+  .ring { position: absolute; inset: -4px; border-radius: 9px; pointer-events: none; opacity: 0; border: 3px solid var(--accent); }
+
+  /* Ring and pulse share --blink-ms and a single iteration, so they start and end together. */
+  .blink .ring { animation: ring var(--blink-ms) ease-out 1; }
+  @keyframes ring { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+  .blink .pill { animation: pulse var(--blink-ms) ease-out 1; }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.3); background: var(--accent); color: #000; }
+    100% { transform: scale(1); }
+  }
+
+  /* Fake popup */
+  #popup {
+    position: fixed; top: 16px; right: 16px; width: 348px; background: var(--panel);
+    border: 1px solid #333a46; border-radius: 10px; padding: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+  #popup.closed { display: none; }
+  #openBtn {
+    position: fixed; top: 16px; right: 16px; background: var(--accent); color: #000; border: 0;
+    border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer;
+  }
+  #openBtn.hidden { display: none; }
+  #popup h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 6px; }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+  .list li:hover { background: #2a2f3a; }
+  .list li.selected { background: #24364d; outline: 1px solid var(--accent); }
+  .tag { font-size: 11px; padding: 0 6px; border-radius: 4px; margin-left: 6px; }
+  .tag.in { background: #1f4d36; color: #8fe0b4; }
+  .tag.off { background: #3a3f4a; color: var(--muted); }
+  .muted { color: var(--muted); }
+  .status { min-height: 20px; margin-top: 8px; color: var(--muted); font-size: 12px; }
+  .keys { margin-top: 12px; border-top: 1px solid #333a46; padding-top: 8px; font-size: 12px; color: var(--muted); display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; }
+  kbd { background: #2a2f3a; border: 1px solid #3a4150; border-radius: 4px; padding: 0 4px; font-size: 11px; color: var(--text); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div id="page">
+  <h1>Fake changelog page</h1>
+  <p class="hint">Close the popup (<kbd>Esc</kbd>), scroll the page and click a video to play it, then open the popup (<kbd>P</kbd> or the button). The selection starts on the video you're looking at. Keys work only while the popup is open, as in the real extension.</p>
+
+  <div class="filler">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</div>
+  <div class="video" data-name="1.14 Quick Look" style="background: linear-gradient(135deg,#7b3fe4,#3a1c7a)"></div>
+  <div class="filler">More release notes text between videos.</div>
+  <div class="video" data-name="1.14 Kanban" style="background: linear-gradient(135deg,#e46f3f,#7a2f1c)"></div>
+  <div class="filler">Even more release notes text.</div>
+  <div class="video" data-name="1.14 Highlight colors" style="background: linear-gradient(135deg,#2fa36b,#14533a)"></div>
+</div>
+
+<button id="openBtn" class="hidden">Open popup (P)</button>
+
+<div id="popup">
+  <h2 id="listTitle">Videos</h2>
+  <ul class="list" id="list"></ul>
+  <div class="status" id="status"></div>
+  <div class="keys">
+    <span><kbd>j</kbd> <kbd>k</kbd> / <kbd>&darr;</kbd> <kbd>&uarr;</kbd></span><span>Select video (it blinks)</span>
+    <span><kbd>Enter</kbd></span><span>Scroll selected video into view</span>
+    <span><kbd>1</kbd>-<kbd>9</kbd></span><span>Set speed 1x-9x</span>
+    <span><kbd>Shift</kbd>+<kbd>1</kbd>-<kbd>9</kbd></span><span>Set speed 1.5x-9.5x</span>
+    <span><kbd>-</kbd> <kbd>=</kbd></span><span>Slow down / speed up</span>
+    <span><kbd>Space</kbd></span><span>Play / pause</span>
+    <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd></span><span>Rewind / advance 10s</span>
+    <span><kbd>Esc</kbd></span><span>Close popup</span>
+  </div>
+</div>
+
+<script>
+  const videos = [...document.querySelectorAll('.video')].map((el, i) => ({
+    el, id: i, name: el.dataset.name, playing: false, speed: 1.0, time: 0, ratio: 0,
+  }));
+
+  let popupOpen = true;
+  let selectedId = null;
+
+  for (const v of videos) {
+    v.el.innerHTML = `<span class="pill"></span>${v.name}<span class="state"></span><span class="ring"></span>`;
+    v.el.addEventListener('click', () => { v.playing = !v.playing; render(); });
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      videos.find((v) => v.el === e.target).ratio = e.intersectionRatio;
+    }
+    render();
+  }, { threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] });
+  videos.forEach((v) => io.observe(v.el));
+
+  setInterval(() => {
+    for (const v of videos) {
+      if (v.playing) v.time += 0.25 * v.speed;
+    }
+    render();
+  }, 250);
+
+  const isInView = (v) => v.ratio >= 0.1;
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const setStatus = (t) => { document.getElementById('status').textContent = t; };
+  const clampSpeed = (s) => Math.min(16, Math.max(0.1, +s.toFixed(2)));
+  const selected = () => videos.find((v) => v.id === selectedId);
+
+  // Runs once per popup open: playing-and-in-view first, then most visible, then the first video.
+  function defaultSelection() {
+    const visible = videos.filter(isInView);
+    const playing = visible.filter((v) => v.playing);
+    const pool = playing.length ? playing : visible;
+    if (!pool.length) return videos[0];
+    return pool.reduce((best, v) => (v.ratio > best.ratio ? v : best), pool[0]);
+  }
+
+  function blink(v) {
+    v.el.classList.remove('blink');
+    void v.el.offsetWidth; // restart the animation
+    v.el.classList.add('blink');
+  }
+
+  function select(v) {
+    selectedId = v.id;
+    blink(v);
+    setStatus(`Selected: ${v.name}${isInView(v) ? '' : ' (off-screen, press Enter to show it)'}`);
+    render();
+  }
+
+  function move(step) {
+    const i = videos.indexOf(selected());
+    select(videos[(i + step + videos.length) % videos.length]);
+  }
+
+  const ACTIONS = {
+    speed: (n) => ({ label: `Speed ${n}x`, run: (v) => { v.speed = n; } }),
+    faster: () => ({ label: 'Speed up', run: (v) => { v.speed = clampSpeed(v.speed + 0.1); } }),
+    slower: () => ({ label: 'Slow down', run: (v) => { v.speed = clampSpeed(v.speed - 0.1); } }),
+    play: () => ({ label: 'Play / pause', run: (v) => { v.playing = !v.playing; } }),
+    rewind: () => ({ label: 'Rewind 10s', run: (v) => { v.time = Math.max(0, v.time - 10); } }),
+    advance: () => ({ label: 'Advance 10s', run: (v) => { v.time += 10; } }),
+  };
+
+  function act(action) {
+    const v = selected();
+    action.run(v);
+    blink(v);
+    setStatus(`${action.label} -> ${v.name}`);
+    render();
+  }
+
+  function reveal() {
+    const v = selected();
+    v.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => blink(v), 400);
+    setStatus(`Showing: ${v.name}`);
+  }
+
+  function openPopup() {
+    popupOpen = true;
+    const v = defaultSelection();
+    selectedId = v.id;
+    blink(v);
+    setStatus(`Opened. Default: ${v.name}`);
+    render();
+  }
+
+  function closePopup() {
+    popupOpen = false;
+    render();
+  }
+
+  function render() {
+    for (const v of videos) {
+      v.el.querySelector('.pill').textContent = `${v.speed.toFixed(1)}x`;
+      v.el.querySelector('.state').textContent = `${v.playing ? '>' : '||'} ${fmt(v.time)}`;
+    }
+
+    document.getElementById('popup').classList.toggle('closed', !popupOpen);
+    document.getElementById('openBtn').classList.toggle('hidden', popupOpen);
+    if (!popupOpen) return;
+
+    const inViewCount = videos.filter(isInView).length;
+    document.getElementById('listTitle').textContent = `Videos (${videos.length} on page, ${inViewCount} in view)`;
+
+    const ul = document.getElementById('list');
+    ul.innerHTML = videos.map((v) => `
+      <li data-id="${v.id}" class="${v.id === selectedId ? 'selected' : ''}">
+        <span>${v.name}${v.playing ? ' &#9654;' : ''}
+          <span class="tag ${isInView(v) ? 'in' : 'off'}">${isInView(v) ? 'in view' : 'off-screen'}</span></span>
+        <span class="muted">${v.speed.toFixed(1)}x</span>
+      </li>`).join('');
+
+    ul.querySelectorAll('li').forEach((li) => {
+      li.addEventListener('click', () => select(videos[+li.dataset.id]));
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (!popupOpen) {
+      if (e.key === 'p' || e.key === 'P') { openPopup(); e.preventDefault(); }
+      return;
+    }
+
+    const digit = e.code.match(/^Digit([1-9])$/);
+    if (digit) act(ACTIONS.speed(+digit[1] + (e.shiftKey ? 0.5 : 0)));
+    else if (e.key === 'j' || e.key === 'ArrowDown') move(1);
+    else if (e.key === 'k' || e.key === 'ArrowUp') move(-1);
+    else if (e.key === 'Enter') reveal();
+    else if (e.key === '=' || e.key === '+') act(ACTIONS.faster());
+    else if (e.key === '-') act(ACTIONS.slower());
+    else if (e.code === 'Space') act(ACTIONS.play());
+    else if (e.key === 'ArrowLeft') act(ACTIONS.rewind());
+    else if (e.key === 'ArrowRight') act(ACTIONS.advance());
+    else if (e.key === 'Escape') closePopup();
+    else return;
+    e.preventDefault();
+  });
+
+  document.getElementById('openBtn').addEventListener('click', openPopup);
+
+  openPopup();
+</script>
+</body>
+</html>
