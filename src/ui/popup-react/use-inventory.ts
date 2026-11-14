@@ -11,6 +11,10 @@ const PRUNE_EVERY_MS = 1000;
 // the whole page rather than whichever frame answered first.
 const SETTLE_MS = 150;
 
+// A frame answers a command within milliseconds; this long with no answer means the
+// frame that owned the video is gone.
+const NO_ANSWER_MS = 1500;
+
 export type VideoItem = MediaEntry & {
   frameToken: string;
 };
@@ -43,30 +47,76 @@ function mergeFrames(frames: Map<string, FrameState>): VideoItem[] {
 
 /**
  * The page's videos across every frame, live while the popup is open.
- * @returns the merged list, whether the first snapshots have had time to arrive, the
- *   outcome of the last command, and a way to send a command to one video
+ * @param onOutcome - called with how each command turned out
+ * @returns the merged list, whether the first snapshots have had time to arrive, and a
+ *   way to send a command to one video
  */
-export function useInventory() {
+export function useInventory(onOutcome: (outcome: CommandOutcome, label: string) => void) {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [settled, setSettled] = useState(false);
-  const [lastOutcome, setLastOutcome] = useState<CommandOutcome | undefined>();
 
-  // Created with the port in the effect; a ref keeps sendCommand stable across renders.
+  // Created with the port in the effect; refs keep sendCommand stable across renders and
+  // let the effect call the latest onOutcome.
   const send = useRef<(target: string, action: VideoAction) => void>(() => {});
+  const onOutcomeRef = useRef(onOutcome);
+  useEffect(() => {
+    onOutcomeRef.current = onOutcome;
+  });
 
   useEffect(() => {
     const frames = new Map<string, FrameState>();
+    const unanswered = new Map<number, ReturnType<typeof setTimeout>>();
+    let nextCommandId = 1;
 
     const publish = () => setVideos(mergeFrames(frames));
 
-    const { close: disconnect, sendCommand } = connectInventory({
-      onOutcome: setLastOutcome,
+    const labelOf = (target: string) => mergeFrames(frames).find((v) => v.id === target)?.label ?? 'The video';
+
+    // The video's frame may stay alive for seconds before a heartbeat would correct
+    // the list, so remove a video the page says is gone right away.
+    const dropVideo = (target: string) => {
+      for (const frame of frames.values()) {
+        frame.snapshot = { ...frame.snapshot, entries: frame.snapshot.entries.filter((e) => e.id !== target) };
+      }
+      publish();
+    };
+
+    const report = (outcome: CommandOutcome) => {
+      // Name the video before dropping it, or a gone video would have no name to show.
+      onOutcomeRef.current(outcome, labelOf(outcome.target));
+
+      if (outcome.outcome === 'unknown-target') {
+        dropVideo(outcome.target);
+      }
+    };
+
+    const connection = connectInventory({
+      onOutcome: (outcome) => {
+        clearTimeout(unanswered.get(outcome.commandId));
+        unanswered.delete(outcome.commandId);
+        report(outcome);
+      },
       onSnapshot: (snapshot) => {
         frames.set(snapshot.frameToken, { lastSeen: Date.now(), snapshot });
         publish();
       },
     });
-    send.current = sendCommand;
+
+    send.current = (target, action) => {
+      const commandId = nextCommandId++;
+
+      // Only the frame that owns the target answers. If that frame is gone, nothing
+      // does, and a silent failure would look like the key did nothing.
+      unanswered.set(
+        commandId,
+        setTimeout(() => {
+          unanswered.delete(commandId);
+          report({ action, commandId, kind: 'outcome', outcome: 'unknown-target', target });
+        }, NO_ANSWER_MS)
+      );
+
+      connection.sendCommand(commandId, target, action);
+    };
 
     const prune = setInterval(() => {
       const cutoff = Date.now() - FRAME_TIMEOUT_MS;
@@ -87,13 +137,14 @@ export function useInventory() {
     const settle = setTimeout(() => setSettled(true), SETTLE_MS);
 
     return () => {
-      disconnect();
+      connection.close();
       clearInterval(prune);
       clearTimeout(settle);
+      unanswered.forEach(clearTimeout);
     };
   }, []);
 
   const sendCommand = useCallback((target: string, action: VideoAction) => send.current(target, action), []);
 
-  return { lastOutcome, sendCommand, settled, videos };
+  return { sendCommand, settled, videos };
 }

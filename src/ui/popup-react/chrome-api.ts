@@ -38,6 +38,7 @@ export type FrameSnapshot = {
 
 export type CommandOutcome = {
   action: VideoAction;
+  commandId: number;
   kind: typeof INVENTORY_KIND.OUTCOME;
   outcome: 'applied' | 'refused' | 'unknown-target';
   target: string;
@@ -98,9 +99,10 @@ export function connectInventory({ onOutcome, onSnapshot }: InventoryHandlers) {
       port?.disconnect();
     },
 
-    // Every frame receives it; only the frame that owns the target acts.
-    sendCommand: (target: string, action: VideoAction) => {
-      const message = { action, target, type: MESSAGE_TYPES.INVENTORY_COMMAND };
+    // Every frame receives it; only the frame that owns the target acts, and it echoes
+    // commandId back so the outcome can be matched to this command.
+    sendCommand: (commandId: number, target: string, action: VideoAction) => {
+      const message = { action, commandId, target, type: MESSAGE_TYPES.INVENTORY_COMMAND };
       if (port) {
         port.postMessage(message);
       } else if (!closed) {

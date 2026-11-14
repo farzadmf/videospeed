@@ -8,6 +8,7 @@ import { Section } from './components/section';
 import { ShortcutsView } from './components/shortcuts-view';
 import { SpeedControls } from './components/speed-controls';
 import { VideoList } from './components/video-list';
+import { noticeForOutcome, useNotice } from './notice';
 import { HELP_KEY } from './shortcuts';
 import { useInventory } from './use-inventory';
 import { useSelection } from './use-selection';
@@ -33,10 +34,15 @@ function availabilityOf(status: VscStatus | null): Availability {
 
 export const App = () => {
   const { settings, setEnabled, setTheme } = useSettings();
-  const [status, setStatus] = useState('');
   const [probe, setProbe] = useState<VscStatus | null>(null);
   const [showHelp, setShowHelp] = useState(false);
-  const { sendCommand, settled, videos } = useInventory();
+  const { notice, show: showNotice } = useNotice();
+  const { sendCommand, settled, videos } = useInventory((outcome, label) => {
+    const next = noticeForOutcome(outcome, label);
+    if (next) {
+      showNotice(next);
+    }
+  });
   const selection = useSelection(videos, settled);
 
   useHotkey({ key: HELP_KEY, shift: true }, () => setShowHelp((v) => !v));
@@ -72,7 +78,12 @@ export const App = () => {
   const toggleEnabled = () => {
     const next = !settings.enabled;
     setEnabled(next);
-    setStatus(`${next ? 'Enabled' : 'Disabled'}. Reload page.`);
+    showNotice({
+      detail: 'Reload the page to apply',
+      persist: true,
+      title: next ? 'Enabled' : 'Disabled',
+      tone: 'info',
+    });
   };
 
   return (
@@ -125,10 +136,10 @@ export const App = () => {
 
       <Footer
         enabled={settings.enabled}
+        notice={notice}
         onCycleTheme={() => setTheme(nextTheme(settings.theme))}
         onToggleEnabled={toggleEnabled}
         showEnable={availability !== 'probing' && availability !== 'unreachable'}
-        status={status}
         theme={settings.theme}
       />
     </div>

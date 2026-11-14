@@ -277,10 +277,11 @@ export class MediaInventory {
    * Tell the popup how a command it sent turned out.
    * @param {Object} result
    * @param {{name: string, value?: number}} result.action - The action the popup sent
+   * @param {number} result.commandId - The id the popup sent with the command
    * @param {'applied'|'refused'|'unknown-target'} result.outcome
    * @param {string} result.target - The video id the popup sent
    */
-  sendOutcome({ action, outcome, target }) {
-    this.send({ action, kind: INVENTORY_KIND.OUTCOME, outcome, target });
+  sendOutcome({ action, commandId, outcome, target }) {
+    this.send({ action, commandId, kind: INVENTORY_KIND.OUTCOME, outcome, target });
   }
 }

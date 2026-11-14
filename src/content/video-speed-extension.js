@@ -208,9 +208,10 @@ export class VideoSpeedExtension {
    * Apply a popup command if it names one of this frame's videos, and report back.
    * @param {Object} command
    * @param {{name: string, value?: number}} command.action
+   * @param {number} command.commandId - Echoed back so the popup can match the outcome
    * @param {string} command.target - `<frameToken>:<controllerId>`
    */
-  async runCommand({ action, target }) {
+  async runCommand({ action, commandId, target }) {
     const resolved = resolveTarget(target);
     if (!resolved.mine || !this.actionHandler) {
       return;
@@ -223,7 +224,7 @@ export class VideoSpeedExtension {
       : (this.config.getActionByName(action.name) ?? action.name);
 
     const outcome = await this.actionHandler.runActionOnVideo({ actionItem, video: resolved.video });
-    this.mediaInventory?.sendOutcome({ action, outcome, target });
+    this.mediaInventory?.sendOutcome({ action, commandId, outcome, target });
   }
 
   /** Cross-frame coordinator: tracks which frames have controllers. */

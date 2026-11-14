@@ -96,7 +96,14 @@
 
     <section>
       <h2>5 and 6. Cross-origin frame, with another frame inside it</h2>
-      <iframe id="child-frame" title="Child frame" allow="autoplay"></iframe>
+      <p>
+        <button type="button" id="toggle-frame">Remove this frame</button>
+        Removes videos 5 and 6 together. A command to either of them then has no frame to answer it, which
+        is the popup's "Video is no longer on the page" case.
+      </p>
+      <div id="child-frame-slot">
+        <iframe id="child-frame" title="Child frame" allow="autoplay"></iframe>
+      </div>
     </section>
 
     <div class="spacer"></div>
@@ -180,7 +187,49 @@
       // 127.0.0.1 and localhost are different origins, so the frames are cross-origin
       // whichever of the two you open the page with.
       const otherHost = location.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
-      document.getElementById('child-frame').src = `${location.protocol}//${otherHost}:${location.port}/frame.html`;
+      const childFrameSrc = `${location.protocol}//${otherHost}:${location.port}/frame.html`;
+      document.getElementById('child-frame').src = childFrameSrc;
+
+      // Removing the frame drops both of its videos at once, the case where no frame
+      // is left to answer a popup command. The delay gives time to open the popup,
+      // because clicking the page closes it.
+      const REMOVE_DELAY_S = 5;
+      const frameSlot = document.getElementById('child-frame-slot');
+      const toggleFrame = document.getElementById('toggle-frame');
+      let countdown = null;
+
+      toggleFrame.addEventListener('click', () => {
+        const frame = document.getElementById('child-frame');
+        if (countdown) {
+          return;
+        }
+
+        if (frame) {
+          let left = REMOVE_DELAY_S;
+          toggleFrame.textContent = `Removing in ${left} s`;
+          countdown = setInterval(() => {
+            left -= 1;
+            if (left > 0) {
+              toggleFrame.textContent = `Removing in ${left} s`;
+              return;
+            }
+
+            clearInterval(countdown);
+            countdown = null;
+            frame.remove();
+            toggleFrame.textContent = 'Put this frame back';
+          }, 1000);
+          return;
+        }
+
+        const restored = document.createElement('iframe');
+        restored.id = 'child-frame';
+        restored.title = 'Child frame';
+        restored.allow = 'autoplay';
+        restored.src = childFrameSrc;
+        frameSlot.append(restored);
+        toggleFrame.textContent = 'Remove this frame';
+      });
     </script>
   </body>
 </html>
