@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import { nextTheme } from '../theme';
 import { VscStatus, getStatus } from './chrome-api';
 import { Footer } from './components/footer';
+import { Section } from './components/section';
 import { ShortcutsView } from './components/shortcuts-view';
 import { SpeedControls } from './components/speed-controls';
+import { VideoList } from './components/video-list';
 import { HELP_KEY } from './shortcuts';
+import { useInventory } from './use-inventory';
+import { useSelection } from './use-selection';
 import { useSettings } from './use-settings';
 
 type Availability = 'probing' | 'unreachable' | 'disabled' | 'no-video' | 'active';
@@ -32,6 +36,8 @@ export const App = () => {
   const [status, setStatus] = useState('');
   const [probe, setProbe] = useState<VscStatus | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const { settled, videos } = useInventory();
+  const selection = useSelection(videos, settled);
 
   useHotkey({ key: HELP_KEY, shift: true }, () => setShowHelp((v) => !v));
 
@@ -63,14 +69,31 @@ export const App = () => {
   };
 
   return (
-    <div className="bg-base-500 text-base-content w-80">
+    <div className="bg-base-500 text-base-content w-96">
       <div className="grid">
         {showHelp && <ShortcutsView onClose={() => setShowHelp(false)} />}
 
         {!showHelp && (
           <div className="col-start-1 row-start-1">
             {availability === 'active' && (
-              <SpeedControls slowerStep={settings.slowerStep} fasterStep={settings.fasterStep} />
+              <div className="flex flex-col gap-3 p-4">
+                {/* One video needs no choosing, so the list appears from two. */}
+                {videos.length >= 2 && (
+                  <Section title={`Videos (${videos.length})`}>
+                    <VideoList
+                      onSelect={selection.select}
+                      onSelectNext={selection.selectNext}
+                      onSelectPrevious={selection.selectPrevious}
+                      selectedId={selection.selected?.id}
+                      videos={videos}
+                    />
+                  </Section>
+                )}
+
+                <Section title="Controls">
+                  <SpeedControls fasterStep={settings.fasterStep} slowerStep={settings.slowerStep} />
+                </Section>
+              </div>
             )}
 
             {availability === 'probing' && <div className="text-base-content/60 p-4 text-sm">Checking…</div>}

@@ -22,17 +22,19 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 
 ## 4. Popup list and selection
 
-- [ ] 4.1 Add an inventory hook in the popup that opens the port, merges snapshots per frame (top frame first, then by first arrival), drops a frame silent for more than 5 s, and fills empty labels with "Video N". Verify: the popup shows eight entries on the test page, and deleting a video in DevTools removes its entry within 1 s.
-- [ ] 4.2 Show the video list when there are two or more videos, with label, playing state, speed, and an in-view or off-screen tag. With one video, show no list. Verify on the test page and on a single-video page.
-- [ ] 4.3 Apply the selection-on-open rule once after a 150 ms settle. Keep the selection while the popup is open, and re-run the rule when the selected video goes away. Verify each scenario of "Selection on open" and "Selection is stable while open" on the test page.
-- [ ] 4.4 Add `j`/`Down` and `k`/`Up` (wrapping) and row clicks to move the selection, and add the keys and `Enter` to `shortcuts.ts` and the help overlay. Verify: the keys move the selection through all eight videos, including off-screen ones, and the help lists them.
+- [x] 4.1 Add an inventory hook in the popup that opens the port, merges snapshots per frame (top frame first, then by first arrival), drops a frame silent for more than 5 s, and fills empty labels with "Video N". Verify: the popup shows eight entries on the test page, and deleting a video in DevTools removes its entry within 1 s.
+- [x] 4.2 Show the video list when there are two or more videos, with label, playing state, speed, and an in-view or off-screen tag. With one video, show no list. Verify on the test page and on a single-video page.
+- [x] 4.3 Apply the selection-on-open rule once after a 150 ms settle. Keep the selection while the popup is open, and re-run the rule when the selected video goes away. Verify each scenario of "Selection on open" and "Selection is stable while open" on the test page.
+- [x] 4.4 Add `j`/`Down` and `k`/`Up` (wrapping) and row clicks to move the selection, and add the keys to `shortcuts.ts` and the help overlay. Verify: the keys move the selection through all eight videos, including off-screen ones, and the help lists them.
 
 ## 5. Targeted actions and reveal
+
+Discuss before 5.2: VSC saves a speed per website (`getBaseURL()` returns the hostname), so a speed set on one video becomes the starting speed of every video on that site after a reload, and of any video that loads later. With several videos on a page, a targeted speed change from the popup might need to stay temporary instead of being saved. Decide whether and when it should save, and experiment before building it.
 
 - [ ] 5.1 Add a single-video entry point to `ActionHandler` that parses an action the same way `runAction` does, calls `executeAction` for one video, and returns an outcome of `applied`, `refused`, or `unknown-target`, awaiting the `play()` promise so a refusal is reported (D11). Verify: the build passes and the controller's own buttons still work.
 - [ ] 5.2 Handle targeted commands in MAIN (match the frame token, resolve the video by `controllerId`, call the entry point, post the outcome back), and make the popup send every action as a targeted command instead of a broadcast. Verify on the test page: with the second video selected, `2` sets only that video to 2.0x, and `Space` on an off-screen video toggles it without scrolling.
 - [ ] 5.3 Show a short message in the popup for any outcome other than `applied`, naming the video, and refresh the list on `unknown-target` (D11). Verify: with video 1 patched to refuse play by the test page button, `Space` on it shows the blocked message, and acting on a video removed in DevTools says it is gone and drops it from the list.
-- [ ] 5.4 Add the reveal message to `src/coordination/` and walk the parent chain (D8): the video's frame scrolls the video and asks its parent, and each parent resolves the asking child's `<iframe>` by `contentWindow === event.source`, scrolls it, and asks its own parent. Verify on the test page: `Enter` brings an off-screen document video, the cross-origin frame's video, and the two-frames-deep video into view, and the selection does not change.
+- [ ] 5.4 Add the reveal message to `src/coordination/` and walk the parent chain (D8), and add `Enter` to `shortcuts.ts` and the help overlay: the video's frame scrolls the video and asks its parent, and each parent resolves the asking child's `<iframe>` by `contentWindow === event.source`, scrolls it, and asks its own parent. Verify on the test page: `Enter` brings an off-screen document video, the cross-origin frame's video, and the two-frames-deep video into view, and the selection does not change.
 
 ## 6. Flash
 

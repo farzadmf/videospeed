@@ -30,7 +30,7 @@ export const SpeedControls = ({ fasterStep, slowerStep }: Props) => {
   const shiftHeld = useShiftOnly();
 
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3">
       <div className="flex items-stretch gap-1">
         <HotkeyButton
           className="btn btn-primary btn-sm h-auto px-1"

@@ -21,6 +21,10 @@ export const FASTER_KEY = '=';
 export const HELP_KEY = '/';
 export const PLAY_PAUSE_KEY = 'Space';
 export const REWIND_KEY = 'ArrowLeft';
+export const SELECT_NEXT_ARROW = 'ArrowDown';
+export const SELECT_NEXT_KEY = 'J';
+export const SELECT_PREVIOUS_ARROW = 'ArrowUp';
+export const SELECT_PREVIOUS_KEY = 'K';
 export const SLOWER_KEY = '-';
 
 // Rows shown in the help overlay. Single keys are formatted via the library so
@@ -33,5 +37,7 @@ export const HELP_ROWS = [
   { desc: 'Play / pause', keys: label(PLAY_PAUSE_KEY) },
   { desc: 'Rewind', keys: label(REWIND_KEY) },
   { desc: 'Advance', keys: label(ADVANCE_KEY) },
+  { desc: 'Select next video', keys: `${label(SELECT_NEXT_KEY)} / ${label(SELECT_NEXT_ARROW)}` },
+  { desc: 'Select previous video', keys: `${label(SELECT_PREVIOUS_KEY)} / ${label(SELECT_PREVIOUS_ARROW)}` },
   { desc: 'Toggle this help', keys: label(`Shift+${HELP_KEY}`) },
 ];
