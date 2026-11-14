@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { FrameSnapshot, MediaEntry, connectInventory } from './chrome-api';
+import { CommandOutcome, FrameSnapshot, MediaEntry, VideoAction, connectInventory } from './chrome-api';
 
 // A frame heartbeats every 1 s. A page can remove a frame without it saying goodbye,
 // so a frame silent this long is dropped; the margin covers a slow heartbeat.
@@ -43,21 +43,30 @@ function mergeFrames(frames: Map<string, FrameState>): VideoItem[] {
 
 /**
  * The page's videos across every frame, live while the popup is open.
- * @returns the merged list, and whether the first snapshots have had time to arrive
+ * @returns the merged list, whether the first snapshots have had time to arrive, the
+ *   outcome of the last command, and a way to send a command to one video
  */
-export function useInventory(): { settled: boolean; videos: VideoItem[] } {
+export function useInventory() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [settled, setSettled] = useState(false);
+  const [lastOutcome, setLastOutcome] = useState<CommandOutcome | undefined>();
+
+  // Created with the port in the effect; a ref keeps sendCommand stable across renders.
+  const send = useRef<(target: string, action: VideoAction) => void>(() => {});
 
   useEffect(() => {
     const frames = new Map<string, FrameState>();
 
     const publish = () => setVideos(mergeFrames(frames));
 
-    const disconnect = connectInventory((snapshot) => {
-      frames.set(snapshot.frameToken, { lastSeen: Date.now(), snapshot });
-      publish();
+    const { close: disconnect, sendCommand } = connectInventory({
+      onOutcome: setLastOutcome,
+      onSnapshot: (snapshot) => {
+        frames.set(snapshot.frameToken, { lastSeen: Date.now(), snapshot });
+        publish();
+      },
     });
+    send.current = sendCommand;
 
     const prune = setInterval(() => {
       const cutoff = Date.now() - FRAME_TIMEOUT_MS;
@@ -84,5 +93,7 @@ export function useInventory(): { settled: boolean; videos: VideoItem[] } {
     };
   }, []);
 
-  return { settled, videos };
+  const sendCommand = useCallback((target: string, action: VideoAction) => send.current(target, action), []);
+
+  return { lastOutcome, sendCommand, settled, videos };
 }

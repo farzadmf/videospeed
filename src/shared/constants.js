@@ -28,6 +28,7 @@ export const MESSAGE_TYPES = {
   TOGGLE_DISPLAY: 'VSC_TOGGLE_DISPLAY',
   TEARDOWN: 'VSC_TEARDOWN',
   STATUS: 'VSC_STATUS',
+  INVENTORY_COMMAND: 'VSC_INVENTORY_COMMAND',
   INVENTORY_START: 'VSC_INVENTORY_START',
   INVENTORY_STOP: 'VSC_INVENTORY_STOP',
   SET_SITE_SPEED: 'VSC_SET_SITE_SPEED',
@@ -39,6 +40,14 @@ export const INVENTORY_PORT = 'vsc-inventory';
 
 // MAIN dispatches this on document.documentElement; the bridge relays it to the port.
 export const INVENTORY_EVENT = 'VSC_INVENTORY';
+
+// What a frame posts on the inventory port. The JSDoc type keeps the literal values,
+// so the popup's TypeScript can tell the two message shapes apart.
+/** @type {{ OUTCOME: 'outcome', SNAPSHOT: 'snapshot' }} */
+export const INVENTORY_KIND = {
+  OUTCOME: 'outcome',
+  SNAPSHOT: 'snapshot',
+};
 
 export const SPEED_LIMITS = {
   MIN: 0.07, // Video min rate per Chromium source

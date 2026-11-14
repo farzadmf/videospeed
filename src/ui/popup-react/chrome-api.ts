@@ -1,4 +1,4 @@
-import { INVENTORY_PORT, MESSAGE_TYPES } from '@shared/constants';
+import { INVENTORY_KIND, INVENTORY_PORT, MESSAGE_TYPES } from '@shared/constants';
 
 function sendToActiveTab(message: unknown) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -32,18 +32,40 @@ export type FrameSnapshot = {
   entries: MediaEntry[];
   frameToken: string;
   isTop: boolean;
+  kind: typeof INVENTORY_KIND.SNAPSHOT;
   url: string;
+};
+
+export type CommandOutcome = {
+  action: VideoAction;
+  kind: typeof INVENTORY_KIND.OUTCOME;
+  outcome: 'applied' | 'refused' | 'unknown-target';
+  target: string;
+};
+
+/** A popup action, named the way the page's action handler names it. */
+export type VideoAction = {
+  name: string;
+  value?: number;
+};
+
+type InventoryHandlers = {
+  onOutcome: (outcome: CommandOutcome) => void;
+  onSnapshot: (snapshot: FrameSnapshot) => void;
 };
 
 /**
  * Open the inventory port to every frame of the active tab. Chrome fans one port out
  * to all of them, and closing the popup disconnects it, which stops their reporting.
- * @param onSnapshot - called with each frame's snapshot
- * @returns a function that closes the port
+ * @returns `close` to close the port, and `sendCommand` to act on one video
  */
-export function connectInventory(onSnapshot: (snapshot: FrameSnapshot) => void): () => void {
+export function connectInventory({ onOutcome, onSnapshot }: InventoryHandlers) {
   let port: chrome.runtime.Port | undefined;
   let closed = false;
+
+  // A key pressed in the moment between the popup opening and the port existing
+  // would otherwise be lost.
+  const pending: unknown[] = [];
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tabId = tabs[0]?.id;
@@ -52,17 +74,39 @@ export function connectInventory(onSnapshot: (snapshot: FrameSnapshot) => void):
     }
 
     port = chrome.tabs.connect(tabId, { name: INVENTORY_PORT });
-    port.onMessage.addListener((snapshot: FrameSnapshot) => onSnapshot(snapshot));
+    port.onMessage.addListener((message: CommandOutcome | FrameSnapshot) => {
+      if (message.kind === INVENTORY_KIND.OUTCOME) {
+        onOutcome(message);
+      } else {
+        onSnapshot(message);
+      }
+    });
 
     // A page with no content script never answers; nothing to do but stop listening.
     port.onDisconnect.addListener(() => {
       port = undefined;
     });
+
+    for (const message of pending.splice(0)) {
+      port.postMessage(message);
+    }
   });
 
-  return () => {
-    closed = true;
-    port?.disconnect();
+  return {
+    close: () => {
+      closed = true;
+      port?.disconnect();
+    },
+
+    // Every frame receives it; only the frame that owns the target acts.
+    sendCommand: (target: string, action: VideoAction) => {
+      const message = { action, target, type: MESSAGE_TYPES.INVENTORY_COMMAND };
+      if (port) {
+        port.postMessage(message);
+      } else if (!closed) {
+        pending.push(message);
+      }
+    },
   };
 }
 

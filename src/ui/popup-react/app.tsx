@@ -2,7 +2,7 @@ import { useHotkey } from '@tanstack/react-hotkeys';
 import { useEffect, useState } from 'react';
 
 import { nextTheme } from '../theme';
-import { VscStatus, getStatus } from './chrome-api';
+import { VideoAction, VscStatus, getStatus } from './chrome-api';
 import { Footer } from './components/footer';
 import { Section } from './components/section';
 import { ShortcutsView } from './components/shortcuts-view';
@@ -36,10 +36,17 @@ export const App = () => {
   const [status, setStatus] = useState('');
   const [probe, setProbe] = useState<VscStatus | null>(null);
   const [showHelp, setShowHelp] = useState(false);
-  const { settled, videos } = useInventory();
+  const { sendCommand, settled, videos } = useInventory();
   const selection = useSelection(videos, settled);
 
   useHotkey({ key: HELP_KEY, shift: true }, () => setShowHelp((v) => !v));
+
+  // Every action goes to the selected video only, never to the rest of the page.
+  const actOnSelected = (action: VideoAction) => {
+    if (selection.selected) {
+      sendCommand(selection.selected.id, action);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -90,7 +97,11 @@ export const App = () => {
                 )}
 
                 <Section title="Controls">
-                  <SpeedControls fasterStep={settings.fasterStep} slowerStep={settings.slowerStep} />
+                  <SpeedControls
+                    fasterStep={settings.fasterStep}
+                    onAction={actOnSelected}
+                    slowerStep={settings.slowerStep}
+                  />
                 </Section>
               </div>
             )}

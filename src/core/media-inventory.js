@@ -5,6 +5,7 @@
  * whole snapshots rather than deltas, which removes any ordering or lost-message
  * problem, and a frame holds few videos so a snapshot stays small.
  */
+import { INVENTORY_KIND } from '../shared/constants.js';
 import { logger } from '../utils/logger.js';
 import { stateManager } from './state-manager.js';
 
@@ -94,6 +95,21 @@ function labelFor(video, onlyVideoInFrame) {
   }
 
   return '';
+}
+
+/**
+ * The video a popup command names, when this frame owns it. Every frame receives every
+ * command on the shared port, so a target from another frame is not this frame's to act on.
+ * @param {string} target - `<frameToken>:<controllerId>`
+ * @returns {{mine: false} | {mine: true, video: HTMLMediaElement|null}}
+ */
+export function resolveTarget(target) {
+  const split = target.indexOf(':');
+  if (split < 0 || target.slice(0, split) !== FRAME_TOKEN) {
+    return { mine: false };
+  }
+
+  return { mine: true, video: stateManager.getMediaByControllerId(target.slice(split + 1)) };
 }
 
 export class MediaInventory {
@@ -252,7 +268,19 @@ export class MediaInventory {
       entries,
       frameToken: FRAME_TOKEN,
       isTop: window === window.top,
+      kind: INVENTORY_KIND.SNAPSHOT,
       url: location.href,
     };
+  }
+
+  /**
+   * Tell the popup how a command it sent turned out.
+   * @param {Object} result
+   * @param {{name: string, value?: number}} result.action - The action the popup sent
+   * @param {'applied'|'refused'|'unknown-target'} result.outcome
+   * @param {string} result.target - The video id the popup sent
+   */
+  sendOutcome({ action, outcome, target }) {
+    this.send({ action, kind: INVENTORY_KIND.OUTCOME, outcome, target });
   }
 }

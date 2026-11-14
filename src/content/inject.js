@@ -35,6 +35,10 @@ import { VideoSpeedExtension } from './video-speed-extension.js';
         );
         break;
 
+      case MESSAGE_TYPES.INVENTORY_COMMAND:
+        extension.runCommand(message);
+        break;
+
       case MESSAGE_TYPES.INVENTORY_START:
         extension.startInventory();
         break;

@@ -14,6 +14,23 @@ import { getBaseURL } from '../utils/url.js';
 
 window.VSC = window.VSC || {};
 
+/**
+ * @param {string|Object} actionItem - A built-in action name (blink, drag, ...) with no
+ *   binding, or a key binding with its action and values
+ * @returns {{actionName: string, value: *, value2: *}}
+ */
+function parseActionItem(actionItem) {
+  if (typeof actionItem === 'string') {
+    return { actionName: actionItem, value: undefined, value2: undefined };
+  }
+
+  return {
+    actionName: actionItem.action.name,
+    value: actionItem.value || actionItem.action.value,
+    value2: actionItem.value2 || actionItem.action.value2,
+  };
+}
+
 export class ActionHandler {
   /**
    * @param {VideoSpeedConfig} config - Config handler
@@ -36,17 +53,7 @@ export class ActionHandler {
 
     const mediaTags = stateManager.getControlledElements();
 
-    let value, value2;
-    let actionName = '';
-    if (typeof actionItem === 'string') {
-      // For "built-in" actions (such as blink, drag etc.) that have no
-      // binding, setting, key, etc.
-      actionName = actionItem;
-    } else {
-      actionName = actionItem.action.name;
-      value = actionItem.value || actionItem.action.value;
-      value2 = actionItem.value2 || actionItem.action.value2;
-    }
+    const { actionName, value, value2 } = parseActionItem(actionItem);
 
     if (actionName === 'drag') {
       const draggable = event.target.closest('.draggable');
@@ -94,6 +101,37 @@ export class ActionHandler {
     logger.debug('runAction End');
 
     return result;
+  }
+
+  /**
+   * Run one action on one named video, for a popup command. Unlike runAction it never
+   * moves on to another video, and it reports whether the action took effect.
+   * @param {Object} options
+   * @param {string|Object} options.actionItem - As for runAction
+   * @param {HTMLMediaElement|null} options.video - The target, or null when it is gone
+   * @returns {Promise<'applied'|'refused'|'unknown-target'>}
+   */
+  async runActionOnVideo({ actionItem, video }) {
+    if (!video?.isConnected || !video.vsc) {
+      return 'unknown-target';
+    }
+
+    // runAction skips these too: a video with no source cannot play or change speed.
+    if ((!video.currentSrc && !video.src) || video.classList.contains('vsc-cancelled')) {
+      return 'refused';
+    }
+
+    const { actionName, value, value2 } = parseActionItem(actionItem);
+
+    try {
+      // Play returns a promise the autoplay policy can reject; awaiting it is the
+      // only way to know the video actually started.
+      const result = await this.executeAction({ actionName, value, value2, video });
+      return result === false ? 'refused' : 'applied';
+    } catch (error) {
+      logger.debug(`[runActionOnVideo] ${actionName} refused: ${error.message}`);
+      return 'refused';
+    }
   }
 
   /**
@@ -195,8 +233,7 @@ export class ActionHandler {
       }
 
       case 'pause':
-        this.pause(video);
-        return true;
+        return this.pause(video) ?? true;
 
       case 'muted':
         this.muted(video);
@@ -344,14 +381,18 @@ export class ActionHandler {
    * Toggle pause/play
    * @param {HTMLMediaElement} video - Video element
    */
+  /**
+   * @returns {Promise<void>|undefined} play()'s promise when resuming, which the browser
+   *   rejects if its autoplay policy refuses playback
+   */
   pause(video) {
     if (video.paused) {
       logger.debug('Resuming video');
-      video.play();
-    } else {
-      logger.debug('Pausing video');
-      video.pause();
+      return video.play();
     }
+
+    logger.debug('Pausing video');
+    video.pause();
   }
 
   /**

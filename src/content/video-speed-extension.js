@@ -5,7 +5,7 @@
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
 import { ActionHandler } from '../core/action-handler.js';
 import { config } from '../core/config.js';
-import { MediaInventory } from '../core/media-inventory.js';
+import { MediaInventory, resolveTarget } from '../core/media-inventory.js';
 import { stateManager } from '../core/state-manager.js';
 import { VideoController } from '../core/video-controller.js';
 import { MediaElementObserver } from '../observers/media-observer.js';
@@ -15,6 +15,9 @@ import { SiteHandlerManager } from '../site-handlers/manager.js';
 import * as dom from '../utils/dom-utils.js';
 import { EventManager } from '../utils/event-manager.js';
 import { logger } from '../utils/logger.js';
+
+// Popup commands that carry their own value rather than reading a key binding.
+const SPEED_ACTIONS = new Set(['ADJUST_SPEED', 'SET_SPEED']);
 
 /**
  * Whether the top frame can walk the DOM down into this frame.
@@ -199,6 +202,28 @@ export class VideoSpeedExtension {
 
   stopInventory() {
     this.mediaInventory?.stop();
+  }
+
+  /**
+   * Apply a popup command if it names one of this frame's videos, and report back.
+   * @param {Object} command
+   * @param {{name: string, value?: number}} command.action
+   * @param {string} command.target - `<frameToken>:<controllerId>`
+   */
+  async runCommand({ action, target }) {
+    const resolved = resolveTarget(target);
+    if (!resolved.mine || !this.actionHandler) {
+      return;
+    }
+
+    // Speed actions carry their value; the rest use the user's key binding, which holds
+    // settings such as how far rewind and advance seek.
+    const actionItem = SPEED_ACTIONS.has(action.name)
+      ? { action: { name: action.name }, value: action.value }
+      : (this.config.getActionByName(action.name) ?? action.name);
+
+    const outcome = await this.actionHandler.runActionOnVideo({ actionItem, video: resolved.video });
+    this.mediaInventory?.sendOutcome({ action, outcome, target });
   }
 
   /** Cross-frame coordinator: tracks which frames have controllers. */
