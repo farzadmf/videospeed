@@ -1,5 +1,6 @@
 import { formatSpeed } from '../shared/constants.js';
 import { ControlsManager } from '../ui/controls-manager.js';
+import { FlashRing } from '../ui/flash-ring.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
 import { logger } from '../utils/logger.js';
 import { getBaseURL } from '../utils/url.js';
@@ -39,6 +40,8 @@ export class VideoController {
     this.titleObserver = null;
     this.isInternalTitleUpdate = false;
     this.controllerDiv = null;
+    // Null when anchor positioning is off: the ring has no anchor to follow.
+    this.flashRing = null;
 
     this.scrollListener = null;
     this.resizeListener = null;
@@ -284,6 +287,7 @@ export class VideoController {
     // The host always carries exactly one mode marker, so you can tell which is active.
     if (this.shadowManager.anchorPositioning && this.shadowManager.enableAnchorPositioning(this.wrapperDiv)) {
       this.wrapperDiv.classList.add('vsc-anchored');
+      this.flashRing = new FlashRing(this.video, this.shadowManager.anchorName, this.config.settings.flashRing);
     } else {
       this.shadowManager.anchorPositioning = false;
       this.wrapperDiv.classList.add('vsc-js-positioned');
@@ -607,6 +611,11 @@ export class VideoController {
     this.videoResizeObserver = null;
   }
 
+  /** Show which video an action reached. */
+  flash() {
+    this.flashRing?.flash();
+  }
+
   /**
    * Remove controller and clean up
    */
@@ -615,6 +624,7 @@ export class VideoController {
 
     // Remove DOM element
     this.wrapperDiv?.remove();
+    this.flashRing?.remove();
 
     this.shadowManager.disableAnchorPositioning();
 

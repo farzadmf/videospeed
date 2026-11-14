@@ -26,6 +26,8 @@ export const VSC_DEFAULTS = {
   defaultLogLevel: LOG_LEVELS.INFO,
   enabled: true,
   exclusiveKeys: true,
+  // The ring that shows which video a popup action reached
+  flashRing: { color: '#4ea1ff', width: 5 },
   forceLastSavedSpeed: true,
   // Key that enters leader mode. Same shape as a keyBindings entry's key part:
   // a physical `code` plus optional modifier flags.

@@ -101,7 +101,7 @@ async function build() {
           // shadow root, rather than emitted as files like the CSS entry points.
           name: 'css-as-text',
           setup(build) {
-            build.onLoad({ filter: /shadow_new\.css$/ }, async (args) => {
+            build.onLoad({ filter: /(shadow_new|flash_ring)\.css$/ }, async (args) => {
               const contents = await fs.readFile(args.path, 'utf8');
               return { contents, loader: 'text' };
             });

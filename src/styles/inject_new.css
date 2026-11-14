@@ -4,6 +4,10 @@ vsc-controller:not(:defined) {
   visibility: var(--visibility, visible) !important;
 }
 
+vsc-flash:not(:defined) {
+  visibility: visible !important;
+}
+
 .vsc-nosource {
   display: none !important;
 }

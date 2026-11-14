@@ -3,7 +3,7 @@
  * Owns initialization, media scanning, observers, and teardown.
  */
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
-import { revealElement } from '../coordination/reveal.js';
+import { revealElement, whenInView } from '../coordination/reveal.js';
 import { ActionHandler } from '../core/action-handler.js';
 import { config } from '../core/config.js';
 import { MediaInventory, resolveTarget } from '../core/media-inventory.js';
@@ -20,8 +20,18 @@ import { logger } from '../utils/logger.js';
 // Popup commands that carry their own value rather than reading a key binding.
 const SPEED_ACTIONS = new Set(['ADJUST_SPEED', 'SET_SPEED']);
 
-// Not an ActionHandler action: it scrolls the page, not the video.
-const REVEAL_ACTION = 'reveal';
+const REVEAL_FLASH_TIMEOUT_MS = 1000;
+
+// Popup commands that act on the page around a video, not on its playback, so they
+// bypass ActionHandler.
+const PAGE_ACTIONS = {
+  flash: (video) => video.vsc?.flash(),
+  reveal: async (video) => {
+    revealElement(video);
+    await whenInView(video, REVEAL_FLASH_TIMEOUT_MS);
+    video.vsc?.flash();
+  },
+};
 
 /**
  * Whether the top frame can walk the DOM down into this frame.
@@ -221,10 +231,11 @@ export class VideoSpeedExtension {
       return;
     }
 
-    if (action.name === REVEAL_ACTION) {
+    const pageAction = Object.hasOwn(PAGE_ACTIONS, action.name) && PAGE_ACTIONS[action.name];
+    if (pageAction) {
       const outcome = resolved.video?.isConnected ? 'applied' : 'unknown-target';
       if (outcome === 'applied') {
-        revealElement(resolved.video);
+        pageAction(resolved.video);
       }
 
       this.mediaInventory?.sendOutcome({ action, commandId, outcome, target });
@@ -238,6 +249,10 @@ export class VideoSpeedExtension {
       : (this.config.getActionByName(action.name) ?? action.name);
 
     const outcome = await this.actionHandler.runActionOnVideo({ actionItem, video: resolved.video });
+    if (outcome === 'applied') {
+      resolved.video.vsc?.flash();
+    }
+
     this.mediaInventory?.sendOutcome({ action, commandId, outcome, target });
   }
 

@@ -56,6 +56,15 @@ export const App = () => {
 
   useHotkey({ key: REVEAL_KEY }, () => actOnSelected({ name: 'reveal' }));
 
+  // Flash the video the popup opened on, and each video the selection moves to, so the
+  // user sees which video the keys reach. Before settling the selection can still move.
+  const selectedId = selection.selected?.id;
+  useEffect(() => {
+    if (settled && selectedId) {
+      sendCommand(selectedId, { name: 'flash' });
+    }
+  }, [selectedId, sendCommand, settled]);
+
   useEffect(() => {
     let cancelled = false;
 

@@ -63,6 +63,34 @@ export function revealElement(element) {
 }
 
 /**
+ * Resolves once half of element shows, or after timeoutMs. The frames above it scroll
+ * after this frame does, one message per level, so the element is not in view at once.
+ * @param {Element} element
+ * @param {number} timeoutMs - For an element too large to ever show by half
+ * @returns {Promise<void>}
+ */
+export function whenInView(element, timeoutMs) {
+  return new Promise((resolve) => {
+    const done = () => {
+      observer.disconnect();
+      clearTimeout(timer);
+      resolve();
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.intersectionRatio >= 0.5)) {
+          done();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    const timer = setTimeout(done, timeoutMs);
+    observer.observe(element);
+  });
+}
+
+/**
  * A child frame asks to show `rect`, given in the child's viewport.
  * @param {MessageEvent} event
  */

@@ -41,7 +41,7 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 
 ## 6. Flash
 
-- [ ] 6.1 Add the ring element (D9): one per controller, in the video's tree, anchored to the video's anchor name, with its own shadow root and no pointer events, removed with the controller. Verify: the ring covers the video exactly, follows it on scroll, and clicks pass through to the video.
+- [x] 6.1 Add the ring element (D9): one per controller, in the video's tree, anchored to the video's anchor name, with its own shadow root and no pointer events, removed with the controller. Verify: the ring covers the video exactly, follows it on scroll, and clicks pass through to the video.
 - [ ] 6.2 Add the controller pulse, and run the ring and the pulse with the Web Animations API on one shared 600 ms constant. Show the success flash on an `applied` outcome, when the selection moves, when the popup opens, and once the revealed video is in view (or after 1 s). Verify each action-feedback scenario on the test page, including fast repeated presses and startHidden (ring shows, controller stays hidden).
 - [ ] 6.3 Add the failure flash: two ring blips in a warning colour within the same 600 ms (D11), shown on a `refused` outcome. Verify on the test page: press the "Make this video refuse play()" button under video 1, then `Space` on it shows the failure flash, and a screenshot with colour removed still tells it apart from the success flash by its repeat.
 - [ ] 6.4 Delete the two dead `video.vsc.div` feedback calls in `src/core/action-handler.js` (D12). Verify: `grep -n "vsc?\.div\|vsc\.div" src/` returns nothing and the build passes.

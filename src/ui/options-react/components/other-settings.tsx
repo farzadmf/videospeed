@@ -104,6 +104,30 @@ export const OtherSettings = ({ settings, update }: Props) => (
       value={settings.controllerButtonSize}
       onChange={(v) => update({ controllerButtonSize: Number(v) })}
     />
+    <div className="pt-1.5">
+      <span className="text-base">Flash ring</span>
+      <br />
+      <em className="text-base-content/70 text-base">Shows which video a popup action reached</em>
+    </div>
+    <label className="flex items-center gap-3 py-1.5">
+      <span className="w-56 pl-4 text-base">Colour</span>
+      <input
+        className="h-10 w-16 cursor-pointer"
+        type="color"
+        value={settings.flashRing.color}
+        onChange={(e) => update({ flashRing: { ...settings.flashRing, color: e.target.value } })}
+      />
+    </label>
+    <label className="flex items-center gap-3 py-1.5">
+      <span className="w-56 pl-4 text-base">Width (px)</span>
+      <input
+        className="input input-bordered flex-1"
+        min={1}
+        type="number"
+        value={settings.flashRing.width}
+        onChange={(e) => update({ flashRing: { ...settings.flashRing, width: Number(e.target.value) } })}
+      />
+    </label>
     <SelectField
       label="Log level"
       value={settings.logLevel}

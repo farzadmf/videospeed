@@ -82,6 +82,10 @@ export class VideoSpeedConfig {
       this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
       this.settings.controllerOpacity = Number(storage.controllerOpacity);
       this.settings.exclusiveKeys = Boolean(storage.exclusiveKeys);
+      this.settings.flashRing = {
+        color: storage.flashRing?.color || VSC_DEFAULTS.flashRing.color,
+        width: Number(storage.flashRing?.width) || VSC_DEFAULTS.flashRing.width,
+      };
       this.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
       this.settings.logLevel = Number(storage.logLevel || VSC_DEFAULTS.logLevel);
       this.settings.rememberSpeed = Boolean(storage.rememberSpeed);

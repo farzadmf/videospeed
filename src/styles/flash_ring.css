@@ -1,0 +1,14 @@
+/* The host's position and size come from inline anchor styles; this sheet only draws. */
+:host {
+  all: initial;
+  pointer-events: none;
+}
+
+.ring {
+  border: var(--vsc-flash-width) solid var(--vsc-flash-color);
+  border-radius: 6px;
+  box-sizing: border-box;
+  height: 100%;
+  opacity: 0;
+  width: 100%;
+}
