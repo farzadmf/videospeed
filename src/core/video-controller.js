@@ -88,7 +88,10 @@ export class VideoController {
       video: target,
     });
 
-    this.speed = 0;
+    // This video's own speed for the page visit: where it started, then the last speed
+    // a speed action set. Play, seek, and site rate resets restore this rather than the
+    // site's saved speed, so one video's change does not leak into the others.
+    this.sessionSpeed = undefined;
     this.volume = 0;
 
     // Generate unique controller ID for badge tracking
@@ -123,7 +126,7 @@ export class VideoController {
   initializeSpeed() {
     const targetSpeed = this.getTargetSpeed();
 
-    this.speed = targetSpeed;
+    this.sessionSpeed = targetSpeed;
 
     // Just making sure?!
     this.video.playbackRate = targetSpeed;
@@ -142,6 +145,7 @@ export class VideoController {
         }
 
         const deferredSpeed = this.getTargetSpeed();
+        this.sessionSpeed = deferredSpeed;
         if (deferredSpeed !== this.video.playbackRate) {
           this.actionHandler.adjustSpeed(this.video, deferredSpeed, { source: 'internal' });
         }
@@ -372,7 +376,7 @@ export class VideoController {
    */
   setupEventHandlers() {
     const mediaEventAction = (event) => {
-      const targetSpeed = this.getTargetSpeed(event.target);
+      const targetSpeed = this.sessionSpeed ?? this.getTargetSpeed(event.target);
 
       // Lifecycle restore, not a user choice — don't persist to lastSpeed.
       logger.info(`Media event ${event.type}: restoring speed to ${targetSpeed}`);

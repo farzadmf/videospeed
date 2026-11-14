@@ -392,9 +392,11 @@ export class EventManager {
       return false;
     }
 
-    // Upward only: a drop toward 1.0 is the site resetting us, not a boost.
+    // Upward only: a drop toward 1.0 is the site resetting us, not a boost. Compare with
+    // this video's own speed: the site's saved speed may belong to another video.
     const url = getBaseURL(video.currentSrc || video.src);
-    return video.playbackRate > (this.config.settings.sources[url]?.speed || 1);
+    const ownSpeed = video.vsc?.sessionSpeed ?? (this.config.settings.sources[url]?.speed || 1);
+    return video.playbackRate > ownSpeed;
   }
 
   /**

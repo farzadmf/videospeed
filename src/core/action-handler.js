@@ -283,8 +283,10 @@ export class ActionHandler {
 
       let targetSpeed;
       if (value === undefined || source === 'external') {
-        targetSpeed = savedSpeed;
-        logger.debug('[adjustSpeed]', 'using saved speed (undefined value or external source)');
+        // Restore this video's own speed: the site's saved speed may come from another
+        // video on the page.
+        targetSpeed = video.vsc?.sessionSpeed ?? savedSpeed;
+        logger.debug('[adjustSpeed]', 'restoring session speed (undefined value or external source)');
       } else {
         if (relative) {
           const currentSpeed = video.playbackRate < 0.1 ? 0.0 : video.playbackRate;
@@ -312,6 +314,10 @@ export class ActionHandler {
 
       // Only update speed when we manually change it using an action
       if (source === 'action-handler') {
+        if (video.vsc) {
+          video.vsc.sessionSpeed = numericSpeed;
+        }
+
         logger.debug('[adjustSeped]', 'source is action-handler; saving', numericSpeed, 'for url', url);
 
         this.config.syncSpeedValue({
