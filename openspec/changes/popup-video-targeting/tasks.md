@@ -16,9 +16,9 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 
 ## 3. In view, labels, and order
 
-- [ ] 3.1 Track in view and visible area with an IntersectionObserver against the implicit root (D3), created on connect and removed on disconnect, and include both values in each entry. Verify on the test page: hiding the scroll-container video reports not in view, and scrolling the iframe off the page reports its video not in view.
-- [ ] 3.2 Derive labels in the D4 order (title or aria-label, then figcaption, then the frame title for a single-video non-top frame). Verify on the test page: each video shows the label its markup provides, and an unlabeled video sends an empty label.
-- [ ] 3.3 Sort each snapshot in flat-tree document order. Verify on the test page: the shadow-root video appears between the videos around it.
+- [x] 3.1 Track in view and visible area with an IntersectionObserver against the implicit root (D3), created on connect and removed on disconnect, and include both values in each entry. Verify on the test page: hiding the scroll-container video reports not in view, and scrolling the iframe off the page reports its video not in view.
+- [x] 3.2 Derive labels in the D4 order (title or aria-label, then figcaption, then the frame title for a single-video non-top frame). Verify on the test page: each video shows the label its markup provides, and an unlabeled video sends an empty label.
+- [x] 3.3 Sort each snapshot in flat-tree document order. Verify on the test page: the shadow-root video appears between the videos around it.
 
 ## 4. Popup list and selection
 

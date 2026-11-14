@@ -11,6 +11,11 @@ import { stateManager } from './state-manager.js';
 const DEBOUNCE_MS = 100;
 const HEARTBEAT_MS = 1000;
 
+// A video counts as in view from this share of its area. Thresholds below it only
+// make visible area finer for choosing the most visible video.
+const IN_VIEW_RATIO = 0.1;
+const VISIBILITY_THRESHOLDS = [0, IN_VIEW_RATIO, 0.25, 0.5, 0.75, 1];
+
 // A frame cannot read its own Chrome frameId, so it makes its own id. Generated once
 // per frame load, so it stays the same while the popup opens and closes.
 const FRAME_TOKEN = Math.random().toString(36).slice(2, 10);
@@ -18,6 +23,78 @@ const FRAME_TOKEN = Math.random().toString(36).slice(2, 10);
 // Playback changes the popup shows. Media events do not cross a shadow boundary, so
 // these are bound per video rather than once on the document.
 const VIDEO_EVENTS = ['play', 'pause', 'ratechange'];
+
+/**
+ * The chain from an element out to the document: the element, then the host of each
+ * shadow root it sits in. The last item is in the document tree.
+ * @param {Element} element
+ * @returns {Element[]}
+ */
+function hostChain(element) {
+  const chain = [element];
+
+  let root = element.getRootNode();
+  while (root instanceof ShadowRoot) {
+    chain.push(root.host);
+    root = root.host.getRootNode();
+  }
+
+  return chain;
+}
+
+/**
+ * Sort order across shadow roots. compareDocumentPosition alone reports elements in
+ * different trees as disconnected, so this compares at the outermost tree where the
+ * two chains diverge, where both elements share a root.
+ * @returns {number}
+ */
+function compareFlatTreeOrder(a, b) {
+  const chainA = hostChain(a);
+  const chainB = hostChain(b);
+
+  let i = chainA.length - 1;
+  let j = chainB.length - 1;
+  while (i >= 0 && j >= 0 && chainA[i] === chainB[j]) {
+    i -= 1;
+    j -= 1;
+  }
+
+  if (i < 0 && j < 0) {
+    return 0;
+  }
+
+  // One element contains the other's shadow tree: the host comes first.
+  if (i < 0 || j < 0) {
+    return i < 0 ? -1 : 1;
+  }
+
+  return chainA[i].compareDocumentPosition(chainB[j]) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+}
+
+/**
+ * A label the page provides, or '' so the popup can fall back to a position.
+ * @param {HTMLMediaElement} video
+ * @param {boolean} onlyVideoInFrame
+ * @returns {string}
+ */
+function labelFor(video, onlyVideoInFrame) {
+  const own = (video.getAttribute('title') || video.getAttribute('aria-label') || '').trim();
+  if (own) {
+    return own;
+  }
+
+  const caption = video.closest('figure')?.querySelector('figcaption')?.textContent?.trim();
+  if (caption) {
+    return caption;
+  }
+
+  // An embedded player's frame usually exists for that one video and carries its name.
+  if (window !== window.top && onlyVideoInFrame) {
+    return document.title.trim();
+  }
+
+  return '';
+}
 
 export class MediaInventory {
   /**
@@ -32,6 +109,10 @@ export class MediaInventory {
     this.heartbeatTimer = null;
     this.unsubscribe = null;
     this.videoEventAbort = null;
+
+    this.visibilityObserver = null;
+    /** @type {WeakMap<HTMLMediaElement, {area: number, ratio: number}>} */
+    this.visibility = new WeakMap();
   }
 
   start() {
@@ -40,15 +121,26 @@ export class MediaInventory {
     }
     this.running = true;
 
+    // With the implicit root, the browser measures against the top-level viewport and
+    // applies the clipping of every ancestor scroller and frame, cross-origin too.
+    this.visibilityObserver = new IntersectionObserver((entries) => this.onVisibility(entries), {
+      threshold: VISIBILITY_THRESHOLDS,
+    });
+
     this.unsubscribe = stateManager.subscribeControllersChanged(() => {
-      this.bindVideoEvents();
+      this.bindVideos();
       this.scheduleReport();
     });
 
     this.heartbeatTimer = setInterval(() => this.report(), HEARTBEAT_MS);
 
-    this.bindVideoEvents();
-    this.report();
+    this.bindVideos();
+
+    // With videos, the first report waits for the observer's first measurement, which
+    // it delivers for every observed video. Sending now would report them all off-screen.
+    if (stateManager.getControllerEntries().length === 0) {
+      this.report();
+    }
 
     logger.debug(`[inventory] started for frame ${FRAME_TOKEN}`);
   }
@@ -70,16 +162,21 @@ export class MediaInventory {
     this.videoEventAbort?.abort();
     this.videoEventAbort = null;
 
+    this.visibilityObserver?.disconnect();
+    this.visibilityObserver = null;
+
     logger.debug(`[inventory] stopped for frame ${FRAME_TOKEN}`);
   }
 
   /**
-   * Rebind the playback listeners to the current videos. One AbortController per bind
-   * drops the old listeners in one call, so a video that went away leaves nothing behind.
+   * Rebind listeners and the visibility observer to the current videos. One
+   * AbortController per bind drops the old listeners in one call, so a video that
+   * went away leaves nothing behind.
    * @private
    */
-  bindVideoEvents() {
+  bindVideos() {
     this.videoEventAbort?.abort();
+    this.visibilityObserver?.disconnect();
 
     if (!this.running) {
       return;
@@ -92,7 +189,18 @@ export class MediaInventory {
       for (const type of VIDEO_EVENTS) {
         video.addEventListener(type, () => this.scheduleReport(), { signal });
       }
+      this.visibilityObserver.observe(video);
     }
+  }
+
+  /** @private */
+  onVisibility(entries) {
+    for (const entry of entries) {
+      const { height, width } = entry.intersectionRect;
+      this.visibility.set(entry.target, { area: Math.round(width * height), ratio: entry.intersectionRatio });
+    }
+
+    this.scheduleReport();
   }
 
   /** Coalesce a burst of changes into one snapshot. */
@@ -119,13 +227,26 @@ export class MediaInventory {
     }
   }
 
-  /** @returns {Object} this frame's videos */
+  /** @returns {Object} this frame's videos, in flat-tree document order */
   snapshot() {
-    const entries = stateManager.getControllerEntries().map(({ controllerId, video }) => ({
-      id: `${FRAME_TOKEN}:${controllerId}`,
-      playing: !video.paused,
-      speed: video.playbackRate,
-    }));
+    const controlled = stateManager.getControllerEntries();
+    controlled.sort((a, b) => compareFlatTreeOrder(a.video, b.video));
+
+    const onlyVideoInFrame = controlled.length === 1;
+
+    const entries = controlled.map(({ controllerId, video }) => {
+      // Not yet measured counts as out of view, which the first callback corrects.
+      const { area, ratio } = this.visibility.get(video) ?? { area: 0, ratio: 0 };
+
+      return {
+        id: `${FRAME_TOKEN}:${controllerId}`,
+        inView: ratio >= IN_VIEW_RATIO,
+        label: labelFor(video, onlyVideoInFrame),
+        playing: !video.paused,
+        speed: video.playbackRate,
+        visibleArea: area,
+      };
+    });
 
     return {
       entries,

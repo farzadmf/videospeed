@@ -19,8 +19,13 @@ export const openOptions = () => chrome.runtime.openOptionsPage();
 
 export type MediaEntry = {
   id: string;
+  inView: boolean;
+  /** '' when the page provides none; the popup names it by position */
+  label: string;
   playing: boolean;
   speed: number;
+  /** pixels visible in the top-level viewport */
+  visibleArea: number;
 };
 
 export type FrameSnapshot = {
