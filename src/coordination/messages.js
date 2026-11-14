@@ -14,6 +14,8 @@ export const COORD_MSG = {
   HELLO: 'hello',
   // Spoke reports its current local controller (video) count changed.
   CONTROLLERS: 'controllers',
+  // CHILD -> PARENT: scroll the asking frame so the rect in its payload shows.
+  REVEAL: 'reveal',
 };
 
 /**

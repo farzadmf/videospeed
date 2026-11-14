@@ -9,7 +9,7 @@ import { ShortcutsView } from './components/shortcuts-view';
 import { SpeedControls } from './components/speed-controls';
 import { VideoList } from './components/video-list';
 import { noticeForOutcome, useNotice } from './notice';
-import { HELP_KEY } from './shortcuts';
+import { HELP_KEY, REVEAL_KEY } from './shortcuts';
 import { useInventory } from './use-inventory';
 import { useSelection } from './use-selection';
 import { useSettings } from './use-settings';
@@ -53,6 +53,8 @@ export const App = () => {
       sendCommand(selection.selected.id, action);
     }
   };
+
+  useHotkey({ key: REVEAL_KEY }, () => actOnSelected({ name: 'reveal' }));
 
   useEffect(() => {
     let cancelled = false;

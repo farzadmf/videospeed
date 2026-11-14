@@ -2,6 +2,7 @@
  * Video Speed Controller - Main Content Script.
  * Bootstraps the extension and bridges popup/background messages to it.
  */
+import { installRevealRelay } from '../coordination/reveal.js';
 import { config } from '../core/config.js';
 import { stateManager } from '../core/state-manager.js';
 import { MESSAGE_TYPES } from '../shared/constants.js';
@@ -12,6 +13,10 @@ import { VideoSpeedExtension } from './video-speed-extension.js';
 (function () {
   // Create and initialize extension instance
   const extension = new VideoSpeedExtension();
+
+  // Before initialize(), which returns early in frames the top frame scans: such a frame
+  // can still sit between a video's frame and the top, and must pass the request on.
+  installRevealRelay();
 
   // Lifecycle commands from bridge (popup, background, storage changes)
   document.documentElement.addEventListener('VSC_MESSAGE', (event) => {

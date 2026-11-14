@@ -20,6 +20,7 @@ export const ADVANCE_KEY = 'ArrowRight';
 export const FASTER_KEY = '=';
 export const HELP_KEY = '/';
 export const PLAY_PAUSE_KEY = 'Space';
+export const REVEAL_KEY = 'Enter';
 export const REWIND_KEY = 'ArrowLeft';
 export const SELECT_NEXT_ARROW = 'ArrowDown';
 export const SELECT_NEXT_KEY = 'J';
@@ -39,5 +40,6 @@ export const HELP_ROWS = [
   { desc: 'Advance', keys: label(ADVANCE_KEY) },
   { desc: 'Select next video', keys: `${label(SELECT_NEXT_KEY)} / ${label(SELECT_NEXT_ARROW)}` },
   { desc: 'Select previous video', keys: `${label(SELECT_PREVIOUS_KEY)} / ${label(SELECT_PREVIOUS_ARROW)}` },
+  { desc: 'Scroll the video into view', keys: label(REVEAL_KEY) },
   { desc: 'Toggle this help', keys: label(`Shift+${HELP_KEY}`) },
 ];

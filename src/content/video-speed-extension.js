@@ -3,6 +3,7 @@
  * Owns initialization, media scanning, observers, and teardown.
  */
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
+import { revealElement } from '../coordination/reveal.js';
 import { ActionHandler } from '../core/action-handler.js';
 import { config } from '../core/config.js';
 import { MediaInventory, resolveTarget } from '../core/media-inventory.js';
@@ -18,6 +19,9 @@ import { logger } from '../utils/logger.js';
 
 // Popup commands that carry their own value rather than reading a key binding.
 const SPEED_ACTIONS = new Set(['ADJUST_SPEED', 'SET_SPEED']);
+
+// Not an ActionHandler action: it scrolls the page, not the video.
+const REVEAL_ACTION = 'reveal';
 
 /**
  * Whether the top frame can walk the DOM down into this frame.
@@ -214,6 +218,16 @@ export class VideoSpeedExtension {
   async runCommand({ action, commandId, target }) {
     const resolved = resolveTarget(target);
     if (!resolved.mine || !this.actionHandler) {
+      return;
+    }
+
+    if (action.name === REVEAL_ACTION) {
+      const outcome = resolved.video?.isConnected ? 'applied' : 'unknown-target';
+      if (outcome === 'applied') {
+        revealElement(resolved.video);
+      }
+
+      this.mediaInventory?.sendOutcome({ action, commandId, outcome, target });
       return;
     }
 

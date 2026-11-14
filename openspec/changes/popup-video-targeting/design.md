@@ -100,7 +100,7 @@ The popup waits a short settle time after connecting (about 150 ms) so that the 
 
 ### D7. Targeted commands
 
-The popup posts `{ type: 'command', target, action }`, `{ type: 'reveal', target }`, or `{ type: 'flash', target }` on the port. Every bridge forwards it to its MAIN script, and MAIN ignores any `target` whose frame token is not its own.
+The popup posts `{ type: 'command', target, action }` or `{ type: 'flash', target }` on the port. Reveal is a command with the action `reveal`, so it gets the same outcome and no-answer timeout as the other actions. Every bridge forwards it to its MAIN script, and MAIN ignores any `target` whose frame token is not its own.
 
 On a match, MAIN resolves the video by `controllerId` through the state manager and calls a new single-video entry point on `ActionHandler`. It parses the action the same way `runAction` does, then calls `executeAction` for that one video only. `runAction` and its `.some()` loop stay unchanged for the controller's own buttons.
 
