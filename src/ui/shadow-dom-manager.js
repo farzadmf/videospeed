@@ -371,6 +371,9 @@ export class ShadowDOMManager {
       this.target.style.removeProperty('anchor-name');
     }
     this.anchorName = null;
+
+    this.beacon?.remove();
+    this.beacon = null;
   }
 
   hide() {
