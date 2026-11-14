@@ -16,8 +16,8 @@ Standing rules from the repo owner. Not optional.
 
 ## Build
 
-- **One command: `npm run build`.** Runs `scripts/build.mjs` (esbuild: content + background) then `npm run build:react` (Vite: popup + options). Don't run the sub-steps separately to check a change. Run `tsc` alone only to confirm a pure type fix.
-- **Vite does not typecheck** — a green Vite build can hide TS errors; watch editor diagnostics.
+- **One command: `npm run build`.** Runs `npm run lint` (eslint, `tsc --noEmit`, prettier), then `scripts/build.mjs` (esbuild: content + background), then `npm run build:react` (Vite: popup + options). Don't run the sub-steps or `tsc`/`eslint`/`prettier` by hand — if a check is missing from the scripts, add it there.
+- Vite itself does not typecheck, which is why `lint:types` runs `tsc --noEmit` in the chain.
 - Shadow-DOM CSS (`styles/shadow_new.css`, `coordination/*.css`) is inlined as a string by the `css-as-text` esbuild plugin, not shipped as a file. `styles/inject_new.css` stays a compiled entry (manifest injects it). The esbuild watcher self-restarts when `scripts/build.mjs` changes.
 - Don't use heredocs in Bash — they hang this environment. For a multi-line git message, write a temp file (`/tmp/...`), `git commit -F` it, delete it. Never write into `.git/`.
 

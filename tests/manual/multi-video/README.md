@@ -4,9 +4,10 @@ A page with eight videos in the places that break single-video assumptions. Use 
 
 ## Run it
 
+From the repo root:
+
 ```sh
-cd tests/manual/multi-video
-python3 -m http.server 8000
+npm run serve:multi-video
 ```
 
 Open <http://localhost:8000/>.
