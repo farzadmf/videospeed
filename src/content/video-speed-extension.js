@@ -5,11 +5,12 @@
 import { FrameCoordinator } from '../coordination/frame-coordinator.js';
 import { ActionHandler } from '../core/action-handler.js';
 import { config } from '../core/config.js';
+import { MediaInventory } from '../core/media-inventory.js';
 import { stateManager } from '../core/state-manager.js';
 import { VideoController } from '../core/video-controller.js';
 import { MediaElementObserver } from '../observers/media-observer.js';
 import { VideoMutationObserver } from '../observers/mutation-observer.js';
-import { MESSAGE_TYPES } from '../shared/constants.js';
+import { INVENTORY_EVENT, MESSAGE_TYPES } from '../shared/constants.js';
 import { SiteHandlerManager } from '../site-handlers/manager.js';
 import * as dom from '../utils/dom-utils.js';
 import { EventManager } from '../utils/event-manager.js';
@@ -47,9 +48,13 @@ export class VideoSpeedExtension {
     this.frameCoordinator = null;
     this.mutationObserver = null;
     this.mediaObserver = null;
+    this.mediaInventory = null;
+    this.unsubscribeCoordination = null;
     // MyNote: comment out Gemini's shadow observers
     // this.shadowHostObserver = null;
     this.initialized = false;
+    // True when this frame left scanning to the top frame, so it owns no controllers.
+    this.skipped = false;
     // Cleared by teardown(); queued idle/timeout/loadeddata callbacks check it
     // so a disable that lands mid-startup can't be undone by them.
     this.acceptingMedia = false;
@@ -71,6 +76,7 @@ export class VideoSpeedExtension {
       // them, and the bridge may not have been injected (dynamically created
       // iframes miss document_start content scripts).
       if (window !== window.top && isReachableFromTop()) {
+        this.skipped = true;
         return;
       }
 
@@ -174,13 +180,36 @@ export class VideoSpeedExtension {
     }
   }
 
+  /** Report this frame's videos to the popup for as long as its port is open. */
+  startInventory() {
+    // A frame that left scanning to the top frame owns no controllers, so reporting
+    // would add an empty frame and a heartbeat for nothing.
+    if (this.skipped) {
+      return;
+    }
+
+    this.mediaInventory ??= new MediaInventory({
+      send: (snapshot) => {
+        document.documentElement.dispatchEvent(new CustomEvent(INVENTORY_EVENT, { detail: snapshot }));
+      },
+    });
+
+    this.mediaInventory.start();
+  }
+
+  stopInventory() {
+    this.mediaInventory?.stop();
+  }
+
   /** Cross-frame coordinator: tracks which frames have controllers. */
   setupCoordination() {
     this.frameCoordinator = new FrameCoordinator({
       getLocalControllerCount: () => stateManager.getAllMediaElements().length,
     });
 
-    stateManager.onControllersChanged = () => this.frameCoordinator?.announceControllers();
+    this.unsubscribeCoordination = stateManager.subscribeControllersChanged(() =>
+      this.frameCoordinator?.announceControllers()
+    );
 
     this.frameCoordinator.start();
   }
@@ -374,7 +403,10 @@ export class VideoSpeedExtension {
       this.frameCoordinator.stop();
       this.frameCoordinator = null;
     }
-    stateManager.onControllersChanged = null;
+    this.unsubscribeCoordination?.();
+    this.unsubscribeCoordination = null;
+
+    this.mediaInventory?.stop();
 
     if (this.siteHandlerManager) {
       this.siteHandlerManager.cleanup();

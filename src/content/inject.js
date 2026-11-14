@@ -35,6 +35,14 @@ import { VideoSpeedExtension } from './video-speed-extension.js';
         );
         break;
 
+      case MESSAGE_TYPES.INVENTORY_START:
+        extension.startInventory();
+        break;
+
+      case MESSAGE_TYPES.INVENTORY_STOP:
+        extension.stopInventory();
+        break;
+
       case MESSAGE_TYPES.SET_SPEED:
         if (typeof message.payload?.speed === 'number') {
           extension.actionHandler.runAction({

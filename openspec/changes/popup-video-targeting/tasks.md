@@ -10,8 +10,8 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 
 ## 2. Inventory channel
 
-- [ ] 2.1 Add the port name and the port message types to `src/shared/constants.js`, and handle the inventory port in `src/entries/content-bridge.js`: forward popup messages to MAIN through `VSC_MESSAGE`, post MAIN's inventory events back on the port, and tell MAIN when the port disconnects. Verify: the build passes and the bridge logs connect and disconnect when the popup opens and closes.
-- [ ] 2.2 Add an inventory module in MAIN with a per-frame random token. On connect it sends a snapshot of the frame's controlled videos (identity, playing state, speed). It sends again, debounced to about 100 ms, when a controller registers or unregisters or a video's rate or play state changes, and every 1 s as a heartbeat. It stops everything on disconnect. Verify: the popup console shows one snapshot per frame on the test page, and no snapshots after the popup closes.
+- [x] 2.1 Add the port name and the port message types to `src/shared/constants.js`, and handle the inventory port in `src/entries/content-bridge.js`: forward popup messages to MAIN through `VSC_MESSAGE`, post MAIN's inventory events back on the port, and tell MAIN when the port disconnects. Verify: the build passes and the bridge logs connect and disconnect when the popup opens and closes.
+- [x] 2.2 Add an inventory module in MAIN with a per-frame random token. On connect it sends a snapshot of the frame's controlled videos (identity, playing state, speed). It sends again, debounced to about 100 ms, when a controller registers or unregisters or a video's rate or play state changes, and every 1 s as a heartbeat. It stops everything on disconnect. Verify: the popup console shows one snapshot per frame on the test page, and no snapshots after the popup closes.
 - [ ] 2.3 Update the "Popup ⇄ page messaging" section of `src/AGENTS.md` to describe the inventory port, the frame token, and snapshots. Verify: the section matches the code and `npm run lint` passes.
 
 ## 3. In view, labels, and order

@@ -12,19 +12,31 @@ export class VSCStateManager {
     // Map of controllerId → controller metadata
     this.controllers = new Map();
 
-    // Hook fired on register/unregister; the frame coordinator uses it to
-    // announce this frame's controller count to the hub.
-    this.onControllersChanged = null;
+    // Fired on register/unregister. The frame coordinator announces this frame's
+    // count to the hub; the media inventory reports to the popup.
+    this.controllersChangedListeners = new Set();
 
     logger.debug('VSCStateManager initialized');
   }
 
-  /** Notify any subscriber that the controller set changed. */
+  /**
+   * Subscribe to register/unregister.
+   * @param {Function} listener
+   * @returns {Function} call to unsubscribe
+   */
+  subscribeControllersChanged(listener) {
+    this.controllersChangedListeners.add(listener);
+    return () => this.controllersChangedListeners.delete(listener);
+  }
+
+  /** Notify subscribers that the controller set changed. One failure must not stop the rest. */
   _notifyControllersChanged() {
-    try {
-      this.onControllersChanged?.();
-    } catch (e) {
-      logger.warn(`onControllersChanged hook failed: ${e.message}`);
+    for (const listener of this.controllersChangedListeners) {
+      try {
+        listener();
+      } catch (e) {
+        logger.warn(`controllersChanged listener failed: ${e.message}`);
+      }
     }
   }
 
@@ -64,24 +76,32 @@ export class VSCStateManager {
   }
 
   /**
-   * Get all registered media elements
-   * @returns {Array<HTMLMediaElement>} Array of media elements
+   * Live controllers with their ids, dropping any whose video left the DOM.
+   * @returns {Array<{controller: VideoController, controllerId: string, video: HTMLMediaElement}>}
    */
-  getAllMediaElements() {
-    const elements = [];
+  getControllerEntries() {
+    const entries = [];
 
     // Clean up disconnected controllers while iterating
     for (const [id, info] of this.controllers) {
       const video = info.controller?.video || info.element;
       if (video && video.isConnected) {
-        elements.push(video);
+        entries.push({ controller: info.controller, controllerId: id, video });
       } else {
         // Remove disconnected controller
         this.controllers.delete(id);
       }
     }
 
-    return elements;
+    return entries;
+  }
+
+  /**
+   * Get all registered media elements
+   * @returns {Array<HTMLMediaElement>} Array of media elements
+   */
+  getAllMediaElements() {
+    return this.getControllerEntries().map((entry) => entry.video);
   }
 
   /**

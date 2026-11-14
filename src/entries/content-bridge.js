@@ -14,7 +14,7 @@
  * Once disabled, a document stays inactive until reload: the popup asks for a
  * reload, and a live re-init would reuse the settings snapshot from page load.
  */
-import { MESSAGE_TYPES } from '../shared/constants.js';
+import { INVENTORY_EVENT, INVENTORY_PORT, MESSAGE_TYPES } from '../shared/constants.js';
 import { isBlacklisted } from '../utils/blacklist.js';
 
 // Speed limits for page→bridge write validation.
@@ -31,6 +31,9 @@ let bridgeState = 'pending';
 // Set by any enabled toggle involving false, even one that lands before the
 // handshake: the settings snapshot read at load no longer holds.
 let disabledForDocument = false;
+
+// Open popup inventory ports to this frame.
+let inventoryPorts = 0;
 
 function dispatchAbort() {
   docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: { abort: true } }));
@@ -69,6 +72,12 @@ function init() {
         const payload = await buildPayload(settingsReady);
         bridgeState = payload.abort ? 'inactive' : 'active';
         docEl.dispatchEvent(new CustomEvent('VSC_SETTINGS_READY', { detail: payload }));
+
+        // A popup that connected while the page was still loading sent its start
+        // before MAIN was listening. MAIN asks for settings only once it listens.
+        if (bridgeState === 'active' && inventoryPorts > 0) {
+          docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: MESSAGE_TYPES.INVENTORY_START } }));
+        }
       },
       { once: true }
     );
@@ -142,6 +151,41 @@ function setupOngoingListeners() {
     if (Object.keys(relayChanges).length > 0) {
       docEl.dispatchEvent(new CustomEvent('VSC_STORAGE_CHANGED', { detail: relayChanges }));
     }
+  });
+
+  // --- Popup inventory port ---
+  // The popup connects once per tab with no frameId, so this fires in every frame.
+  chrome.runtime.onConnect.addListener((port) => {
+    if (port.name !== INVENTORY_PORT) {
+      return;
+    }
+
+    // Disabled for this document: stay silent rather than report an empty frame.
+    if (bridgeState === 'inactive') {
+      port.disconnect();
+      return;
+    }
+
+    const onInventory = (event) => port.postMessage(event.detail);
+    docEl.addEventListener(INVENTORY_EVENT, onInventory);
+    inventoryPorts += 1;
+
+    port.onMessage.addListener((message) => {
+      docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: message }));
+    });
+
+    // Closing the popup disconnects every frame, which is how reporting stops. Stop
+    // only once the last port is gone, so one closing does not silence another.
+    port.onDisconnect.addListener(() => {
+      docEl.removeEventListener(INVENTORY_EVENT, onInventory);
+      inventoryPorts -= 1;
+
+      if (inventoryPorts === 0) {
+        docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: MESSAGE_TYPES.INVENTORY_STOP } }));
+      }
+    });
+
+    docEl.dispatchEvent(new CustomEvent('VSC_MESSAGE', { detail: { type: MESSAGE_TYPES.INVENTORY_START } }));
   });
 
   // --- Popup/background message relay ---
