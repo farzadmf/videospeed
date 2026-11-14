@@ -243,13 +243,20 @@ function setupOngoingListeners() {
         }
       }
 
-      // Per-site sources persistence (our fork's addition)
-      if ('sources' in data && typeof data.sources === 'object') {
-        storageUpdate.sources = data.sources;
-      }
-
       if (Object.keys(storageUpdate).length > 0) {
         chrome.storage.sync.set(storageUpdate);
+      }
+
+      // This site's speed goes to the background, the one writer of the shared map.
+      // Only a number crosses: the background takes the site from this frame's URL.
+      if ('siteSpeed' in data) {
+        const speed = data.siteSpeed;
+        if (typeof speed === 'number' && Number.isFinite(speed)) {
+          chrome.runtime.sendMessage({
+            speed: Math.min(Math.max(speed, SPEED_MIN), SPEED_MAX),
+            type: MESSAGE_TYPES.SET_SITE_SPEED,
+          });
+        }
       }
     } catch (err) {
       if (err.message?.includes('Extension context invalidated')) {

@@ -1,3 +1,4 @@
+import { MESSAGE_TYPES } from './shared/constants.js';
 import { logger } from './utils/logger.js';
 
 /**
@@ -74,6 +75,48 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.enabled) {
     updateIcon(changes.enabled.newValue !== false);
   }
+});
+
+// Every frame in every tab saves speeds into one stored `sources` map. A frame that
+// wrote its own copy of the map would drop any change another frame made at the same
+// time, so the service worker applies each save in turn, as the only writer.
+let siteSpeedQueue = Promise.resolve();
+
+/**
+ * Save one site's speed. 1x is the default, so it is removed rather than stored,
+ * which also keeps the map under the sync storage item limit.
+ * @param {string} host
+ * @param {number} speed
+ */
+async function applySiteSpeed(host, speed) {
+  const { sources = {} } = await chrome.storage.sync.get('sources');
+
+  if (speed === 1) {
+    delete sources[host];
+  } else {
+    sources[host] = { ...sources[host], speed, updated: Date.now() };
+  }
+
+  await chrome.storage.sync.set({ sources });
+}
+
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message?.type !== MESSAGE_TYPES.SET_SITE_SPEED) {
+    return;
+  }
+
+  // The host comes from Chrome's record of the sending frame, not the message: page
+  // script can reach the bridge, and must not save speeds for another site.
+  const host = sender.url ? new URL(sender.url).hostname : '';
+  const { speed } = message;
+
+  if (!host || typeof speed !== 'number' || !Number.isFinite(speed)) {
+    return;
+  }
+
+  siteSpeedQueue = siteSpeedQueue
+    .then(() => applySiteSpeed(host, speed))
+    .catch((error) => logger.error(`Failed to save speed for ${host}:`, error));
 });
 
 /**

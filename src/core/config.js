@@ -162,8 +162,9 @@ export class VideoSpeedConfig {
   syncSpeedValue({ speed, url }) {
     logger.debug('Storing lastSpeed in settings for the rememberSpeed feature');
 
+    // Kept current here so this frame reads its own change at once; storage.onChanged
+    // brings the background's write back to every frame.
     if (!speed || Number(speed) === 1) {
-      // No need to save 1x; it's the default, also it helps to avoid reaching Chrome sync max item size.
       delete this.settings.sources[url];
     } else {
       this.settings.lastSpeed = speed;
@@ -173,10 +174,11 @@ export class VideoSpeedConfig {
       this.settings.sources[url].updated = new Date().valueOf();
     }
 
-    this.save({
-      lastSpeed: this.settings.lastSpeed,
-      sources: this.settings.sources,
-    });
+    // Not the whole map: a frame's copy lacks other frames' recent changes, and writing
+    // it would erase them. The background applies this one speed to the stored map.
+    StorageManager.setSiteSpeed(Number(speed) || 1);
+
+    this.save({ lastSpeed: this.settings.lastSpeed });
   }
 
   /**

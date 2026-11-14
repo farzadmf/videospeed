@@ -30,6 +30,7 @@ export const MESSAGE_TYPES = {
   STATUS: 'VSC_STATUS',
   INVENTORY_START: 'VSC_INVENTORY_START',
   INVENTORY_STOP: 'VSC_INVENTORY_STOP',
+  SET_SITE_SPEED: 'VSC_SET_SITE_SPEED',
 };
 
 // The popup opens one port per tab with no frameId, so Chrome connects it to every

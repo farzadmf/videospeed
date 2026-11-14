@@ -122,11 +122,6 @@ export class StorageManager {
       detail.lastSpeed = data.lastSpeed;
     }
 
-    // Per-site sources persistence (our fork's addition)
-    if (data.sources) {
-      detail.sources = data.sources;
-    }
-
     if (Object.keys(detail).length > 0) {
       docEl.dispatchEvent(new CustomEvent('VSC_WRITE_STORAGE', { detail }));
     } else {
@@ -136,6 +131,21 @@ export class StorageManager {
     // Update local settings cache regardless (keeps in-memory state current)
     window.VSC_settings = { ...window.VSC_settings, ...data };
     return Promise.resolve();
+  }
+
+  /**
+   * Save this page's site speed. The background writes it, taking the site from the
+   * sending frame's URL, so only a page can save for its own site.
+   * @param {number} speed
+   */
+  static setSiteSpeed(speed) {
+    // An extension page has no site of its own to save for.
+    if (hasChrome) {
+      logger.warn('StorageManager.setSiteSpeed: called outside a page; ignored');
+      return;
+    }
+
+    docEl.dispatchEvent(new CustomEvent('VSC_WRITE_STORAGE', { detail: { siteSpeed: speed } }));
   }
 
   /**
