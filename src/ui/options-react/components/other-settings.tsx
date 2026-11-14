@@ -138,7 +138,7 @@ export const OtherSettings = ({ settings, update }: Props) => (
     <label className="flex flex-col gap-1 py-1">
       <span className="text-base">Sites on which extension is disabled (one per line). Regex supported.</span>
       <textarea
-        className="textarea textarea-bordered h-40 font-mono text-base"
+        className="textarea textarea-bordered h-40 w-full font-mono text-base"
         value={settings.blacklist.join('\n')}
         onChange={(e) => update({ blacklist: e.target.value.split('\n') })}
       />
