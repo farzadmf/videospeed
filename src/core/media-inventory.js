@@ -5,7 +5,9 @@
  * whole snapshots rather than deltas, which removes any ordering or lost-message
  * problem, and a frame holds few videos so a snapshot stays small.
  */
+import { requestPlace } from '../coordination/frame-place.js';
 import { INVENTORY_KIND } from '../shared/constants.js';
+import { compareFlatTreeOrder } from '../utils/dom-utils.js';
 import { logger } from '../utils/logger.js';
 import { stateManager } from './state-manager.js';
 
@@ -24,53 +26,6 @@ const FRAME_TOKEN = Math.random().toString(36).slice(2, 10);
 // Playback changes the popup shows. Media events do not cross a shadow boundary, so
 // these are bound per video rather than once on the document.
 const VIDEO_EVENTS = ['play', 'pause', 'ratechange'];
-
-/**
- * The chain from an element out to the document: the element, then the host of each
- * shadow root it sits in. The last item is in the document tree.
- * @param {Element} element
- * @returns {Element[]}
- */
-function hostChain(element) {
-  const chain = [element];
-
-  let root = element.getRootNode();
-  while (root instanceof ShadowRoot) {
-    chain.push(root.host);
-    root = root.host.getRootNode();
-  }
-
-  return chain;
-}
-
-/**
- * Sort order across shadow roots. compareDocumentPosition alone reports elements in
- * different trees as disconnected, so this compares at the outermost tree where the
- * two chains diverge, where both elements share a root.
- * @returns {number}
- */
-function compareFlatTreeOrder(a, b) {
-  const chainA = hostChain(a);
-  const chainB = hostChain(b);
-
-  let i = chainA.length - 1;
-  let j = chainB.length - 1;
-  while (i >= 0 && j >= 0 && chainA[i] === chainB[j]) {
-    i -= 1;
-    j -= 1;
-  }
-
-  if (i < 0 && j < 0) {
-    return 0;
-  }
-
-  // One element contains the other's shadow tree: the host comes first.
-  if (i < 0 || j < 0) {
-    return i < 0 ? -1 : 1;
-  }
-
-  return chainA[i].compareDocumentPosition(chainB[j]) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
-}
 
 /**
  * A label the page provides, or '' so the popup can fall back to a position.
@@ -121,6 +76,10 @@ export class MediaInventory {
     this.send = send;
     this.running = false;
 
+    // Null until the parent chain answers; the popup lists such a frame last.
+    /** @type {number[]|null} */
+    this.place = window === window.top ? [] : null;
+
     this.debounceTimer = null;
     this.heartbeatTimer = null;
     this.unsubscribe = null;
@@ -148,7 +107,13 @@ export class MediaInventory {
       this.scheduleReport();
     });
 
-    this.heartbeatTimer = setInterval(() => this.report(), HEARTBEAT_MS);
+    // A video added or removed above this frame changes its place, so ask again on
+    // each heartbeat.
+    this.heartbeatTimer = setInterval(() => {
+      this.report();
+      this.updatePlace();
+    }, HEARTBEAT_MS);
+    this.updatePlace();
 
     this.bindVideos();
 
@@ -207,6 +172,17 @@ export class MediaInventory {
       }
       this.visibilityObserver.observe(video);
     }
+  }
+
+  /** @private */
+  async updatePlace() {
+    const place = await requestPlace();
+    if (!this.running || !place || place.join() === this.place?.join()) {
+      return;
+    }
+
+    this.place = place;
+    this.scheduleReport();
   }
 
   /** @private */
@@ -269,6 +245,7 @@ export class MediaInventory {
       frameToken: FRAME_TOKEN,
       isTop: window === window.top,
       kind: INVENTORY_KIND.SNAPSHOT,
+      place: this.place,
       url: location.href,
     };
   }

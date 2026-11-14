@@ -88,11 +88,13 @@ A frame derives each label in this order: the video's `title` or `aria-label`, t
 
 ### D5. Order
 
-The popup lists the top frame's entries first, identified by the snapshot's `isTop` flag, then the other frames sorted by their frame URL. Within a frame, entries follow document order across shadow roots (flat-tree order).
+Rows follow page order across frames. Each frame learns its place from the parent chain (`coordination/frame-place.js`), the same way reveal walks it (D8): a frame asks its parent, the parent finds the asking `<iframe>` by `contentWindow === event.source`, adds the count of its own videos before that `<iframe>` minus 0.5, which sits between the indexes of the videos around it, and passes the request up. The top frame sends the path back down. A video's sort key is its frame's place plus its index in the frame, compared number by number, so a frame after the top frame's fourth video lists between the fourth and the fifth.
 
-The sort key is not arrival order. The task 1.2 spike saw the top frame answer last of three, so arrival order varies per popup open and would move a video's row between opens, which moves the `j` and `k` positions the user is aiming at. Frame URL is arbitrary against the visual layout but it is the same on every open.
+The frame sends its place in each snapshot and asks again on each heartbeat, since a video added above it moves it. Within a frame, entries follow document order across shadow roots (flat-tree order).
 
-Matching the visual top-to-bottom order of the page needs each frame's position within its parent, which the reveal chain in D8 could carry later.
+A frame whose parent chain does not answer has no place. Its rows go last, sorted by frame URL, then by index. The sort key is never arrival order: the task 1.2 spike saw the top frame answer last of three, so arrival order varies per popup open and would move the `j` and `k` positions between opens.
+
+A same-origin frame that the top frame scans holds no controllers of its own, so a cross-origin frame inside it gets the count 0 at that level. Its rows still sort after the videos before the same-origin frame.
 
 ### D6. Selection lives in the popup
 

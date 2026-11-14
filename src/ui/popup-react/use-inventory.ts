@@ -24,9 +24,18 @@ type FrameState = {
   snapshot: FrameSnapshot;
 };
 
+type Row = {
+  entry: MediaEntry;
+  index: number;
+  // The frame's place plus the video's index in the frame; null until the place is known
+  key: number[] | null;
+  snapshot: FrameSnapshot;
+};
+
 /**
- * Top frame first, then the rest by URL. Not by arrival: frames answer in a different
- * order on each open, which would move rows and the j/k positions between opens.
+ * Fallback for frames that do not know their place yet: top frame first, then by URL.
+ * Not by arrival: frames answer in a different order on each open, which would move
+ * rows and the j/k positions between opens.
  */
 function compareFrames(a: FrameSnapshot, b: FrameSnapshot): number {
   if (a.isTop !== b.isTop) {
@@ -35,11 +44,36 @@ function compareFrames(a: FrameSnapshot, b: FrameSnapshot): number {
   return a.url.localeCompare(b.url) || a.frameToken.localeCompare(b.frameToken);
 }
 
+function comparePaths(a: number[], b: number[]): number {
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    if (a[i] !== b[i]) {
+      return a[i] - b[i];
+    }
+  }
+  return a.length - b.length;
+}
+
+/** Page order across frames; videos whose frame has no place yet go last. */
+function compareRows(a: Row, b: Row): number {
+  if (a.key && b.key) {
+    return comparePaths(a.key, b.key);
+  }
+  if (a.key || b.key) {
+    return a.key ? -1 : 1;
+  }
+  return compareFrames(a.snapshot, b.snapshot) || a.index - b.index;
+}
+
 function mergeFrames(frames: Map<string, FrameState>): VideoItem[] {
-  const ordered = [...frames.values()].map((f) => f.snapshot).sort(compareFrames);
-  const videos = ordered.flatMap((snapshot) =>
-    snapshot.entries.map((entry) => ({ ...entry, frameToken: snapshot.frameToken }))
+  const rows: Row[] = [...frames.values()].flatMap(({ snapshot }) =>
+    snapshot.entries.map((entry, index) => ({
+      entry,
+      index,
+      key: snapshot.place && [...snapshot.place, index],
+      snapshot,
+    }))
   );
+  const videos = rows.sort(compareRows).map(({ entry, snapshot }) => ({ ...entry, frameToken: snapshot.frameToken }));
 
   // Only the merged list knows a video's position across frames.
   return videos.map((video, i) => ({ ...video, label: video.label || `Video ${i + 1}` }));

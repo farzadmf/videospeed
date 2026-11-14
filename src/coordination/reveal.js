@@ -15,7 +15,7 @@ const LOG = '[VSC-REVEAL]';
  * @param {MessageEventSource} source
  * @returns {HTMLIFrameElement|HTMLFrameElement|null} the frame element that holds source
  */
-function findFrameElement(root, source) {
+export function findFrameElement(root, source) {
   for (const element of root.querySelectorAll('*')) {
     if ((element.tagName === 'IFRAME' || element.tagName === 'FRAME') && element.contentWindow === source) {
       return element;

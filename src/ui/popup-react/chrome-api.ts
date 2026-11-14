@@ -33,6 +33,8 @@ export type FrameSnapshot = {
   frameToken: string;
   isTop: boolean;
   kind: typeof INVENTORY_KIND.SNAPSHOT;
+  /** Where the frame sits among the page's videos, one number per frame level; null until known */
+  place: number[] | null;
   url: string;
 };
 

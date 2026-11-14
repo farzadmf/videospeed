@@ -194,3 +194,50 @@ export function findShadowMedia(root, selector) {
 window.VSC.DomUtils.findShadowMedia = findShadowMedia;
 
 // Global variables available for both browser and testing
+
+/**
+ * The chain from an element out to the document: the element, then the host of each
+ * shadow root it sits in. The last item is in the document tree.
+ * @param {Element} element
+ * @returns {Element[]}
+ */
+function hostChain(element) {
+  const chain = [element];
+
+  let root = element.getRootNode();
+  while (root instanceof ShadowRoot) {
+    chain.push(root.host);
+    root = root.host.getRootNode();
+  }
+
+  return chain;
+}
+
+/**
+ * Sort order across shadow roots. compareDocumentPosition alone reports elements in
+ * different trees as disconnected, so this compares at the outermost tree where the
+ * two chains diverge, where both elements share a root.
+ * @returns {number}
+ */
+export function compareFlatTreeOrder(a, b) {
+  const chainA = hostChain(a);
+  const chainB = hostChain(b);
+
+  let i = chainA.length - 1;
+  let j = chainB.length - 1;
+  while (i >= 0 && j >= 0 && chainA[i] === chainB[j]) {
+    i -= 1;
+    j -= 1;
+  }
+
+  if (i < 0 && j < 0) {
+    return 0;
+  }
+
+  // One element contains the other's shadow tree: the host comes first.
+  if (i < 0 || j < 0) {
+    return i < 0 ? -1 : 1;
+  }
+
+  return chainA[i].compareDocumentPosition(chainB[j]) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+}

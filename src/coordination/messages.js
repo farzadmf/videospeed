@@ -10,10 +10,14 @@ export const VSC_COORD_TAG = '__vsc_coord__';
 
 // Message types. SPOKE -> HUB unless noted.
 export const COORD_MSG = {
-  // Spoke announces its presence / heartbeat (frame just initialized).
-  HELLO: 'hello',
   // Spoke reports its current local controller (video) count changed.
   CONTROLLERS: 'controllers',
+  // Spoke announces its presence / heartbeat (frame just initialized).
+  HELLO: 'hello',
+  // PARENT -> CHILD, relayed down: the answer to PLACE_ASK.
+  PLACE_ANSWER: 'place-answer',
+  // CHILD -> PARENT, relayed up: where is the asking frame among the page's videos.
+  PLACE_ASK: 'place-ask',
   // CHILD -> PARENT: scroll the asking frame so the rect in its payload shows.
   REVEAL: 'reveal',
 };

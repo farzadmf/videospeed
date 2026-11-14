@@ -8,13 +8,19 @@ Lets the user see the page's videos in the popup, choose one, and send popup act
 
 ### Requirement: Video list
 
-When the page has one or more controlled videos, the popup SHALL show one row per video in a stable order, with the label, playing state, speed, and an in-view or off-screen tag. Within one document, rows SHALL follow document order. A single video SHALL get the list too, so the popup looks the same on every page.
+When the page has one or more controlled videos, the popup SHALL show one row per video in a stable order, with the label, playing state, speed, and an in-view or off-screen tag. Rows SHALL follow page order, across frames too: a frame's videos list where the frame sits among the page's videos. A single video SHALL get the list too, so the popup looks the same on every page.
 
 #### Scenario: Three videos
 
 - **GIVEN** a page with three controlled videos, two of them in view
 - **WHEN** the popup opens
 - **THEN** it shows three rows, two tagged in view and one tagged off-screen
+
+#### Scenario: Frame between videos
+
+- **GIVEN** a page with a video, then a frame with a video, then another video
+- **WHEN** the popup opens
+- **THEN** the frame's video is the second row
 
 #### Scenario: One video
 
