@@ -27,7 +27,7 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 - [x] 4.3 Apply the selection-on-open rule once after a 150 ms settle. Keep the selection while the popup is open, and re-run the rule when the selected video goes away. Verify each scenario of "Selection on open" and "Selection is stable while open" on the test page.
 - [x] 4.4 Add `j`/`Down` and `k`/`Up` (wrapping) and row clicks to move the selection, and add the keys to `shortcuts.ts` and the help overlay. Verify: the keys move the selection through all eight videos, including off-screen ones, and the help lists them.
 
-- [ ] 4.5 Show the video list for a single video too, so the popup looks the same on every page. Verify: YouTube shows a one-row list with that video selected.
+- [x] 4.5 Show the video list for a single video too, so the popup looks the same on every page. Verify: YouTube shows a one-row list with that video selected.
 
 ## 5. Targeted actions and reveal
 

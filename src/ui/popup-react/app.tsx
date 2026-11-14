@@ -77,8 +77,7 @@ export const App = () => {
           <div className="col-start-1 row-start-1">
             {availability === 'active' && (
               <div className="flex flex-col gap-3 p-4">
-                {/* One video needs no choosing, so the list appears from two. */}
-                {videos.length >= 2 && (
+                {videos.length > 0 && (
                   <Section title={`Videos (${videos.length})`}>
                     <VideoList
                       onSelect={selection.select}
