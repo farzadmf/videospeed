@@ -86,7 +86,10 @@ export function connectInventory({ onOutcome, onSnapshot }: InventoryHandlers) {
     });
 
     // A page with no content script never answers; nothing to do but stop listening.
+    // That disconnect sets lastError, and Chrome logs an extension error for any
+    // lastError the handler does not read.
     port.onDisconnect.addListener(() => {
+      void chrome.runtime.lastError;
       port = undefined;
     });
 
