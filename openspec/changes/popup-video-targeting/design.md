@@ -66,7 +66,9 @@ Alternatives considered:
 
 Each frame sends a full snapshot of its own videos: `{ frameToken, isTop, entries: [...] }`. It sends one when the port connects, again (debounced to about 100 ms) when any entry changes, and every 1 s as a heartbeat. The popup keeps the latest snapshot per frame and drops a frame that is silent for more than 5 s.
 
-The timeout is 5 s rather than a tight multiple of the heartbeat because Chrome throttles timers in frames that are off-screen or hidden, so a live frame's heartbeat can arrive late. Dropping a live frame would remove its videos from the list, which is worse than showing a dead frame's videos a few seconds longer.
+The timeout is 5 s rather than a tight multiple of the heartbeat so that a late heartbeat cannot drop a live frame. Removing a live frame's videos from the list is worse than showing a dead frame's videos for a few seconds longer.
+
+The task 1.3 spike measured a 1 s timer in cross-origin frames scrolled out of the top-level viewport, in a visible tab: gaps ran 999 ms to 1593 ms. Chrome did not throttle them, so 5 s has a wide margin. A hidden tab is throttled harder, but the popup only ever talks to the active tab.
 
 - A frame has few videos, so a full snapshot is small. It also removes ordering and lost-message problems.
 - The heartbeat handles frames that the page removes. A removed frame cannot always send a final empty snapshot, and the shared port gives the popup no per-frame disconnect event.
@@ -74,6 +76,8 @@ The timeout is 5 s rather than a tight multiple of the heartbeat because Chrome 
 ### D3. In-view tracking with an IntersectionObserver against the implicit root
 
 While the port is open, each frame observes its controlled videos with an IntersectionObserver with `root: null` and thresholds such as `[0, 0.1, 0.25, 0.5, 0.75, 1]`. With the implicit root, the browser computes the intersection with the top-level viewport and applies the clipping of ancestor scroll containers and frames, cross-origin ones too. That is the spec's definition of in view.
+
+The task 1.3 spike confirmed this from inside a cross-origin frame, and from one nested inside another: scrolling the top page flipped each frame's own `isIntersecting` as expected. A frame therefore learns its top-level visibility without help from its ancestors.
 
 - In view means `intersectionRatio >= 0.1`. The visible area is `intersectionRect.width * intersectionRect.height`.
 - The observer is separate from the existing one in `VideoController` (threshold 0.1, which drives positioning listeners), so the two cannot interfere. It exists only while the popup is open.
@@ -149,7 +153,9 @@ So this change deletes the old popup and its three build entries, that debug met
 
 ### D11. Report a refused action on the page and in the popup
 
-`executeAction` cannot assume success: `play()` returns a promise the autoplay policy can reject, which is likely in a frame without `allow="autoplay"` when the gesture happened in the popup. The targeted entry point returns an outcome (`applied`, `refused`, or `unknown-target`), and MAIN posts it back on the port.
+`executeAction` cannot assume success: `play()` returns a promise the autoplay policy can reject. The targeted entry point returns an outcome (`applied`, `refused`, or `unknown-target`), and MAIN posts it back on the port.
+
+The task 1.3 spike could not provoke a rejection: `play()` resolved in every frame, including a cross-origin frame with no `allow="autoplay"`, because Chrome is permissive for a page the user has engaged with. A rejection still happens in the wild, and `unknown-target` happens whenever a video goes away between the key press and the command, so the outcome is still needed. To keep the refused path testable, `tests/manual/multi-video` has a button that patches one video's `play` to reject with `NotAllowedError`.
 
 Feedback follows the outcome, and a failure is never silent:
 
