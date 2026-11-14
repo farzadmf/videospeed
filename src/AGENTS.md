@@ -42,6 +42,9 @@ Keyboard control lives in the **popup** (its own document), not on the page. On-
 - Playback toggling uses `runAction('pause')` — the `pause` action toggles (plays if paused); there is intentionally no separate PLAY/PAUSE.
 - **Request/reply (STATUS probe):** `sendMessage` broadcasts to every frame (`all_frames`). Only the top frame answers (bridge checks `window === top`), reporting the coordinator's hub-wide total, not a per-frame count. The bridge `return true`s to keep the channel open for the async `VSC_STATUS_REPLY`.
 - Popup probes availability on open and polls while open (it remounts each open). States: probing / unreachable / disabled / no-video / active.
+- **Inventory port (per-video state):** the popup opens one port with `chrome.tabs.connect(tabId, { name: INVENTORY_PORT })` and no `frameId`. Chrome connects it to every frame, including cross-origin and nested ones, and every frame's messages arrive on the popup's one port. Each bridge forwards the start to MAIN, and `core/media-inventory.js` sends a whole snapshot of that frame's videos on connect, on change (debounced 100 ms), and every 1 s as a heartbeat. Closing the popup disconnects every frame, which stops all reporting, so nothing runs while the popup is closed.
+- **Video identity:** `<frameToken>:<controllerId>`. A frame cannot read its Chrome `frameId`, so each frame generates a random token once per load.
+- **Late frames:** a popup opened while a frame is loading sends its start before MAIN listens. The bridge replays the start at the settings handshake, since MAIN asks for settings only once it listens.
 
 ### Cross-frame coordinator (`coordination/`)
 
