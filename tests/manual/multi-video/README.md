@@ -31,7 +31,8 @@ The frames load from `127.0.0.1` on the same port, which is a different origin f
 - **Video 3** checks that VSC finds a video in a shadow root and puts its controller in the same tree.
 - **Video 4** checks in-view reporting: scroll inside the box and the video goes out of sight while the page does not move.
 - **Video 5** checks a cross-origin frame, and **video 6** checks that reveal walks up through two frames.
-- **Video 6's frame has no `allow="autoplay"`**, on purpose. The browser refuses `play()` there when the key press happened in the popup, which is the case the popup must report as blocked.
+- **Video 6's frame has no `allow="autoplay"`**, on purpose. That was meant to make the browser refuse `play()` there, but Chrome resolves it anyway once you have engaged with the page, so it does not reproduce the blocked case.
+- **The button under video 1 forces a refusal.** It patches that video's `play` to reject with `NotAllowedError`, which is the only reliable way to test how the popup reports a blocked action.
 - Videos 1 and 2 give two videos in one document, which is where `runAction`'s first-match loop applies the action to the wrong one.
 - **Videos 7 and 8** exist only after you click, so the initial scan cannot find them and the mutation observer has to. Video 8 adds a shadow root on top, which is how an embedded player loads a video on demand.
 

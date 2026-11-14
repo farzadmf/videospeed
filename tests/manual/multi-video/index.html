@@ -62,7 +62,11 @@
 
     <section>
       <h2>1. Plain video, labelled with title</h2>
-      <video src="sample.mp4" title="Plain video" controls preload="auto"></video>
+      <video id="video-1" src="sample.mp4" title="Plain video" controls preload="auto"></video>
+      <p>
+        <button type="button" id="refuse-play">Make this video refuse play()</button>
+        <span id="refuse-state"></span>
+      </p>
     </section>
 
     <section>
@@ -120,6 +124,24 @@
       shadowVideo.preload = 'auto';
       shadowVideo.style.width = '480px';
       root.append(shadowVideo);
+
+      // Chrome resolves play() even in a cross-origin frame with no allow="autoplay"
+      // once the user has engaged with the page, so the autoplay policy cannot be used
+      // to test a refused action. This patches one video to reject instead.
+      const refuseButton = document.getElementById('refuse-play');
+      const refuseState = document.getElementById('refuse-state');
+      const videoOne = document.getElementById('video-1');
+      const realPlay = videoOne.play.bind(videoOne);
+      let refusing = false;
+
+      videoOne.play = () =>
+        refusing ? Promise.reject(new DOMException('Forced by the test page', 'NotAllowedError')) : realPlay();
+
+      refuseButton.addEventListener('click', () => {
+        refusing = !refusing;
+        refuseButton.textContent = refusing ? 'Let this video play again' : 'Make this video refuse play()';
+        refuseState.textContent = refusing ? 'play() now rejects with NotAllowedError' : '';
+      });
 
       // Lazy videos 7 and 8: the element is created on click, so only the mutation
       // observer can find them. Video 8's lives in a shadow root, which is what an
