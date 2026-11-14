@@ -8,7 +8,7 @@ Lets the user see the page's videos in the popup, choose one, and send popup act
 
 ### Requirement: Video list
 
-When the page has two or more controlled videos, the popup SHALL show one row per video in a stable order, with the label, playing state, speed, and an in-view or off-screen tag. Within one document, rows SHALL follow document order. With one video, the popup SHALL NOT show the list.
+When the page has one or more controlled videos, the popup SHALL show one row per video in a stable order, with the label, playing state, speed, and an in-view or off-screen tag. Within one document, rows SHALL follow document order. A single video SHALL get the list too, so the popup looks the same on every page.
 
 #### Scenario: Three videos
 
@@ -20,7 +20,7 @@ When the page has two or more controlled videos, the popup SHALL show one row pe
 
 - **GIVEN** a page with one controlled video
 - **WHEN** the popup opens
-- **THEN** it shows no video list and its actions reach that video
+- **THEN** it shows a list with that one video, selected, and its actions reach that video
 
 ### Requirement: Selection on open
 

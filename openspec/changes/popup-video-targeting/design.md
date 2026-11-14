@@ -96,7 +96,7 @@ Matching the visual top-to-bottom order of the page needs each frame's position 
 
 ### D6. Selection lives in the popup
 
-The popup waits a short settle time after connecting (about 150 ms) so that the first snapshots arrive, then applies the selection-on-open rule once. After that, the selection changes only by `j`/`k`, `Down`/`Up`, a row click, or the selected video going away. With one video, there is no list and the selection is that video.
+The popup waits a short settle time after connecting (about 150 ms) so that the first snapshots arrive, then applies the selection-on-open rule once. After that, the selection changes only by `j`/`k`, `Down`/`Up`, a row click, or the selected video going away. With one video, the list has one row and the selection is that video.
 
 ### D7. Targeted commands
 
@@ -175,6 +175,26 @@ Alternatives considered:
 ### D12. Remove the dead `.div` feedback
 
 The two `video.vsc.div` calls in `action-handler.js` (show the controller on speed change, and blink it) never run. Fixing them would make hidden controllers visible on every speed change, which the action-feedback spec forbids for popup actions. The flash (D9) replaces them, so this change deletes them.
+
+### D13. Per-video session speed
+
+VSC saves one speed per website (`getBaseURL()` returns `location.hostname`, because CDN video URLs are unstable). Two paths write that saved speed back onto a video that is already playing:
+
+- The `play` and `seeked` handlers in `VideoController` call `getTargetSpeed()`, which reads the site's speed.
+- A rate change the site makes goes through `adjustSpeed` with `source: 'external'`, which also takes the site's speed.
+
+With one video per page that was harmless. With several, setting one video to 2.0x then pausing another snaps the second to 2.0x as well.
+
+Each `VideoController` gets a `sessionSpeed`: the speed it started at, then the last speed a speed action set on it. Both paths restore `sessionSpeed` when it is set and fall back to the site's speed when it is not. Starting a video still reads the site's speed, so a reload and a video that loads later both pick up the latest saved value, and a speed action still saves to the site through `config.syncSpeedValue`.
+
+The fight-back stays, because sites do reset the rate (that is why it exists); it now defends the video's own speed.
+
+The YouTube press-and-hold check (`isTemporaryNativeBoost` in `event-manager.js`) accepts a rate above the site's speed during a gesture. It must compare with the video's session speed instead. Otherwise a video at 1.0x on a site saved at 2.0x has YouTube's 2.0x hold rejected (2.0 is not above 2.0), and the fight-back snaps it back to 1.0x.
+
+Alternatives considered:
+
+- **Stop saving popup speeds on multi-video pages**: keeps today's restore paths, but a reload forgets the speed the user just chose. Rejected by the user in favor of this.
+- **Save per video**: needs a stable per-video key, and the per-site key exists because video URLs are not stable. Rejected.
 
 ## Risks / Trade-offs
 

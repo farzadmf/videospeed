@@ -27,9 +27,11 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 - [x] 4.3 Apply the selection-on-open rule once after a 150 ms settle. Keep the selection while the popup is open, and re-run the rule when the selected video goes away. Verify each scenario of "Selection on open" and "Selection is stable while open" on the test page.
 - [x] 4.4 Add `j`/`Down` and `k`/`Up` (wrapping) and row clicks to move the selection, and add the keys to `shortcuts.ts` and the help overlay. Verify: the keys move the selection through all eight videos, including off-screen ones, and the help lists them.
 
+- [ ] 4.5 Show the video list for a single video too, so the popup looks the same on every page. Verify: YouTube shows a one-row list with that video selected.
+
 ## 5. Targeted actions and reveal
 
-Discuss before 5.2: VSC saves a speed per website (`getBaseURL()` returns the hostname), so a speed set on one video becomes the starting speed of every video on that site after a reload, and of any video that loads later. With several videos on a page, a targeted speed change from the popup might need to stay temporary instead of being saved. Decide whether and when it should save, and experiment before building it.
+- [ ] 5.0 Give each `VideoController` a `sessionSpeed` (D13): the speed it starts at, then the last speed a speed action set on it. Make the `play` and `seeked` handlers and the site rate-change restore use it before the site's saved speed, and make `isTemporaryNativeBoost` compare against it. Verify on the test page: with video 1 at 2.0x and video 2 at 1.0x, pausing, playing, rewinding, and advancing video 2 keeps it at 1.0x; a lazy video loaded afterwards starts at 2.0x; after a reload every video starts at 2.0x.
 
 - [ ] 5.1 Add a single-video entry point to `ActionHandler` that parses an action the same way `runAction` does, calls `executeAction` for one video, and returns an outcome of `applied`, `refused`, or `unknown-target`, awaiting the `play()` promise so a refusal is reported (D11). Verify: the build passes and the controller's own buttons still work.
 - [ ] 5.2 Handle targeted commands in MAIN (match the frame token, resolve the video by `controllerId`, call the entry point, post the outcome back), and make the popup send every action as a targeted command instead of a broadcast. Verify on the test page: with the second video selected, `2` sets only that video to 2.0x, and `Space` on an off-screen video toggles it without scrolling.
@@ -51,7 +53,7 @@ Discuss before 5.2: VSC saves a speed per website (`getBaseURL()` returns the ho
 
 ## 8. Integration check
 
-- [ ] 8.1 Run the full flow on the test page, on one real page with several videos, and on YouTube (one video). Verify: every spec scenario holds, YouTube shows no list and its popup actions still work, and no inventory traffic runs while the popup is closed.
+- [ ] 8.1 Run the full flow on the test page, on one real page with several videos, and on YouTube (one video). Verify: every spec scenario holds, YouTube shows a one-row list and its popup actions still work, and no inventory traffic runs while the popup is closed.
 
 ## Workflow follow-up
 
