@@ -151,7 +151,7 @@ Once the popup sends targeted commands, nothing needs `SET_SPEED`, `ADJUST_SPEED
 
 So this change deletes the old popup and its three build entries, that debug method, the four message types, and their `inject.js` handlers. One command path is left, which is what the popup's single round-trip model needs. Keeping them would leave a second, untargeted way to change speed that no caller uses.
 
-`TOGGLE_DISPLAY` and `TEARDOWN` stay: they are lifecycle commands for the whole page, not per-video actions.
+`TOGGLE_DISPLAY` goes too: it had a handler but no sender, and the `display` key binding runs the same action. `TEARDOWN` stays: the bridge sends it when the site is disabled.
 
 ### D11. Report a refused action on the page and in the popup
 

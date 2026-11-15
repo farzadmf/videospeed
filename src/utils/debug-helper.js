@@ -27,14 +27,13 @@ class DebugHelper {
       checkMedia: () => this.checkMediaElements(),
       checkControllers: () => this.checkControllers(),
       testPopup: () => this.testPopupCommunication(),
-      testBridge: () => this.testPopupMessageBridge(),
       forceShow: () => this.forceShowControllers(),
       forceShowAudio: () => this.forceShowAudioControllers(),
       getVisibility: (element) => this.getElementVisibility(element),
     };
 
     console.log(
-      '🔧 Debug functions available: vscDebug.checkMedia(), vscDebug.checkControllers(), vscDebug.testPopup(), vscDebug.testBridge(), vscDebug.forceShow(), vscDebug.forceShowAudio()'
+      '🔧 Debug functions available: vscDebug.checkMedia(), vscDebug.checkControllers(), vscDebug.testPopup(), vscDebug.forceShow(), vscDebug.forceShowAudio()'
     );
   }
 
@@ -244,38 +243,6 @@ class DebugHelper {
       console.log('❌ Action handler not available');
     }
 
-    console.groupEnd();
-  }
-
-  /**
-   * Test the complete popup message bridge by simulating the message flow
-   */
-  testPopupMessageBridge() {
-    console.group('📡 Testing Complete Popup Message Bridge');
-
-    // Test if we can simulate the exact message flow from popup → content script → page context
-    const testMessages = [
-      { type: 'VSC_SET_SPEED', payload: { speed: 1.25 } },
-      { type: 'VSC_ADJUST_SPEED', payload: { delta: 0.25 } },
-      { type: 'VSC_RESET_SPEED' },
-    ];
-
-    console.log('Testing message bridge by simulating popup messages...');
-
-    testMessages.forEach((message, index) => {
-      setTimeout(() => {
-        console.log(`🔧 Debug: Simulating popup message ${index + 1}:`, message);
-
-        // Dispatch the same event that content script would dispatch
-        window.dispatchEvent(
-          new CustomEvent('VSC_MESSAGE', {
-            detail: message,
-          })
-        );
-      }, index * 1500); // 1.5 second delays
-    });
-
-    console.log('Messages will be sent with 1.5 second intervals...');
     console.groupEnd();
   }
 

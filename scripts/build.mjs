@@ -75,9 +75,6 @@ async function build() {
         'styles/inject_new': 'src/styles/inject_new.css',
         'ui/options/options': 'src/ui/options/options.js',
         'ui/options/options-html': 'src/ui/options/options.html',
-        'ui/popup/popup': 'src/ui/popup/popup.js',
-        'ui/popup/popup-css': 'src/ui/popup/popup.css',
-        'ui/popup/popup-html': 'src/ui/popup/popup.html',
         background: 'src/background.js',
         'content-bridge': 'src/entries/content-bridge.js',
         inject: 'src/entries/inject-entry.js',
@@ -116,8 +113,6 @@ async function build() {
                 await fs.move(path.join(dir, `${name}-${ext}.${ext}`), path.join(dir, `${name}.${ext}`), { overwrite: true });
               };
               await rename('options', 'html');
-              await rename('popup', 'html');
-              await rename('popup', 'css');
             });
           },
         },

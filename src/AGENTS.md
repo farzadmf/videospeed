@@ -38,17 +38,19 @@ Keyboard control lives in the **popup** (its own document), not on the page. On-
 
 ### Popup ⇄ page messaging (`ui/popup-react/chrome-api.ts`)
 
-- Commands via `chrome.tabs.sendMessage`; types in `shared/constants.js` (`MESSAGE_TYPES`).
-- Playback toggling uses `runAction('pause')` — the `pause` action toggles (plays if paused); there is intentionally no separate PLAY/PAUSE.
+- Types in `shared/constants.js` (`MESSAGE_TYPES`). The popup's `chrome.tabs.sendMessage` carries only STATUS; every per-video action goes on the inventory port (below). TEARDOWN goes from the bridge to MAIN.
+- Playback toggling uses the `pause` action, which toggles (plays if paused); there is intentionally no separate PLAY/PAUSE.
 - **Request/reply (STATUS probe):** `sendMessage` broadcasts to every frame (`all_frames`). Only the top frame answers (bridge checks `window === top`), reporting the coordinator's hub-wide total, not a per-frame count. The bridge `return true`s to keep the channel open for the async `VSC_STATUS_REPLY`.
 - Popup probes availability on open and polls while open (it remounts each open). States: probing / unreachable / disabled / no-video / active.
 - **Inventory port (per-video state):** the popup opens one port with `chrome.tabs.connect(tabId, { name: INVENTORY_PORT })` and no `frameId`. Chrome connects it to every frame, including cross-origin and nested ones, and every frame's messages arrive on the popup's one port. Each bridge forwards the start to MAIN, and `core/media-inventory.js` sends a whole snapshot of that frame's videos on connect, on change (debounced 100 ms), and every 1 s as a heartbeat. Closing the popup disconnects every frame, which stops all reporting, so nothing runs while the popup is closed.
 - **Video identity:** `<frameToken>:<controllerId>`. A frame cannot read its Chrome `frameId`, so each frame generates a random token once per load.
+- **Targeted commands:** the popup sends `{ action, commandId, target, type: INVENTORY_COMMAND }` on the port. Every frame gets it; only the frame whose token matches acts, then posts an outcome (`applied`, `refused`, `unknown-target`) with the same `commandId`. No answer in 1.5 s means the video is gone. `flash` and `reveal` are page actions on the same path; the rest go through `ActionHandler.runActionOnVideo`.
 - **Late frames:** a popup opened while a frame is loading sends its start before MAIN listens. The bridge replays the start at the settings handshake, since MAIN asks for settings only once it listens.
 
 ### Cross-frame coordinator (`coordination/`)
 
-A registry: each frame announces its controller count to the top-frame hub (HELLO/CONTROLLERS over `window.postMessage`). Used to compute totals.
+- **Registry:** each frame announces its controller count to the top-frame hub (HELLO/CONTROLLERS over `window.postMessage`). Used to compute totals.
+- **Parent chain** (`reveal.js`, `frame-place.js`): a frame posts to `window.parent`, which finds the asking `<iframe>` by `contentWindow === event.source`, acts, and passes the request up. Reveal scrolls each level; place computes where a frame sits among the page's videos, so the popup lists videos in page order. Both relays install before `initialize()` returns early, so a frame VSC skips still passes requests on.
 
 ## Popup keyboard shortcuts (`ui/popup-react/`)
 

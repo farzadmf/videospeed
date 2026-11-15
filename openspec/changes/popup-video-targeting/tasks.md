@@ -48,9 +48,9 @@ Each task ends with `npm run build` passing, then a browser check by the user (r
 
 ## 7. Remove the broadcast command path
 
-- [ ] 7.1 Delete `src/ui/popup/` and its three entries in `scripts/build.mjs`, and `testPopupMessageBridge()` in `src/utils/debug-helper.js` (D10). Verify: `npm run build` passes, `dist/ui/popup/` is gone, and the popup still opens from the toolbar.
-- [ ] 7.2 Remove `SET_SPEED`, `ADJUST_SPEED`, `RESET_SPEED`, and `RUN_ACTION` from `src/shared/constants.js`, their `inject.js` handlers, and the unused helpers in `chrome-api.ts`, keeping `STATUS`, `TOGGLE_DISPLAY`, and `TEARDOWN`. Verify: `grep -rn "SET_SPEED\|ADJUST_SPEED\|RESET_SPEED\|RUN_ACTION" src/` matches only `src/utils/constants.js` (kept for posterity) and `src/core/action-handler.js`'s own action names, and every popup control still works on the test page.
-- [ ] 7.3 Update the "Popup ⇄ page messaging" section of `src/AGENTS.md` to drop the removed types and describe the targeted command path. Verify: the section matches the code and `npm run lint` passes.
+- [x] 7.1 Delete `src/ui/popup/` and its three entries in `scripts/build.mjs`, and `testPopupMessageBridge()` in `src/utils/debug-helper.js` (D10). Verify: `npm run build` passes, `dist/ui/popup/` is gone, and the popup still opens from the toolbar.
+- [x] 7.2 Remove `SET_SPEED`, `ADJUST_SPEED`, `RESET_SPEED`, and `RUN_ACTION` from `src/shared/constants.js`, their `inject.js` handlers, and the unused helpers in `chrome-api.ts`, and `TOGGLE_DISPLAY`, which has no sender, keeping `STATUS` and `TEARDOWN`. Verify: `grep -rn "SET_SPEED\|ADJUST_SPEED\|RESET_SPEED\|RUN_ACTION" src/` matches only `src/utils/constants.js` (kept for posterity) and `src/core/action-handler.js`'s own action names, and every popup control still works on the test page.
+- [x] 7.3 Update the "Popup ⇄ page messaging" section of `src/AGENTS.md` to drop the removed types and describe the targeted command path. Verify: the section matches the code and `npm run lint` passes.
 
 ## 8. Integration check
 

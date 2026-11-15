@@ -32,7 +32,7 @@ None. The project has no existing specs.
 ## Impact
 
 - **Popup** (`src/ui/popup-react/`): new video list, selection state, new keys in `shortcuts.ts` and the help overlay, and targeted command calls in `chrome-api.ts`.
-- **Messaging** (`src/entries/content-bridge.js`, `src/content/inject.js`, `src/shared/constants.js`): a channel from the popup to every frame that carries the inventory up and targeted commands down. `STATUS` stays for the availability states, and so do `TOGGLE_DISPLAY` and `TEARDOWN`.
+- **Messaging** (`src/entries/content-bridge.js`, `src/content/inject.js`, `src/shared/constants.js`): a channel from the popup to every frame that carries the inventory up and targeted commands down. `STATUS` stays for the availability states, and `TEARDOWN` stays for disabling a site. `TOGGLE_DISPLAY` goes, since nothing sends it.
 - **Page side** (`src/core/`, `src/ui/`): per-video in-view tracking against the top-level viewport, a label for each video, a targeted action entry point that bypasses `runAction`'s first-match loop and reports its outcome, and the flash overlay and pulse.
 - **Speed memory** (`src/core/video-controller.js`, `src/core/action-handler.js`, `src/utils/event-manager.js`): a per-video session speed, which the play and seek handlers and the site rate-change restore use in place of the site's saved speed. This affects every page, not only popup use.
 - **Cross-frame** (`src/coordination/`): a message that walks the parent chain so each frame scrolls the next one into view, which is how a video in a nested or cross-origin frame is revealed.

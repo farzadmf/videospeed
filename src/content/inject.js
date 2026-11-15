@@ -4,7 +4,6 @@
  */
 import { installPlaceRelay } from '../coordination/frame-place.js';
 import { installRevealRelay } from '../coordination/reveal.js';
-import { config } from '../core/config.js';
 import { stateManager } from '../core/state-manager.js';
 import { MESSAGE_TYPES } from '../shared/constants.js';
 import { logger } from '../utils/logger.js';
@@ -52,37 +51,6 @@ import { VideoSpeedExtension } from './video-speed-extension.js';
 
       case MESSAGE_TYPES.INVENTORY_STOP:
         extension.stopInventory();
-        break;
-
-      case MESSAGE_TYPES.SET_SPEED:
-        if (typeof message.payload?.speed === 'number') {
-          extension.actionHandler.runAction({
-            actionItem: { action: { name: 'SET_SPEED' }, value: message.payload.speed },
-          });
-        }
-        break;
-
-      case MESSAGE_TYPES.ADJUST_SPEED:
-        if (typeof message.payload?.delta === 'number') {
-          extension.actionHandler.runAction({
-            actionItem: { action: { name: 'ADJUST_SPEED' }, value: message.payload.delta },
-          });
-        }
-        break;
-
-      case MESSAGE_TYPES.RESET_SPEED:
-        extension.actionHandler.runAction({ actionItem: { action: { name: 'RESET_SPEED' } } });
-        break;
-
-      case MESSAGE_TYPES.RUN_ACTION:
-        if (message.payload?.action) {
-          const binding = config.getActionByName(message.payload.action);
-          extension.actionHandler.runAction({ actionItem: binding ?? message.payload.action });
-        }
-        break;
-
-      case MESSAGE_TYPES.TOGGLE_DISPLAY:
-        extension.actionHandler.runAction({ actionItem: 'display' });
         break;
 
       case MESSAGE_TYPES.TEARDOWN:

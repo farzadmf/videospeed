@@ -21,17 +21,12 @@ export const REG_STRIP = /^[\r\t\f\v ]+|[\r\t\f\v ]+$/gm;
 export const REG_ENDS_WITH_FLAGS = /\/(?!.*(.).*\1)[gimsuy]*$/;
 
 export const MESSAGE_TYPES = {
-  SET_SPEED: 'VSC_SET_SPEED',
-  ADJUST_SPEED: 'VSC_ADJUST_SPEED',
-  RESET_SPEED: 'VSC_RESET_SPEED',
-  RUN_ACTION: 'VSC_RUN_ACTION',
-  TOGGLE_DISPLAY: 'VSC_TOGGLE_DISPLAY',
-  TEARDOWN: 'VSC_TEARDOWN',
-  STATUS: 'VSC_STATUS',
   INVENTORY_COMMAND: 'VSC_INVENTORY_COMMAND',
   INVENTORY_START: 'VSC_INVENTORY_START',
   INVENTORY_STOP: 'VSC_INVENTORY_STOP',
   SET_SITE_SPEED: 'VSC_SET_SITE_SPEED',
+  STATUS: 'VSC_STATUS',
+  TEARDOWN: 'VSC_TEARDOWN',
 };
 
 // The popup opens one port per tab with no frameId, so Chrome connects it to every
