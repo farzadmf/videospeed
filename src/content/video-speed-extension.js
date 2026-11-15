@@ -251,6 +251,8 @@ export class VideoSpeedExtension {
     const outcome = await this.actionHandler.runActionOnVideo({ actionItem, video: resolved.video });
     if (outcome === 'applied') {
       resolved.video.vsc?.flash();
+    } else if (outcome === 'refused') {
+      resolved.video.vsc?.flashFailure();
     }
 
     this.mediaInventory?.sendOutcome({ action, commandId, outcome, target });

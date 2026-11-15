@@ -110,12 +110,21 @@ export const OtherSettings = ({ settings, update }: Props) => (
       <em className="text-base-content/70 text-base">Shows which video a popup action reached</em>
     </div>
     <label className="flex items-center gap-3 py-1.5">
-      <span className="w-56 pl-4 text-base">Colour</span>
+      <span className="w-56 pl-4 text-base">Colour on success</span>
       <input
         className="h-10 w-16 cursor-pointer"
         type="color"
         value={settings.flashRing.color}
         onChange={(e) => update({ flashRing: { ...settings.flashRing, color: e.target.value } })}
+      />
+    </label>
+    <label className="flex items-center gap-3 py-1.5">
+      <span className="w-56 pl-4 text-base">Colour on failure</span>
+      <input
+        className="h-10 w-16 cursor-pointer"
+        type="color"
+        value={settings.flashRing.failureColor}
+        onChange={(e) => update({ flashRing: { ...settings.flashRing, failureColor: e.target.value } })}
       />
     </label>
     <label className="flex items-center gap-3 py-1.5">

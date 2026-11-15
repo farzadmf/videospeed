@@ -1,6 +1,6 @@
 import { formatSpeed } from '../shared/constants.js';
 import { ControlsManager } from '../ui/controls-manager.js';
-import { FlashRing } from '../ui/flash-ring.js';
+import { FlashRing, pulse } from '../ui/flash-ring.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
 import { logger } from '../utils/logger.js';
 import { getBaseURL } from '../utils/url.js';
@@ -42,6 +42,7 @@ export class VideoController {
     this.controllerDiv = null;
     // Null when anchor positioning is off: the ring has no anchor to follow.
     this.flashRing = null;
+    this.pulseAnimation = null;
 
     this.scrollListener = null;
     this.resizeListener = null;
@@ -614,6 +615,17 @@ export class VideoController {
   /** Show which video an action reached. */
   flash() {
     this.flashRing?.flash();
+
+    // A new flash restarts the pulse, as it restarts the ring.
+    this.pulseAnimation?.cancel();
+    if (this.controllerDiv) {
+      this.pulseAnimation = pulse(this.controllerDiv, this.config.settings.flashRing.color);
+    }
+  }
+
+  /** Show that the browser refused an action on this video. */
+  flashFailure() {
+    this.flashRing?.flashFailure();
   }
 
   /**

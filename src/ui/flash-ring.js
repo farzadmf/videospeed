@@ -4,6 +4,25 @@ import ringCss from '../styles/flash_ring.css';
 export const FLASH_MS = 600;
 
 /**
+ * Pulse the controller pill in step with the ring. A hidden pill stays hidden, since
+ * the animation changes only size and glow.
+ * @param {HTMLElement} pill
+ * @param {string} color - The flashRing colour
+ * @returns {Animation}
+ */
+export function pulse(pill, color) {
+  // Anchored at the top left, so the pill grows into the video, not off its edge.
+  return pill.animate(
+    [
+      { transform: 'scale(1)', transformOrigin: 'top left' },
+      { boxShadow: `0 0 6px 3px ${color}`, offset: 0.25, transform: 'scale(1.15)', transformOrigin: 'top left' },
+      { transform: 'scale(1)', transformOrigin: 'top left' },
+    ],
+    { duration: FLASH_MS, easing: 'ease-out' }
+  );
+}
+
+/**
  * A ring drawn over a video to show which one an action reached.
  *
  * It is a separate element from the controller, so a hidden controller (startHidden)
@@ -14,10 +33,11 @@ export class FlashRing {
   /**
    * @param {HTMLMediaElement} video
    * @param {string} anchorName - The anchor-name already set on the video
-   * @param {{color: string, width: number}} look - The flashRing setting
+   * @param {{color: string, failureColor: string, width: number}} look - The flashRing setting
    */
-  constructor(video, anchorName, { color, width }) {
+  constructor(video, anchorName, { color, failureColor, width }) {
     this.host = document.createElement('vsc-flash');
+    this.failureColor = failureColor;
     this.animation = null;
 
     // Inline, so the page's styles and the shadow sheet's `all: initial` cannot undo it.
@@ -57,6 +77,18 @@ export class FlashRing {
       duration: FLASH_MS,
       easing: 'ease-out',
     });
+  }
+
+  /**
+   * Two blips in a warning colour, in the same time as one success flash. The repeat,
+   * not only the colour, tells it apart, so it reads without colour vision.
+   */
+  flashFailure() {
+    this.animation?.cancel();
+    this.animation = this.ring.animate(
+      [0, 1, 0, 1, 0].map((opacity, i) => ({ borderColor: this.failureColor, offset: i / 4, opacity })),
+      { duration: FLASH_MS }
+    );
   }
 
   remove() {

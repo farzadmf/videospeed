@@ -51,7 +51,12 @@ export function useOptions() {
   useEffect(() => {
     chrome.storage.sync.get(VSC_DEFAULTS, (stored) => {
       applyTheme((stored.theme as Theme) ?? 'system');
-      setDraft(stored as Settings);
+      // get() fills in defaults only for missing top-level keys, so a flashRing saved
+      // before a field existed lacks it.
+      setDraft({
+        ...stored,
+        flashRing: { ...VSC_DEFAULTS.flashRing, ...(stored.flashRing as Settings['flashRing']) },
+      } as Settings);
     });
   }, []);
 

@@ -84,6 +84,7 @@ export class VideoSpeedConfig {
       this.settings.exclusiveKeys = Boolean(storage.exclusiveKeys);
       this.settings.flashRing = {
         color: storage.flashRing?.color || VSC_DEFAULTS.flashRing.color,
+        failureColor: storage.flashRing?.failureColor || VSC_DEFAULTS.flashRing.failureColor,
         width: Number(storage.flashRing?.width) || VSC_DEFAULTS.flashRing.width,
       };
       this.settings.forceLastSavedSpeed = Boolean(storage.forceLastSavedSpeed);
