@@ -9,7 +9,7 @@ import { ShortcutsView } from './components/shortcuts-view';
 import { SpeedControls } from './components/speed-controls';
 import { VideoList } from './components/video-list';
 import { noticeForOutcome, useNotice } from './notice';
-import { HELP_KEY, REVEAL_KEY } from './shortcuts';
+import { HELP_KEY, REVEAL_KEY, TOGGLE_CONTROLLER_KEY } from './shortcuts';
 import { useInventory } from './use-inventory';
 import { useSelection } from './use-selection';
 import { useSettings } from './use-settings';
@@ -55,6 +55,7 @@ export const App = () => {
   };
 
   useHotkey({ key: REVEAL_KEY }, () => actOnSelected({ name: 'reveal' }));
+  useHotkey({ key: TOGGLE_CONTROLLER_KEY }, () => actOnSelected({ name: 'display' }));
 
   // Flash the video the popup opened on, and each video the selection moves to, so the
   // user sees which video the keys reach. Before settling the selection can still move.

@@ -29,6 +29,7 @@ export const SELECT_NEXT_KEY = 'J';
 export const SELECT_PREVIOUS_ARROW = 'ArrowUp';
 export const SELECT_PREVIOUS_KEY = 'K';
 export const SLOWER_KEY = '-';
+export const TOGGLE_CONTROLLER_KEY = 'V';
 
 // Rows shown in the help overlay. Single keys are formatted via the library so
 // they render as nice glyphs (␣, ←, →); ranges are summarized by hand.
@@ -43,5 +44,6 @@ export const HELP_ROWS = [
   { desc: 'Select next video', keys: `${label(SELECT_NEXT_KEY)} / ${label(SELECT_NEXT_ARROW)}` },
   { desc: 'Select previous video', keys: `${label(SELECT_PREVIOUS_KEY)} / ${label(SELECT_PREVIOUS_ARROW)}` },
   { desc: 'Scroll the video into view', keys: label(REVEAL_KEY) },
+  { desc: 'Show / hide its controller', keys: label(TOGGLE_CONTROLLER_KEY) },
   { desc: 'Toggle this help', keys: label(`Shift+${HELP_KEY}`) },
 ];

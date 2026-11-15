@@ -26,6 +26,8 @@ function actionLabel(action: VideoAction): string {
       return `Speed ${action.value}x`;
     case 'advance':
       return 'Advance';
+    case 'display':
+      return 'Show / hide';
     case 'pause':
       return 'Play';
     case 'rewind':
