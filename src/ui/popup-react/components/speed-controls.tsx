@@ -66,8 +66,9 @@ export const SpeedControls = ({ fasterStep, onAction, slowerStep }: Props) => {
         <HotkeyButton
           className="btn btn-sm btn-secondary"
           hotkey={sh.REWIND_KEY}
+          hotkeyAlt={sh.REWIND_ARROW}
           onTrigger={() => onAction({ name: 'rewind' })}
-          title="Rewind (←)"
+          title="Rewind (H / ←)"
         >
           <LuRewind size={18} />
         </HotkeyButton>
@@ -85,8 +86,9 @@ export const SpeedControls = ({ fasterStep, onAction, slowerStep }: Props) => {
         <HotkeyButton
           className="btn btn-secondary btn-sm"
           hotkey={sh.ADVANCE_KEY}
+          hotkeyAlt={sh.ADVANCE_ARROW}
           onTrigger={() => onAction({ name: 'advance' })}
-          title="Advance (→)"
+          title="Advance (L / →)"
         >
           <LuFastForward size={18} />
         </HotkeyButton>

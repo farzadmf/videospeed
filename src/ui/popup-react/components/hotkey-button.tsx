@@ -8,6 +8,8 @@ type Props = {
   children: ReactNode;
   className: string;
   hotkey: string;
+  // A second key for the same action, such as an arrow next to a letter.
+  hotkeyAlt?: string;
   onTrigger: () => void;
   // When set, Shift+hotkey (and a shift-held click) fire this instead.
   onShiftTrigger?: () => void;
@@ -16,7 +18,23 @@ type Props = {
   title?: string;
 };
 
-export const HotkeyButton = ({ children, className, hotkey, onShiftTrigger, onTrigger, shiftHeld, title }: Props) => {
+// A component, not a hook call, so a button with no second key registers nothing:
+// hooks cannot be conditional, and a disabled duplicate still warns as a conflict.
+const ExtraHotkey = ({ hotkey, onPress }: { hotkey: string; onPress: () => void }) => {
+  useHotkey({ key: hotkey }, onPress);
+  return null;
+};
+
+export const HotkeyButton = ({
+  children,
+  className,
+  hotkey,
+  hotkeyAlt,
+  onShiftTrigger,
+  onTrigger,
+  shiftHeld,
+  title,
+}: Props) => {
   const [flashing, setFlashing] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -37,6 +55,7 @@ export const HotkeyButton = ({ children, className, hotkey, onShiftTrigger, onTr
 
   return (
     <button className={`${className} ${flashing ? FLASH_CLASS : ''}`} title={title} onClick={onClick}>
+      {hotkeyAlt && <ExtraHotkey hotkey={hotkeyAlt} onPress={() => fire(onTrigger)} />}
       {children}
     </button>
   );
