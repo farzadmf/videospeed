@@ -22,6 +22,8 @@ export const VSC_DEFAULTS = {
   audioBoolean: true,
   blacklist: ['imgur.com', 'teams.microsoft.com'].map((value) => value.replace(REG_STRIP, '')),
   controllerButtonSize: 14,
+  // Insert the controller in the video's player box instead of body; needs anchorPositioning
+  controllerInPlayer: true,
   controllerOpacity: 0.8,
   defaultLogLevel: LOG_LEVELS.INFO,
   enabled: true,

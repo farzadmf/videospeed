@@ -31,8 +31,10 @@ export class FlashRing {
    * @param {HTMLMediaElement} video
    * @param {string} anchorName - The anchor-name already set on the video
    * @param {{color: string, failureColor: string, width: number}} look - The flashRing setting
+   * @param {{box: Element|ShadowRoot, slot: string|null, zIndex: number}|null} placement -
+   *   The controller's place in the player box, or null when it sits at the page root
    */
-  constructor(video, anchorName, { color, failureColor, width }) {
+  constructor(video, anchorName, { color, failureColor, width }, placement = null) {
     this.host = document.createElement('vsc-flash');
     this.failureColor = failureColor;
     this.animation = null;
@@ -44,12 +46,12 @@ export class FlashRing {
       bottom: 'anchor(bottom)',
       left: 'anchor(left)',
       'pointer-events': 'none',
-      position: 'fixed',
+      position: placement ? 'absolute' : 'fixed',
       'position-anchor': anchorName,
       'position-visibility': 'anchors-visible',
       right: 'anchor(right)',
       top: 'anchor(top)',
-      'z-index': '2147483646',
+      'z-index': placement ? String(placement.zIndex) : '2147483646',
     };
     for (const [name, value] of Object.entries(styles)) {
       this.host.style.setProperty(name, value);
@@ -61,6 +63,14 @@ export class FlashRing {
     this.ring = document.createElement('div');
     this.ring.className = 'ring';
     shadow.append(style, this.ring);
+
+    if (placement) {
+      if (placement.slot) {
+        this.host.slot = placement.slot;
+      }
+      placement.box.appendChild(this.host);
+      return;
+    }
 
     // Anchor names are tree-scoped: the ring must share the video's tree to resolve one.
     const root = video.getRootNode();

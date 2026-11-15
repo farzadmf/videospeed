@@ -40,8 +40,11 @@
       .spacer {
         height: 60vh;
       }
-      /* Video 4 lives here, so scrolling this box out of view must report it off-screen. */
+      /* Video 4 lives here, so scrolling this box out of view must report it off-screen.
+         Positioned, as real players are: CSS clips an absolute child only against a
+         positioned scroll container. */
       .scroller {
+        position: relative;
         width: 520px;
         height: 240px;
         overflow: auto;

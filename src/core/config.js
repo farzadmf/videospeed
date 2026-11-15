@@ -80,6 +80,7 @@ export class VideoSpeedConfig {
       this.settings.anchorPositioning = Boolean(storage.anchorPositioning);
       this.settings.audioBoolean = Boolean(storage.audioBoolean);
       this.settings.controllerButtonSize = Number(storage.controllerButtonSize);
+      this.settings.controllerInPlayer = Boolean(storage.controllerInPlayer);
       this.settings.controllerOpacity = Number(storage.controllerOpacity);
       this.settings.exclusiveKeys = Boolean(storage.exclusiveKeys);
       this.settings.flashRing = {

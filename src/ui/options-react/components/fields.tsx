@@ -1,14 +1,21 @@
 import { ReactNode } from 'react';
 
 type CheckboxProps = {
-  label: ReactNode;
   checked: boolean;
+  disabled?: boolean;
+  label: ReactNode;
   onChange: (checked: boolean) => void;
 };
 
-export const CheckboxField = ({ label, checked, onChange }: CheckboxProps) => (
-  <label className="flex cursor-pointer items-start gap-3 py-1.5">
-    <input type="checkbox" className="checkbox mt-0.5" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+export const CheckboxField = ({ checked, disabled, label, onChange }: CheckboxProps) => (
+  <label className={`flex items-start gap-3 py-1.5 ${disabled ? 'opacity-50' : 'cursor-pointer'}`}>
+    <input
+      checked={checked}
+      className="checkbox mt-0.5"
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.checked)}
+      type="checkbox"
+    />
     <span className="text-base">{label}</span>
   </label>
 );

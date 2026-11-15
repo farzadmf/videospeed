@@ -1,6 +1,7 @@
 import { formatSpeed } from '../shared/constants.js';
 import { ControlsManager } from '../ui/controls-manager.js';
 import { FlashRing, pulse } from '../ui/flash-ring.js';
+import { placeInPlayer } from '../ui/player-box.js';
 import { ShadowDOMManager } from '../ui/shadow-dom-manager.js';
 import { logger } from '../utils/logger.js';
 import { getBaseURL } from '../utils/url.js';
@@ -42,6 +43,8 @@ export class VideoController {
     this.controllerDiv = null;
     // Null when anchor positioning is off: the ring has no anchor to follow.
     this.flashRing = null;
+    // Set by insertIntoDOM when the controller sits in the video's player box
+    this.placement = null;
     this.pulseAnimation = null;
 
     this.scrollListener = null;
@@ -286,9 +289,17 @@ export class VideoController {
 
     // Enable anchor positioning now that the host is in the DOM; falls back to JS if unsupported.
     // The host always carries exactly one mode marker, so you can tell which is active.
-    if (this.shadowManager.anchorPositioning && this.shadowManager.enableAnchorPositioning(this.wrapperDiv)) {
+    if (
+      this.shadowManager.anchorPositioning &&
+      this.shadowManager.enableAnchorPositioning(this.wrapperDiv, this.placement)
+    ) {
       this.wrapperDiv.classList.add('vsc-anchored');
-      this.flashRing = new FlashRing(this.video, this.shadowManager.anchorName, this.config.settings.flashRing);
+      this.flashRing = new FlashRing(
+        this.video,
+        this.shadowManager.anchorName,
+        this.config.settings.flashRing,
+        this.placement
+      );
     } else {
       this.shadowManager.anchorPositioning = false;
       this.wrapperDiv.classList.add('vsc-js-positioned');
@@ -335,6 +346,38 @@ export class VideoController {
     }
   }
 
+  /** Put the controller back when the page dropped it with its player markup. */
+  restorePlacement() {
+    if (!this.placement || this.wrapperDiv.isConnected || !this.video.isConnected) {
+      return;
+    }
+
+    logger.debug('[placement] controller was removed with the player markup; placing it again');
+    this.insertIntoDOM(document, this.wrapperDiv);
+
+    // The new place can differ, or be the page root when the player no longer renders it.
+    this.wrapperDiv.style.setProperty('position', this.placement ? 'absolute' : 'fixed');
+    if (this.placement) {
+      this.wrapperDiv.style.setProperty('z-index', String(this.placement.zIndex));
+    } else {
+      this.wrapperDiv.style.removeProperty('z-index');
+    }
+
+    this.flashRing?.remove();
+    this.flashRing = new FlashRing(
+      this.video,
+      this.shadowManager.anchorName,
+      this.config.settings.flashRing,
+      this.placement
+    );
+  }
+
+  /** The player placement needs CSS anchoring: the box is not where the pill shows. */
+  wantsPlayerPlacement() {
+    const { anchorPositioning, controllerInPlayer } = this.config.settings;
+    return Boolean(anchorPositioning && controllerInPlayer && CSS.supports?.('anchor-name', '--a'));
+  }
+
   /**
    * Insert controller into DOM with site-specific positioning
    * @param {Document} document - Document object
@@ -345,11 +388,20 @@ export class VideoController {
     const fragment = document.createDocumentFragment();
     fragment.appendChild(wrapper);
 
-    // CSS anchor names are tree-scoped, so the host must share the video's tree to
-    // resolve position-anchor: the video's shadow root, or document.body if none.
-    const root = this.video.getRootNode();
-    const host = root instanceof ShadowRoot ? root : document.body;
-    host.appendChild(fragment);
+    this.placement = this.wantsPlayerPlacement() ? placeInPlayer(this.video) : null;
+
+    if (this.placement) {
+      if (this.placement.slot) {
+        wrapper.slot = this.placement.slot;
+      }
+      this.placement.box.appendChild(fragment);
+    } else {
+      // CSS anchor names are tree-scoped, so the host must share the video's tree to
+      // resolve position-anchor: the video's shadow root, or document.body if none.
+      const root = this.video.getRootNode();
+      const host = root instanceof ShadowRoot ? root : document.body;
+      host.appendChild(fragment);
+    }
 
     // Get site-specific positioning information
     const { insertionPoint, insertionMethod } = this.siteHandlerManager.getControllerPosition(this.parent, this.video);
@@ -517,6 +569,7 @@ export class VideoController {
           if (entry.isIntersecting) {
             logger.debug('[setupIntersectionObserver] Video is visible; showing and adjusting location');
             this.isVisible = true;
+            this.restorePlacement();
             this.shadowManager.show();
             this.shadowManager.adjustLocation();
             this.startScrollListener();

@@ -91,6 +91,21 @@ export const OtherSettings = ({ settings, update }: Props) => (
       checked={settings.anchorPositioning}
       onChange={(v) => update({ anchorPositioning: v })}
     />
+    <CheckboxField
+      checked={settings.controllerInPlayer}
+      disabled={!settings.anchorPositioning}
+      label={
+        <>
+          Controller inside the player
+          <br />
+          <em className="text-base-content/70 text-base">
+            Puts the controller in the video's player, so page menus cover it and the player clips it. Needs anchor
+            positioning; applies on the next page load.
+          </em>
+        </>
+      }
+      onChange={(v) => update({ controllerInPlayer: v })}
+    />
 
     <TextField
       label="Controller opacity"

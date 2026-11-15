@@ -305,9 +305,10 @@ export class ShadowDOMManager {
    * it natively. insertIntoDOM places the host in the video's tree, so it shares
    * the tree scope of the anchor-name set on the video and can reference it.
    * @param {HTMLElement} host - The <vsc-controller> host element
+   * @param {{zIndex: number}|null} placement - Set when the host sits in the player box
    * @returns {boolean} true if anchor positioning was applied
    */
-  enableAnchorPositioning(host) {
+  enableAnchorPositioning(host, placement = null) {
     if (!host || !this.target) {
       return false;
     }
@@ -325,8 +326,12 @@ export class ShadowDOMManager {
 
     this.target.style.setProperty('anchor-name', anchorName);
 
-    // fixed overrides the stylesheet's absolute so the anchor drives placement
-    host.style.setProperty('position', 'fixed');
+    // In body, fixed overrides the stylesheet's absolute so the anchor drives placement.
+    // In the player box, absolute keeps the host in the player's stacking and clipping.
+    host.style.setProperty('position', placement ? 'absolute' : 'fixed');
+    if (placement) {
+      host.style.setProperty('z-index', String(placement.zIndex));
+    }
     host.style.setProperty('position-anchor', anchorName);
     host.style.setProperty('top', 'anchor(top)');
     host.style.setProperty('left', 'anchor(left)');

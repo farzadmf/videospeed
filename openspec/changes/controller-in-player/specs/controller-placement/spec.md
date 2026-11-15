@@ -8,7 +8,7 @@ Places the controller so it stacks, clips, and goes fullscreen with its video, n
 
 ### Requirement: Placement option
 
-A "Controller inside the player" option, off by default, SHALL turn this placement on. It SHALL apply only with anchor positioning on, from the next page load. The requirements below apply while it is on.
+A "Controller inside the player" option, on by default, SHALL turn this placement on. It SHALL apply only with anchor positioning on, from the next page load. The requirements below apply while it is on.
 
 #### Scenario: Option off
 

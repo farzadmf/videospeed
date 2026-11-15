@@ -47,7 +47,7 @@ The in-view callback re-runs placement when the host is disconnected and the vid
 
 ### D6. Option
 
-`controllerInPlayer`, default `false`, read at load. Shown under **Anchor positioning**, disabled while that is off.
+`controllerInPlayer`, default `true`, read at load. It shipped off in the plan; it passed the test page, a site whose menu covered the pill, and YouTube, so it is on. Shown under **Anchor positioning**, disabled while that is off.
 
 ## Risks / Trade-offs
 
@@ -57,4 +57,4 @@ The in-view callback re-runs placement when the host is disconnected and the vid
 
 ## Migration Plan
 
-Ships off; toggling takes effect on the next page load.
+On by default; toggling takes effect on the next page load.

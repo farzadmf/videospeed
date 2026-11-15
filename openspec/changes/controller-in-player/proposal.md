@@ -6,7 +6,7 @@ The controller host sits in `document.body` (or the video's shadow root) with `p
 
 ## What Changes
 
-- New option **Controller inside the player**, off by default, needs anchor positioning.
+- New option **Controller inside the player**, on by default, needs anchor positioning.
 - With it on, one generic rule finds the video's player box; the host goes in as its last child with `position: absolute`, and a z-index just above the box's own layers.
 - Shadow DOM: the walk stays in the video's tree, copies slot names, and falls back to today's placement where the host would not render.
 - A removed host comes back.

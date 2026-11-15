@@ -30,7 +30,7 @@ The frames load from `127.0.0.1` on the same port, which is a different origin f
 ## What each one is for
 
 - **Video 3** checks that VSC finds a video in a shadow root and puts its controller in the same tree.
-- **Video 4** checks in-view reporting: scroll inside the box and the video goes out of sight while the page does not move.
+- **Video 4** checks in-view reporting: scroll inside the box and the video goes out of sight while the page does not move. The box is `position: relative`, as real players are, so with **Controller inside the player** on, the pill clips with it.
 - **Video 5** checks a cross-origin frame, and **video 6** checks that reveal walks up through two frames.
 - **Video 6's frame has no `allow="autoplay"`**, on purpose. That was meant to make the browser refuse `play()` there, but Chrome resolves it anyway once you have engaged with the page, so it does not reproduce the blocked case.
 - **The button above the frames removes them after 5 seconds, and puts them back.** The delay leaves time to open the popup, because clicking the page closes it. It takes videos 5 and 6 away at once, so a popup command to either one gets no answer, which is how the popup's "Video is no longer on the page" case happens.
