@@ -164,7 +164,7 @@ class DebugHelper {
       // Find associated video
       let associatedVideo = null;
       document.querySelectorAll('video, audio').forEach((media) => {
-        if (media.vsc && media.vsc.div === controller) {
+        if (media.vsc && media.vsc.wrapperDiv === controller) {
           associatedVideo = media;
         }
       });
@@ -312,8 +312,8 @@ class DebugHelper {
     let controllersShown = 0;
 
     audioElements.forEach((audio, index) => {
-      if (audio.vsc && audio.vsc.div) {
-        const controller = audio.vsc.div;
+      if (audio.vsc && audio.vsc.wrapperDiv) {
+        const controller = audio.vsc.wrapperDiv;
 
         // Remove all hiding classes
         controller.classList.remove('vsc-hidden', 'vsc-nosource');

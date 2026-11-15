@@ -586,11 +586,6 @@ export class ActionHandler {
   _adjustSpeedInternal(video, value, options) {
     const { relative = false, source = 'internal' } = options;
 
-    // Show controller for visual feedback when speed is changed
-    if (video.vsc?.div && this.eventManager) {
-      this.eventManager.showController(video.vsc.div);
-    }
-
     // Calculate target speed
     let targetSpeed;
     if (relative) {
@@ -693,12 +688,7 @@ export class ActionHandler {
       logger.debug('NOT saving to storage - rememberSpeed is false');
     }
 
-    // 6. Show controller briefly for visual feedback
-    if (video.vsc?.div) {
-      this.blinkController(video.vsc.div);
-    }
-
-    // 7. Refresh cooldown to prevent rapid changes
+    // 6. Refresh cooldown to prevent rapid changes
     if (this.eventManager) {
       this.eventManager.refreshCoolDown();
     }
