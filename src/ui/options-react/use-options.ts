@@ -62,7 +62,19 @@ export function useOptions() {
 
   const update = (patch: Partial<Settings>) => setDraft((d) => (d ? { ...d, ...patch } : d));
 
-  const save = (next: Settings) => new Promise<void>((resolve) => chrome.storage.sync.set(next, () => resolve()));
+  // Sync storage rejects a write over its quotas (8 KB per item, 100 KB in all), and
+  // reports it only through lastError; the caller must not say "saved" then.
+  const save = (next: Settings) =>
+    new Promise<void>((resolve, reject) =>
+      chrome.storage.sync.set(next, () => {
+        const error = chrome.runtime.lastError;
+        if (error) {
+          reject(new Error(error.message));
+        } else {
+          resolve();
+        }
+      })
+    );
 
   const restoreDefaults = () =>
     new Promise<void>((resolve) =>

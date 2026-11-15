@@ -39,7 +39,13 @@ export const App = () => {
       return;
     }
 
-    await save(serialize(draft));
+    try {
+      await save(serialize(draft));
+    } catch (error) {
+      flash(`Error: settings not saved: ${(error as Error).message}`, 8000);
+      return;
+    }
+
     setDirty(false);
     flash('Settings saved');
   };
