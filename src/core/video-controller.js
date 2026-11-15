@@ -537,7 +537,8 @@ export class VideoController {
   }
 
   setupVideoResizeObserver() {
-    if (this.videoResizeObserver) {
+    // Anchor mode: the browser places the controller, and adjustLocation() does nothing.
+    if (this.videoResizeObserver || this.shadowManager.anchorPositioning) {
       return;
     }
 
@@ -566,7 +567,11 @@ export class VideoController {
     }
   }
 
+  // Anchor mode skips the scroll and resize listeners, as setupVideoResizeObserver does.
   startScrollListener() {
+    if (this.shadowManager.anchorPositioning) {
+      return;
+    }
     window.addEventListener('scroll', this.scrollListener, { signal: this.signal });
   }
   stopScrollListener() {
@@ -574,6 +579,9 @@ export class VideoController {
   }
 
   startResizeListener() {
+    if (this.shadowManager.anchorPositioning) {
+      return;
+    }
     window.addEventListener('resize', this.resizeListener, { signal: this.signal });
   }
   stopResizeListener() {
