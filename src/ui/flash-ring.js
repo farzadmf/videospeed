@@ -4,22 +4,19 @@ import ringCss from '../styles/flash_ring.css';
 export const FLASH_MS = 600;
 
 /**
- * Pulse the controller pill in step with the ring. A hidden pill stays hidden, since
- * the animation changes only size and glow.
+ * Flash a border around the controller pill in step with the ring. An outline takes
+ * no layout space, so the pill keeps its size and position. A hidden pill stays hidden.
  * @param {HTMLElement} pill
  * @param {string} color - The flashRing colour
  * @returns {Animation}
  */
 export function pulse(pill, color) {
-  // Anchored at the top left, so the pill grows into the video, not off its edge.
-  return pill.animate(
-    [
-      { transform: 'scale(1)', transformOrigin: 'top left' },
-      { boxShadow: `0 0 6px 3px ${color}`, offset: 0.25, transform: 'scale(1.15)', transformOrigin: 'top left' },
-      { transform: 'scale(1)', transformOrigin: 'top left' },
-    ],
-    { duration: FLASH_MS, easing: 'ease-out' }
-  );
+  const frame = (outlineColor) => ({ outlineColor, outlineOffset: '1px', outlineStyle: 'solid', outlineWidth: '3px' });
+
+  return pill.animate([frame('transparent'), { ...frame(color), offset: 0.25 }, frame('transparent')], {
+    duration: FLASH_MS,
+    easing: 'ease-out',
+  });
 }
 
 /**
