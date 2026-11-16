@@ -1,4 +1,5 @@
 import ringCss from '../styles/flash_ring.css';
+import { adoptCss } from './adopt-css.js';
 
 // Shared with the controller pulse, so the two start and end together.
 export const FLASH_MS = 600;
@@ -58,11 +59,10 @@ export class FlashRing {
     }
 
     const shadow = this.host.attachShadow({ mode: 'open' });
-    const style = document.createElement('style');
-    style.textContent = ringCss;
+    adoptCss(shadow, ringCss);
     this.ring = document.createElement('div');
     this.ring.className = 'ring';
-    shadow.append(style, this.ring);
+    shadow.append(this.ring);
 
     if (placement) {
       if (placement.slot) {

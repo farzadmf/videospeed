@@ -2,6 +2,7 @@ import { formatSpeed, formatVolume } from '../shared/constants.js';
 import shadowCss from '../styles/shadow_new.css';
 import { logger } from '../utils/logger.js';
 import { formatDuration, toPx } from '../utils/misc.js';
+import { adoptCss } from './adopt-css.js';
 
 /**
  * Shadow DOM creation and management
@@ -88,13 +89,7 @@ export class ShadowDOMManager {
     this.host = wrapper;
     this.shadow = wrapper.attachShadow({ mode: 'open' });
 
-    // Create style element with embedded CSS
-    const style = document.createElement('style');
-    style.textContent = this.cssText;
-    this.shadow.appendChild(style);
-
-    const progressStyle = document.createElement('style');
-    progressStyle.textContent = this.cssText;
+    adoptCss(this.shadow, this.cssText);
 
     const topContainerDiv = document.createElement('div');
     topContainerDiv.id = 'vsc-top-container';
