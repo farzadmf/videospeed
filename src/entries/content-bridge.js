@@ -15,6 +15,7 @@
  * reload, and a live re-init would reuse the settings snapshot from page load.
  */
 import { INVENTORY_EVENT, INVENTORY_PORT, MESSAGE_TYPES } from '../shared/constants.js';
+import { applyChanges, pageChanges, pageSettings, rememberSpeedOn } from '../shared/runtime-settings.js';
 import { isBlacklisted } from '../utils/blacklist.js';
 
 // Speed limits for page→bridge write validation.
@@ -27,6 +28,9 @@ let bridgeInitialized = false;
 
 // 'pending' until the handshake answers; 'inactive' once aborted or disabled.
 let bridgeState = 'pending';
+
+// Sync storage as of the latest change; null until the startup read lands.
+let stored = null;
 
 // Set by any enabled toggle involving false, even one that lands before the
 // handshake: the settings snapshot read at load no longer holds.
@@ -59,11 +63,15 @@ function init() {
     // until the MAIN world actually requests settings — no point fetching
     // CSS on pages that never initialize a controller.
     const settingsReady = chrome.runtime?.id
-      ? chrome.storage.sync.get(null).catch((error) => {
-          console.error('[VSC] Initial settings load failed:', error);
-          return null;
-        })
-      : Promise.resolve(null);
+      ? chrome.storage.sync.get(null).then(
+          (snapshot) => {
+            stored = snapshot;
+          },
+          (error) => {
+            console.error('[VSC] Initial settings load failed:', error);
+          }
+        )
+      : Promise.resolve();
 
     // Register listener SYNCHRONOUSLY so we never miss the MAIN world's request.
     docEl.addEventListener(
@@ -90,21 +98,20 @@ function init() {
 }
 
 async function buildPayload(settingsReady) {
-  const settings = await settingsReady;
+  await settingsReady;
 
-  if (!settings) {
+  if (!stored) {
     return { abort: true };
   }
 
-  const disabled = disabledForDocument || settings.enabled === false;
-  const blacklisted = isBlacklisted(settings.blacklist, location.hostname);
+  const disabled = disabledForDocument || stored.enabled === false;
+  const blacklisted = isBlacklisted(stored.blacklist, location.hostname);
 
   if (disabled || blacklisted) {
     return { abort: true };
   }
 
-  delete settings.blacklist;
-  delete settings.enabled;
+  const settings = pageSettings(stored, location.hostname);
 
   const getSound = (name) => (chrome.runtime?.id ? chrome.runtime.getURL(`assets/sounds/${name}`) : '');
   const soundUrls = {
@@ -127,6 +134,11 @@ function setupOngoingListeners() {
       return;
     }
 
+    const before = stored;
+    if (stored) {
+      stored = applyChanges(stored, changes);
+    }
+
     // Lifecycle: only the popup's enabled toggle triggers teardown. Options
     // page never writes `enabled`, so saving options can't trigger lifecycle —
     // it only relays settings via VSC_STORAGE_CHANGED below. blacklist changes
@@ -144,12 +156,9 @@ function setupOngoingListeners() {
       return;
     }
 
-    // Relay changes to MAIN world (filter out keys MAIN never received)
-    const relayChanges = { ...changes };
-    delete relayChanges.enabled;
-    delete relayChanges.blacklist;
-    if (Object.keys(relayChanges).length > 0) {
-      docEl.dispatchEvent(new CustomEvent('VSC_STORAGE_CHANGED', { detail: relayChanges }));
+    const visibleChanges = pageChanges(before, stored, location.hostname);
+    if (visibleChanges) {
+      docEl.dispatchEvent(new CustomEvent('VSC_STORAGE_CHANGED', { detail: visibleChanges }));
     }
   });
 
@@ -233,18 +242,12 @@ function setupOngoingListeners() {
         return;
       }
 
-      const storageUpdate = {};
-
-      // lastSpeed can cross the trust boundary
-      if ('lastSpeed' in data) {
-        const speed = data.lastSpeed;
-        if (typeof speed === 'number' && Number.isFinite(speed)) {
-          storageUpdate.lastSpeed = Math.min(Math.max(speed, SPEED_MIN), SPEED_MAX);
-        }
-      }
-
-      if (Object.keys(storageUpdate).length > 0) {
-        chrome.storage.sync.set(storageUpdate);
+      // The stored rememberSpeed decides, not the page: page script can fire this
+      // event too. Rounded to the two decimals the page script uses for speeds.
+      const speed = data.lastSpeed;
+      if (rememberSpeedOn(stored) && typeof speed === 'number' && Number.isFinite(speed)) {
+        const lastSpeed = Math.round(Math.min(Math.max(speed, SPEED_MIN), SPEED_MAX) * 100) / 100;
+        chrome.storage.sync.set({ lastSpeed });
       }
 
       // This site's speed goes to the background, the one writer of the shared map.
