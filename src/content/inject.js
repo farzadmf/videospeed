@@ -23,7 +23,7 @@ import { VideoSpeedExtension } from './video-speed-extension.js';
   document.documentElement.addEventListener('VSC_MESSAGE', (event) => {
     const message = event.detail;
 
-    if (typeof message !== 'object' || !message.type || !message.type.startsWith('VSC_')) {
+    if (!message || typeof message !== 'object' || !message.type || !message.type.startsWith('VSC_')) {
       return;
     }
 
